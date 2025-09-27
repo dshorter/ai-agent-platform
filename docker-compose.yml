@@ -1,0 +1,33 @@
+﻿version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=America/New_York
+      - N8N_METRICS=true
+      - N8N_LOG_LEVEL=info
+      - N8N_LOG_OUTPUT=console
+      - EXECUTIONS_PROCESS=main
+      - N8N_PERSONALIZATION_ENABLED=false
+      - N8N_VERSION_NOTIFICATIONS_ENABLED=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+    volumes:
+      - /root/n8n-data:/home/node/.n8n
+      - /root/n8n-data/transactions:/data/transactions
+      - /root/n8n-data/backups:/data/backups
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
