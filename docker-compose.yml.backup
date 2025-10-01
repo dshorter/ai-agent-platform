@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   n8n:
@@ -10,9 +10,9 @@ services:
     environment:
       - N8N_HOST=localhost
       - N8N_PORT=5678
-      - N8N_PROTOCOL=https
+      - N8N_PROTOCOL=http
       - NODE_ENV=production
-      - WEBHOOK_URL=https://agents-platform.ngrok.io/
+      - WEBHOOK_URL=http://localhost:5678/
       - GENERIC_TIMEZONE=America/New_York
       - N8N_METRICS=true
       - N8N_LOG_LEVEL=info
@@ -31,19 +31,3 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
-
-  ngrok:
-    image: ngrok/ngrok:alpine
-    container_name: ngrok
-    restart: unless-stopped
-    command: 
-      - "http"
-      - "n8n:5678"
-      - "--domain=agents-platform.ngrok.io"
-      - "--log-level=info"
-    environment:
-      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
-    ports:
-      - "127.0.0.1:4040:4040"
-    depends_on:
-      - n8n
