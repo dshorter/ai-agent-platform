@@ -1,0 +1,7 @@
+# Install / Enable (run these as root or with sudo)
+install -m 0755 usr_local_sbin_safe-reboot.sh /usr/local/sbin/safe-reboot
+install -m 0755 usr_local_sbin_agent-platform-health.sh /usr/local/sbin/agent-platform-health
+
+systemctl daemon-reload
+systemctl enable ai-agent-platform
+systemctl enable --now agent-platform-health.timer
