@@ -119,7 +119,10 @@ check_ngrok_health() {
     if curl -sf --max-time 5 http://localhost:4040/api/tunnels >/dev/null 2>&1; then
         # Get tunnel URL
         local tunnel_url
-        tunnel_url=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url' 2>/dev/null || echo "unknown")
+        tunnel_url=$(curl -s http://localhost:4040/api/tunnels 2>/dev/null | jq -r '.tunnels[]?.public_url' 2>/dev/null | head -1)
+        if [[ -z "$tunnel_url" || "$tunnel_url" == "null" ]]; then
+            tunnel_url="(retrieving...)"
+        fi
         log "✓ ngrok is running - Tunnel: $tunnel_url"
         return 0
     else
@@ -150,7 +153,8 @@ check_recent_errors() {
     log "Checking recent errors in n8n logs..."
     
     local error_count
-    error_count=$(docker logs --since=5m n8n 2>&1 | grep -ciE "error|exception|failed" || echo "0")
+    error_count=$(docker logs --since=5m n8n 2>&1 | grep -ciE "error|exception|failed" 2>/dev/null || echo "0")
+    error_count=$(echo "$error_count" | tr -d '\n\r' | xargs)  # Strip whitespace/newlines
     
     if [[ $error_count -gt 10 ]]; then
         alert "High error rate in n8n: $error_count errors in last 5 minutes"
