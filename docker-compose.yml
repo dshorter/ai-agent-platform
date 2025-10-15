@@ -50,7 +50,7 @@ services:
     restart: unless-stopped
     command: 
       - "http"
-      - "web:80"
+      - "web-server:80"
       - "--domain=agents-platform.ngrok.io"
       - "--log-level=info"
     environment:
