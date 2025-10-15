@@ -59,3 +59,7 @@ services:
       - "127.0.0.1:4040:4040"
     depends_on:
       - web
+
+networks:
+  default:
+    driver: bridge      
