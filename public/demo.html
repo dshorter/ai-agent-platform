@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monday Morning Advantage - PROOF</title>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('timestamp').textContent = 
+                'Built: ' + new Date().toISOString();
+        });
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .timestamp {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #FFD700;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .case-study {
+            color: #4ade80;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+        .results {
+            display: flex;
+            justify-content: space-around;
+            margin: 60px 0;
+            text-align: center;
+            flex-wrap: wrap;
+        }
+        .result-box {
+            flex: 1;
+            margin: 15px;
+            min-width: 200px;
+        }
+        .result-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+        .result-label {
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        .insight {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .insight-text {
+            font-size: 1.4rem;
+            color: #FFD700;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.2s;
+        }
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="timestamp" id="timestamp">Loading...</div>
+    
+    <div class="container">
+        <div class="case-study">Real Proof of Concept</div>
+        <h1>The Monday Morning Advantage</h1>
+        <p style="text-align: center; color: #FFD700; font-size: 1.2rem;">Java Junction vs. Starbucks</p>
+        
+        <div class="results">
+            <div class="result-box">
+                <div class="result-number">$2,100</div>
+                <div class="result-label">Weekly Advantage</div>
+            </div>
+            <div class="result-box">
+                <div class="result-number">847</div>
+                <div class="result-label">Unique Data Points</div>
+            </div>
+            <div class="result-box">
+                <div class="result-number">3 hrs</div>
+                <div class="result-label">Beats 3 Weeks</div>
+            </div>
+        </div>
+        
+        <div class="insight">
+            <div class="insight-text">Every Week This Intelligence Compounds</div>
+            <p style="margin-top: 15px;">
+                Year 1: $109,200 in revenue Starbucks literally CANNOT capture<br>
+                <strong>Because they don't have Bob's phone number. And never will.</strong>
+            </p>
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="/" class="back-button">← Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

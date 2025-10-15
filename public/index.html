@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligence Moat</title>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('timestamp').textContent = 
+                'Built: ' + new Date().toISOString();
+        });
+    </script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .timestamp {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            color: #FFD700;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        .slide {
+            text-align: center;
+            width: 90%;
+            max-width: 1200px;
+        }
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            margin-bottom: 40px;
+            line-height: 1.2;
+        }
+        .tagline {
+            font-size: 1.2rem;
+            color: #FFD700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .cta {
+            margin-top: 60px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #FFD700;
+            color: #1e3c72;
+            text-decoration: none;
+            font-weight: bold;
+            border-radius: 8px;
+            margin: 0 10px;
+            transition: transform 0.2s;
+            font-size: 1.1rem;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="timestamp" id="timestamp">Loading...</div>
+    
+    <div class="slide">
+        <div class="tagline">Ascension by Repo is a Lie</div>
+        <h1>Everyone Has AI.<br>Not Everyone Has INTELLIGENCE.</h1>
+        
+        <div class="cta">
+            <a href="/demo.html" class="button">See The Proof 🎯</a>
+        </div>
+    </div>
+</body>
+</html>
