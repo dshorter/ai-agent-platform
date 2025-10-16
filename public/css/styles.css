@@ -96,10 +96,19 @@ h2 {
   max-width: 1200px;
   min-height: 100vh;
   margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-sm);
+}
+
+.slide {
+  display: block;
+  text-align: center;
+  padding-top: 80px;
+}
+
+.container {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-lg) var(--spacing-sm);
 }
 
 .timestamp {
