@@ -3,59 +3,82 @@
    Created: 2025-10-15
    ============================================ */
 
-   document.addEventListener('DOMContentLoaded', function() {
+// Load navigation from external file
+async function loadNav() {
+    try {
+        const response = await fetch('/nav.html');
+        const navHtml = await response.text();
+        document.body.insertAdjacentHTML('afterbegin', navHtml);
+        initializeNav(); // Call existing nav logic after loading
+    } catch (error) {
+        console.error('Failed to load navigation:', error);
+    }
+}
+
+function initializeNav() {
+    // Your existing nav.js code goes here
+    const navToggle = document.getElementById('nav-toggle');
+    const sideNav = document.getElementById('side-nav');
+    // ... rest of existing code
+}
+
+// Load nav when page loads
+document.addEventListener('DOMContentLoaded', loadNav);
+
+// Navigation toggle logic
+document.addEventListener('DOMContentLoaded', function () {
     const navToggle = document.getElementById('nav-toggle');
     const sideNav = document.getElementById('side-nav');
     const navOverlay = document.getElementById('nav-overlay');
     const navLinks = document.querySelectorAll('#side-nav a');
-  
+
     // Toggle navigation open/close
-    navToggle.addEventListener('click', function(e) {
-      e.stopPropagation();
-      toggleNav();
+    navToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleNav();
     });
-  
+
     // Close nav when clicking overlay
-    navOverlay.addEventListener('click', function() {
-      closeNav();
+    navOverlay.addEventListener('click', function () {
+        closeNav();
     });
-  
+
     // Close nav when clicking a link
     navLinks.forEach(link => {
-      link.addEventListener('click', function() {
-        closeNav();
-      });
+        link.addEventListener('click', function () {
+            closeNav();
+        });
     });
-  
+
     // Close nav when clicking outside
-    document.addEventListener('click', function(e) {
-      if (sideNav.classList.contains('nav-expanded')) {
-        if (!sideNav.contains(e.target) && e.target !== navToggle) {
-          closeNav();
+    document.addEventListener('click', function (e) {
+        if (sideNav.classList.contains('nav-expanded')) {
+            if (!sideNav.contains(e.target) && e.target !== navToggle) {
+                closeNav();
+            }
         }
-      }
     });
-  
+
     // Toggle function
     function toggleNav() {
-      sideNav.classList.toggle('nav-expanded');
-      navOverlay.classList.toggle('visible');
-      navToggle.innerHTML = sideNav.classList.contains('nav-expanded') ? '✕' : '☰';
+        sideNav.classList.toggle('nav-expanded');
+        navOverlay.classList.toggle('visible');
+        navToggle.innerHTML = sideNav.classList.contains('nav-expanded') ? '✕' : '☰';
     }
-  
+
     // Close function
     function closeNav() {
-      sideNav.classList.remove('nav-expanded');
-      navOverlay.classList.remove('visible');
-      navToggle.innerHTML = '☰';
+        sideNav.classList.remove('nav-expanded');
+        navOverlay.classList.remove('visible');
+        navToggle.innerHTML = '☰';
     }
-  
+
     // Set active page based on current URL
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
     navLinks.forEach(link => {
-      const linkPage = link.getAttribute('href').split('/').pop();
-      if (linkPage === currentPage) {
-        link.classList.add('active');
-      }
+        const linkPage = link.getAttribute('href').split('/').pop();
+        if (linkPage === currentPage) {
+            link.classList.add('active');
+        }
     });
-  });
+});
