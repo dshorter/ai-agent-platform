@@ -4,56 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monday Morning Advantage - PROOF</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('timestamp').textContent = 
+                'Built: ' + new Date().toISOString();
+        });
+    </script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-            color: white;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .slide {
-            width: 90%;
-            max-width: 1200px;
-            animation: slideIn 0.8s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from { transform: translateX(-50px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .case-study {
-            color: #4ade80;
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 10px;
-        }
-        
-        h1 {
-            font-size: 3.5rem;
-            margin: 0;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-        
-        .vs {
-            color: #FFD700;
-            font-size: 1.2rem;
-        }
-        
+        /* Page-specific styles for intelligence grid */
         .intelligence-flow {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -63,7 +22,7 @@
         }
         
         .flow-title {
-            color: #FFD700;
+            color: var(--color-accent);
             font-size: 1.3rem;
             margin-bottom: 25px;
             text-align: center;
@@ -89,7 +48,7 @@
         .intelligence-item:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border-color: #FFD700;
+            border-color: var(--color-accent);
         }
         
         .item-icon {
@@ -98,7 +57,7 @@
         }
         
         .item-title {
-            color: #4ade80;
+            color: var(--color-success);
             font-weight: 600;
             margin-bottom: 8px;
             font-size: 1.1rem;
@@ -112,7 +71,7 @@
         
         .ai-synthesis {
             background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 215, 0, 0.05));
-            border: 2px solid #FFD700;
+            border: 2px solid var(--color-accent);
             border-radius: 15px;
             padding: 25px;
             margin: 30px 0;
@@ -120,7 +79,7 @@
         }
         
         .synthesis-label {
-            color: #FFD700;
+            color: var(--color-accent);
             font-size: 1rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -133,38 +92,6 @@
             color: white;
         }
         
-        .results {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 40px;
-            text-align: center;
-        }
-        
-        .result-box {
-            flex: 1;
-            margin: 0 15px;
-            animation: countUp 2s ease-out;
-        }
-        
-        @keyframes countUp {
-            from { opacity: 0; transform: scale(0.5); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .result-number {
-            font-size: 3rem;
-            font-weight: 700;
-            color: #4ade80;
-            margin-bottom: 10px;
-        }
-        
-        .result-label {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.8);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
         .bottom-insight {
             text-align: center;
             margin-top: 40px;
@@ -175,7 +102,7 @@
         
         .insight-text {
             font-size: 1.4rem;
-            color: #FFD700;
+            color: var(--color-accent);
             font-weight: 600;
         }
         
@@ -185,95 +112,119 @@
             font-size: 1rem;
         }
         
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        @media (max-width: 768px) {
+            .flow-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="slide">
-        <div class="header">
-            <div class="case-study">Real Proof of Concept</div>
-            <h1>The Monday Morning Advantage</h1>
-            <div class="vs">Java Junction (Local Coffee Shop) vs. Starbucks</div>
-        </div>
-        
-        <div class="intelligence-flow">
-            <div class="flow-title">⚡ Unique Intelligence Gathered in 3 Minutes</div>
-            <div class="flow-grid">
-                <div class="intelligence-item">
-                    <div class="item-icon">🌧️</div>
-                    <div class="item-title">Weather + History</div>
-                    <div class="item-data">Rain Tuesday = 40% more hot chocolate (learned from 847 customer records)</div>
+<body class="bg-gradient-dark">
+    <div class="timestamp" id="timestamp">Loading...</div>
+    
+    <!-- Hamburger Menu -->
+    <button id="nav-toggle">☰</button>
+    
+    <!-- Navigation Overlay -->
+    <div id="nav-overlay"></div>
+    
+    <!-- Side Navigation -->
+    <nav id="side-nav">
+        <a href="/">Home</a>
+        <a href="/slide-1-problem.html">The Problem</a>
+        <a href="/slide-2-proof.html" class="active">The Proof</a>
+    </nav>
+    
+    <!-- Main Content -->
+    <main>
+        <div class="container slide-in">
+            <div style="width: 100%;">
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <div style="color: var(--color-success); font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">
+                        Real Proof of Concept
+                    </div>
+                    <h1 style="font-size: 3.5rem; margin-bottom: 10px;">The Monday Morning Advantage</h1>
+                    <div style="color: var(--color-accent); font-size: 1.2rem;">
+                        Java Junction (Local Coffee Shop) vs. Starbucks
+                    </div>
                 </div>
                 
-                <div class="intelligence-item">
-                    <div class="item-icon">🏫</div>
-                    <div class="item-title">Local Context</div>
-                    <div class="item-data">SAT Testing Tuesday = Stressed parents 6:30-8:30 AM (owner's kid goes there)</div>
+                <div class="intelligence-flow">
+                    <div class="flow-title">⚡ Unique Intelligence Gathered in 3 Minutes</div>
+                    <div class="flow-grid">
+                        <div class="intelligence-item">
+                            <div class="item-icon">🌧️</div>
+                            <div class="item-title">Weather + History</div>
+                            <div class="item-data">Rain Tuesday = 40% more hot chocolate (learned from 847 customer records)</div>
+                        </div>
+                        
+                        <div class="intelligence-item">
+                            <div class="item-icon">🏫</div>
+                            <div class="item-title">Local Context</div>
+                            <div class="item-data">SAT Testing Tuesday = Stressed parents 6:30-8:30 AM (owner's kid goes there)</div>
+                        </div>
+                        
+                        <div class="intelligence-item">
+                            <div class="item-icon">🎯</div>
+                            <div class="item-title">Competitor Intel</div>
+                            <div class="item-data">Starbucks Happy Hour Thursday 2-5 PM (scraped 72 hours early)</div>
+                        </div>
+                        
+                        <div class="intelligence-item">
+                            <div class="item-icon">👥</div>
+                            <div class="item-title">Customer Patterns</div>
+                            <div class="item-data">"Bob" missing 8 days (usually daily), Maria's birthday Thursday</div>
+                        </div>
+                        
+                        <div class="intelligence-item">
+                            <div class="item-icon">🚧</div>
+                            <div class="item-title">Hyperlocal Data</div>
+                            <div class="item-data">Main St construction = Our foot traffic up 30% (they don't know this)</div>
+                        </div>
+                        
+                        <div class="intelligence-item">
+                            <div class="item-icon">📱</div>
+                            <div class="item-title">Response Speed</div>
+                            <div class="item-data">Can deploy new promo in 3 hours (Starbucks needs 3 weeks)</div>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="intelligence-item">
-                    <div class="item-icon">🎯</div>
-                    <div class="item-title">Competitor Intel</div>
-                    <div class="item-data">Starbucks Happy Hour Thursday 2-5 PM (scraped 72 hours early)</div>
+                <div class="ai-synthesis">
+                    <div class="synthesis-label">🤖 AI Synthesis Creates Unfair Advantage</div>
+                    <div class="synthesis-content">
+                        "Open 30min early Tuesday for SAT parents + Stock extra cocoa for rain + <br>
+                        Text Bob free coffee + Undercut Starbucks Thursday + Birthday surprise Maria"
+                    </div>
                 </div>
                 
-                <div class="intelligence-item">
-                    <div class="item-icon">👥</div>
-                    <div class="item-title">Customer Patterns</div>
-                    <div class="item-data">"Bob" missing 8 days (usually daily), Maria's birthday Thursday</div>
+                <div class="results">
+                    <div class="result-box pulse">
+                        <div class="result-number">$2,100</div>
+                        <div class="result-label">Weekly Advantage</div>
+                    </div>
+                    <div class="result-box pulse" style="animation-delay: 0.3s;">
+                        <div class="result-number">847</div>
+                        <div class="result-label">Unique Data Points</div>
+                    </div>
+                    <div class="result-box pulse" style="animation-delay: 0.6s;">
+                        <div class="result-number">3 hrs</div>
+                        <div class="result-label">Beats 3 Weeks</div>
+                    </div>
                 </div>
                 
-                <div class="intelligence-item">
-                    <div class="item-icon">🚧</div>
-                    <div class="item-title">Hyperlocal Data</div>
-                    <div class="item-data">Main St construction = Our foot traffic up 30% (they don't know this)</div>
-                </div>
-                
-                <div class="intelligence-item">
-                    <div class="item-icon">📱</div>
-                    <div class="item-title">Response Speed</div>
-                    <div class="item-data">Can deploy new promo in 3 hours (Starbucks needs 3 weeks)</div>
+                <div class="bottom-insight">
+                    <div class="insight-text">Every Week This Intelligence Compounds</div>
+                    <div class="insight-sub">
+                        Year 1: $109,200 in revenue Starbucks literally CANNOT capture<br>
+                        <strong>Because they don't have Bob's phone number. And never will.</strong>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="ai-synthesis">
-            <div class="synthesis-label">🤖 AI Synthesis Creates Unfair Advantage</div>
-            <div class="synthesis-content">
-                "Open 30min early Tuesday for SAT parents + Stock extra cocoa for rain + <br>
-                Text Bob free coffee + Undercut Starbucks Thursday + Birthday surprise Maria"
-            </div>
-        </div>
-        
-        <div class="results">
-            <div class="result-box pulse">
-                <div class="result-number">$2,100</div>
-                <div class="result-label">Weekly Advantage</div>
-            </div>
-            <div class="result-box pulse" style="animation-delay: 0.3s;">
-                <div class="result-number">847</div>
-                <div class="result-label">Unique Data Points</div>
-            </div>
-            <div class="result-box pulse" style="animation-delay: 0.6s;">
-                <div class="result-number">3 hrs</div>
-                <div class="result-label">Beats 3 Weeks</div>
-            </div>
-        </div>
-        
-        <div class="bottom-insight">
-            <div class="insight-text">Every Week This Intelligence Compounds</div>
-            <div class="insight-sub">
-                Year 1: $109,200 in revenue Starbucks literally CANNOT capture<br>
-                <strong>Because they don't have Bob's phone number. And never will.</strong>
-            </div>
-        </div>
-    </div>
+    </main>
+    
+    <script src="/js/nav.js"></script>
 </body>
 </html>
