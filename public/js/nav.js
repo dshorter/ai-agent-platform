@@ -9,55 +9,23 @@ async function loadNav() {
         const response = await fetch('/nav.html');
         const navHtml = await response.text();
         document.body.insertAdjacentHTML('afterbegin', navHtml);
-        initializeNav(); // Call existing nav logic after loading
+        initializeNav(); // Call AFTER nav HTML is loaded
     } catch (error) {
         console.error('Failed to load navigation:', error);
     }
 }
 
 function initializeNav() {
-    // Your existing nav.js code goes here
-    const navToggle = document.getElementById('nav-toggle');
-    const sideNav = document.getElementById('side-nav');
-    // ... rest of existing code
-}
-
-// Load nav when page loads
-document.addEventListener('DOMContentLoaded', loadNav);
-
-// Navigation toggle logic
-document.addEventListener('DOMContentLoaded', function () {
+    // NOW set up the event listeners on the loaded nav elements
     const navToggle = document.getElementById('nav-toggle');
     const sideNav = document.getElementById('side-nav');
     const navOverlay = document.getElementById('nav-overlay');
     const navLinks = document.querySelectorAll('#side-nav a');
 
-    // Toggle navigation open/close
-    navToggle.addEventListener('click', function (e) {
-        e.stopPropagation();
-        toggleNav();
-    });
-
-    // Close nav when clicking overlay
-    navOverlay.addEventListener('click', function () {
-        closeNav();
-    });
-
-    // Close nav when clicking a link
-    navLinks.forEach(link => {
-        link.addEventListener('click', function () {
-            closeNav();
-        });
-    });
-
-    // Close nav when clicking outside
-    document.addEventListener('click', function (e) {
-        if (sideNav.classList.contains('nav-expanded')) {
-            if (!sideNav.contains(e.target) && e.target !== navToggle) {
-                closeNav();
-            }
-        }
-    });
+    if (!navToggle || !sideNav || !navOverlay) {
+        console.error('Nav elements not found!');
+        return;
+    }
 
     // Toggle function
     function toggleNav() {
@@ -73,12 +41,41 @@ document.addEventListener('DOMContentLoaded', function () {
         navToggle.innerHTML = '☰';
     }
 
-    // Set active page based on current URL
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    // Toggle navigation open/close
+    navToggle.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleNav();
+    });
+
+    // Close nav when clicking overlay
+    navOverlay.addEventListener('click', closeNav);
+
+    // Close nav when clicking a link
     navLinks.forEach(link => {
-        const linkPage = link.getAttribute('href').split('/').pop();
-        if (linkPage === currentPage) {
+        link.addEventListener('click', closeNav);
+    });
+
+    // Close nav when clicking outside
+    document.addEventListener('click', function (e) {
+        if (sideNav.classList.contains('nav-expanded')) {
+            if (!sideNav.contains(e.target) && e.target !== navToggle) {
+                closeNav();
+            }
+        }
+    });
+
+    // Set active page based on current URL
+    const currentPage = window.location.pathname;
+    navLinks.forEach(link => {
+        const linkHref = link.getAttribute('href');
+        if (linkHref === currentPage || 
+            (currentPage === '/' && linkHref === '/') ||
+            (currentPage.includes(linkHref) && linkHref !== '/')) {
             link.classList.add('active');
         }
     });
-});
+}
+
+// Load nav when page loads
+document.addEventListener('DOMContentLoaded', loadNav);
+
