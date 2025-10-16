@@ -163,12 +163,10 @@
     <!-- Hamburger Menu -->
     <button id="nav-toggle">☰</button>
     
-    <!-- Navigation Overlay -->
-    <div id="nav-overlay"></div>
-    
-    <!-- Side Navigation -->
+<!-- Side Navigation -->
 <!-- Nav will be loaded here by nav.js -->
-<script src="/js/nav.js"></script>    
+<script src="/js/nav.js"></script>   
+
     <!-- Main Content -->
     <main>
         <div class="story-container">
@@ -237,39 +235,47 @@
                 </div>
             </section>
             
-            <!-- Section 3: The Hidden Advantage (Act III) -->
+            <!-- Section 3: The Barrier That Just Fell (Act III) -->
             <section id="act3-the-paradox" class="story-section">
-                <h1 class="section-title">The Hidden Advantage You Already Have</h1>
+                <h1 class="section-title">The Barrier That Just Fell</h1>
                 <div class="section-content">
-                    <p>Here's the paradox that changes everything:</p>
+                    <p>Not long ago, building intelligence from your unique data required enterprise resources:</p>
                 </div>
                 <div class="contrast-box">
                     <div class="contrast-item">
-                        <div class="contrast-label">Large Enterprises Have:</div>
+                        <div class="contrast-label">What Used to Cost Millions:</div>
                         <div class="contrast-list">
-                            • More data (but can't use it quickly)<br>
-                            • More resources (but can't move fast)<br>
-                            • Better AI access (but worse context)<br>
-                            • More customers (but no names)
+                            • Data science teams<br>
+                            • Custom ML infrastructure<br>
+                            • Years of development<br>
+                            • Enterprise software licenses<br>
+                            • Massive server costs
                         </div>
                     </div>
                     <div class="contrast-item" style="border: 2px solid var(--color-accent);">
-                        <div class="contrast-label">You Have:</div>
+                        <div class="contrast-label">What You Can Access Today:</div>
                         <div class="contrast-list">
-                            • Your customer data (can use TODAY)<br>
-                            • Customer names & phone numbers<br>
-                            • Local context (instant response)<br>
-                            • Personal relationships
+                            • AI APIs (cents per call)<br>
+                            • Cloud infrastructure ($50/month)<br>
+                            • No-code platforms<br>
+                            • Same intelligence capabilities<br>
+                            • Start today, not next year
                         </div>
                     </div>
                 </div>
                 <div class="section-content">
-                    <p>The enterprise coffee chain has better AI than the local café.</p>
-                    <p>But the local café knows that Bob hasn't visited in 8 days. They know Bob spends $3,650 a year. They know Bob's phone number.</p>
-                    <p><strong>The paradox: The smaller you are, the deeper your moat can be.</strong></p>
+                    <p>The playing field just leveled. Small businesses now have access to create the same high-quality intelligence that Fortune 500 companies built over decades.</p>
+                    <p><strong>But here's the catch:</strong></p>
+                    <p>Most businesses—large and small—are using these tools the same way: copying ChatGPT prompts, following generic tutorials, automating tasks everyone automates.</p>
+                    <p>They have access to the same capabilities. They're building the same commodity solutions.</p>
                 </div>
                 <div class="pull-quote">
-                    "That's a moat Starbucks literally cannot cross. Not because they lack technology. Because they lack YOUR unique data."
+                    "The barrier to building intelligence fell. But the choice of WHAT to build with it? That's still yours."
+                </div>
+                <div class="section-content">
+                    <p>You can use AI like everyone else—generic prompts that produce generic results.</p>
+                    <p>Or you can use it to build something only YOU can build: intelligence from YOUR unique data, YOUR customer relationships, YOUR domain expertise.</p>
+                    <p><strong>Same tools. Different choices. Completely different outcomes.</strong></p>
                 </div>
             </section>
             
@@ -364,6 +370,45 @@
         </div>
     </main>
     
-    <script src="/js/nav.js"></script>
+    <script>
+        // Inline navigation for artifact preview
+        document.addEventListener('DOMContentLoaded', function() {
+            const navToggle = document.getElementById('nav-toggle');
+            const sideNav = document.getElementById('side-nav');
+            const navOverlay = document.getElementById('nav-overlay');
+            const navLinks = document.querySelectorAll('#side-nav a');
+          
+            function toggleNav() {
+                sideNav.classList.toggle('nav-expanded');
+                navOverlay.classList.toggle('visible');
+                navToggle.innerHTML = sideNav.classList.contains('nav-expanded') ? '✕' : '☰';
+            }
+          
+            function closeNav() {
+                sideNav.classList.remove('nav-expanded');
+                navOverlay.classList.remove('visible');
+                navToggle.innerHTML = '☰';
+            }
+          
+            navToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleNav();
+            });
+          
+            navOverlay.addEventListener('click', closeNav);
+          
+            navLinks.forEach(link => {
+                link.addEventListener('click', closeNav);
+            });
+          
+            document.addEventListener('click', function(e) {
+                if (sideNav.classList.contains('nav-expanded')) {
+                    if (!sideNav.contains(e.target) && e.target !== navToggle) {
+                        closeNav();
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
