@@ -1,0 +1,28 @@
+{
+  "name": "Primary Agent - Router",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "content": "=## Primary Agent - Router\n**Status:** Template - Not yet configured\n**Purpose:** Routes incoming requests to appropriate specialist agents\n**Last Updated:** {{ $now.format('YYYY-MM-DD HH:mm:ss') }}\n\n### Next Steps:\n1. Add webhook trigger\n2. Add LLM classification node\n3. Add routing switch logic\n4. Connect to specialist agents"
+      },
+      "name": "Template Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [450, 300]
+    }
+  ],
+  "connections": {},
+  "settings": {},
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": ["template", "router", "agent"]
+}
