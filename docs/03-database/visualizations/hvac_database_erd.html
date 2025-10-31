@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVAC Digital Twin - Database ERD (Mermaid)</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            er: {
+                useMaxWidth: true
+            }
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+        
+        .timestamp {
+            background: #f7fafc;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .info-value {
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .diagram-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            overflow-x: auto;
+            margin-bottom: 20px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+        
+        .legend {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        
+        .legend h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+        
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .legend-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .legend-section h4 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .legend-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .legend-section li {
+            padding: 5px 0;
+            color: #4a5568;
+            font-size: 0.9em;
+        }
+        
+        .legend-section li::before {
+            content: "▸ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        
+        .download-section {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 12px;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 HVAC Digital Twin Database</h1>
+            <div class="subtitle">Entity Relationship Diagram (ERD) - Mermaid Format</div>
+        </div>
+        
+        <div class="timestamp">
+            📅 Generated: Wednesday, October 29, 2025 at 04:51 PM EDT
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat">
+                <div class="stat-number">7</div>
+                <div class="stat-label">Tables</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">6</div>
+                <div class="stat-label">Relationships</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Views</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">20+</div>
+                <div class="stat-label">Indexes</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Customers</div>
+            </div>
+            <div class="stat">
+                <div class="stat-number">4</div>
+                <div class="stat-label">Technicians</div>
+            </div>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Database:</span>
+                <span class="info-value">hvac_demo</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Host:</span>
+                <span class="info-value">hvac-postgres:5432</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Engine:</span>
+                <span class="info-value">PostgreSQL 15 Alpine</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Schema Version:</span>
+                <span class="info-value">v1.0.0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Status:</span>
+                <span class="info-value">✅ Production Ready</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Deployed:</span>
+                <span class="info-value">October 28, 2025</span>
+            </div>
+        </div>
+        
+        <div class="diagram-container">
+            <pre class="mermaid">
+---
+title: HVAC Digital Twin - PostgreSQL Database ERD
+---
+erDiagram
+    CUSTOMERS {
+        serial customer_id PK
+        varchar customer_name
+        varchar customer_type
+        varchar email UK
+        varchar phone
+        text address
+        timestamp created_at
+        numeric lifetime_value
+        boolean maintenance_plan
+        boolean is_demo_account
+    }
+    
+    TECHNICIANS {
+        serial tech_id PK
+        varchar tech_name
+        varchar email UK
+        varchar phone
+        varchar skill_level
+        text[] specialties
+        numeric hourly_rate
+        varchar current_status
+        point current_location
+        boolean is_demo_account
+        timestamp created_at
+    }
+    
+    HVAC_EVENTS {
+        serial event_id PK
+        timestamp event_timestamp
+        varchar event_type
+        integer customer_id FK
+        integer urgency
+        text description
+        numeric estimated_revenue
+        jsonb event_payload
+        boolean is_manual_trigger
+        varchar scenario_name
+        boolean processed
+        timestamp processed_at
+        timestamp created_at
+    }
+    
+    WORKFLOW_EXECUTIONS {
+        uuid execution_id PK
+        varchar workflow_name
+        integer event_id FK
+        timestamp started_at
+        timestamp completed_at
+        varchar status
+        integer duration_ms
+        text error_message
+        varchar error_code
+        timestamp created_at
+    }
+    
+    AGENT_DECISIONS {
+        serial decision_id PK
+        integer event_id FK
+        uuid workflow_execution_id FK
+        varchar agent_name
+        varchar decision_type
+        timestamp decision_timestamp
+        integer processing_time_ms
+        varchar llm_model
+        varchar llm_provider
+        integer token_count_input
+        integer token_count_output
+        numeric cost_usd
+        uuid workflow_sequence_id
+        integer parent_decision_id FK
+        integer step_number
+        text routing_reason
+        numeric decision_confidence
+        text[] classification_tags
+        varchar action_taken
+        varchar outcome_status
+        jsonb decision_payload
+        timestamp created_at
+    }
+    
+    BUSINESS_METRICS {
+        serial metric_id PK
+        timestamp metric_timestamp
+        date metric_date
+        varchar metric_type
+        varchar metric_name
+        numeric metric_value
+        varchar metric_unit
+        integer related_event_id FK
+        varchar related_agent
+        timestamp period_start
+        timestamp period_end
+        text calculation_method
+        jsonb metric_metadata
+        timestamp created_at
+    }
+    
+    SCHEMA_VERSION {
+        serial version_id PK
+        varchar version UK
+        text description
+        timestamp applied_at
+        text applied_by
+    }
+    
+    CUSTOMERS ||--o{ HVAC_EVENTS : "has_many"
+    HVAC_EVENTS ||--o{ AGENT_DECISIONS : "triggers"
+    HVAC_EVENTS ||--o{ WORKFLOW_EXECUTIONS : "initiates"
+    HVAC_EVENTS ||--o{ BUSINESS_METRICS : "generates"
+    WORKFLOW_EXECUTIONS ||--o{ AGENT_DECISIONS : "contains"
+    AGENT_DECISIONS ||--o{ AGENT_DECISIONS : "chains_to"
+            </pre>
+        </div>
+        
+        <div class="legend">
+            <h3>📘 Database Schema Reference</h3>
+            <div class="legend-grid">
+                <div class="legend-section">
+                    <h4>🔑 Key Notation</h4>
+                    <ul>
+                        <li>PK = Primary Key</li>
+                        <li>FK = Foreign Key</li>
+                        <li>UK = Unique Key</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>📊 Core Tables (2)</h4>
+                    <ul>
+                        <li>customers - Business customers</li>
+                        <li>technicians - Service technicians</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>🎯 Event Tables (2)</h4>
+                    <ul>
+                        <li>hvac_events - All incoming events</li>
+                        <li>workflow_executions - n8n workflow runs</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>🤖 AI Tables (1)</h4>
+                    <ul>
+                        <li>agent_decisions - AI routing & decisions</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>📈 Analytics Tables (1)</h4>
+                    <ul>
+                        <li>business_metrics - KPIs & ROI tracking</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>⚙️ System Tables (1)</h4>
+                    <ul>
+                        <li>schema_version - Migration tracking</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>🔗 Relationships (6)</h4>
+                    <ul>
+                        <li>customers → hvac_events (1:many)</li>
+                        <li>hvac_events → agent_decisions (1:many)</li>
+                        <li>hvac_events → workflow_executions (1:many)</li>
+                        <li>hvac_events → business_metrics (1:many)</li>
+                        <li>workflow_executions → agent_decisions (1:many)</li>
+                        <li>agent_decisions → agent_decisions (self-ref)</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>🎨 Event Types</h4>
+                    <ul>
+                        <li>inquiry - General questions</li>
+                        <li>emergency - Urgent service needs</li>
+                        <li>appointment - Scheduling requests</li>
+                        <li>follow_up - Post-service checks</li>
+                        <li>maintenance - Routine service</li>
+                        <li>billing_question - Payment inquiries</li>
+                        <li>complaint - Service issues</li>
+                        <li>parts_request - Equipment orders</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>🧠 AI Agents</h4>
+                    <ul>
+                        <li>primary - Main routing agent</li>
+                        <li>emergency - Urgent response handler</li>
+                        <li>scheduling - Appointment coordinator</li>
+                        <li>customer_service - General inquiries</li>
+                        <li>billing - Payment processing</li>
+                        <li>operations - Dispatch & logistics</li>
+                        <li>inventory - Parts management</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>🤖 LLM Providers</h4>
+                    <ul>
+                        <li>xai - Grok (default)</li>
+                        <li>openai - GPT-4o-mini</li>
+                        <li>anthropic - Claude Haiku/Sonnet</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>👁️ Helper Views (3)</h4>
+                    <ul>
+                        <li>v_recent_events - Last 100 events</li>
+                        <li>v_agent_performance - Agent stats</li>
+                        <li>v_daily_metrics - Daily rollups</li>
+                    </ul>
+                </div>
+                
+                <div class="legend-section">
+                    <h4>🔍 Special Features</h4>
+                    <ul>
+                        <li>JSONB columns for flexible data</li>
+                        <li>Array columns for multi-values</li>
+                        <li>Point type for GPS coordinates</li>
+                        <li>Sequence-aware logging (LOG003)</li>
+                        <li>Self-referencing decision chains</li>
+                        <li>UUID for distributed IDs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <h3>💻 Connection Info</h3>
+            <div class="code-block">
+# PostgreSQL Connection String
+postgresql://hvac_user:hvac_demo_pass_2025@hvac-postgres:5432/hvac_demo
+
+# From n8n workflows
+Host: hvac-postgres
+Port: 5432
+Database: hvac_demo
+User: hvac_user
+Password: hvac_demo_pass_2025
+
+# From VPS localhost
+Host: localhost
+Port: 5432
+Database: hvac_demo
+User: hvac_user
+Password: hvac_demo_pass_2025
+            </div>
+        </div>
+        
+        <div class="download-section">
+            <h3 style="color: #2d3748; margin-bottom: 15px;">📥 Download Diagram Source</h3>
+            <p style="color: #718096; margin-bottom: 15px;">Use the .mermaid file in your own documentation or tools</p>
+            <a href="computer:///mnt/user-data/outputs/hvac_database_erd.mermaid" class="download-btn" download>
+                📄 Download Mermaid Source
+            </a>
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #f7fafc; border-radius: 12px; text-align: center; color: #718096;">
+            <strong>HVAC Digital Twin Project</strong><br>
+            Database Schema v1.0.0 | Deployed October 28, 2025<br>
+            Status: ✅ Production Ready | Infrastructure: Ahead of Schedule 🚀
+        </div>
+    </div>
+</body>
+</html>

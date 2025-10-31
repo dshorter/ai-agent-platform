@@ -1,0 +1,138 @@
+---
+title: HVAC Digital Twin - PostgreSQL Database ERD
+config:
+  theme: default
+  look: handDrawn
+  layout: elk
+---
+
+erDiagram
+    %% Core Business Entities
+    CUSTOMERS {
+        serial customer_id PK "Primary Key"
+        varchar(100) customer_name "NOT NULL"
+        varchar(20) customer_type "residential | commercial"
+        varchar(255) email UK "Unique email"
+        varchar(20) phone
+        text address
+        timestamp created_at "Default NOW()"
+        numeric(10_2) lifetime_value "Default 0"
+        boolean maintenance_plan "Default false"
+        boolean is_demo_account "Default true"
+    }
+    
+    TECHNICIANS {
+        serial tech_id PK "Primary Key"
+        varchar(100) tech_name "NOT NULL"
+        varchar(255) email UK "Unique email"
+        varchar(20) phone
+        varchar(20) skill_level "junior | senior | master"
+        text[] specialties "Array of specialties"
+        numeric(10_2) hourly_rate
+        varchar(20) current_status "available | on_job | off_duty | break"
+        point current_location "GPS coordinates"
+        boolean is_demo_account "Default true"
+        timestamp created_at "Default NOW()"
+    }
+    
+    %% Event Processing
+    HVAC_EVENTS {
+        serial event_id PK "Primary Key"
+        timestamp event_timestamp "Default NOW()"
+        varchar(50) event_type "NOT NULL - inquiry | emergency | appointment | etc"
+        integer customer_id FK "Foreign Key to customers"
+        integer urgency "1-10 scale"
+        text description
+        numeric(10_2) estimated_revenue
+        jsonb event_payload "Flexible JSON data"
+        boolean is_manual_trigger "Default false"
+        varchar(100) scenario_name
+        boolean processed "Default false"
+        timestamp processed_at
+        timestamp created_at "Default NOW()"
+    }
+    
+    WORKFLOW_EXECUTIONS {
+        uuid execution_id PK "Primary Key - gen_random_uuid()"
+        varchar(100) workflow_name "NOT NULL"
+        integer event_id FK "Foreign Key to hvac_events"
+        timestamp started_at "Default NOW()"
+        timestamp completed_at
+        varchar(20) status "running | success | error | timeout"
+        integer duration_ms
+        text error_message
+        varchar(50) error_code
+        timestamp created_at "Default NOW()"
+    }
+    
+    %% AI Agent Decision Logging
+    AGENT_DECISIONS {
+        serial decision_id PK "Primary Key"
+        integer event_id FK "Foreign Key to hvac_events"
+        uuid workflow_execution_id FK "Foreign Key to workflow_executions"
+        varchar(50) agent_name "NOT NULL - primary | emergency | scheduling"
+        varchar(50) decision_type "NOT NULL - route | classify | respond"
+        timestamp decision_timestamp "Default NOW()"
+        integer processing_time_ms
+        varchar(50) llm_model "grok | gpt-4o-mini | claude-haiku"
+        varchar(30) llm_provider "xai | openai | anthropic"
+        integer token_count_input
+        integer token_count_output
+        numeric(10_6) cost_usd "LLM API cost"
+        uuid workflow_sequence_id "Groups decisions in workflow run"
+        integer parent_decision_id FK "Self-referencing for decision chains"
+        integer step_number
+        text routing_reason "WHY this decision was made"
+        numeric(3_2) decision_confidence "0.00-1.00"
+        text[] classification_tags "Array of tags"
+        varchar(100) action_taken
+        varchar(20) outcome_status "success | failed | pending | escalated"
+        jsonb decision_payload "Additional decision data"
+        timestamp created_at "Default NOW()"
+    }
+    
+    %% Business Metrics
+    BUSINESS_METRICS {
+        serial metric_id PK "Primary Key"
+        timestamp metric_timestamp "Default NOW()"
+        date metric_date "Default CURRENT_DATE"
+        varchar(50) metric_type "NOT NULL - revenue | cost | time | satisfaction"
+        varchar(100) metric_name "NOT NULL"
+        numeric(12_2) metric_value "NOT NULL"
+        varchar(20) metric_unit "dollars | hours | count | percent"
+        integer related_event_id FK "Foreign Key to hvac_events"
+        varchar(50) related_agent
+        timestamp period_start
+        timestamp period_end
+        text calculation_method
+        jsonb metric_metadata
+        timestamp created_at "Default NOW()"
+    }
+    
+    %% Schema Version Control
+    SCHEMA_VERSION {
+        serial version_id PK "Primary Key"
+        varchar(20) version UK "Unique version string"
+        text description
+        timestamp applied_at "Default NOW()"
+        text applied_by
+    }
+    
+    %% Relationships
+    CUSTOMERS ||--o{ HVAC_EVENTS : "has many events"
+    HVAC_EVENTS ||--o{ AGENT_DECISIONS : "triggers decisions"
+    HVAC_EVENTS ||--o{ WORKFLOW_EXECUTIONS : "initiates workflows"
+    HVAC_EVENTS ||--o{ BUSINESS_METRICS : "generates metrics"
+    WORKFLOW_EXECUTIONS ||--o{ AGENT_DECISIONS : "contains decisions"
+    AGENT_DECISIONS ||--o{ AGENT_DECISIONS : "chains to (parent_decision_id)"
+    
+    %% Additional Notes
+    %%{
+      "Customer Types": ["residential", "commercial"],
+      "Event Types": ["inquiry", "emergency", "appointment", "follow_up", "maintenance", "billing_question", "complaint", "parts_request"],
+      "Agent Names": ["primary", "emergency", "scheduling", "customer_service", "billing", "operations", "inventory"],
+      "LLM Providers": ["xai (Grok)", "openai (GPT-4o-mini)", "anthropic (Claude)"],
+      "Status": "Production Ready - v1.0.0",
+      "Deployed": "October 28, 2025",
+      "Database": "hvac_demo @ hvac-postgres:5432"
+    }%%
