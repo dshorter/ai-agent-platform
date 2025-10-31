@@ -1,0 +1,48 @@
+{
+  "name": "HVAC Event Generator v1.0",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hvac/generate-events",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "hvac-event-generator"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Load scenario definitions from workflow static data\nconst sd = getWorkflowStaticData('global');\n\n// Initialize scenarios if not present\nsd.scenarios = sd.scenarios || {\n  \"winter_emergency_surge\": {\n    \"description\": \"Cold snap causes HVAC failures\",\n    \"event_count\": 50,\n    \"time_spread_minutes\": 120,\n    \"event_distribution\": {\n      \"emergency\": 0.60,\n      \"inquiry\": 0.25,\n      \"appointment\": 0.10,\n      \"complaint\": 0.05\n    },\n    \"urgency_bias\": \"high\",\n    \"time_pattern\": \"evening_heavy\",\n    \"customer_pool\": [1, 2, 3, 4],\n    \"revenue_range\": [250, 600]\n  },\n  \"routine_maintenance_day\": {\n    \"description\": \"Normal business day\",\n    \"event_count\": 30,\n    \"time_spread_minutes\": 480,\n    \"event_distribution\": {\n      \"appointment\": 0.50,\n      \"inquiry\": 0.25,\n      \"follow_up\": 0.15,\n      \"maintenance\": 0.10\n    },\n    \"urgency_bias\": \"low\",\n    \"time_pattern\": \"business_hours\",\n    \"customer_pool\": [1, 2, 3, 4, 5],\n    \"revenue_range\": [150, 350]\n  },\n  \"summer_heatwave\": {\n    \"description\": \"AC failures during heat emergency\",\n    \"event_count\": 75,\n    \"time_spread_minutes\": 180,\n    \"event_distribution\": {\n      \"emergency\": 0.70,\n      \"inquiry\": 0.20,\n      \"complaint\": 0.10\n    },\n    \"urgency_bias\": \"extreme\",\n    \"time_pattern\": \"afternoon_spike\",\n    \"customer_pool\": [1, 2, 5],\n    \"revenue_range\": [300, 800]\n  }\n};\n\n// Get requested scenario or default\nconst scenarioName = $input.item.json.scenario_name || 'routine_maintenance_day';\nconst scenario = sd.scenarios[scenarioName];\n\nif (!scenario) {\n  throw new Error(`Unknown scenario: ${scenarioName}. Available: ${Object.keys(sd.scenarios).join(', ')}`);\n}\n\n// Allow overrides from webhook\nconst eventCount = $input.item.json.event_count || scenario.event_count;\nconst timeSpread = $input.item.json.time_spread_minutes || scenario.time_spread_minutes;\n\n// Global policy settings\nsd.policy = sd.policy || {\n  max_events_per_run: 200,\n  max_duration_seconds: 120,\n  idempotency_ttl_seconds: 300,\n  enable_jitter: true,\n  jitter_minutes: 5\n};\n\nreturn {\n  scenario_name: scenarioName,\n  scenario: {\n    ...scenario,\n    event_count: eventCount,\n    time_spread_minutes: timeSpread\n  },\n  policy: sd.policy,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "policy-loader",
+      "name": "Policy Loader",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [440, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate unique run ID (ULID-style)\nfunction generateRunId() {\n  const timestamp = Date.now().toString(36).toUpperCase();\n  const random = Math.random().toString(36).substring(2, 10).toUpperCase();\n  return `GEN-${timestamp}-${random}`;\n}\n\n// Generate workflow sequence ID (UUID v4)\nfunction generateUUID() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\n    const r = Math.random() * 16 | 0;\n    const v = c === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nconst scenario = $input.item.json.scenario;\nconst scenarioName = $input.item.json.scenario_name;\nconst policy = $input.item.json.policy;\n\n// Initialize state\nconst state = {\n  run_id: generateRunId(),\n  workflow_sequence_id: generateUUID(),\n  scenario_name: scenarioName,\n  goal: `Generate ${scenario.event_count} events for ${scenarioName}`,\n  constraints: {\n    max_events: scenario.event_count,\n    time_spread_minutes: scenario.time_spread_minutes,\n    respect_patterns: true\n  },\n  counters: {\n    events_created: 0,\n    events_deduped: 0,\n    errors: 0,\n    current_step: 0,\n    start_time: Date.now()\n  },\n  scratchpad: {\n    plan: `Create ${scenario.event_count} events following ${scenario.time_pattern} pattern`,\n    progress: \"Initializing...\",\n    observations: []\n  },\n  scenario: scenario,\n  policy: policy\n};\n\nreturn state;"
+      },
+      "id": "state-initializer",
+      "name": "State Initializer",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [640, 300]
+    }
+  ],
+  "connections": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": ["hvac", "event-generator", "production"],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-30T19:45:09.000Z",
+  "versionId": "1.0.0"
+}
