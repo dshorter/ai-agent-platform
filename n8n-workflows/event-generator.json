@@ -34,9 +34,315 @@
       "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [640, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Pure JSON Contract: Generate next event specification\nconst state = $input.item.json;\nconst scenario = state.scenario;\nconst counters = state.counters;\n\n// Helper: Generate ULID-style action ID\nfunction actionId() {\n  return Date.now().toString(36).toUpperCase() + \n         Math.random().toString(36).substring(2, 10).toUpperCase();\n}\n\n// Helper: Select event type based on distribution\nfunction selectEventType(distribution) {\n  const rand = Math.random();\n  let cumulative = 0;\n  \n  for (const [eventType, probability] of Object.entries(distribution)) {\n    cumulative += probability;\n    if (rand <= cumulative) return eventType;\n  }\n  \n  return \"inquiry\";\n}\n\n// Helper: Calculate urgency based on event type and bias\nfunction calculateUrgency(eventType, urgencyBias) {\n  const baseUrgency = {\n    \"emergency\": [8, 9, 10],\n    \"complaint\": [5, 6, 7],\n    \"inquiry\": [3, 4, 5],\n    \"appointment\": [2, 3, 4],\n    \"follow_up\": [1, 2, 3],\n    \"maintenance\": [2, 3, 4]\n  };\n  \n  let range = baseUrgency[eventType] || [3, 4, 5];\n  \n  if (urgencyBias === \"high\") {\n    range = range.slice(-2);\n  } else if (urgencyBias === \"extreme\") {\n    range = [Math.max(...range)];\n  }\n  \n  return range[Math.floor(Math.random() * range.length)];\n}\n\n// Helper: Calculate event timestamp with pattern\nfunction calculateTimestamp(scenario, eventIndex, totalEvents) {\n  const startTime = counters.start_time;\n  const spreadMs = scenario.time_spread_minutes * 60 * 1000;\n  \n  let baseOffset = (spreadMs / totalEvents) * eventIndex;\n  \n  if (scenario.time_pattern === \"evening_heavy\") {\n    const threshold = totalEvents * 0.7;\n    if (eventIndex > threshold) {\n      baseOffset = spreadMs * 0.7 + \n                   (eventIndex - threshold) * (spreadMs * 0.3) / (totalEvents * 0.3);\n    }\n  } else if (scenario.time_pattern === \"afternoon_spike\") {\n    const midStart = totalEvents * 0.3;\n    const midEnd = totalEvents * 0.7;\n    if (eventIndex > midStart && eventIndex < midEnd) {\n      baseOffset = spreadMs * 0.3 + \n                   (eventIndex - midStart) * (spreadMs * 0.4) / (midEnd - midStart);\n    }\n  }\n  \n  const jitter = state.policy.enable_jitter ? \n                 (Math.random() - 0.5) * state.policy.jitter_minutes * 60 * 1000 : 0;\n  \n  return new Date(startTime + baseOffset + jitter);\n}\n\n// Helper: Generate description\nfunction generateDescription(eventType, urgency) {\n  const descriptions = {\n    \"emergency\": [\n      \"Furnace completely out, temperature dropping fast\",\n      \"AC unit failed during heatwave\",\n      \"Water heater leaking, flooding basement\",\n      \"Strange burning smell from HVAC unit\",\n      \"No heat, family with young children\"\n    ],\n    \"inquiry\": [\n      \"Question about annual maintenance schedule\",\n      \"Interested in upgrading to smart thermostat\",\n      \"Need quote for new AC installation\",\n      \"Asking about filter replacement options\",\n      \"Want to schedule routine inspection\"\n    ],\n    \"appointment\": [\n      \"Schedule annual maintenance check\",\n      \"Book time for AC tune-up\",\n      \"Need appointment for filter replacement\",\n      \"Schedule follow-up after last repair\",\n      \"Book consultation for system upgrade\"\n    ],\n    \"complaint\": [\n      \"Technician was late to appointment\",\n      \"Repair didn't fix the problem\",\n      \"Unexpected charges on invoice\",\n      \"Noisy HVAC after recent service\",\n      \"Dissatisfied with response time\"\n    ],\n    \"follow_up\": [\n      \"Following up on repair from last week\",\n      \"Checking if parts order arrived\",\n      \"Status update on pending maintenance\",\n      \"Question about recent service visit\",\n      \"Confirming appointment for tomorrow\"\n    ],\n    \"maintenance\": [\n      \"Quarterly maintenance due\",\n      \"Filter replacement reminder\",\n      \"Annual inspection scheduled\",\n      \"Preventive maintenance check\",\n      \"System performance review\"\n    ]\n  };\n  \n  const options = descriptions[eventType] || descriptions[\"inquiry\"];\n  return options[Math.floor(Math.random() * options.length)];\n}\n\n// Helper: Calculate revenue\nfunction calculateRevenue(eventType, scenario) {\n  const [min, max] = scenario.revenue_range;\n  const base = min + Math.random() * (max - min);\n  \n  const multipliers = {\n    \"emergency\": 1.5,\n    \"maintenance\": 0.7,\n    \"appointment\": 0.8,\n    \"inquiry\": 0.5,\n    \"follow_up\": 0.6,\n    \"complaint\": 0.3\n  };\n  \n  const multiplier = multipliers[eventType] || 1.0;\n  return Math.round(base * multiplier * 100) / 100;\n}\n\n// Check if done\nif (counters.events_created >= scenario.event_count) {\n  return {\n    control: {\n      done: true,\n      reason: \"budget_reached\"\n    },\n    next_action: {\n      type: \"respond\",\n      message: `Successfully generated ${counters.events_created} events for ${state.scenario_name}`\n    },\n    state_update: {\n      observation: \"All events created\",\n      confidence: 1.0\n    }\n  };\n}\n\n// Generate next event specification\nconst eventIndex = counters.events_created;\nconst eventType = selectEventType(scenario.event_distribution);\nconst urgency = calculateUrgency(eventType, scenario.urgency_bias);\nconst customerId = scenario.customer_pool[\n  Math.floor(Math.random() * scenario.customer_pool.length)\n];\nconst timestamp = calculateTimestamp(scenario, eventIndex, scenario.event_count);\nconst description = generateDescription(eventType, urgency);\nconst revenue = calculateRevenue(eventType, scenario);\n\nreturn {\n  control: {\n    done: false,\n    reason: \"ok\"\n  },\n  next_action: {\n    type: \"create_event\",\n    action_id: actionId(),\n    event_data: {\n      event_type: eventType,\n      event_timestamp: timestamp.toISOString(),\n      customer_id: customerId,\n      urgency: urgency,\n      description: description,\n      estimated_revenue: revenue,\n      event_payload: {\n        generated_by: \"event_generator\",\n        scenario: state.scenario_name,\n        pattern: scenario.time_pattern,\n        event_index: eventIndex + 1,\n        total_events: scenario.event_count\n      },\n      is_manual_trigger: false,\n      scenario_name: state.scenario_name\n    }\n  },\n  state_update: {\n    plan: `Creating event ${eventIndex + 1}/${scenario.event_count}`,\n    observation: `Generated ${eventType} event for customer ${customerId}`,\n    confidence: 0.98\n  },\n  state: state\n};"
+      },
+      "id": "generator-logic",
+      "name": "Generator Logic",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [840, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Validate Pure JSON Contract output\nconst output = $input.item.json;\n\nfunction fail(msg) {\n  throw new Error(`Contract violation: ${msg}`);\n}\n\nif (!output || typeof output !== 'object') fail('Output is not an object');\nif (!output.control) fail('Missing control object');\nif (typeof output.control.done !== 'boolean') fail('control.done must be boolean');\nif (!output.next_action) fail('Missing next_action object');\nif (!['create_event', 'respond', 'error'].includes(output.next_action.type)) {\n  fail(`Invalid next_action.type: ${output.next_action.type}`);\n}\n\nif (output.next_action.type === 'create_event') {\n  const ed = output.next_action.event_data;\n  if (!ed) fail('create_event missing event_data');\n  if (!ed.event_type) fail('event_data missing event_type');\n  if (!ed.customer_id) fail('event_data missing customer_id');\n  if (typeof ed.urgency !== 'number' || ed.urgency < 1 || ed.urgency > 10) {\n    fail('urgency must be number 1-10');\n  }\n  if (!ed.description) fail('event_data missing description');\n  if (typeof ed.estimated_revenue !== 'number') fail('estimated_revenue must be number');\n}\n\nif (!output.state_update) fail('Missing state_update');\nif (typeof output.state_update.confidence !== 'number') fail('confidence must be number');\n\nreturn {\n  ...output,\n  validated: true,\n  validation_timestamp: new Date().toISOString()\n};"
+      },
+      "id": "validator",
+      "name": "Validator",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1040, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Idempotency check for event generation\nconst output = $input.item.json;\nconst eventData = output.next_action.event_data;\nconst policy = output.state.policy;\n\nfunction stableHash(obj) {\n  if (obj === null || typeof obj !== 'object') return JSON.stringify(obj);\n  if (Array.isArray(obj)) return JSON.stringify(obj.map(stableHash));\n  \n  const sorted = {};\n  Object.keys(obj).sort().forEach(key => {\n    sorted[key] = stableHash(obj[key]);\n  });\n  return JSON.stringify(sorted);\n}\n\nconst keyComponents = {\n  scenario: eventData.scenario_name,\n  type: eventData.event_type,\n  customer: eventData.customer_id,\n  urgency: eventData.urgency,\n  timestamp: eventData.event_timestamp\n};\n\nconst idempotencyKey = `event_gen|${stableHash(keyComponents)}`;\n\nconst sd = getWorkflowStaticData('global');\nsd._event_cache = sd._event_cache || {};\n\nconst now = Date.now();\nconst ttlMs = policy.idempotency_ttl_seconds * 1000;\n\nfor (const key of Object.keys(sd._event_cache)) {\n  if (sd._event_cache[key].expires_at < now) {\n    delete sd._event_cache[key];\n  }\n}\n\nconst cached = sd._event_cache[idempotencyKey];\n\nif (cached && cached.expires_at >= now && cached.event_id) {\n  return {\n    ...output,\n    deduped: true,\n    idempotency_key: idempotencyKey,\n    cached_event_id: cached.event_id,\n    cache_hit_at: new Date().toISOString()\n  };\n}\n\nsd._event_cache[idempotencyKey] = {\n  created_at: now,\n  expires_at: now + ttlMs,\n  event_id: null\n};\n\nreturn {\n  ...output,\n  deduped: false,\n  idempotency_key: idempotencyKey,\n  cache_miss_at: new Date().toISOString()\n};"
+      },
+      "id": "idempotency-gate",
+      "name": "Idempotency Gate",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.deduped}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "route-deduped",
+      "name": "Route Deduped",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1440, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log cache hit\nconst item = $input.item.json;\n\nreturn {\n  run_id: item.state.run_id,\n  workflow_sequence_id: item.state.workflow_sequence_id,\n  action: \"cache_hit\",\n  idempotency_key: item.idempotency_key,\n  cached_event_id: item.cached_event_id,\n  scenario_name: item.state.scenario_name,\n  event_type: item.next_action.event_data.event_type,\n  timestamp: new Date().toISOString(),\n  message: \"Event creation skipped (idempotency cache hit)\"\n};"
+      },
+      "id": "cache-hit-logger",
+      "name": "Cache Hit Logger",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1640, 200]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO hvac_events (event_type, event_timestamp, customer_id, urgency, description, estimated_revenue, event_payload, is_manual_trigger, scenario_name, processed, created_at) VALUES ($1, $2::timestamp, $3, $4, $5, $6, $7::jsonb, $8, $9, false, NOW()) RETURNING *",
+        "options": {}
+      },
+      "id": "postgres-insert-event",
+      "name": "PostgreSQL Insert Event",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1640, 400],
+      "credentials": {
+        "postgres": {
+          "id": "hvac-postgres-creds",
+          "name": "HVAC PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO workflow_executions (execution_id, workflow_name, event_id, started_at, completed_at, status, duration_ms, created_at) VALUES (gen_random_uuid(), 'event_generator', $1, NOW(), NOW(), 'success', 0, NOW()) RETURNING *",
+        "options": {}
+      },
+      "id": "postgres-workflow-logger",
+      "name": "Workflow Logger",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1840, 400],
+      "credentials": {
+        "postgres": {
+          "id": "hvac-postgres-creds",
+          "name": "HVAC PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO agent_decisions (event_id, workflow_execution_id, workflow_sequence_id, agent_name, decision_type, decision_timestamp, step_number, routing_reason, decision_confidence, classification_tags, action_taken, outcome_status, decision_payload, created_at) VALUES ($1, $2::uuid, $3::uuid, 'event_generator', 'create_event', NOW(), $4, $5, $6, ARRAY['generated', $7], 'created_event', 'success', $8::jsonb, NOW()) RETURNING *",
+        "options": {}
+      },
+      "id": "postgres-decision-logger",
+      "name": "Decision Logger",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [2040, 400],
+      "credentials": {
+        "postgres": {
+          "id": "hvac-postgres-creds",
+          "name": "HVAC PostgreSQL"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Update state after event creation\nconst output = $input.all()[0].json;\nconst eventId = $('PostgreSQL Insert Event').item.json.event_id;\nconst deduped = output.deduped || false;\n\nconst state = JSON.parse(JSON.stringify(output.state));\n\nstate.counters.current_step += 1;\n\nif (deduped) {\n  state.counters.events_deduped += 1;\n} else {\n  state.counters.events_created += 1;\n  \n  const sd = getWorkflowStaticData('global');\n  if (sd._event_cache && sd._event_cache[output.idempotency_key]) {\n    sd._event_cache[output.idempotency_key].event_id = eventId;\n  }\n}\n\nconst created = state.counters.events_created;\nconst total = state.scenario.event_count;\nconst pct = Math.round((created / total) * 100);\n\nstate.scratchpad.progress = `Created ${created}/${total} events (${pct}%)`;\nstate.scratchpad.observations.push(\n  deduped ? \n    `Step ${state.counters.current_step}: Deduped ${output.next_action.event_data.event_type}` :\n    `Step ${state.counters.current_step}: Created ${output.next_action.event_data.event_type} (ID: ${eventId})`\n);\n\nif (state.scratchpad.observations.length > 5) {\n  state.scratchpad.observations = state.scratchpad.observations.slice(-5);\n}\n\nreturn state;"
+      },
+      "id": "counter-updater",
+      "name": "Counter Updater",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.counters.events_created >= $json.scenario.event_count}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "budget-checker",
+      "name": "Budget Checker",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [2440, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Format final success response\nconst state = $input.item.json;\n\nconst durationMs = Date.now() - state.counters.start_time;\nconst durationSec = (durationMs / 1000).toFixed(2);\n\nreturn {\n  status: \"success\",\n  run_id: state.run_id,\n  workflow_sequence_id: state.workflow_sequence_id,\n  scenario_name: state.scenario_name,\n  summary: {\n    events_created: state.counters.events_created,\n    events_deduped: state.counters.events_deduped,\n    total_steps: state.counters.current_step,\n    errors: state.counters.errors,\n    duration_seconds: parseFloat(durationSec),\n    events_per_second: (state.counters.events_created / parseFloat(durationSec)).toFixed(2)\n  },\n  scenario: {\n    description: state.scenario.description,\n    event_count: state.scenario.event_count,\n    time_spread_minutes: state.scenario.time_spread_minutes,\n    pattern: state.scenario.time_pattern\n  },\n  observations: state.scratchpad.observations,\n  message: `Successfully generated ${state.counters.events_created} events in ${durationSec}s`,\n  timestamp: new Date().toISOString()\n};"
+      },
+      "id": "success-response",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [2640, 200]
     }
   ],
-  "connections": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Policy Loader",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Policy Loader": {
+      "main": [
+        [
+          {
+            "node": "State Initializer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "State Initializer": {
+      "main": [
+        [
+          {
+            "node": "Generator Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generator Logic": {
+      "main": [
+        [
+          {
+            "node": "Validator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validator": {
+      "main": [
+        [
+          {
+            "node": "Idempotency Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Idempotency Gate": {
+      "main": [
+        [
+          {
+            "node": "Route Deduped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Deduped": {
+      "main": [
+        [
+          {
+            "node": "Cache Hit Logger",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PostgreSQL Insert Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cache Hit Logger": {
+      "main": [
+        [
+          {
+            "node": "Counter Updater",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL Insert Event": {
+      "main": [
+        [
+          {
+            "node": "Workflow Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Logger": {
+      "main": [
+        [
+          {
+            "node": "Decision Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decision Logger": {
+      "main": [
+        [
+          {
+            "node": "Counter Updater",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Counter Updater": {
+      "main": [
+        [
+          {
+            "node": "Budget Checker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Budget Checker": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generator Logic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
   "settings": {
     "executionOrder": "v1"
   },
