@@ -34,7 +34,7 @@ services:
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
       - NODE_ENV=production
-      - WEBHOOK_URL=https://agents-platform.ngrok.io/webhook/
+      - WEBHOOK_URL=https://agents-platform.ngrok.io
       - GENERIC_TIMEZONE=America/New_York
       - N8N_METRICS=true
       - N8N_LOG_LEVEL=info
