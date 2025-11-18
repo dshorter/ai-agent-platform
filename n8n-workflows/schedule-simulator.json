@@ -3,72 +3,50 @@
   "nodes": [
     {
       "parameters": {
-        "triggerTimes": {
-          "mode": "interval",
-          "interval": 5
+        "rule": {
+          "interval": [
+            { "field": "minutes", "minutesInterval": 5 }
+          ]
         }
       },
       "id": "schedule-trigger",
       "name": "Every 5 Minutes",
       "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.1,
-      "position": [
-        500,
-        300
-      ]
+      "typeVersion": 1.2,
+      "position": [500, 300]
     },
     {
       "parameters": {
-        "jsCode": "const roll = Math.random();\n\n// 85% chance for a 'routine_maintenance_day'\nif (roll <= 0.85) { \n  return { \n    scenario_name: \"routine_maintenance_day\",\n    event_count: 5 // Create a small batch\n  };\n} \n// 10% chance for a 'winter_emergency_surge'\nelse if (roll <= 0.95) { \n  return { \n    scenario_name: \"winter_emergency_surge\",\n    event_count: 20 // Create a medium surge\n  };\n} \n// 5% chance for a 'summer_heatwave'\nelse { \n  return { \n    scenario_name: \"summer_heatwave\",\n    event_count: 25 // Create a large surge\n  };\n}"
+        "jsCode": "const roll = Math.random();\nlet out;\nif (roll <= 0.85) out = { scenario_name: 'routine_maintenance_day', event_count: 5 };\nelse if (roll <= 0.95) out = { scenario_name: 'winter_emergency_surge', event_count: 20 };\nelse out = { scenario_name: 'summer_heatwave', event_count: 25 };\nreturn [{ json: out }];"
       },
       "id": "dice-roll",
       "name": "Dice Roll",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [
-        700,
-        300
-      ]
+      "position": [700, 300]
     },
     {
       "parameters": {
         "method": "POST",
         "url": "YOUR_EVENT_GENERATOR_WEBHOOK_URL",
-        "bodyParametersJson": "={{ $json }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
         "options": {}
       },
       "id": "trigger-generator",
       "name": "Trigger Event Generator",
       "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.1,
-      "position": [
-        900,
-        300
-      ]
+      "typeVersion": 4.2,
+      "position": [900, 300]
     }
   ],
   "connections": {
-    "schedule-trigger": {
-      "main": [
-        [
-          {
-            "node": "Dice Roll",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+    "Every 5 Minutes": {
+      "main": [[{ "node": "Dice Roll", "type": "main", "index": 0 }]]
     },
     "Dice Roll": {
-      "main": [
-        [
-          {
-            "node": "Trigger Event Generator",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
+      "main": [[{ "node": "Trigger Event Generator", "type": "main", "index": 0 }]]
     }
   },
   "pinData": {},
