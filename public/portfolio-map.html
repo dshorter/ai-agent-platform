@@ -17,16 +17,16 @@
 .portfolio-3axis {
   /* Reset everything inside this scope */
   all: initial;
-  display: block;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  line-height: 1.6;
-  color: #ffffff;
+  display: block !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif !important;
+  line-height: 1.6 !important;
+  color: #ffffff !important;
   
-  /* Blue to dark gradient background */
-  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-  min-height: 100vh;
-  padding: 2rem;
-  box-sizing: border-box;
+  /* Blue to dark gradient background - forced */
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%) !important;
+  min-height: 100vh !important;
+  padding: 2rem !important;
+  box-sizing: border-box !important;
 }
 
 /* All children inherit box-sizing */
@@ -44,21 +44,21 @@
 
 /* === TYPOGRAPHY === */
 .portfolio-3axis .title {
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  color: #ffffff;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  text-align: center !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 0.5rem 0 !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
 }
 
 .portfolio-3axis .subtitle {
-  text-align: center;
-  color: #FFD700;
-  font-size: 1.1rem;
-  margin: 0 0 2rem 0;
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  text-align: center !important;
+  color: #FFD700 !important;
+  font-size: 1.1rem !important;
+  margin: 0 0 2rem 0 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
 }
 
 /* === LEGENDS === */
@@ -77,38 +77,38 @@
 }
 
 .portfolio-3axis .legend-label {
-  font-size: 0.75rem;
-  color: #FFD700;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 0.75rem !important;
+  color: #FFD700 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
 }
 
 .portfolio-3axis .legend-item {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.875rem;
-  color: #ffffff;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  font-size: 0.875rem !important;
+  color: #ffffff !important;
 }
 
 .portfolio-3axis .color-box {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 3px;
-  border: 1px solid rgba(255,255,255,0.2);
+  width: 1rem !important;
+  height: 1rem !important;
+  border-radius: 3px !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
 }
 
 /* Audience colors */
-.portfolio-3axis .color-box.hr { background: #4ade80; }
-.portfolio-3axis .color-box.technical { background: #60a5fa; }
-.portfolio-3axis .color-box.solutions { background: #FFD700; }
-.portfolio-3axis .color-box.manager { background: #c084fc; }
+.portfolio-3axis .color-box.hr { background: #4ade80 !important; }
+.portfolio-3axis .color-box.technical { background: #60a5fa !important; }
+.portfolio-3axis .color-box.solutions { background: #FFD700 !important; }
+.portfolio-3axis .color-box.manager { background: #c084fc !important; }
 
 /* Depth colors */
-.portfolio-3axis .color-box.depth-surface { background: #ffffff; }
-.portfolio-3axis .color-box.depth-explanation { background: #9CA3AF; }
-.portfolio-3axis .color-box.depth-evidence { background: #4B5563; }
+.portfolio-3axis .color-box.depth-surface { background: #ffffff !important; }
+.portfolio-3axis .color-box.depth-explanation { background: #9CA3AF !important; }
+.portfolio-3axis .color-box.depth-evidence { background: #4B5563 !important; }
 
 /* === MAIN GRID === */
 .portfolio-3axis .grid-wrapper {
@@ -117,11 +117,11 @@
 }
 
 .portfolio-3axis .grid-container {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 2px solid rgba(255, 215, 0, 0.3);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  border: 2px solid rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
 }
 
 .portfolio-3axis .grid-header {
@@ -132,28 +132,28 @@
 }
 
 .portfolio-3axis .grid-header-cell {
-  text-align: center;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #FFD700;
-  padding: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  text-align: center !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: #FFD700 !important;
+  padding: 0.5rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
 }
 
 .portfolio-3axis .grid-row {
-  display: grid;
-  grid-template-columns: 100px repeat(4, 1fr);
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  display: grid !important;
+  grid-template-columns: 100px repeat(4, 1fr) !important;
+  gap: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .portfolio-3axis .row-label {
-  display: flex;
-  align-items: center;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #ffffff;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: #ffffff !important;
 }
 
 .portfolio-3axis .cell {
@@ -182,10 +182,10 @@
 .portfolio-3axis .row-evidence .cell-layer { opacity: 0.4; }
 
 /* Cell colors */
-.portfolio-3axis .cell-layer.hr { background: #4ade80; }
-.portfolio-3axis .cell-layer.technical { background: #60a5fa; }
-.portfolio-3axis .cell-layer.solutions { background: #FFD700; }
-.portfolio-3axis .cell-layer.manager { background: #c084fc; }
+.portfolio-3axis .cell-layer.hr { background: #4ade80 !important; }
+.portfolio-3axis .cell-layer.technical { background: #60a5fa !important; }
+.portfolio-3axis .cell-layer.solutions { background: #FFD700 !important; }
+.portfolio-3axis .cell-layer.manager { background: #c084fc !important; }
 
 /* === PUSHPIN === */
 .portfolio-3axis .pushpin {
@@ -198,32 +198,32 @@
 }
 
 .portfolio-3axis .pushpin-head {
-  width: 50px;
-  height: 50px;
-  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500);
-  border-radius: 50%;
-  margin: 0 auto;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+  width: 50px !important;
+  height: 50px !important;
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500) !important;
+  border-radius: 50% !important;
+  margin: 0 auto !important;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5) !important;
 }
 
 .portfolio-3axis .pushpin-pin {
-  width: 4px;
-  height: 30px;
-  background: linear-gradient(#8B4513, #654321);
-  margin: 0 auto;
+  width: 4px !important;
+  height: 30px !important;
+  background: linear-gradient(#8B4513, #654321) !important;
+  margin: 0 auto !important;
 }
 
 .portfolio-3axis .pushpin-text {
-  margin-top: 0.5rem;
-  font-size: 0.7rem;
-  color: #ffffff;
-  line-height: 1.4;
+  margin-top: 0.5rem !important;
+  font-size: 0.7rem !important;
+  color: #ffffff !important;
+  line-height: 1.4 !important;
 }
 
 .portfolio-3axis .pushpin-text strong {
-  color: #FFD700;
-  display: block;
-  font-size: 0.75rem;
+  color: #FFD700 !important;
+  display: block !important;
+  font-size: 0.75rem !important;
 }
 
 /* === AXIS CARDS === */
@@ -249,75 +249,75 @@
 }
 
 .portfolio-3axis .axis-card {
-  background: rgba(30, 60, 114, 0.6);
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid rgba(255, 215, 0, 0.2);
+  background: rgba(30, 60, 114, 0.8) !important;
+  border-radius: 8px !important;
+  padding: 1.5rem !important;
+  border: 1px solid rgba(255, 215, 0, 0.2) !important;
   backdrop-filter: blur(10px);
 }
 
 .portfolio-3axis .axis-card h3 {
-  font-size: 1rem;
-  margin: 0 0 1rem 0;
-  font-weight: 600;
+  font-size: 1rem !important;
+  margin: 0 0 1rem 0 !important;
+  font-weight: 600 !important;
 }
 
-.portfolio-3axis .axis-card.depth h3 { color: #60a5fa; }
-.portfolio-3axis .axis-card.content h3 { color: #4ade80; }
-.portfolio-3axis .axis-card.audience h3 { color: #c084fc; }
+.portfolio-3axis .axis-card.depth h3 { color: #60a5fa !important; }
+.portfolio-3axis .axis-card.content h3 { color: #4ade80 !important; }
+.portfolio-3axis .axis-card.audience h3 { color: #c084fc !important; }
 
 .portfolio-3axis .axis-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 0;
-  border-left: 3px solid;
-  padding-left: 0.75rem;
-  margin-bottom: 0.5rem;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.5rem 0 !important;
+  border-left: 3px solid !important;
+  padding-left: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .portfolio-3axis .axis-item-label {
-  font-weight: 500;
-  color: #ffffff;
-  font-size: 0.9rem;
+  font-weight: 500 !important;
+  color: #ffffff !important;
+  font-size: 0.9rem !important;
 }
 
 .portfolio-3axis .axis-item-desc {
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.7);
+  font-size: 0.75rem !important;
+  color: rgba(255,255,255,0.7) !important;
 }
 
 /* === MVP BOX === */
 .portfolio-3axis .mvp-box {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1));
-  border: 2px solid #FFD700;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-top: 2rem;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1)) !important;
+  border: 2px solid #FFD700 !important;
+  border-radius: 8px !important;
+  padding: 1.5rem !important;
+  margin-top: 2rem !important;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2) !important;
 }
 
 .portfolio-3axis .mvp-box h3 {
-  color: #FFD700;
-  font-size: 1.1rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
+  color: #FFD700 !important;
+  font-size: 1.1rem !important;
+  margin: 0 0 0.5rem 0 !important;
+  font-weight: 600 !important;
 }
 
 .portfolio-3axis .mvp-box p {
-  color: #ffffff;
-  margin: 0;
-  font-size: 0.95rem;
+  color: #ffffff !important;
+  margin: 0 !important;
+  font-size: 0.95rem !important;
 }
 
 .portfolio-3axis .mvp-box strong {
-  color: #FFD700;
+  color: #FFD700 !important;
 }
 
 .portfolio-3axis .mvp-box .suggestion {
-  color: rgba(255,255,255,0.7);
-  font-size: 0.85rem;
-  margin-top: 0.5rem;
+  color: rgba(255,255,255,0.7) !important;
+  font-size: 0.85rem !important;
+  margin-top: 0.5rem !important;
 }
 ```
 
