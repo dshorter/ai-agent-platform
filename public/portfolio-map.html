@@ -34,8 +34,9 @@ html, body {
   background-image: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%) !important;
   background-attachment: scroll !important;
   
-  /* Full width without tricks */
+  /* Desktop optimized - minimum width */
   width: 100% !important;
+  min-width: 900px !important;
   min-height: 100vh !important;
   padding: 2rem !important;
   box-sizing: border-box !important;
@@ -45,7 +46,7 @@ html, body {
   position: relative !important;
   z-index: 1 !important;
   isolation: isolate !important;
-  overflow-x: hidden !important;
+  overflow-x: auto !important;
 }
 
 /* Pseudo-element to guarantee dark background coverage */
@@ -266,32 +267,30 @@ html, body {
 
 /* === AXIS CARDS === */
 .portfolio-3axis .axis-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-top: 2rem;
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 1.5rem !important;
+  margin-top: 2rem !important;
 }
 
-@media (max-width: 768px) {
-  .portfolio-3axis .axis-cards {
-    grid-template-columns: 1fr;
-  }
-  
-  .portfolio-3axis .pushpin {
-    position: relative;
-    right: auto;
-    top: auto;
-    transform: none;
-    margin: 1.5rem auto;
-  }
-}
-
+/* Remove mobile stacking - optimize for desktop */
 .portfolio-3axis .axis-card {
   background: rgba(30, 60, 114, 0.8) !important;
   border-radius: 8px !important;
   padding: 1.5rem !important;
   border: 1px solid rgba(255, 215, 0, 0.2) !important;
   backdrop-filter: blur(10px);
+  min-width: 0 !important; /* Allow grid to control width */
+}
+
+/* Pushpin stays to the side on all screens */
+.portfolio-3axis .pushpin {
+  position: absolute !important;
+  right: -140px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  text-align: center !important;
+  width: 120px !important;
 }
 
 .portfolio-3axis .axis-card h3 {
@@ -307,22 +306,27 @@ html, body {
 .portfolio-3axis .axis-item {
   display: flex !important;
   justify-content: space-between !important;
-  align-items: center !important;
+  align-items: baseline !important;
   padding: 0.5rem 0 !important;
   border-left: 3px solid !important;
   padding-left: 0.75rem !important;
   margin-bottom: 0.5rem !important;
+  gap: 1rem !important;
 }
 
 .portfolio-3axis .axis-item-label {
   font-weight: 500 !important;
   color: #ffffff !important;
   font-size: 0.9rem !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
 }
 
 .portfolio-3axis .axis-item-desc {
   font-size: 0.75rem !important;
   color: rgba(255,255,255,0.7) !important;
+  text-align: right !important;
+  white-space: nowrap !important;
 }
 
 /* === MVP BOX === */
