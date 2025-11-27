@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Three-Axis Model</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+```
+body {
+  background: #111827;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  text-align: center;
+  color: #9CA3AF;
+  margin-bottom: 2rem;
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.legend-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.legend-label {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+  font-weight: 600;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.color-box {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+}
+
+.hr { background: #4CAF50; }
+.technical { background: #2196F3; }
+.solutions { background: #FF9800; }
+.manager { background: #9C27B0; }
+
+.depth-surface { background: white; opacity: 1; }
+.depth-explanation { background: white; opacity: 0.7; }
+.depth-evidence { background: white; opacity: 0.4; }
+
+/* Main 3D Cube Visualization */
+.cube-container {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.cube-wrapper {
+  perspective: 1000px;
+}
+
+.cube {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  transform: rotateX(10deg) rotateY(-15deg);
+  transform-style: preserve-3d;
+}
+
+/* Grid layout */
+.grid-container {
+  background: #1F2937;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.grid-header {
+  display: grid;
+  grid-template-columns: 100px repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.grid-header-cell {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #E5E7EB;
+  padding: 0.5rem;
+}
+
+.grid-row {
+  display: grid;
+  grid-template-columns: 100px repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.row-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #E5E7EB;
+}
+
+.cell {
+  position: relative;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.cell-layer {
+  position: absolute;
+  width: calc(100% - 12px);
+  height: calc(100% - 8px);
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.3);
+}
+
+.cell-layer:nth-child(1) { top: 0; left: 0; }
+.cell-layer:nth-child(2) { top: 3px; left: 4px; }
+.cell-layer:nth-child(3) { top: 6px; left: 8px; }
+.cell-layer:nth-child(4) { top: 9px; left: 12px; }
+
+/* Depth row styling */
+.row-surface .cell-layer { opacity: 1; }
+.row-explanation .cell-layer { opacity: 0.7; }
+.row-evidence .cell-layer { opacity: 0.4; }
+
+/* Axis Cards */
+.axis-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .axis-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+.axis-card {
+  background: #1F2937;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.axis-card h3 {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+.axis-card.depth h3 { color: #60A5FA; }
+.axis-card.content h3 { color: #34D399; }
+.axis-card.audience h3 { color: #A78BFA; }
+
+.axis-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-left: 3px solid;
+  padding-left: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.axis-item-label { font-weight: 500; }
+.axis-item-desc { font-size: 0.75rem; color: #9CA3AF; }
+
+/* Pushpin */
+.pushpin {
+  position: absolute;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+.pushpin-head {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle at 30% 30%, #FF8C00, #FF6B00);
+  border-radius: 50%;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(255, 107, 0, 0.4);
+}
+
+.pushpin-pin {
+  width: 4px;
+  height: 30px;
+  background: linear-gradient(#8B4513, #654321);
+  margin: 0 auto;
+}
+
+.pushpin-text {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.pushpin-text strong {
+  color: #FF6B00;
+  display: block;
+}
+
+/* MVP Box */
+.mvp-box {
+  background: rgba(154, 52, 18, 0.3);
+  border: 2px solid #F97316;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.mvp-box h3 {
+  color: #FB923C;
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.mvp-box p {
+  color: #D1D5DB;
+}
+
+.mvp-box .suggestion {
+  color: #9CA3AF;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Grid wrapper for relative positioning */
+.grid-wrapper {
+  position: relative;
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Portfolio Information Architecture</h1>
+    <p class="subtitle">The Three-Axis Model</p>
+
+```
+<!-- Legend: Audiences -->
+<div class="legend">
+  <div class="legend-group">
+    <span class="legend-label">AUDIENCES:</span>
+    <div class="legend-item"><div class="color-box hr"></div> HR</div>
+    <div class="legend-item"><div class="color-box technical"></div> Technical</div>
+    <div class="legend-item"><div class="color-box solutions"></div> Solutions</div>
+    <div class="legend-item"><div class="color-box manager"></div> Manager</div>
+  </div>
+</div>
+
+<!-- Legend: Depth -->
+<div class="legend">
+  <div class="legend-group">
+    <span class="legend-label">DEPTH:</span>
+    <div class="legend-item"><div class="color-box depth-surface"></div> Surface</div>
+    <div class="legend-item"><div class="color-box depth-explanation"></div> Explanation</div>
+    <div class="legend-item"><div class="color-box depth-evidence"></div> Evidence</div>
+  </div>
+</div>
+
+<!-- Main Grid -->
+<div class="grid-wrapper">
+  <div class="grid-container">
+    <!-- Header row -->
+    <div class="grid-header">
+      <div class="grid-header-cell"></div>
+      <div class="grid-header-cell">Methodology</div>
+      <div class="grid-header-cell">Projects</div>
+      <div class="grid-header-cell">Artifacts</div>
+      <div class="grid-header-cell">Outcomes</div>
+    </div>
+    
+    <!-- Surface row -->
+    <div class="grid-row row-surface">
+      <div class="row-label">Surface</div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+    </div>
+    
+    <!-- Explanation row -->
+    <div class="grid-row row-explanation">
+      <div class="row-label">Explanation</div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+    </div>
+    
+    <!-- Evidence row -->
+    <div class="grid-row row-evidence">
+      <div class="row-label">Evidence</div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+      <div class="cell">
+        <div class="cell-layer" style="background: #4CAF50;"></div>
+        <div class="cell-layer" style="background: #2196F3;"></div>
+        <div class="cell-layer" style="background: #FF9800;"></div>
+        <div class="cell-layer" style="background: #9C27B0;"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Pushpin -->
+  <div class="pushpin">
+    <div class="pushpin-head"></div>
+    <div class="pushpin-pin"></div>
+    <div class="pushpin-text">
+      <strong>THE CORE:</strong>
+      "How Dan Thinks"<br>
+      <span style="color: #9CA3AF; font-size: 0.7rem;">permeates ALL cells</span>
+    </div>
+  </div>
+</div>
+
+<!-- Axis Cards -->
+<div class="axis-cards">
+  <!-- Depth -->
+  <div class="axis-card depth">
+    <h3>AXIS 1: Depth</h3>
+    <div class="axis-item" style="border-color: white;">
+      <span class="axis-item-label">Surface</span>
+      <span class="axis-item-desc">30 sec → "holy shit"</span>
+    </div>
+    <div class="axis-item" style="border-color: rgba(255,255,255,0.7);">
+      <span class="axis-item-label">Explanation</span>
+      <span class="axis-item-desc">2-3 min → methodology</span>
+    </div>
+    <div class="axis-item" style="border-color: rgba(255,255,255,0.4);">
+      <span class="axis-item-label">Evidence</span>
+      <span class="axis-item-desc">5-10 min → proof</span>
+    </div>
+  </div>
+  
+  <!-- Content Types -->
+  <div class="axis-card content">
+    <h3>AXIS 2: Content Types</h3>
+    <div class="axis-item" style="border-color: #34D399;">
+      <span class="axis-item-label">A: Methodology</span>
+      <span class="axis-item-desc">"How I think"</span>
+    </div>
+    <div class="axis-item" style="border-color: #34D399;">
+      <span class="axis-item-label">B: Projects</span>
+      <span class="axis-item-desc">Case studies</span>
+    </div>
+    <div class="axis-item" style="border-color: #34D399;">
+      <span class="axis-item-label">C: Artifacts</span>
+      <span class="axis-item-desc">Code, diagrams</span>
+    </div>
+    <div class="axis-item" style="border-color: #34D399;">
+      <span class="axis-item-label">D: Outcomes</span>
+      <span class="axis-item-desc">Metrics, ROI</span>
+    </div>
+  </div>
+  
+  <!-- Audiences -->
+  <div class="axis-card audience">
+    <h3>AXIS 3: Audiences</h3>
+    <div class="axis-item" style="border-color: #4CAF50;">
+      <span class="axis-item-label">HR</span>
+      <span class="axis-item-desc">→ "Ships fast"</span>
+    </div>
+    <div class="axis-item" style="border-color: #2196F3;">
+      <span class="axis-item-label">Technical</span>
+      <span class="axis-item-desc">→ "Clean code"</span>
+    </div>
+    <div class="axis-item" style="border-color: #FF9800;">
+      <span class="axis-item-label">Solutions</span>
+      <span class="axis-item-desc">→ "Decomposes"</span>
+    </div>
+    <div class="axis-item" style="border-color: #9C27B0;">
+      <span class="axis-item-label">Manager</span>
+      <span class="axis-item-desc">→ "10x paradigm"</span>
+    </div>
+  </div>
+</div>
+
+<!-- MVP Box -->
+<div class="mvp-box">
+  <h3>📌 MVP FOCUS: Pick One Slice</h3>
+  <p>Choose: <strong>1 Audience</strong> × <strong>1 Project</strong> × <strong>Surface + Explanation</strong> only.</p>
+  <p class="suggestion">Suggested: Technical Lead + n8n SMS System + Surface/Explanation layers</p>
+</div>
+```
+
+  </div>
+</body>
+</html>
