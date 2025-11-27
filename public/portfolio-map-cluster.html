@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Three-Axis Model - Cluster View</title>
+  <style>
+    /* ============================================
+       PORTFOLIO 3-AXIS VISUALIZATION - CLUSTER VERSION
+       Isolated Component - Scoped under .portfolio-3axis
+       Color palette: Blue (#1e3c72) to Gold (#FFD700)
+       ============================================ */
+
+```
+/* Override body/html when this component is present */
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #0f2027 !important;
+  overflow-x: hidden !important;
+}
+
+/* === ISOLATION WRAPPER === */
+.portfolio-3axis {
+  /* Explicit resets */
+  display: block !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif !important;
+  line-height: 1.6 !important;
+  color: #ffffff !important;
+  
+  /* Solid dark background as fallback, then gradient */
+  background-color: #0f2027 !important;
+  background-image: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%) !important;
+  background-attachment: scroll !important;
+  
+  /* Desktop optimized - minimum width */
+  width: 100% !important;
+  min-width: 900px !important;
+  min-height: 100vh !important;
+  padding: 2rem !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  
+  /* Force stacking context */
+  position: relative !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
+  overflow-x: auto !important;
+}
+
+/* Pseudo-element to guarantee dark background coverage */
+.portfolio-3axis::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%) !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
+}
+
+/* All children inherit box-sizing */
+.portfolio-3axis *,
+.portfolio-3axis *::before,
+.portfolio-3axis *::after {
+  box-sizing: border-box !important;
+}
+
+/* === LAYOUT === */
+.portfolio-3axis .wrapper {
+  max-width: 1000px !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  z-index: 2 !important;
+  background: transparent !important;
+}
+
+/* === TYPOGRAPHY === */
+.portfolio-3axis .title {
+  text-align: center !important;
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  margin: 0 0 0.5rem 0 !important;
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5), 0 0 20px rgba(0,0,0,0.3) !important;
+  background: transparent !important;
+}
+
+.portfolio-3axis .subtitle {
+  text-align: center !important;
+  color: #FFD700 !important;
+  font-size: 1.1rem !important;
+  margin: 0 0 2rem 0 !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+}
+
+/* === LEGENDS === */
+.portfolio-3axis .legend {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  gap: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.portfolio-3axis .legend-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+}
+
+.portfolio-3axis .legend-label {
+  font-size: 0.75rem !important;
+  color: #FFD700 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.portfolio-3axis .legend-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  font-size: 0.875rem !important;
+  color: #ffffff !important;
+}
+
+.portfolio-3axis .color-box {
+  width: 1rem !important;
+  height: 1rem !important;
+  border-radius: 3px !important;
+  border: 1px solid rgba(255,255,255,0.2) !important;
+}
+
+/* Audience colors */
+.portfolio-3axis .color-box.hr { background: #4ade80 !important; }
+.portfolio-3axis .color-box.technical { background: #60a5fa !important; }
+.portfolio-3axis .color-box.solutions { background: #FFD700 !important; }
+.portfolio-3axis .color-box.manager { background: #c084fc !important; }
+
+/* Depth colors */
+.portfolio-3axis .color-box.depth-surface { background: #ffffff !important; }
+.portfolio-3axis .color-box.depth-explanation { background: #9CA3AF !important; }
+.portfolio-3axis .color-box.depth-evidence { background: #4B5563 !important; }
+
+/* === MAIN GRID === */
+.portfolio-3axis .grid-wrapper {
+  position: relative !important;
+  margin: 2rem 0 !important;
+}
+
+.portfolio-3axis .grid-container {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%) !important;
+  border-radius: 12px !important;
+  padding: 1.5rem !important;
+  border: 2px solid rgba(255, 215, 0, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3) !important;
+}
+
+.portfolio-3axis .grid-header {
+  display: grid !important;
+  grid-template-columns: 100px repeat(4, 1fr) !important;
+  gap: 0.5rem !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.portfolio-3axis .grid-header-cell {
+  text-align: center !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  color: #FFD700 !important;
+  padding: 0.5rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+}
+
+.portfolio-3axis .grid-row {
+  display: grid !important;
+  grid-template-columns: 100px repeat(4, 1fr) !important;
+  gap: 0.5rem !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.portfolio-3axis .row-label {
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.8rem !important;
+  font-weight: 500 !important;
+  color: #ffffff !important;
+}
+
+/* === CLUSTER CELLS === */
+.portfolio-3axis .cell {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  padding: 0.25rem !important;
+}
+
+.portfolio-3axis .cluster {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 4px !important;
+}
+
+.portfolio-3axis .cluster-box {
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  color: rgba(0,0,0,0.7) !important;
+  border: 1px solid rgba(0,0,0,0.2) !important;
+}
+
+.portfolio-3axis .cluster-box.hr { background: #4ade80 !important; }
+.portfolio-3axis .cluster-box.technical { background: #60a5fa !important; }
+.portfolio-3axis .cluster-box.solutions { background: #FFD700 !important; }
+.portfolio-3axis .cluster-box.manager { background: #c084fc !important; }
+
+/* Depth opacity for clusters */
+.portfolio-3axis .row-surface .cluster-box { opacity: 1 !important; }
+.portfolio-3axis .row-explanation .cluster-box { opacity: 0.7 !important; }
+.portfolio-3axis .row-evidence .cluster-box { opacity: 0.4 !important; }
+
+/* === PUSHPIN === */
+.portfolio-3axis .pushpin {
+  position: absolute !important;
+  right: -140px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  text-align: center !important;
+  width: 120px !important;
+}
+
+.portfolio-3axis .pushpin-head {
+  width: 50px !important;
+  height: 50px !important;
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500) !important;
+  border-radius: 50% !important;
+  margin: 0 auto !important;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5) !important;
+}
+
+.portfolio-3axis .pushpin-pin {
+  width: 4px !important;
+  height: 30px !important;
+  background: linear-gradient(#8B4513, #654321) !important;
+  margin: 0 auto !important;
+}
+
+.portfolio-3axis .pushpin-text {
+  margin-top: 0.5rem !important;
+  font-size: 0.7rem !important;
+  color: #ffffff !important;
+  line-height: 1.4 !important;
+}
+
+.portfolio-3axis .pushpin-text strong {
+  color: #FFD700 !important;
+  display: block !important;
+  font-size: 0.75rem !important;
+}
+
+/* === AXIS CARDS === */
+.portfolio-3axis .axis-cards {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 1.5rem !important;
+  margin-top: 2rem !important;
+}
+
+.portfolio-3axis .axis-card {
+  background: rgba(30, 60, 114, 0.8) !important;
+  border-radius: 8px !important;
+  padding: 1.5rem !important;
+  border: 1px solid rgba(255, 215, 0, 0.2) !important;
+  backdrop-filter: blur(10px);
+  min-width: 0 !important;
+}
+
+.portfolio-3axis .axis-card h3 {
+  font-size: 1rem !important;
+  margin: 0 0 1rem 0 !important;
+  font-weight: 600 !important;
+}
+
+.portfolio-3axis .axis-card.depth h3 { color: #60a5fa !important; }
+.portfolio-3axis .axis-card.content h3 { color: #4ade80 !important; }
+.portfolio-3axis .axis-card.audience h3 { color: #c084fc !important; }
+
+.portfolio-3axis .axis-item {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: baseline !important;
+  padding: 0.5rem 0 !important;
+  border-left: 3px solid !important;
+  padding-left: 0.75rem !important;
+  margin-bottom: 0.5rem !important;
+  gap: 1rem !important;
+}
+
+.portfolio-3axis .axis-item-label {
+  font-weight: 500 !important;
+  color: #ffffff !important;
+  font-size: 0.9rem !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+.portfolio-3axis .axis-item-desc {
+  font-size: 0.75rem !important;
+  color: rgba(255,255,255,0.7) !important;
+  text-align: right !important;
+  white-space: nowrap !important;
+}
+
+/* === MVP BOX === */
+.portfolio-3axis .mvp-box {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1)) !important;
+  border: 2px solid #FFD700 !important;
+  border-radius: 8px !important;
+  padding: 1.5rem !important;
+  margin-top: 2rem !important;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2) !important;
+}
+
+.portfolio-3axis .mvp-box h3 {
+  color: #FFD700 !important;
+  font-size: 1.1rem !important;
+  margin: 0 0 0.5rem 0 !important;
+  font-weight: 600 !important;
+}
+
+.portfolio-3axis .mvp-box p {
+  color: #ffffff !important;
+  margin: 0 !important;
+  font-size: 0.95rem !important;
+}
+
+.portfolio-3axis .mvp-box strong {
+  color: #FFD700 !important;
+}
+
+.portfolio-3axis .mvp-box .suggestion {
+  color: rgba(255,255,255,0.7) !important;
+  font-size: 0.85rem !important;
+  margin-top: 0.5rem !important;
+}
+```
+
+  </style>
+</head>
+<body>
+  <div class="portfolio-3axis">
+    <div class="wrapper">
+      <h1 class="title">Portfolio Information Architecture</h1>
+      <p class="subtitle">The Three-Axis Model</p>
+
+```
+  <!-- Legend: Audiences -->
+  <div class="legend">
+    <div class="legend-group">
+      <span class="legend-label">Audiences:</span>
+      <div class="legend-item"><div class="color-box hr"></div> HR</div>
+      <div class="legend-item"><div class="color-box technical"></div> Technical</div>
+      <div class="legend-item"><div class="color-box solutions"></div> Solutions</div>
+      <div class="legend-item"><div class="color-box manager"></div> Manager</div>
+    </div>
+  </div>
+  
+  <!-- Legend: Depth -->
+  <div class="legend">
+    <div class="legend-group">
+      <span class="legend-label">Depth:</span>
+      <div class="legend-item"><div class="color-box depth-surface"></div> Surface</div>
+      <div class="legend-item"><div class="color-box depth-explanation"></div> Explanation</div>
+      <div class="legend-item"><div class="color-box depth-evidence"></div> Evidence</div>
+    </div>
+  </div>
+  
+  <!-- Main Grid -->
+  <div class="grid-wrapper">
+    <div class="grid-container">
+      <!-- Header row -->
+      <div class="grid-header">
+        <div class="grid-header-cell"></div>
+        <div class="grid-header-cell">Methodology</div>
+        <div class="grid-header-cell">Projects</div>
+        <div class="grid-header-cell">Artifacts</div>
+        <div class="grid-header-cell">Outcomes</div>
+      </div>
+      
+      <!-- Surface row -->
+      <div class="grid-row row-surface">
+        <div class="row-label">Surface</div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Explanation row -->
+      <div class="grid-row row-explanation">
+        <div class="row-label">Explanation</div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Evidence row -->
+      <div class="grid-row row-evidence">
+        <div class="row-label">Evidence</div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+        <div class="cell">
+          <div class="cluster">
+            <div class="cluster-box hr">H</div>
+            <div class="cluster-box technical">T</div>
+            <div class="cluster-box solutions">S</div>
+            <div class="cluster-box manager">M</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pushpin - positioned outside the grid to the right -->
+    <div class="pushpin">
+      <div class="pushpin-head"></div>
+      <div class="pushpin-pin"></div>
+      <div class="pushpin-text">
+        <strong>THE CORE:</strong>
+        "How Dan Thinks"<br>
+        permeates ALL cells
+      </div>
+    </div>
+  </div>
+  
+  <!-- Axis Cards -->
+  <div class="axis-cards">
+    <!-- Depth -->
+    <div class="axis-card depth">
+      <h3>AXIS 1: Depth</h3>
+      <div class="axis-item" style="border-color: #ffffff;">
+        <span class="axis-item-label">Surface</span>
+        <span class="axis-item-desc">30 sec → "holy shit"</span>
+      </div>
+      <div class="axis-item" style="border-color: #9CA3AF;">
+        <span class="axis-item-label">Explanation</span>
+        <span class="axis-item-desc">2-3 min → methodology</span>
+      </div>
+      <div class="axis-item" style="border-color: #4B5563;">
+        <span class="axis-item-label">Evidence</span>
+        <span class="axis-item-desc">5-10 min → proof</span>
+      </div>
+    </div>
+    
+    <!-- Content Types -->
+    <div class="axis-card content">
+      <h3>AXIS 2: Content Types</h3>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">A: Methodology</span>
+        <span class="axis-item-desc">"How I think"</span>
+      </div>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">B: Projects</span>
+        <span class="axis-item-desc">Case studies</span>
+      </div>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">C: Artifacts</span>
+        <span class="axis-item-desc">Code, diagrams</span>
+      </div>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">D: Outcomes</span>
+        <span class="axis-item-desc">Metrics, ROI</span>
+      </div>
+    </div>
+    
+    <!-- Audiences -->
+    <div class="axis-card audience">
+      <h3>AXIS 3: Audiences</h3>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">HR</span>
+        <span class="axis-item-desc">→ "Ships fast"</span>
+      </div>
+      <div class="axis-item" style="border-color: #60a5fa;">
+        <span class="axis-item-label">Technical</span>
+        <span class="axis-item-desc">→ "Clean code"</span>
+      </div>
+      <div class="axis-item" style="border-color: #FFD700;">
+        <span class="axis-item-label">Solutions</span>
+        <span class="axis-item-desc">→ "Decomposes"</span>
+      </div>
+      <div class="axis-item" style="border-color: #c084fc;">
+        <span class="axis-item-label">Manager</span>
+        <span class="axis-item-desc">→ "10x paradigm"</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- MVP Box -->
+  <div class="mvp-box">
+    <h3>📌 MVP FOCUS: Pick One Slice</h3>
+    <p>Choose: <strong>1 Audience</strong> × <strong>1 Project</strong> × <strong>Surface + Explanation</strong> only.</p>
+    <p class="suggestion">Suggested: Technical Lead + n8n SMS System + Surface/Explanation layers</p>
+  </div>
+</div>
+```
+
+  </div>
+</body>
+</html>
