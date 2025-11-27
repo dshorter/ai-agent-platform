@@ -1,348 +1,539 @@
-/* ============================================
-   AI AGENT PLATFORM - CENTRALIZED STYLES
-   Created: 2025-10-15
-   ============================================ */
+<!DOCTYPE html>
 
-/* === CSS VARIABLES === */
-:root {
-  --color-primary: #1e3c72;
-  --color-secondary: #2a5298;
-  --color-accent: #FFD700;
-  --color-success: #4ade80;
-  --color-danger: #ff6b6b;
-  --color-white: #ffffff;
-  --color-dark: #0f2027;
-  --color-dark-alt: #203a43;
-  --color-dark-end: #2c5364;
-  --font-huge: 4rem;
-  --font-xlarge: 3.5rem;
-  --font-large: 3rem;
-  --font-medium: 1.8rem;
-  --font-normal: 1.2rem;
-  --font-small: 1rem;
-  --spacing-xs: 10px;
-  --spacing-sm: 20px;
-  --spacing-md: 30px;
-  --spacing-lg: 40px;
-  --spacing-xl: 60px;
-  --transition-fast: 0.2s ease;
-  --transition-normal: 0.3s ease;
-  --nav-width: 250px;
-  --nav-bg: rgba(15, 32, 39, 0.98);
-  --hamburger-size: 50px;
-}
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Three-Axis Model</title>
+  <style>
+    /* ============================================
+       PORTFOLIO 3-AXIS VISUALIZATION
+       Isolated Component - Scoped under .portfolio-3axis
+       Color palette: Blue (#1e3c72) to Gold (#FFD700)
+       ============================================ */
 
-/* === BASE STYLES === */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  margin: 0;
-  padding: 0;
+```
+/* === ISOLATION WRAPPER === */
+.portfolio-3axis {
+  /* Reset everything inside this scope */
+  all: initial;
+  display: block;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-  color: var(--color-white);
-  overflow-x: hidden;
   line-height: 1.6;
+  color: #ffffff;
+  
+  /* Blue to dark gradient background */
+  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  min-height: 100vh;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
-.bg-gradient-primary {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
-}
-
-.bg-gradient-dark {
-  background: linear-gradient(135deg, var(--color-dark) 0%, var(--color-dark-alt) 50%, var(--color-dark-end) 100%);
-}
-
-h1 {
-  font-size: var(--font-huge);
-  font-weight: 700;
-  line-height: 1.2;
-  margin-bottom: var(--spacing-lg);
-  text-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-
-h2 {
-  font-size: var(--font-medium);
-  font-weight: 600;
-  margin-bottom: var(--spacing-md);
-}
-
-.button {
-  display: inline-block;
-  padding: 15px 40px;
-  background: var(--color-accent);
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: bold;
-  border-radius: 8px;
-  margin: 0 10px;
-  transition: transform var(--transition-fast);
-  font-size: var(--font-normal);
-  border: none;
-  cursor: pointer;
-}
-
-.button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+/* All children inherit box-sizing */
+.portfolio-3axis *,
+.portfolio-3axis *::before,
+.portfolio-3axis *::after {
+  box-sizing: border-box;
 }
 
 /* === LAYOUT === */
-.slide, .container {
-  width: 90%;
-  max-width: 1200px;
-  min-height: 100vh;
+.portfolio-3axis .wrapper {
+  max-width: 1000px;
   margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-sm);
 }
 
-.slide {
-  display: block;
+/* === TYPOGRAPHY === */
+.portfolio-3axis .title {
   text-align: center;
-  padding-top: 80px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.timestamp {
-  position: fixed;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
-  color: var(--color-accent);
-  font-size: 0.8rem;
-  opacity: 0.8;
-  z-index: 100;
-}
-
-.tagline {
-  font-size: var(--font-normal);
-  color: var(--color-accent);
+.portfolio-3axis .subtitle {
+  text-align: center;
+  color: #FFD700;
+  font-size: 1.1rem;
+  margin: 0 0 2rem 0;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-bottom: var(--spacing-sm);
-  font-weight: 600;
 }
 
-.divider {
-  width: 100px;
-  height: 4px;
-  background: var(--color-accent);
-  margin: var(--spacing-lg) auto;
+/* === LEGENDS === */
+.portfolio-3axis .legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.cta {
-  margin-top: var(--spacing-xl);
-}
-
-/* === HAMBURGER NAV === */
-#nav-toggle {
-  position: fixed;
-  top: var(--spacing-sm);
-  left: var(--spacing-sm);
-  width: var(--hamburger-size);
-  height: var(--hamburger-size);
-  background: var(--nav-bg);
-  border: 2px solid var(--color-accent);
-  border-radius: 8px;
-  color: var(--color-accent);
-  font-size: 1.5rem;
-  cursor: pointer;
-  z-index: 1001;
-  transition: all var(--transition-fast);
+.portfolio-3axis .legend-group {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.75rem;
 }
 
-#nav-toggle:hover {
-  background: var(--color-accent);
-  color: var(--color-dark);
-  transform: scale(1.05);
-}
-
-#side-nav {
-  position: fixed;
-  top: 0;
-  left: -300px;
-  width: var(--nav-width);
-  height: 100vh;
-  background: var(--nav-bg);
-  border-right: 2px solid var(--color-accent);
-  padding: 80px 0 20px 0;
-  z-index: 1000;
-  transition: left var(--transition-normal);
-  overflow-y: auto;
-  box-shadow: 2px 0 20px rgba(0,0,0,0.5);
-}
-
-#side-nav.nav-expanded {
-  left: 0;
-}
-
-#side-nav a {
-  display: block;
-  padding: 15px 30px;
-  color: var(--color-white);
-  text-decoration: none;
-  font-size: var(--font-small);
-  transition: all var(--transition-fast);
-  border-left: 3px solid transparent;
-}
-
-#side-nav a:hover {
-  background: rgba(255, 215, 0, 0.1);
-  border-left-color: var(--color-accent);
-  padding-left: 35px;
-}
-
-#side-nav a.active {
-  background: rgba(255, 215, 0, 0.2);
-  border-left-color: var(--color-accent);
+.portfolio-3axis .legend-label {
+  font-size: 0.75rem;
+  color: #FFD700;
   font-weight: 600;
-  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-#nav-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  display: none;
-}
-
-#nav-overlay.visible {
-  display: block;
-}
-
-/* === COMPARISON LAYOUT === */
-.comparison {
+.portfolio-3axis .legend-item {
   display: flex;
-  justify-content: space-around;
-  margin-top: var(--spacing-xl);
-  gap: var(--spacing-lg);
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  color: #ffffff;
 }
 
-.column {
-  flex: 1;
-  padding: var(--spacing-md);
-  border-radius: 20px;
+.portfolio-3axis .color-box {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Audience colors */
+.portfolio-3axis .color-box.hr { background: #4ade80; }
+.portfolio-3axis .color-box.technical { background: #60a5fa; }
+.portfolio-3axis .color-box.solutions { background: #FFD700; }
+.portfolio-3axis .color-box.manager { background: #c084fc; }
+
+/* Depth colors */
+.portfolio-3axis .color-box.depth-surface { background: #ffffff; }
+.portfolio-3axis .color-box.depth-explanation { background: #9CA3AF; }
+.portfolio-3axis .color-box.depth-evidence { background: #4B5563; }
+
+/* === MAIN GRID === */
+.portfolio-3axis .grid-wrapper {
+  position: relative;
+  margin: 2rem 0;
+}
+
+.portfolio-3axis .grid-container {
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.portfolio-3axis .grid-header {
+  display: grid;
+  grid-template-columns: 100px repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-3axis .grid-header-cell {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #FFD700;
+  padding: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.portfolio-3axis .grid-row {
+  display: grid;
+  grid-template-columns: 100px repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.portfolio-3axis .row-label {
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.portfolio-3axis .cell {
+  position: relative;
+  height: 60px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.portfolio-3axis .cell-layer {
+  position: absolute;
+  width: calc(100% - 12px);
+  height: calc(100% - 8px);
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.3);
+}
+
+.portfolio-3axis .cell-layer:nth-child(1) { top: 0; left: 0; }
+.portfolio-3axis .cell-layer:nth-child(2) { top: 3px; left: 4px; }
+.portfolio-3axis .cell-layer:nth-child(3) { top: 6px; left: 8px; }
+.portfolio-3axis .cell-layer:nth-child(4) { top: 9px; left: 12px; }
+
+/* Depth opacity */
+.portfolio-3axis .row-surface .cell-layer { opacity: 1; }
+.portfolio-3axis .row-explanation .cell-layer { opacity: 0.7; }
+.portfolio-3axis .row-evidence .cell-layer { opacity: 0.4; }
+
+/* Cell colors */
+.portfolio-3axis .cell-layer.hr { background: #4ade80; }
+.portfolio-3axis .cell-layer.technical { background: #60a5fa; }
+.portfolio-3axis .cell-layer.solutions { background: #FFD700; }
+.portfolio-3axis .cell-layer.manager { background: #c084fc; }
+
+/* === PUSHPIN === */
+.portfolio-3axis .pushpin {
+  position: absolute;
+  right: -140px;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  width: 120px;
+}
+
+.portfolio-3axis .pushpin-head {
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle at 30% 30%, #FFD700, #FFA500);
+  border-radius: 50%;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+}
+
+.portfolio-3axis .pushpin-pin {
+  width: 4px;
+  height: 30px;
+  background: linear-gradient(#8B4513, #654321);
+  margin: 0 auto;
+}
+
+.portfolio-3axis .pushpin-text {
+  margin-top: 0.5rem;
+  font-size: 0.7rem;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.portfolio-3axis .pushpin-text strong {
+  color: #FFD700;
+  display: block;
+  font-size: 0.75rem;
+}
+
+/* === AXIS CARDS === */
+.portfolio-3axis .axis-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 768px) {
+  .portfolio-3axis .axis-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .portfolio-3axis .pushpin {
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    margin: 1.5rem auto;
+  }
+}
+
+.portfolio-3axis .axis-card {
+  background: rgba(30, 60, 114, 0.6);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 215, 0, 0.2);
   backdrop-filter: blur(10px);
 }
 
-.everyone {
-  background: rgba(255, 255, 255, 0.1);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+.portfolio-3axis .axis-card h3 {
+  font-size: 1rem;
+  margin: 0 0 1rem 0;
+  font-weight: 600;
 }
 
-.smart-smbs {
-  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
-  border: 2px solid var(--color-accent);
-  animation: glow 2s ease-in-out infinite;
-}
+.portfolio-3axis .axis-card.depth h3 { color: #60a5fa; }
+.portfolio-3axis .axis-card.content h3 { color: #4ade80; }
+.portfolio-3axis .axis-card.audience h3 { color: #c084fc; }
 
-@keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); }
-  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.5); }
-}
-
-.items {
-  text-align: left;
-  font-size: var(--font-normal);
-  line-height: 1.8;
-}
-
-.item {
-  margin: 15px 0;
+.portfolio-3axis .axis-item {
   display: flex;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-left: 3px solid;
+  padding-left: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
-.icon {
-  margin-right: 12px;
-  font-size: 1.3rem;
-  flex-shrink: 0;
+.portfolio-3axis .axis-item-label {
+  font-weight: 500;
+  color: #ffffff;
+  font-size: 0.9rem;
 }
 
-.everyone .icon { color: var(--color-danger); }
-.smart-smbs .icon { color: var(--color-success); }
-
-/* === RESULTS/METRICS === */
-.results {
-  display: flex;
-  justify-content: space-around;
-  margin: var(--spacing-xl) 0;
-  text-align: center;
-  flex-wrap: wrap;
+.portfolio-3axis .axis-item-desc {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
 }
 
-.result-box {
-  flex: 1;
-  margin: 15px;
-  min-width: 200px;
+/* === MVP BOX === */
+.portfolio-3axis .mvp-box {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.1));
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
 }
 
-.result-number {
-  font-size: var(--font-large);
-  font-weight: 700;
-  color: var(--color-success);
+.portfolio-3axis .mvp-box h3 {
+  color: #FFD700;
+  font-size: 1.1rem;
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
 }
 
-.result-label {
-  color: rgba(255, 255, 255, 0.8);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: var(--spacing-xs);
+.portfolio-3axis .mvp-box p {
+  color: #ffffff;
+  margin: 0;
+  font-size: 0.95rem;
 }
 
-/* === ANIMATIONS === */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+.portfolio-3axis .mvp-box strong {
+  color: #FFD700;
 }
 
-@keyframes slideIn {
-  from { transform: translateX(-50px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+.portfolio-3axis .mvp-box .suggestion {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
 }
+```
 
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
+  </style>
+</head>
+<body>
+  <div class="portfolio-3axis">
+    <div class="wrapper">
+      <h1 class="title">Portfolio Information Architecture</h1>
+      <p class="subtitle">The Three-Axis Model</p>
 
-.fade-in { animation: fadeIn 1s ease-in; }
-.slide-in { animation: slideIn 0.8s ease-out; }
-.pulse { animation: pulse 2s infinite; }
-
-/* === RESPONSIVE === */
-@media (max-width: 768px) {
-  h1 { font-size: 2.5rem; }
-  h2 { font-size: 1.5rem; }
+```
+  <!-- Legend: Audiences -->
+  <div class="legend">
+    <div class="legend-group">
+      <span class="legend-label">Audiences:</span>
+      <div class="legend-item"><div class="color-box hr"></div> HR</div>
+      <div class="legend-item"><div class="color-box technical"></div> Technical</div>
+      <div class="legend-item"><div class="color-box solutions"></div> Solutions</div>
+      <div class="legend-item"><div class="color-box manager"></div> Manager</div>
+    </div>
+  </div>
   
-  .comparison {
-    flex-direction: column;
-    gap: var(--spacing-md);
-  }
+  <!-- Legend: Depth -->
+  <div class="legend">
+    <div class="legend-group">
+      <span class="legend-label">Depth:</span>
+      <div class="legend-item"><div class="color-box depth-surface"></div> Surface</div>
+      <div class="legend-item"><div class="color-box depth-explanation"></div> Explanation</div>
+      <div class="legend-item"><div class="color-box depth-evidence"></div> Evidence</div>
+    </div>
+  </div>
   
-  .result-number { font-size: 2rem; }
+  <!-- Main Grid -->
+  <div class="grid-wrapper">
+    <div class="grid-container">
+      <!-- Header row -->
+      <div class="grid-header">
+        <div class="grid-header-cell"></div>
+        <div class="grid-header-cell">Methodology</div>
+        <div class="grid-header-cell">Projects</div>
+        <div class="grid-header-cell">Artifacts</div>
+        <div class="grid-header-cell">Outcomes</div>
+      </div>
+      
+      <!-- Surface row -->
+      <div class="grid-row row-surface">
+        <div class="row-label">Surface</div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+      </div>
+      
+      <!-- Explanation row -->
+      <div class="grid-row row-explanation">
+        <div class="row-label">Explanation</div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+      </div>
+      
+      <!-- Evidence row -->
+      <div class="grid-row row-evidence">
+        <div class="row-label">Evidence</div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+        <div class="cell">
+          <div class="cell-layer hr"></div>
+          <div class="cell-layer technical"></div>
+          <div class="cell-layer solutions"></div>
+          <div class="cell-layer manager"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Pushpin - positioned outside the grid to the right -->
+    <div class="pushpin">
+      <div class="pushpin-head"></div>
+      <div class="pushpin-pin"></div>
+      <div class="pushpin-text">
+        <strong>THE CORE:</strong>
+        "How Dan Thinks"<br>
+        permeates ALL cells
+      </div>
+    </div>
+  </div>
   
-  .slide, .container {
-    padding: var(--spacing-md) var(--spacing-sm);
-  }
-}
+  <!-- Axis Cards -->
+  <div class="axis-cards">
+    <!-- Depth -->
+    <div class="axis-card depth">
+      <h3>AXIS 1: Depth</h3>
+      <div class="axis-item" style="border-color: #ffffff;">
+        <span class="axis-item-label">Surface</span>
+        <span class="axis-item-desc">30 sec → "holy shit"</span>
+      </div>
+      <div class="axis-item" style="border-color: #9CA3AF;">
+        <span class="axis-item-label">Explanation</span>
+        <span class="axis-item-desc">2-3 min → methodology</span>
+      </div>
+      <div class="axis-item" style="border-color: #4B5563;">
+        <span class="axis-item-label">Evidence</span>
+        <span class="axis-item-desc">5-10 min → proof</span>
+      </div>
+    </div>
+    
+    <!-- Content Types -->
+    <div class="axis-card content">
+      <h3>AXIS 2: Content Types</h3>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">A: Methodology</span>
+        <span class="axis-item-desc">"How I think"</span>
+      </div>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">B: Projects</span>
+        <span class="axis-item-desc">Case studies</span>
+      </div>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">C: Artifacts</span>
+        <span class="axis-item-desc">Code, diagrams</span>
+      </div>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">D: Outcomes</span>
+        <span class="axis-item-desc">Metrics, ROI</span>
+      </div>
+    </div>
+    
+    <!-- Audiences -->
+    <div class="axis-card audience">
+      <h3>AXIS 3: Audiences</h3>
+      <div class="axis-item" style="border-color: #4ade80;">
+        <span class="axis-item-label">HR</span>
+        <span class="axis-item-desc">→ "Ships fast"</span>
+      </div>
+      <div class="axis-item" style="border-color: #60a5fa;">
+        <span class="axis-item-label">Technical</span>
+        <span class="axis-item-desc">→ "Clean code"</span>
+      </div>
+      <div class="axis-item" style="border-color: #FFD700;">
+        <span class="axis-item-label">Solutions</span>
+        <span class="axis-item-desc">→ "Decomposes"</span>
+      </div>
+      <div class="axis-item" style="border-color: #c084fc;">
+        <span class="axis-item-label">Manager</span>
+        <span class="axis-item-desc">→ "10x paradigm"</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- MVP Box -->
+  <div class="mvp-box">
+    <h3>📌 MVP FOCUS: Pick One Slice</h3>
+    <p>Choose: <strong>1 Audience</strong> × <strong>1 Project</strong> × <strong>Surface + Explanation</strong> only.</p>
+    <p class="suggestion">Suggested: Technical Lead + n8n SMS System + Surface/Explanation layers</p>
+  </div>
+</div>
+```
 
-@media (max-width: 480px) {
-  h1 { font-size: 2rem; }
-  .button { padding: 12px 25px; font-size: 1rem; }
-  #nav-toggle { width: 45px; height: 45px; }
-}
+  </div>
+</body>
+</html>
