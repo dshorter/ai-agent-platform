@@ -13,16 +13,17 @@
        ============================================ */
 
 ```
-/* Override body when this component is present */
-body:has(.portfolio-3axis) {
-  background: #0f2027 !important;
+/* Override body/html when this component is present */
+html, body {
   margin: 0 !important;
   padding: 0 !important;
+  background: #0f2027 !important;
+  overflow-x: hidden !important;
 }
 
 /* === ISOLATION WRAPPER === */
 .portfolio-3axis {
-  /* Explicit resets instead of all:initial */
+  /* Explicit resets */
   display: block !important;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif !important;
   line-height: 1.6 !important;
@@ -33,15 +34,18 @@ body:has(.portfolio-3axis) {
   background-image: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%) !important;
   background-attachment: scroll !important;
   
+  /* Full width without tricks */
+  width: 100% !important;
   min-height: 100vh !important;
   padding: 2rem !important;
   box-sizing: border-box !important;
+  margin: 0 !important;
   
   /* Force stacking context */
   position: relative !important;
   z-index: 1 !important;
   isolation: isolate !important;
-  overflow: visible !important;
+  overflow-x: hidden !important;
 }
 
 /* Pseudo-element to guarantee dark background coverage */
