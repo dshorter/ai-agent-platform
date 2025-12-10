@@ -1,0 +1,49 @@
+"new_project_id": {
+    
+    // === AUDIENCE: TECHNICAL LEAD ===
+    "tech_lead": {
+        "surface": { "status": "draft", "type": "METHODOLOGY" },
+        "explanation": { "status": "draft", "type": "METHODOLOGY" },
+        "evidence": { 
+            "status": "ready", 
+            "type": "ARTIFACT",
+            "headline": "Title Here", 
+            "body": "Description...",
+            "snippet": "const code = true;",
+            "link_text": "View Repo",
+            "link_url": "#"
+        }
+    },
+
+    // === AUDIENCE: MANAGER ===
+    "manager": {
+        "surface": { "status": "draft", "type": "METHODOLOGY" },
+        "explanation": { "status": "draft", "type": "METHODOLOGY" },
+        "evidence": { 
+            "status": "ready", 
+            "type": "OUTCOME",
+            "headline": "Business Value", 
+            "body": "Description...",
+            "stats": [
+                { "val": "XX", "lbl": "Metric 1" },
+                { "val": "YY", "lbl": "Metric 2" }
+            ],
+            "link_text": "View Report",
+            "link_url": "#"
+        }
+    },
+
+    // === AUDIENCE: HR ===
+    "hr": {
+        "surface": { 
+            "status": "ready", 
+            "type": "METHODOLOGY",
+            "headline": "High Level Summary", 
+            "body": "Description...",
+            "link_text": "Download Resume",
+            "link_url": "#"
+        },
+        "explanation": { "status": "draft", "type": "METHODOLOGY" },
+        "evidence": { "status": "draft", "type": "METHODOLOGY" }
+    }
+}

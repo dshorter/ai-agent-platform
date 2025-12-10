@@ -1,0 +1,113 @@
+{
+  "name": "HVAC Business Dashboard",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "hvac-dashboard",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Dashboard Request",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Today's dashboard metrics\nWITH today_events AS (\n    SELECT \n        COUNT(*) as total_events,\n        COUNT(CASE WHEN event_type = 'emergency' THEN 1 END) as emergencies,\n        COUNT(CASE WHEN event_type = 'appointment' THEN 1 END) as appointments,\n        COUNT(CASE WHEN event_type = 'inquiry' THEN 1 END) as inquiries,\n        COALESCE(SUM(estimated_revenue), 0) as revenue_captured,\n        COALESCE(AVG(urgency), 0) as avg_urgency\n    FROM hvac_events\n    WHERE created_at >= CURRENT_DATE\n),\nagent_stats AS (\n    SELECT \n        COUNT(*) as decisions_made,\n        COALESCE(AVG(decision_confidence), 0) as avg_confidence,\n        COUNT(DISTINCT agent_name) as agents_active\n    FROM agent_decisions\n    WHERE created_at >= CURRENT_DATE\n)\nSELECT \n    e.total_events,\n    e.emergencies,\n    e.appointments,\n    e.inquiries,\n    ROUND(e.revenue_captured::numeric, 2) as revenue_captured,\n    ROUND(e.avg_urgency::numeric, 1) as avg_urgency,\n    a.decisions_made,\n    ROUND(a.avg_confidence::numeric * 100) as confidence_pct,\n    a.agents_active,\n    -- Calculated metrics\n    ROUND((e.total_events * 12)::numeric, 0) as minutes_saved,\n    ROUND((e.total_events * 0.004)::numeric, 2) as ai_cost\nFROM today_events e, agent_stats a;",
+        "options": {}
+      },
+      "id": "postgres-query",
+      "name": "Get Today Stats",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [460, 300],
+      "credentials": {
+        "postgres": {
+          "id": "YOUR_POSTGRES_CREDENTIAL_ID",
+          "name": "HVAC Postgres"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// HVAC Business Dashboard - HTML Generator\n// No goldplating. It works.\n\nconst data = $input.first().json;\n\n// Handle empty/null data\nconst stats = {\n  total_events: data.total_events || 0,\n  emergencies: data.emergencies || 0,\n  appointments: data.appointments || 0,\n  inquiries: data.inquiries || 0,\n  revenue_captured: data.revenue_captured || 0,\n  avg_urgency: data.avg_urgency || 0,\n  decisions_made: data.decisions_made || 0,\n  confidence_pct: data.confidence_pct || 0,\n  agents_active: data.agents_active || 0,\n  minutes_saved: data.minutes_saved || 0,\n  ai_cost: data.ai_cost || 0\n};\n\n// Calculate derived values\nconst hoursSaved = (stats.minutes_saved / 60).toFixed(1);\nconst roi = stats.ai_cost > 0 ? Math.round(stats.revenue_captured / stats.ai_cost) : 0;\n\nconst html = `<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Climate Control Co. - Dashboard</title>\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;\n            background: #0f172a;\n            color: #e2e8f0;\n            min-height: 100vh;\n            padding: 2rem;\n        }\n        .header {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            margin-bottom: 2rem;\n            padding-bottom: 1rem;\n            border-bottom: 1px solid #334155;\n        }\n        .header h1 {\n            font-size: 1.5rem;\n            color: #38bdf8;\n        }\n        .timestamp {\n            color: #64748b;\n            font-size: 0.875rem;\n        }\n        .hero-grid {\n            display: grid;\n            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n            gap: 1.5rem;\n            margin-bottom: 2rem;\n        }\n        .hero-card {\n            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);\n            border: 1px solid #334155;\n            border-radius: 12px;\n            padding: 1.5rem;\n            text-align: center;\n        }\n        .hero-card.revenue {\n            border-color: #22c55e;\n            background: linear-gradient(135deg, #14532d 0%, #0f172a 100%);\n        }\n        .hero-value {\n            font-size: 2.5rem;\n            font-weight: 700;\n            color: #f8fafc;\n        }\n        .hero-card.revenue .hero-value {\n            color: #4ade80;\n        }\n        .hero-label {\n            font-size: 0.875rem;\n            color: #94a3b8;\n            margin-top: 0.5rem;\n        }\n        .section {\n            background: #1e293b;\n            border-radius: 12px;\n            padding: 1.5rem;\n            margin-bottom: 1.5rem;\n        }\n        .section h2 {\n            font-size: 1rem;\n            color: #94a3b8;\n            margin-bottom: 1rem;\n            text-transform: uppercase;\n            letter-spacing: 0.05em;\n        }\n        .stats-row {\n            display: flex;\n            justify-content: space-between;\n            padding: 0.75rem 0;\n            border-bottom: 1px solid #334155;\n        }\n        .stats-row:last-child {\n            border-bottom: none;\n        }\n        .stat-label { color: #94a3b8; }\n        .stat-value { color: #f8fafc; font-weight: 600; }\n        .stat-value.positive { color: #4ade80; }\n        .footer {\n            text-align: center;\n            color: #475569;\n            font-size: 0.75rem;\n            margin-top: 2rem;\n        }\n        .refresh-btn {\n            display: inline-block;\n            margin-top: 1rem;\n            padding: 0.5rem 1.5rem;\n            background: #334155;\n            color: #e2e8f0;\n            border: none;\n            border-radius: 6px;\n            cursor: pointer;\n            font-size: 0.875rem;\n        }\n        .refresh-btn:hover {\n            background: #475569;\n        }\n    </style>\n</head>\n<body>\n    <div class=\"header\">\n        <h1>🏠 Climate Control Co.</h1>\n        <div class=\"timestamp\">\n            Updated: ${new Date().toLocaleString()}\n        </div>\n    </div>\n\n    <div class=\"hero-grid\">\n        <div class=\"hero-card revenue\">\n            <div class=\"hero-value\">$${Number(stats.revenue_captured).toLocaleString()}</div>\n            <div class=\"hero-label\">Revenue Captured Today</div>\n        </div>\n        <div class=\"hero-card\">\n            <div class=\"hero-value\">${hoursSaved}h</div>\n            <div class=\"hero-label\">Time Saved Today</div>\n        </div>\n        <div class=\"hero-card\">\n            <div class=\"hero-value\">${stats.total_events}</div>\n            <div class=\"hero-label\">Events Handled</div>\n        </div>\n        <div class=\"hero-card\">\n            <div class=\"hero-value\">${roi}x</div>\n            <div class=\"hero-label\">ROI (Revenue / AI Cost)</div>\n        </div>\n    </div>\n\n    <div class=\"section\">\n        <h2>📊 Today's Activity</h2>\n        <div class=\"stats-row\">\n            <span class=\"stat-label\">🚨 Emergencies Handled</span>\n            <span class=\"stat-value\">${stats.emergencies}</span>\n        </div>\n        <div class=\"stats-row\">\n            <span class=\"stat-label\">📅 Appointments Scheduled</span>\n            <span class=\"stat-value\">${stats.appointments}</span>\n        </div>\n        <div class=\"stats-row\">\n            <span class=\"stat-label\">❓ Inquiries Answered</span>\n            <span class=\"stat-value\">${stats.inquiries}</span>\n        </div>\n    </div>\n\n    <div class=\"section\">\n        <h2>🤖 Agent Performance</h2>\n        <div class=\"stats-row\">\n            <span class=\"stat-label\">Decisions Made</span>\n            <span class=\"stat-value\">${stats.decisions_made}</span>\n        </div>\n        <div class=\"stats-row\">\n            <span class=\"stat-label\">Avg Confidence</span>\n            <span class=\"stat-value\">${stats.confidence_pct}%</span>\n        </div>\n        <div class=\"stats-row\">\n            <span class=\"stat-label\">Agents Active</span>\n            <span class=\"stat-value\">${stats.agents_active}</span>\n        </div>\n        <div class=\"stats-row\">\n            <span class=\"stat-label\">AI Cost Today</span>\n            <span class=\"stat-value positive\">$${stats.ai_cost}</span>\n        </div>\n    </div>\n\n    <div class=\"footer\">\n        <p>Intelligence Moat • HVAC Digital Twin Demo</p>\n        <button class=\"refresh-btn\" onclick=\"location.reload()\">🔄 Refresh Data</button>\n    </div>\n\n    <script>\n        console.log('Dashboard loaded:', new Date());\n        console.log('Stats:', ${JSON.stringify(stats)});\n    </script>\n</body>\n</html>`;\n\nreturn { html };"
+      },
+      "id": "build-html",
+      "name": "Build Dashboard HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ $json.html }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "respond-html",
+      "name": "Return Dashboard",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Dashboard Request": {
+      "main": [
+        [
+          {
+            "node": "Get Today Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Today Stats": {
+      "main": [
+        [
+          {
+            "node": "Build Dashboard HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Dashboard HTML": {
+      "main": [
+        [
+          {
+            "node": "Return Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "hvac-demo"
+    },
+    {
+      "name": "dashboard"
+    }
+  ]
+}

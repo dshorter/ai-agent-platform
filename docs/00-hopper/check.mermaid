@@ -1,28 +1,28 @@
-graph TD
-
-    subgraph Phone["iPhone (Couch Mission Control)"]
-        T["Terminus\n(SSH + tunnels + shell)"]
-        S["Safari\n(HTTP client)"]
-        P["PG Orbit\n(DB client)"]
-    end
-
-    subgraph VPS["VPS / Hetzner"]
-        subgraph Docker["Docker host"]
-            N8N["n8n container\nlistens on localhost:5678"]
-            PG["Postgres container\n(hvac-postgres)\nlistens on localhost:5432"]
-        end
-        VOL["Named volume:\n hvac-postgres-data\n(future: tiny backup container / cron pg_dump)"]
-    end
-
-    %% Client relationships on phone
-    S -->|"localhost:5678 (on iPhone)"| T
-    P -->|"localhost:5432\n(on iPhone)"| T
-
-    %% SSH + tunnels
-    T -->|"SSH to VPS\n(key auth)"| VPS
-    T -. "Local port 5678 → VPS:5678 Local port 5432 → VPS:5432" .- VPS
-
-    %% On VPS side
-    VPS -->|"port 5678"| N8N
-    VPS -->|"port 5432"| PG
-    PG --> VOL
+flowchart TB
+    iPhone[iPhone]
+    
+    iPhone --> Terminus[Terminus<br/>SSH + tunnels + shell]
+    iPhone --> Safari[Safari<br/>HTTP UI]
+    iPhone --> PGOrbit[PG Orbit<br/>DB client]
+    
+    Safari -.->|http://localhost:5678<br/>through local tunnel| LocalN8N[Local Port 5678]
+    PGOrbit -.->|connects to<br/>localhost:5432| LocalPG[Local Port 5432]
+    
+    Terminus -->|SSH key-based auth<br/>with local port forwards:<br/>5678 → VPS:5678<br/>5432 → VPS:5432| VPS[VPS / Hetzner]
+    
+    LocalN8N -.->|tunneled to| VPS
+    LocalPG -.->|tunneled to| VPS
+    
+    VPS --> N8N[Docker: n8n<br/>listens on localhost:5678]
+    VPS --> Postgres[Docker: Postgres<br/>hvac-postgres<br/>listens on localhost:5432]
+    
+    Postgres --> Volume[Named volume:<br/>hvac-postgres-data<br/>future: backup container/pg_dump]
+    
+    style iPhone fill:#e1f5ff
+    style VPS fill:#fff4e1
+    style N8N fill:#e8f5e9
+    style Postgres fill:#e8f5e9
+    style Volume fill:#f3e5f5
+    style Terminus fill:#fff9e1
+    style Safari fill:#fff9e1
+    style PGOrbit fill:#fff9e1

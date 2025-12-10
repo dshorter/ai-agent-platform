@@ -1,0 +1,40 @@
+                          +--------+
+                          | iPhone |
+                          +---+----+
+                              |
+        -------------------------------------------------
+        |                       |                       |
+        |                       |                       |
+  +----------------+     +----------------+     +----------------+
+  |   Terminus     |     |     Safari     |     |    PG Orbit    |
+  | (SSH + tunnels |     |   (HTTP UI)    |     |   (DB client)  |
+  |     + shell)   |     +--------+-------+     +--------+-------+
+  +--------+-------+              |                      |
+           |                      |              connects to
+           |              http://localhost:5678   localhost:5432
+           |               (through local tunnel)        |
+           |                                             |
+           |  SSH (key-based auth) with local port forwards:
+           |     - 5678 -> VPS:5678 (n8n)
+           |     - 5432 -> VPS:5432 (Postgres)
+           |
+           v
+                  +--------------------------+
+                  |      VPS / Hetzner      |
+                  +------------+-------------+
+                               |
+           -----------------------------------------------
+           |                                             |
+   +-------------------+                       +---------------------+
+   |   Docker: n8n     |                       |  Docker: Postgres   |
+   |  listens on       |                       |   (hvac-postgres)   |
+   |  localhost:5678   |                       |  listens on         |
+   +---------+---------+                       |  localhost:5432     |
+             |                                 +----------+----------+
+             |                                            |
+      (tunneled to Safari                         +-----------------------+
+       via local port 5678)                       |    Named volume       |
+                                                  |  hvac-postgres-data   |
+                                                  |  (future: backup      |
+                                                  |   container/pg_dump)  |
+                                                  +-----------------------+
