@@ -400,7 +400,7 @@ services:
     command: 
       - "http"
       - "web:80"
-      - "--domain=agents-platform.ngrok.io"
+      - "--url=agents-platform.ngrok.io"
       - "--log-level=info"
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}

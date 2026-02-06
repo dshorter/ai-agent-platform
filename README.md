@@ -20,8 +20,9 @@ This platform demonstrates the **Intelligence Moat** concept: going beyond simpl
 - **n8n** - Workflow orchestration and agent coordination
 - **PostgreSQL** - Event storage and business metrics tracking
 - **Docker Compose** - Complete infrastructure as code
-- **Nginx** - Static web hosting for demos and presentations
+- **Nginx** - Static web hosting for demos, presentations, and predictor UI
 - **ngrok** - Secure tunneling for webhooks and remote access
+- **Predictor Pipeline** - RSS trend analysis with graph visualizations (optional profile)
 
 ---
 
@@ -82,8 +83,13 @@ docker-compose up -d
 This starts:
 - **PostgreSQL** on `localhost:5432` (hvac_demo database)
 - **n8n** on `localhost:5678` (workflow editor)
-- **Nginx** on `localhost:8080` (public web interface)
+- **Nginx** on `localhost:8080` (public web interface + predictor UI at `/predictor/`)
 - **ngrok** tunneling to `agents-platform.ngrok.io` (configurable in docker-compose.yml)
+
+> **Note:** The predictor pipeline service is optional. Enable it with:
+> ```bash
+> docker compose --profile predictor up -d
+> ```
 
 ### 3. Initialize Database
 
@@ -130,6 +136,8 @@ ai-agent-platform/
 │   ├── event-generator.json        # Scenario simulator
 │   ├── hvac_business_dashboard_workflow.json  # Live metrics API
 │   └── schedule-simulator.json     # Appointment management
+├── predictor/
+│   └── Dockerfile                  # Predictor pipeline container (optional profile)
 ├── nginx/
 │   └── nginx.conf                  # Web server configuration
 ├── public/                         # Static website files
@@ -285,7 +293,7 @@ ngrok:
   command:
     - "http"
     - "web-server:80"
-    - "--domain=your-custom-domain.ngrok.io"  # Change this
+    - "--url=your-custom-domain.ngrok.io"  # Change this
 ```
 
 ---

@@ -31,6 +31,7 @@ We have a working backend that can simulate a realistic HVAC business generating
 - ✅ LOG003 sequence-aware logging system
 - ✅ Idempotency patterns preventing duplicate events
 - ✅ Git-based version control and CI/CD pipeline
+- ✅ Predictor pipeline web UI live at `/predictor/` via ngrok (Feb 2026)
 
 **What We Don't Have:**
 - ❌ Paying customers (zero revenue)
@@ -65,6 +66,13 @@ Building customer-facing demos (Business Owner + Technologist dashboards) and st
   - Auto-deploy on push to main
   - Daily backups at 3 AM
   - Git-based workflow version control
+
+- ✅ **Predictor Pipeline Integration** (Feb 2026)
+  - RSS trend analysis with graph visualizations
+  - Web UI served at `/predictor/` via nginx/ngrok
+  - Sibling repo (`predictor_ingest`) mounted into nginx container
+  - Pipeline container available via `docker compose --profile predictor`
+  - Safe-reboot and health check scripts updated for predictor awareness
 
 - ✅ **SMS Integration** - Twilio
   - Real phone number configured
@@ -517,6 +525,15 @@ Success = Three businesses using the platform + documented results
 - ✅ Reality check: Backend works, customer-facing missing
 - ✅ Priority clarified: Customer conversations > more code
 - 🚨 NEW MANDATE: Send cold emails THIS WEEK
+
+**February 6, 2026**
+- ✅ Predictor pipeline integrated into Docker Compose (profile-gated)
+- ✅ Predictor web UI live at `/predictor/` via ngrok
+- ✅ nginx configured to serve predictor_ingest/web/ from /srv/predictor
+- ✅ Safe-reboot script: pipeline lock wait + SQLite pre-reboot backup
+- ✅ Health check script: predictor container, DB size, backup freshness
+- ✅ Fixed ngrok `--domain` → `--url` (deprecated flag broke tunnel)
+- ✅ Dockerfile uses pyproject.toml (not requirements.txt)
 
 **Next Update:** After first cold email responses OR after first pilot signed
 
