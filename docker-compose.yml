@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL for HVAC Digital Twin Demo
   postgres:
@@ -62,6 +60,7 @@ services:
       - app-network
 
   predictor:
+    profiles: ["predictor"]
     build:
       context: ../predictor_ingest
       dockerfile: ../ai-agent-platform/predictor/Dockerfile
