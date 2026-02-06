@@ -8,6 +8,8 @@ DATA_DIR="/root/n8n-data"
 BACKUP_SCRIPT="$PROJECT_DIR/scripts/backup.sh"
 LOG_FILE="/var/log/safe-reboot.log"
 MAX_WAIT_SECONDS=300  # 5 minutes max wait for active executions
+PREDICTOR_LOCK="/app/data/pipeline.lock"
+PREDICTOR_LOCK_WAIT=120  # 2 minutes max wait for predictor pipeline
 
 # Detect docker compose command
 if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
@@ -124,17 +126,56 @@ run_backup() {
     log "✓ Backup completed successfully"
 }
 
+wait_for_predictor_pipeline() {
+    log "Checking for active predictor pipeline..."
+
+    local elapsed=0
+
+    while [[ $elapsed -lt $PREDICTOR_LOCK_WAIT ]]; do
+        if docker exec predictor-pipeline test -f "$PREDICTOR_LOCK" 2>/dev/null; then
+            log "Predictor pipeline is running... ($elapsed/$PREDICTOR_LOCK_WAIT seconds elapsed)"
+            sleep 10
+            elapsed=$((elapsed + 10))
+        else
+            log "✓ No active predictor pipeline"
+            return 0
+        fi
+    done
+
+    log "WARNING: Timeout waiting for predictor pipeline. Proceeding anyway"
+    return 1
+}
+
+backup_predictor_db() {
+    log "Backing up predictor SQLite database..."
+
+    if ! docker ps --filter "name=predictor-pipeline" --filter "status=running" | grep -q predictor-pipeline; then
+        log "WARNING: predictor-pipeline container not running, skipping backup"
+        return 0
+    fi
+
+    local backup_name="predictor_prereboot_$(date +'%Y%m%d_%H%M%S').db"
+
+    if docker exec predictor-pipeline sqlite3 /app/data/db/predictor.db ".backup /app/data/db/backups/${backup_name}" 2>/dev/null; then
+        log "✓ Predictor database backed up: ${backup_name}"
+    else
+        log "WARNING: Predictor database backup failed (non-fatal, continuing reboot)"
+    fi
+}
+
 graceful_stop() {
     log "Beginning graceful shutdown..."
-    
+
     export_status
     check_n8n_health || log "WARNING: n8n health check failed before shutdown"
     wait_for_executions
+    wait_for_predictor_pipeline
+    backup_predictor_db
     run_backup
-    
+
     log "Stopping all containers..."
     (cd "$PROJECT_DIR" && $COMPOSE down) || error "Failed to stop containers"
-    
+
     log "✓ All containers stopped"
 }
 

@@ -149,6 +149,35 @@ check_disk_space() {
     return 0
 }
 
+check_predictor_health() {
+    log "Checking predictor pipeline health..."
+
+    # Check container status
+    if ! check_container_status "predictor-pipeline"; then
+        return 1
+    fi
+
+    # Check database file exists and is larger than 1KB
+    local db_size
+    db_size=$(docker exec predictor-pipeline stat -c%s /app/data/db/predictor.db 2>/dev/null || echo "0")
+    if [[ "$db_size" -lt 1024 ]]; then
+        alert "Predictor database missing or too small (${db_size} bytes)"
+        return 1
+    fi
+    log "✓ Predictor database OK (${db_size} bytes)"
+
+    # Check for recent backup (within 48 hours)
+    local recent_backup
+    recent_backup=$(docker exec predictor-pipeline find /app/data/db/backups -name "predictor_*.db" -mtime -2 -print -quit 2>/dev/null || echo "")
+    if [[ -z "$recent_backup" ]]; then
+        log "WARNING: No predictor backup found within last 48 hours"
+    else
+        log "✓ Recent predictor backup found: $(basename "$recent_backup")"
+    fi
+
+    return 0
+}
+
 check_recent_errors() {
     log "Checking recent errors in n8n logs..."
     
@@ -223,6 +252,7 @@ run_health_checks() {
     # Component health checks
     check_n8n_health || failed_checks+=("n8n")
     check_ngrok_health || failed_checks+=("ngrok")
+    check_predictor_health || failed_checks+=("predictor")
     
     # System checks
     check_disk_space || failed_checks+=("disk")
