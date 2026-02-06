@@ -12,19 +12,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
+# Copy application code first (includes pyproject.toml)
 COPY . .
+
+# Install Python package and dependencies via pyproject.toml
+RUN pip install --no-cache-dir -e .
 
 # Create data directories
 RUN mkdir -p data/db data/db/backups data/raw data/text \
     data/docpacks data/extractions data/graphs
 
 # Initialize the database
-RUN python scripts/init_db.py
+RUN python scripts/init_db.py --db data/db/predictor.db --schema schemas/sqlite.sql
 
 # Set up cron jobs
 # Daily SQLite backup at 5:30 AM ET (before pipeline run)
