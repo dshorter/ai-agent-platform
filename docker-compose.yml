@@ -68,7 +68,6 @@ services:
     restart: unless-stopped
     volumes:
       - predictor-data:/app/data
-      - ./public/graphs:/app/data/graphs
       - ../predictor_ingest/web:/app/web:ro
     environment:
       - TZ=America/New_York
