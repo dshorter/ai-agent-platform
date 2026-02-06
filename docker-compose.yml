@@ -84,8 +84,8 @@ services:
     volumes:
       - ./public:/usr/share/nginx/html:ro
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../predictor_ingest/web:/usr/share/nginx/html/predictor:ro
-      - ./public/graphs:/usr/share/nginx/html/predictor/data/graphs:ro
+      - ../predictor_ingest/web:/srv/predictor:ro
+      - ./public/graphs:/srv/predictor-graphs:ro
     ports:
       - "127.0.0.1:8080:80"
     depends_on:
