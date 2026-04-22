@@ -1,5 +1,7 @@
 services:
-  # PostgreSQL for HVAC Digital Twin Demo
+  # Shared Postgres — hosts both databases:
+  #   - hvac_demo (original HVAC test case, schema loaded manually)
+  #   - ai_agent_platform (generic crew spine, auto-created on first boot)
   postgres:
     image: postgres:15-alpine
     container_name: hvac-postgres
@@ -11,6 +13,10 @@ services:
       - PGDATA=/var/lib/postgresql/data/pgdata
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      # Init scripts create ai_agent_platform DB + load its schema on first boot.
+      # See database/README.md for existing-deployment migration.
+      - ./database/init/10_create_ai_agent_platform.sh:/docker-entrypoint-initdb.d/10_create_ai_agent_platform.sh:ro
+      - ./database/ai_agent_platform/001_init.sql:/docker-entrypoint-initdb.d/ai_agent_platform_schema.sql:ro
     ports:
       - "127.0.0.1:5432:5432"
     healthcheck:
@@ -18,44 +24,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    networks:
-      - app-network
-
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: n8n
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:5678:5678"
-    environment:
-      - N8N_HOST=localhost
-      - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - NODE_ENV=production
-      - WEBHOOK_URL=https://agents-platform.ngrok.io
-      - GENERIC_TIMEZONE=America/New_York
-      - N8N_METRICS=true
-      - N8N_LOG_LEVEL=info
-      - N8N_LOG_OUTPUT=console
-      - EXECUTIONS_PROCESS=main,scheduler
-      - N8N_PERSONALIZATION_ENABLED=false
-      - N8N_VERSION_NOTIFICATIONS_ENABLED=true
-      - N8N_DIAGNOSTICS_ENABLED=false  
-      - N8N_STATIC_DATA_MODE=fileSystem 
-
-    volumes:
-      - /root/n8n-data:/home/node/.n8n
-      - /root/n8n-data/transactions:/data/transactions
-      - /root/n8n-data/backups:/data/backups
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:5678/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-    depends_on:
-      postgres:
-        condition: service_healthy
     networks:
       - app-network
 
@@ -86,8 +54,6 @@ services:
       - ../predictor_ingest/web:/srv/predictor:ro
     ports:
       - "127.0.0.1:8080:80"
-    depends_on:
-      - n8n
     networks:
       - app-network
 
@@ -95,7 +61,7 @@ services:
     image: ngrok/ngrok:alpine
     container_name: ngrok
     restart: unless-stopped
-    command: 
+    command:
       - "http"
       - "web-server:80"
       - "--url=agents-platform.ngrok.io"

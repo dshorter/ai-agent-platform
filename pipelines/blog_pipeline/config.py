@@ -38,7 +38,7 @@ class PipelineConfig:
             ghost_admin_api_key=os.environ.get("GHOST_ADMIN_API_KEY", ""),
             postgres_dsn=os.environ.get(
                 "POSTGRES_DSN",
-                "postgresql://hvac_user@localhost:5432/hvac_demo",
+                "postgresql://hvac_user@localhost:5432/ai_agent_platform",
             ),
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
         )
