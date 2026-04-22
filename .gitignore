@@ -10,3 +10,11 @@ n8n-data/
 *.backup
 *.backup-*
 *-attempt
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+dist/
+build/
+*.egg-info/
