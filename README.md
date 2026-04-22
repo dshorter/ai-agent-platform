@@ -1,357 +1,157 @@
 # AI Agent Platform
 
-> **n8n-based AI agent orchestration platform for long-running business transactions**
+> **A generic spine for running semi-autonomous AI crews against real projects.**
 
-An end-to-end demonstration of intelligent automation for HVAC businesses, showcasing how AI agents can handle customer emergencies, schedule appointments, and drive measurable ROI — all while proving that "Everyone has AI, but not everyone has intelligence."
-
----
-
-## 🎯 Overview
-
-This platform demonstrates the **Intelligence Moat** concept: going beyond simple AI chatbots to build domain-specific, event-driven agent systems that create real competitive advantages. Built as a working HVAC business digital twin, it simulates realistic scenarios and tracks both operational metrics and financial impact.
-
-**What it does:**
-- Automatically handles HVAC emergencies, appointments, and customer inquiries via AI agents
-- Tracks decision confidence, revenue captured, and time saved in real-time
-- Provides live business dashboards showing ROI (revenue vs. AI costs)
-- Simulates realistic customer scenarios to demonstrate value before deployment
-
-**Tech Stack:**
-- **n8n** - Workflow orchestration and agent coordination
-- **PostgreSQL** - Event storage and business metrics tracking
-- **Docker Compose** - Complete infrastructure as code
-- **Nginx** - Static web hosting for demos and presentations
-- **ngrok** - Secure tunneling for webhooks and remote access
+A code-first agent platform built on the Claude Agent SDK, Postgres, and Docker. Designed to host multiple pipelines (commit-to-blog, monitoring, scheduling) against multiple targets under one observability spine.
 
 ---
 
-## ✨ Key Features
+## Current tenants
 
-### 🤖 Multi-Agent System
-- **Primary Agent** - Routes incoming requests to specialized handlers
-- **Emergency Agent** - Prioritizes high-urgency HVAC failures
-- **Event Generator** - Simulates realistic customer scenarios for testing
-- **Schedule Simulator** - Manages appointment booking and conflicts
+| Pipeline | Status | Source | Target |
+|----------|--------|--------|--------|
+| **Uzelhub blog pipeline** | Sprint Zero scaffolding | `predictor_ingest` commit history | Ghost @ uzelhub.com |
+| **HVAC digital twin** | Archived test case (first proof) | n8n workflows | Portfolio demo |
 
-### 📊 Real-Time Business Intelligence
-- Revenue tracking by event type (emergencies, appointments, inquiries)
-- Agent decision confidence metrics
-- Time saved calculations (12 min average per handled event)
-- Live ROI dashboard comparing AI costs to revenue captured
-
-### 🔄 Event-Driven Architecture
-- Webhook-based triggers for instant response
-- PostgreSQL event storage with full audit trail
-- Agent decision logging with confidence scores
-- Workflow execution tracking
-
-### 🌐 Public Demo Interface
-- Portfolio presentation site showcasing the "Intelligence Moat" narrative
-- Interactive maps showing customer locations
-- Live business dashboard at `/hvac-dashboard`
-- Problem/proof slides for stakeholder presentations
+The HVAC work is preserved in-repo — schema, workflows, and portfolio pages are all still there if the demo needs to be resurrected. New development happens against the generic platform spine.
 
 ---
 
-## 🚀 Quick Start
+## Platform design
+
+### Spine (all pipelines share)
+
+- **Postgres database `ai_agent_platform`** — `pipeline_runs`, `pipeline_inputs`, `agent_decisions`, `posts`, `business_metrics`. Sequence-aware logging (LOG003 pattern) across every agent invocation.
+- **Claude Agent SDK** — code-defined subagents, not visual workflows. Prompt caching on stable backstories.
+- **Cron-driven runners** — plain Python scripts invoked on a schedule. No orchestrator service.
+- **MCP tools where they fit** — GitHub MCP for remote repos, direct API calls for everything else.
+
+### First pipeline: Uzelhub commit-to-blog
+
+Crawls `predictor_ingest` commit history, clusters commits into story batches, drafts posts in Dan Uzel's voice via a Content agent, packages them with SEO via a Marketer agent, and POSTs to Ghost as drafts for Director review.
+
+Design details: [`docs/uzelhub-crew/sprint-zero-kickoff.md`](docs/uzelhub-crew/sprint-zero-kickoff.md).
+
+Key modules:
+- `agents/content_agent.py` — voice writer (Sonnet)
+- `agents/marketer_agent.py` — SEO packaging (Sonnet + Haiku extraction)
+- `pipelines/blog_pipeline/` — git reader, commit batcher, Ghost publisher, logging context, cohesion graph, runner
+- `scripts/run_blog_pipeline.sh` — cron wrapper
+
+---
+
+## Tech stack
+
+- **Orchestration** — Python + cron, Claude Agent SDK
+- **Database** — PostgreSQL 15, two DBs on one instance (`ai_agent_platform` generic, `hvac_demo` archived)
+- **Web** — Nginx serving static portfolio pages
+- **Tunneling** — ngrok (for portfolio / demo access, not pipeline inputs)
+- **LLM** — Claude Sonnet + Haiku via the Anthropic API
+- **CMS target** — Ghost (running separately on the same VPS, not in this compose)
+
+---
+
+## Quick start
 
 ### Prerequisites
-- Docker and Docker Compose installed
-- ngrok account with authtoken (for public webhook access)
-- 4GB+ RAM recommended
 
-### 1. Clone and Configure
+- Docker and Docker Compose
+- An `ANTHROPIC_API_KEY`
+- Ghost running somewhere reachable (for pipeline publishing) — optional for scaffolding
+- Python 3.11+ if running agents outside Docker
 
-```bash
-git clone https://github.com/dshorter/ai-agent-platform.git
-cd ai-agent-platform
-
-# Set your ngrok auth token
-export NGROK_AUTHTOKEN="your_token_here"
-
-# Optional: Set custom PostgreSQL password
-export POSTGRES_PASSWORD="your_secure_password"
-```
-
-### 2. Start the Stack
+### Bring up the stack
 
 ```bash
 docker-compose up -d
 ```
 
 This starts:
-- **PostgreSQL** on `localhost:5432` (hvac_demo database)
-- **n8n** on `localhost:5678` (workflow editor)
-- **Nginx** on `localhost:8080` (public web interface)
-- **ngrok** tunneling to `agents-platform.ngrok.io` (configurable in docker-compose.yml)
+- **Postgres** on `127.0.0.1:5432` — creates both `hvac_demo` and `ai_agent_platform` databases on first boot
+- **Nginx** on `127.0.0.1:8080` — portfolio pages
+- **ngrok** — public tunnel to the portfolio
 
-### 3. Initialize Database
-
-```bash
-docker exec -i hvac-postgres psql -U hvac_user -d hvac_demo < database/hvac_schema.sql
-```
-
-### 4. Import Workflows
-
-1. Access n8n at `http://localhost:5678`
-2. For each workflow in `n8n-workflows/`:
-   - Click "Add workflow" → "Import from file"
-   - Select the `.json` file
-   - Configure credentials (PostgreSQL connection)
-   - Activate the workflow
-
-See [`n8n-workflows/README.md`](n8n-workflows/README.md) for detailed import instructions.
-
-### 5. Test the System
+The `predictor` service runs under a Docker profile — bring it up explicitly when you need it:
 
 ```bash
-# Generate a test event
-curl -X POST https://agents-platform.ngrok.io/webhook/emergency \
-  -H "Content-Type: application/json" \
-  -d '{"customer_name": "John Doe", "issue": "AC unit failed", "urgency": 9}'
-
-# View the dashboard
-open http://localhost:8080/hvac-dashboard
+docker-compose --profile predictor up -d predictor
 ```
+
+### Run the blog pipeline (dry run)
+
+```bash
+pip install -e .
+export PIPELINE_SOURCE_REPO=/path/to/predictor_ingest
+export ANTHROPIC_API_KEY=sk-...
+python -m pipelines.blog_pipeline.runner --dry-run
+```
+
+A dry run reads commits, filters triviality, groups into batches, and prints the result. No LLM calls, no DB writes, no Ghost POSTs.
+
+### Production cron
+
+```bash
+# crontab -e
+0 */4 * * * /srv/ai-agent-platform/scripts/run_blog_pipeline.sh
+```
+
+The wrapper script sources `.env` and invokes the Python runner.
 
 ---
 
-## 📁 Project Structure
+## Repository layout
 
 ```
 ai-agent-platform/
-├── docker-compose.yml              # Complete infrastructure definition
+├── agents/                        # Subagent definitions (Content, Marketer)
+├── pipelines/
+│   └── blog_pipeline/             # Commit-to-blog pipeline modules
 ├── database/
-│   └── hvac_schema.sql             # PostgreSQL schema for events + metrics
-├── n8n-workflows/                  # AI agent workflow definitions
-│   ├── README.md                   # Workflow import/export guide
-│   ├── primary-agent.json          # Main routing logic
-│   ├── emergency-agent.json        # High-priority handler
-│   ├── event-generator.json        # Scenario simulator
-│   ├── hvac_business_dashboard_workflow.json  # Live metrics API
-│   └── schedule-simulator.json     # Appointment management
-├── nginx/
-│   └── nginx.conf                  # Web server configuration
-├── public/                         # Static website files
-│   ├── index.html                  # "Intelligence Moat" landing page
-│   ├── demo.html                   # Interactive demo
-│   ├── portfolio-map.html          # Customer location visualizations
-│   └── portfolio/                  # Portfolio template
-├── scripts/                        # Operations utilities
-│   ├── deploy.sh                   # Deployment automation
-│   ├── backup.sh                   # Database backup script
-│   └── monitor.sh                  # Health check monitoring
-├── docs/                           # Comprehensive documentation
-│   ├── 00-hopper/                  # Quick reference materials
-│   ├── 01-infrastructure/          # Deployment, networking, monitoring
-│   ├── 02-n8n-workflows/           # Workflow architecture and development
-│   ├── 03-database/                # Schema docs and visualizations
-│   ├── 04-customer-facing/         # Presentations and solution briefs
-│   └── 05-development/             # Code examples and troubleshooting
-├── create_readme_files.py          # Auto-generate README files for docs
-└── migrate_project_to_docs.py      # Documentation reorganization tool
+│   ├── ai_agent_platform/         # Generic platform schema (active)
+│   ├── hvac_schema.sql            # HVAC test-case schema (archived, still runnable)
+│   ├── init/                      # Docker entrypoint init scripts
+│   └── README.md                  # DB setup and migration notes
+├── docs/
+│   ├── uzelhub-crew/              # Sprint-zero decisions, design docs
+│   ├── 00-hopper/ ... 05-development/   # HVAC-era docs (archived, some generic)
+│   └── 05-development/code-examples/    # Sequence-aware-logging reference
+├── n8n-workflows/                 # Archived HVAC test-case workflows (not running)
+├── nginx/                         # Nginx config for the portfolio site
+├── predictor/                     # Predictor pipeline Dockerfile (context is a sibling repo)
+├── public/                        # Portfolio and dashboard HTML
+├── scripts/                       # Operations and cron wrappers
+├── docker-compose.yml             # Postgres + nginx + ngrok + (profile) predictor
+└── pyproject.toml                 # Python package for the agent pipelines
 ```
 
 ---
 
-## 💼 Use Cases
+## Documentation
 
-This platform was built to demonstrate:
-
-### 1. **HVAC Emergency Response**
-- Customer calls with AC failure on a 95°F day
-- AI assesses urgency, checks technician availability
-- Books emergency slot, sends confirmation
-- Logs estimated revenue and decision confidence
-
-### 2. **Appointment Scheduling**
-- Customer requests maintenance appointment
-- AI checks availability, suggests time slots
-- Handles rescheduling and cancellations
-- Reduces phone time by 12 minutes per interaction
-
-### 3. **Lead Qualification**
-- Inquiry comes in via web form or SMS
-- AI determines residential vs. commercial
-- Routes to appropriate sales workflow
-- Tracks conversion metrics
-
-### 4. **Business Intelligence**
-- Live dashboard shows today's revenue captured
-- Calculates ROI: revenue / AI costs (typically 50-200x)
-- Tracks agent confidence and decision quality
-- Proves value before full deployment
+- **Platform kickoff and design** — [`docs/uzelhub-crew/sprint-zero-kickoff.md`](docs/uzelhub-crew/sprint-zero-kickoff.md)
+- **Database setup and migration** — [`database/README.md`](database/README.md)
+- **HVAC test-case docs (archived reference)** — [`docs/`](docs/) (folders `00-hopper` through `05-development`)
 
 ---
 
-## 📚 Documentation
+## Status
 
-Documentation is organized by audience and use case in the `docs/` directory:
+**Active development** — Sprint Zero scaffolding landed, integration against the VPS and first real run next.
 
-- **[01-infrastructure/](docs/01-infrastructure/)** - Docker deployment, networking, monitoring setup
-- **[02-n8n-workflows/](docs/02-n8n-workflows/)** - Workflow architecture, development guides, integration patterns
-- **[03-database/](docs/03-database/)** - Schema documentation, ER diagrams, query examples
-- **[04-customer-facing/](docs/04-customer-facing/)** - Presentations and solution briefs for stakeholders
-- **[05-development/](docs/05-development/)** - Code examples, testing strategies, troubleshooting guides
-
-**Tip:** Run `python create_readme_files.py` to auto-generate README files for all documentation folders.
+**Platform invariants that survived the n8n → code-first transition:**
+- Sequence-aware logging schema — unchanged, proven generic
+- Predictor pipeline integration — unchanged, remains a key data source for future Sysadmin agent
+- Portfolio site — unchanged, still served by nginx
+- Docker Compose chassis — Postgres and nginx kept, n8n retired
 
 ---
 
-## 🛠 Utilities
+## License
 
-### Documentation Tools
-
-```bash
-# Generate README files for all doc folders
-python create_readme_files.py
-
-# Reorganize project documentation structure
-python migrate_project_to_docs.py
-```
-
-### Operations Scripts
-
-```bash
-# Deploy to production server
-./scripts/deploy.sh
-
-# Backup PostgreSQL database
-./scripts/backup.sh
-
-# Monitor system health
-./scripts/monitor.sh
-```
+MIT — see [LICENSE](LICENSE).
 
 ---
 
-## 🔧 Development
+## Maintainer
 
-### Local Development Workflow
-
-1. **Edit workflows** in n8n UI at `http://localhost:5678`
-2. **Test changes** using the event generator workflow
-3. **Export workflow** as JSON via n8n's download feature
-4. **Save to** `n8n-workflows/` directory
-5. **Commit** with descriptive message: `git commit -m "Add retry logic to emergency agent"`
-
-### Database Migrations
-
-```bash
-# Connect to PostgreSQL
-docker exec -it hvac-postgres psql -U hvac_user -d hvac_demo
-
-# Run queries, add tables, etc.
-# Export changes back to hvac_schema.sql when stable
-```
-
-### View Logs
-
-```bash
-# n8n logs
-docker logs n8n -f
-
-# PostgreSQL logs
-docker logs hvac-postgres -f
-
-# Nginx access logs
-docker logs web-server -f
-```
-
-### Health Checks
-
-All services include health checks. Monitor status:
-
-```bash
-docker ps  # Check STATUS column
-curl http://localhost:5678/healthz  # n8n health check
-```
-
----
-
-## 🌐 Public Access
-
-The platform is configured to use **ngrok** for secure tunneling, enabling:
-- Webhook callbacks from external services
-- Remote demos without VPN
-- Shareable URLs for stakeholders
-
-**Default domain:** `agents-platform.ngrok.io`
-
-To use a different ngrok domain, edit `docker-compose.yml`:
-
-```yaml
-ngrok:
-  command:
-    - "http"
-    - "web-server:80"
-    - "--domain=your-custom-domain.ngrok.io"  # Change this
-```
-
----
-
-## 📈 Performance & Costs
-
-Based on the HVAC demo simulation:
-
-| Metric | Value |
-|--------|-------|
-| **Avg. Time Saved per Event** | 12 minutes |
-| **Avg. AI Cost per Decision** | $0.004 |
-| **Typical ROI** | 50-200x (revenue vs. AI cost) |
-| **Agent Decision Confidence** | 85-95% |
-| **Events Handled per Day** | 20-50 (in demo mode) |
-
-These metrics are tracked in real-time via the business dashboard.
-
----
-
-## 🎨 The "Intelligence Moat" Narrative
-
-This project demonstrates a key thesis:
-
-> **"Everyone Has AI. Not Everyone Has INTELLIGENCE."**
-
-The portfolio site (`public/index.html`) presents this narrative:
-1. **The Problem** - Generic AI chatbots provide no competitive advantage
-2. **The Proof** - Domain-specific agents with business logic create moats
-3. **The Demo** - Live HVAC digital twin showing measurable value
-
-Presentation slides are available in `docs/04-customer-facing/presentations/`.
-
----
-
-## 📄 License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
-Copyright (c) 2025 dshorter
-
----
-
-## 👤 Maintainer
-
-**Daniel Shorter**
-📧 codesurfer@gmail.com
-🐙 [@dshorter](https://github.com/dshorter)
-
----
-
-## 🙏 Acknowledgments
-
-- **n8n.io** - Powerful open-source workflow automation
-- **PostgreSQL** - Reliable database for event tracking
-- **ngrok** - Secure tunneling for webhook testing
-- **Docker** - Consistent deployment across environments
-
----
-
-## 🚦 Status
-
-**Current Version:** Early Demo (October 2025)
-**Status:** Active Development
-**Stability:** Proof of Concept - suitable for demos and evaluation
-
----
-
-**Built to prove that intelligence beats generic AI every time. 🎯**
+**Daniel Shorter** · codesurfer@gmail.com · [@dshorter](https://github.com/dshorter)

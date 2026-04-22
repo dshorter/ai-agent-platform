@@ -56,20 +56,56 @@ def _since_sha(conn, source_repo: str) -> str | None:
     return row[0] if row else None
 
 
-def _record_input(conn, source_repo: str, batch: CommitBatch) -> int | None:
+def _start_run(conn, run_id: str, pipeline_name: str, target_site: str) -> None:
+    if conn is None:
+        return
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO pipeline_runs (run_id, pipeline_name, target_site, status)
+            VALUES (%s, %s, %s, 'running')
+            """,
+            (run_id, pipeline_name, target_site),
+        )
+        conn.commit()
+
+
+def _finish_run(conn, run_id: str, status: str, error: str | None = None) -> None:
+    if conn is None:
+        return
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE pipeline_runs
+            SET completed_at = NOW(),
+                status = %s,
+                error_message = %s,
+                duration_ms = EXTRACT(EPOCH FROM (NOW() - started_at)) * 1000
+            WHERE run_id = %s
+            """,
+            (status, error, run_id),
+        )
+        conn.commit()
+
+
+def _record_input(
+    conn, run_id: str, source_repo: str, batch: CommitBatch
+) -> int | None:
     if conn is None:
         return None
     with conn.cursor() as cur:
         cur.execute(
             """
             INSERT INTO pipeline_inputs (
-                source_repo, commit_range_start, commit_range_end,
+                run_id, source_type, source_repo,
+                commit_range_start, commit_range_end,
                 commit_count, event_payload
             )
-            VALUES (%s, %s, %s, %s, %s)
-            RETURNING event_id
+            VALUES (%s, 'git_commits', %s, %s, %s, %s, %s)
+            RETURNING input_id
             """,
             (
+                run_id,
                 source_repo,
                 batch.start_sha,
                 batch.end_sha,
@@ -77,12 +113,18 @@ def _record_input(conn, source_repo: str, batch: CommitBatch) -> int | None:
                 {"commits": [c.to_dict() for c in batch.commits]},
             ),
         )
-        event_id = cur.fetchone()[0]
+        input_id = cur.fetchone()[0]
         conn.commit()
-    return event_id
+    return input_id
 
 
-def run(config: PipelineConfig, *, dry_run: bool = False) -> None:
+def run(
+    config: PipelineConfig,
+    *,
+    dry_run: bool = False,
+    pipeline_name: str = "blog_pipeline",
+    target_site: str = "uzelhub.com",
+) -> None:
     logger = logging.getLogger("uzelhub_crew.runner")
 
     conn = None
@@ -92,106 +134,119 @@ def run(config: PipelineConfig, *, dry_run: bool = False) -> None:
         conn = psycopg.connect(config.postgres_dsn)
 
     log_manager = SequenceAwareLogManager()
-    task_id = str(uuid.uuid4())
+    run_id = str(uuid.uuid4())
+    _start_run(conn, run_id, pipeline_name, target_site)
 
-    with log_manager.task_sequence(task_id, "blog_pipeline.run") as _task:
-        reader = GitReader(config.source_repo_path)
-        since = _since_sha(conn, config.source_repo_name)
-        raw_commits = reader.log(since_sha=since)
+    try:
+        with log_manager.task_sequence(run_id, "blog_pipeline.run") as _task:
+            reader = GitReader(config.source_repo_path)
+            since = _since_sha(conn, config.source_repo_name)
+            raw_commits = reader.log(since_sha=since)
 
-        logger.info(
-            "reader.loaded", extra={"commit_count": len(raw_commits), "since": since}
-        )
-        if not raw_commits:
-            return
+            logger.info(
+                "reader.loaded",
+                extra={"commit_count": len(raw_commits), "since": since},
+            )
+            if not raw_commits:
+                _finish_run(conn, run_id, "success")
+                return
 
-        commits = filter_trivial(raw_commits)
-        batches = group_into_batches(commits)
-        logger.info(
-            "batcher.grouped",
-            extra={
-                "kept": len(commits),
-                "dropped": len(raw_commits) - len(commits),
-                "batch_count": len(batches),
-            },
-        )
+            commits = filter_trivial(raw_commits)
+            batches = group_into_batches(commits)
+            logger.info(
+                "batcher.grouped",
+                extra={
+                    "kept": len(commits),
+                    "dropped": len(raw_commits) - len(commits),
+                    "batch_count": len(batches),
+                },
+            )
 
-        if dry_run:
-            for b in batches:
-                print(
-                    f"[dry-run] batch {b.start_sha[:8]}..{b.end_sha[:8]} "
-                    f"({len(b.commits)} commits, {b.total_lines} lines)"
-                )
-            return
-
-        client = Anthropic(api_key=config.anthropic_api_key)
-        content = ContentAgent(client)
-        marketer = MarketerAgent(client)
-        ghost = GhostClient(config.ghost_admin_url, config.ghost_admin_api_key)
-
-        # Pass 1 — draft every batch and extract descriptors. No linking yet.
-        drafts: list[tuple[Draft, Any, CommitBatch, int | None]] = []
-        for batch in batches:
-            event_id = _record_input(conn, config.source_repo_name, batch)
-            with log_manager.tool_sequence(
-                "content_agent", f"draft from {batch.start_sha[:8]}"
-            ) as ctx:
-                agent_batch = AgentCommitBatch(
-                    source_repo=config.source_repo_name,
-                    commits=[c.to_dict() for c in batch.commits],
-                    project_context=config.project_context,
-                )
-                draft = content.draft(agent_batch)
-                ctx.llm_model = content.model
-                ctx.llm_provider = "anthropic"
-                ctx.token_count_input = draft.input_tokens
-                ctx.token_count_output = draft.output_tokens
-
-            with log_manager.tool_sequence(
-                "marketer_agent.extract", "descriptor extraction"
-            ) as ctx:
-                descriptor, usage = marketer.extract_descriptor(draft)
-                ctx.llm_model = marketer.extraction_model
-                ctx.llm_provider = "anthropic"
-                ctx.token_count_input = usage["input_tokens"]
-                ctx.token_count_output = usage["output_tokens"]
-
-            drafts.append((draft, descriptor, batch, event_id))
-
-        # Pass 2 — package each draft with link candidates drawn from the full corpus.
-        for draft, descriptor, batch, event_id in drafts:
-            candidates: list[LinkCandidate] = []  # filled by graph.rank_link_candidates after PR 2 migration lands
-            with log_manager.tool_sequence(
-                "marketer_agent.package", "SEO packaging"
-            ) as ctx:
-                packaged = marketer.package(
-                    draft, descriptor, candidates, queue_depth=len(drafts)
-                )
-                ctx.llm_model = marketer.marketer_model
-                ctx.llm_provider = "anthropic"
-                ctx.token_count_input = packaged.input_tokens
-                ctx.token_count_output = packaged.output_tokens
-
-            # Pass 3 — POST to Ghost as a draft. Idempotent by slug.
-            with log_manager.tool_sequence(
-                "ghost.create_draft", f"publish draft {packaged.slug}"
-            ) as ctx:
-                result = ghost.create_draft(
-                    GhostDraft(
-                        title=packaged.title,
-                        slug=packaged.slug or slugify(packaged.title),
-                        html=_body_to_html(packaged.body),
-                        tags=packaged.tags,
-                        meta_description=packaged.meta_description,
+            if dry_run:
+                for b in batches:
+                    print(
+                        f"[dry-run] batch {b.start_sha[:8]}..{b.end_sha[:8]} "
+                        f"({len(b.commits)} commits, {b.total_lines} lines)"
                     )
-                )
-                ctx.payload = {
-                    "ghost_post_id": result.post_id,
-                    "ghost_url": result.url,
-                    "source_event_id": event_id,
-                }
+                return
 
-        ghost.close()
+            client = Anthropic(api_key=config.anthropic_api_key)
+            content = ContentAgent(client)
+            marketer = MarketerAgent(client)
+            ghost = GhostClient(
+                config.ghost_admin_url, config.ghost_admin_api_key
+            )
+
+            # Pass 1 — draft every batch and extract descriptors. No linking yet.
+            drafts: list[tuple[Draft, Any, CommitBatch, int | None]] = []
+            for batch in batches:
+                input_id = _record_input(
+                    conn, run_id, config.source_repo_name, batch
+                )
+                with log_manager.tool_sequence(
+                    "content_agent", f"draft from {batch.start_sha[:8]}"
+                ) as ctx:
+                    agent_batch = AgentCommitBatch(
+                        source_repo=config.source_repo_name,
+                        commits=[c.to_dict() for c in batch.commits],
+                        project_context=config.project_context,
+                    )
+                    draft = content.draft(agent_batch)
+                    ctx.llm_model = content.model
+                    ctx.llm_provider = "anthropic"
+                    ctx.token_count_input = draft.input_tokens
+                    ctx.token_count_output = draft.output_tokens
+
+                with log_manager.tool_sequence(
+                    "marketer_agent.extract", "descriptor extraction"
+                ) as ctx:
+                    descriptor, usage = marketer.extract_descriptor(draft)
+                    ctx.llm_model = marketer.extraction_model
+                    ctx.llm_provider = "anthropic"
+                    ctx.token_count_input = usage["input_tokens"]
+                    ctx.token_count_output = usage["output_tokens"]
+
+                drafts.append((draft, descriptor, batch, input_id))
+
+            # Pass 2 — package each draft with link candidates drawn from the full corpus.
+            for draft, descriptor, batch, input_id in drafts:
+                candidates: list[LinkCandidate] = []
+                with log_manager.tool_sequence(
+                    "marketer_agent.package", "SEO packaging"
+                ) as ctx:
+                    packaged = marketer.package(
+                        draft, descriptor, candidates, queue_depth=len(drafts)
+                    )
+                    ctx.llm_model = marketer.marketer_model
+                    ctx.llm_provider = "anthropic"
+                    ctx.token_count_input = packaged.input_tokens
+                    ctx.token_count_output = packaged.output_tokens
+
+                # Pass 3 — POST to Ghost as a draft. Idempotent by slug.
+                with log_manager.tool_sequence(
+                    "ghost.create_draft", f"publish draft {packaged.slug}"
+                ) as ctx:
+                    result = ghost.create_draft(
+                        GhostDraft(
+                            title=packaged.title,
+                            slug=packaged.slug or slugify(packaged.title),
+                            html=_body_to_html(packaged.body),
+                            tags=packaged.tags,
+                            meta_description=packaged.meta_description,
+                        )
+                    )
+                    ctx.payload = {
+                        "ghost_post_id": result.post_id,
+                        "ghost_url": result.url,
+                        "source_input_id": input_id,
+                    }
+
+            ghost.close()
+        _finish_run(conn, run_id, "success")
+    except Exception as exc:
+        _finish_run(conn, run_id, "error", str(exc))
+        raise
+    finally:
         if conn is not None:
             conn.close()
 
