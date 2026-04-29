@@ -122,6 +122,7 @@ def run(
     config: PipelineConfig,
     *,
     dry_run: bool = False,
+    max_batches: int | None = None,
     pipeline_name: str = "blog_pipeline",
     target_site: str = "uzelhub.com",
 ) -> None:
@@ -153,12 +154,15 @@ def run(
 
             commits = filter_trivial(raw_commits)
             batches = group_into_batches(commits)
+            if max_batches is not None:
+                batches = batches[:max_batches]
             logger.info(
                 "batcher.grouped",
                 extra={
                     "kept": len(commits),
                     "dropped": len(raw_commits) - len(commits),
                     "batch_count": len(batches),
+                    "max_batches": max_batches,
                 },
             )
 
@@ -260,12 +264,21 @@ def _body_to_html(markdown_body: str) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Uzelhub commit-to-blog pipeline")
-    parser.add_argument("--dry-run", action="store_true", help="Skip LLM and DB calls")
+    parser.add_argument(
+        "--dry-run", action="store_true", help="Skip LLM and DB calls"
+    )
+    parser.add_argument(
+        "--max-batches",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Process at most N commit batches (useful for first live run or recovery)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO)
     config = PipelineConfig.from_env()
-    run(config, dry_run=args.dry_run)
+    run(config, dry_run=args.dry_run, max_batches=args.max_batches)
     return 0
 
 

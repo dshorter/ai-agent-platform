@@ -140,14 +140,10 @@ If you see ~20–50 batches across the full predictor_ingest history, the reader
 Before unleashing the full backlog crawl, cap the run to one batch to validate the LLM → Ghost path end-to-end.
 
 ```bash
-# Quick way to limit: edit runner.py temporarily to slice batches[:1] before pass 1
-# OR add a --max-batches arg if you'd rather build it in
+python -m pipelines.blog_pipeline.runner --max-batches 1
 ```
 
-Run it:
-```bash
-python -m pipelines.blog_pipeline.runner
-```
+`--max-batches N` is a built-in CLI flag — same one you'll reach for later if you ever need to recover from a partial failure or rerun a specific window.
 
 **Verify:**
 - One row in `pipeline_runs` with `status='success'`

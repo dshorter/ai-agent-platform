@@ -112,7 +112,7 @@ These resolve by writing code and reacting to output, not by more planning.
 
 - **Commit-batching heuristic** — default: group consecutive commits within a 48-hour window on overlapping file sets. Tune on real output.
 - **Triviality filter** — default: regex against commit message prefixes (`chore:`, `typo`, `bump`, etc.) plus a minimum diff-size threshold. Haiku fallback for ambiguous cases.
-- **Cron cadence** — steady-state: hourly poll of the predictor_ingest repo for new commits. Draft generation runs when a batch closes. Publisher runs every 8 hours, throttled to cadence limits.
+- **Cron cadence** — every 4 hours (`0 */4 * * *`). One job runs the full pipeline: read new commits, draft what's batched, package, POST drafts to Ghost. Drip publisher runs as a separate job once that's built (Sprint One+).
 - **Voice calibration loop** — TBD after the first 5 drafts.
 
 ---
