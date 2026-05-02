@@ -152,18 +152,20 @@ class DecisionWriter:
     def write(self, context: ExecutionContext) -> None:
         if not context.tool_name:
             return
+        from psycopg.types.json import Jsonb
+
         with self.conn.cursor() as cur:
             cur.execute(
                 """
                 INSERT INTO agent_decisions (
-                    workflow_sequence_id, parent_decision_id, step_number,
+                    run_id, workflow_sequence_id, parent_decision_id, step_number,
                     agent_name, decision_type, decision_timestamp,
                     processing_time_ms, llm_model, llm_provider,
                     token_count_input, token_count_output, cost_usd,
                     decision_confidence, routing_reason, decision_payload
                 )
                 VALUES (
-                    %(task_id)s, NULL, %(step_number)s,
+                    %(task_id)s, %(task_id)s, NULL, %(step_number)s,
                     %(tool_name)s, 'invoke', %(start_time)s,
                     %(duration_ms)s, %(llm_model)s, %(llm_provider)s,
                     %(token_in)s, %(token_out)s, %(cost)s,
@@ -183,7 +185,7 @@ class DecisionWriter:
                     "cost": context.cost_usd,
                     "confidence": context.decision_confidence,
                     "reason": context.reason,
-                    "payload": context.payload,
+                    "payload": Jsonb(context.payload),
                 },
             )
             self.conn.commit()

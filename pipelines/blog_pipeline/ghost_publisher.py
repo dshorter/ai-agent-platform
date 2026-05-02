@@ -111,6 +111,7 @@ class GhostClient:
         resp = self._client.post(
             f"{self.admin_url}/ghost/api/admin/posts/",
             headers=self._headers(),
+            params={"source": "html"},
             json=draft.to_payload(),
         )
         resp.raise_for_status()

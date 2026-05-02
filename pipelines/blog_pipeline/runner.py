@@ -34,7 +34,11 @@ from pipelines.blog_pipeline.commit_batcher import (
 from pipelines.blog_pipeline.config import PipelineConfig
 from pipelines.blog_pipeline.ghost_publisher import GhostClient, GhostDraft
 from pipelines.blog_pipeline.git_reader import GitReader
-from pipelines.blog_pipeline.logging_context import SequenceAwareLogManager
+from pipelines.blog_pipeline.logging_context import (
+    DecisionWriter,
+    SequenceAwareLogManager,
+)
+from pipelines.blog_pipeline.pricing import compute_cost
 
 
 def _since_sha(conn, source_repo: str) -> str | None:
@@ -93,6 +97,8 @@ def _record_input(
 ) -> int | None:
     if conn is None:
         return None
+    from psycopg.types.json import Jsonb
+
     with conn.cursor() as cur:
         cur.execute(
             """
@@ -110,7 +116,7 @@ def _record_input(
                 batch.start_sha,
                 batch.end_sha,
                 len(batch.commits),
-                {"commits": [c.to_dict() for c in batch.commits]},
+                Jsonb({"commits": [c.to_dict() for c in batch.commits]}),
             ),
         )
         input_id = cur.fetchone()[0]
@@ -118,10 +124,70 @@ def _record_input(
     return input_id
 
 
+def _record_post(
+    conn,
+    *,
+    run_id: str,
+    input_id: int,
+    target_site: str,
+    packaged: "MarketerOutput",
+    body_html: str,
+    ghost_post_id: str,
+    ghost_url: str,
+) -> int | None:
+    """Insert a row into posts so commit→article traceability is one FK hop.
+
+    Idempotent on ghost_post_id — if Ghost returned an existing draft, we just
+    refresh the row instead of inserting a duplicate."""
+    if conn is None:
+        return None
+    from psycopg.types.json import Jsonb
+
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO posts (
+                run_id, input_id, target_site, title, slug, body, body_html,
+                meta_description, tags, series, primary_keyword, descriptor,
+                ghost_post_id, ghost_url, status, suggested_publish_date
+            )
+            VALUES (
+                %s, %s, %s, %s, %s, %s, %s,
+                %s, %s, %s, %s, %s,
+                %s, %s, 'draft', %s
+            )
+            ON CONFLICT (ghost_post_id) DO UPDATE SET
+                title = EXCLUDED.title,
+                slug = EXCLUDED.slug,
+                body = EXCLUDED.body,
+                body_html = EXCLUDED.body_html,
+                meta_description = EXCLUDED.meta_description,
+                tags = EXCLUDED.tags,
+                series = EXCLUDED.series,
+                primary_keyword = EXCLUDED.primary_keyword,
+                descriptor = EXCLUDED.descriptor,
+                updated_at = now()
+            RETURNING post_id
+            """,
+            (
+                run_id, input_id, target_site,
+                packaged.title, packaged.slug, packaged.body, body_html,
+                packaged.meta_description, packaged.tags,
+                packaged.series, packaged.descriptor.primary_keyword,
+                Jsonb(packaged.descriptor.__dict__),
+                ghost_post_id, ghost_url, packaged.suggested_publish_date,
+            ),
+        )
+        post_id = cur.fetchone()[0]
+        conn.commit()
+    return post_id
+
+
 def run(
     config: PipelineConfig,
     *,
     dry_run: bool = False,
+    max_batches: int | None = None,
     pipeline_name: str = "blog_pipeline",
     target_site: str = "uzelhub.com",
 ) -> None:
@@ -133,7 +199,9 @@ def run(
 
         conn = psycopg.connect(config.postgres_dsn)
 
-    log_manager = SequenceAwareLogManager()
+    log_manager = SequenceAwareLogManager(
+        db_writer=DecisionWriter(conn) if conn is not None else None
+    )
     run_id = str(uuid.uuid4())
     _start_run(conn, run_id, pipeline_name, target_site)
 
@@ -153,12 +221,15 @@ def run(
 
             commits = filter_trivial(raw_commits)
             batches = group_into_batches(commits)
+            if max_batches is not None:
+                batches = batches[:max_batches]
             logger.info(
                 "batcher.grouped",
                 extra={
                     "kept": len(commits),
                     "dropped": len(raw_commits) - len(commits),
                     "batch_count": len(batches),
+                    "max_batches": max_batches,
                 },
             )
 
@@ -196,6 +267,9 @@ def run(
                     ctx.llm_provider = "anthropic"
                     ctx.token_count_input = draft.input_tokens
                     ctx.token_count_output = draft.output_tokens
+                    ctx.cost_usd = compute_cost(
+                        ctx.llm_model, ctx.token_count_input, ctx.token_count_output
+                    )
 
                 with log_manager.tool_sequence(
                     "marketer_agent.extract", "descriptor extraction"
@@ -205,6 +279,9 @@ def run(
                     ctx.llm_provider = "anthropic"
                     ctx.token_count_input = usage["input_tokens"]
                     ctx.token_count_output = usage["output_tokens"]
+                    ctx.cost_usd = compute_cost(
+                        ctx.llm_model, ctx.token_count_input, ctx.token_count_output
+                    )
 
                 drafts.append((draft, descriptor, batch, input_id))
 
@@ -221,16 +298,20 @@ def run(
                     ctx.llm_provider = "anthropic"
                     ctx.token_count_input = packaged.input_tokens
                     ctx.token_count_output = packaged.output_tokens
+                    ctx.cost_usd = compute_cost(
+                        ctx.llm_model, ctx.token_count_input, ctx.token_count_output
+                    )
 
                 # Pass 3 — POST to Ghost as a draft. Idempotent by slug.
                 with log_manager.tool_sequence(
                     "ghost.create_draft", f"publish draft {packaged.slug}"
                 ) as ctx:
+                    body_html = _body_to_html(packaged.body)
                     result = ghost.create_draft(
                         GhostDraft(
                             title=packaged.title,
                             slug=packaged.slug or slugify(packaged.title),
-                            html=_body_to_html(packaged.body),
+                            html=body_html,
                             tags=packaged.tags,
                             meta_description=packaged.meta_description,
                         )
@@ -240,6 +321,16 @@ def run(
                         "ghost_url": result.url,
                         "source_input_id": input_id,
                     }
+                    _record_post(
+                        conn,
+                        run_id=run_id,
+                        input_id=input_id,
+                        target_site=target_site,
+                        packaged=packaged,
+                        body_html=body_html,
+                        ghost_post_id=result.post_id,
+                        ghost_url=result.url,
+                    )
 
             ghost.close()
         _finish_run(conn, run_id, "success")
@@ -252,20 +343,44 @@ def run(
 
 
 def _body_to_html(markdown_body: str) -> str:
-    """Placeholder. Ghost accepts HTML; we'll wire a real markdown renderer
-    (markdown-it-py or similar) before hitting production."""
-    paragraphs = [p.strip() for p in markdown_body.split("\n\n") if p.strip()]
-    return "\n".join(f"<p>{p}</p>" for p in paragraphs)
+    """Render markdown to HTML for Ghost. Mermaid fences become <pre class="mermaid">
+    blocks so the site-wide mermaid loader (Ghost code injection) renders them."""
+    from markdown_it import MarkdownIt
+    from markdown_it.common.utils import escapeHtml
+
+    md = MarkdownIt("commonmark", {"html": False, "linkify": True})
+
+    default_fence = md.renderer.rules.get("fence")
+
+    def render_fence(tokens, idx, options, env):
+        token = tokens[idx]
+        info = (token.info or "").strip().lower()
+        if info == "mermaid":
+            return (
+                "<!--kg-card-begin: html-->"
+                f'<pre class="mermaid">{escapeHtml(token.content)}</pre>'
+                "<!--kg-card-end: html-->\n"
+            )
+        return default_fence(tokens, idx, options, env)
+
+    md.renderer.rules["fence"] = render_fence
+    return md.render(markdown_body)
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Uzelhub commit-to-blog pipeline")
     parser.add_argument("--dry-run", action="store_true", help="Skip LLM and DB calls")
+    parser.add_argument(
+        "--max-batches",
+        type=int,
+        default=None,
+        help="Cap the number of batches processed (useful for first live run)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO)
     config = PipelineConfig.from_env()
-    run(config, dry_run=args.dry_run)
+    run(config, dry_run=args.dry_run, max_batches=args.max_batches)
     return 0
 
 

@@ -30,6 +30,8 @@ When writing from commit history, your job is to find the STORY in the commits �
 
 You do NOT think about keyword density, meta descriptions, SEO titles, publish dates, or platform formatting. Those belong to the Marketer. Write the post. Hand it off.
 
+Where structure would clarify — a pipeline, a state machine, a decision tree, a flow with branches — you may include a mermaid diagram in `flowchart TD` format (top-down, since blog horizontal space is limited). Don't decorate; only diagram when prose alone would obscure the structure.
+
 Output format:
 
 # [Working title — descriptive, not yet SEO optimized]
@@ -122,8 +124,12 @@ class ContentAgent:
 
     @staticmethod
     def _parse_output(text: str) -> tuple[str, str, str]:
-        if "---\nNOTES FOR MARKETER:" in text:
-            body_part, notes = text.split("---\nNOTES FOR MARKETER:", 1)
+        import re
+
+        match = re.search(r"\n-{3,}\s*\n+\s*NOTES FOR MARKETER:", text)
+        if match:
+            body_part = text[: match.start()]
+            notes = text[match.end() :]
         else:
             body_part, notes = text, ""
 
