@@ -248,89 +248,168 @@ def run(
                 config.ghost_admin_url, config.ghost_admin_api_key
             )
 
-            # Pass 1 — draft every batch and extract descriptors. No linking yet.
-            drafts: list[tuple[Draft, Any, CommitBatch, int | None]] = []
-            for batch in batches:
+            # Per-batch interleaved processing: each batch goes through
+            # content → extract → package → ghost in one sequence, wrapped
+            # in try/except so a single bad LLM response can't kill the run.
+            # link_candidates is empty for now (Phase 2.1 builds the ranker
+            # as a separate post-crawl step).
+            batches_succeeded = 0
+            batches_failed = 0
+            run_cost_usd: float = 0.0
+            logger = logging.getLogger("uzelhub_crew.runner")
+            for batch_idx, batch in enumerate(batches):
+                if (
+                    config.max_cost_usd is not None
+                    and run_cost_usd >= config.max_cost_usd
+                ):
+                    logger.warning(
+                        "cost_cap.aborting",
+                        extra={
+                            "run_cost_usd": run_cost_usd,
+                            "max_cost_usd": config.max_cost_usd,
+                            "batches_processed": batches_succeeded,
+                            "batches_remaining": len(batches) - batch_idx,
+                        },
+                    )
+                    break
+
                 input_id = _record_input(
                     conn, run_id, config.source_repo_name, batch
                 )
-                with log_manager.tool_sequence(
-                    "content_agent", f"draft from {batch.start_sha[:8]}"
-                ) as ctx:
-                    agent_batch = AgentCommitBatch(
-                        source_repo=config.source_repo_name,
-                        commits=[c.to_dict() for c in batch.commits],
-                        project_context=config.project_context,
-                    )
-                    draft = content.draft(agent_batch)
-                    ctx.llm_model = content.model
-                    ctx.llm_provider = "anthropic"
-                    ctx.token_count_input = draft.input_tokens
-                    ctx.token_count_output = draft.output_tokens
-                    ctx.cost_usd = compute_cost(
-                        ctx.llm_model, ctx.token_count_input, ctx.token_count_output
-                    )
 
-                with log_manager.tool_sequence(
-                    "marketer_agent.extract", "descriptor extraction"
-                ) as ctx:
-                    descriptor, usage = marketer.extract_descriptor(draft)
-                    ctx.llm_model = marketer.extraction_model
-                    ctx.llm_provider = "anthropic"
-                    ctx.token_count_input = usage["input_tokens"]
-                    ctx.token_count_output = usage["output_tokens"]
-                    ctx.cost_usd = compute_cost(
-                        ctx.llm_model, ctx.token_count_input, ctx.token_count_output
-                    )
-
-                drafts.append((draft, descriptor, batch, input_id))
-
-            # Pass 2 — package each draft with link candidates drawn from the full corpus.
-            for draft, descriptor, batch, input_id in drafts:
-                candidates: list[LinkCandidate] = []
-                with log_manager.tool_sequence(
-                    "marketer_agent.package", "SEO packaging"
-                ) as ctx:
-                    packaged = marketer.package(
-                        draft, descriptor, candidates, queue_depth=len(drafts)
-                    )
-                    ctx.llm_model = marketer.marketer_model
-                    ctx.llm_provider = "anthropic"
-                    ctx.token_count_input = packaged.input_tokens
-                    ctx.token_count_output = packaged.output_tokens
-                    ctx.cost_usd = compute_cost(
-                        ctx.llm_model, ctx.token_count_input, ctx.token_count_output
-                    )
-
-                # Pass 3 — POST to Ghost as a draft. Idempotent by slug.
-                with log_manager.tool_sequence(
-                    "ghost.create_draft", f"publish draft {packaged.slug}"
-                ) as ctx:
-                    body_html = _body_to_html(packaged.body)
-                    result = ghost.create_draft(
-                        GhostDraft(
-                            title=packaged.title,
-                            slug=packaged.slug or slugify(packaged.title),
-                            html=body_html,
-                            tags=packaged.tags,
-                            meta_description=packaged.meta_description,
+                try:
+                    # Step 1 — Content agent drafts the post.
+                    with log_manager.tool_sequence(
+                        "content_agent", f"draft from {batch.start_sha[:8]}"
+                    ) as ctx:
+                        agent_batch = AgentCommitBatch(
+                            source_repo=config.source_repo_name,
+                            commits=[c.to_dict() for c in batch.commits],
+                            project_context=config.project_context,
                         )
+                        draft = content.draft(agent_batch)
+                        ctx.llm_model = content.model
+                        ctx.llm_provider = "anthropic"
+                        ctx.token_count_input = draft.input_tokens
+                        ctx.token_count_output = draft.output_tokens
+                        ctx.token_count_cache_create = draft.cache_creation_input_tokens
+                        ctx.token_count_cache_read = draft.cache_read_input_tokens
+                        ctx.cost_usd = compute_cost(
+                            ctx.llm_model,
+                            ctx.token_count_input,
+                            ctx.token_count_output,
+                            ctx.token_count_cache_create,
+                            ctx.token_count_cache_read,
+                        )
+                    run_cost_usd += ctx.cost_usd or 0.0
+
+                    # Step 2 — Marketer extracts the cohesion-graph descriptor.
+                    with log_manager.tool_sequence(
+                        "marketer_agent.extract", "descriptor extraction"
+                    ) as ctx:
+                        descriptor, usage = marketer.extract_descriptor(draft)
+                        ctx.llm_model = marketer.extraction_model
+                        ctx.llm_provider = "anthropic"
+                        ctx.token_count_input = usage["input_tokens"]
+                        ctx.token_count_output = usage["output_tokens"]
+                        ctx.token_count_cache_create = usage.get(
+                            "cache_creation_input_tokens", 0
+                        )
+                        ctx.token_count_cache_read = usage.get(
+                            "cache_read_input_tokens", 0
+                        )
+                        ctx.cost_usd = compute_cost(
+                            ctx.llm_model,
+                            ctx.token_count_input,
+                            ctx.token_count_output,
+                            ctx.token_count_cache_create,
+                            ctx.token_count_cache_read,
+                        )
+                    run_cost_usd += ctx.cost_usd or 0.0
+
+                    # Step 3 — Marketer packages with SEO surfaces. No link
+                    # candidates yet (Phase 2.1 will add the ranker as a
+                    # separate post-crawl step).
+                    candidates: list[LinkCandidate] = []
+                    with log_manager.tool_sequence(
+                        "marketer_agent.package", "SEO packaging"
+                    ) as ctx:
+                        packaged = marketer.package(
+                            draft,
+                            descriptor,
+                            candidates,
+                            queue_depth=max(0, len(batches) - batch_idx - 1),
+                        )
+                        ctx.llm_model = marketer.marketer_model
+                        ctx.llm_provider = "anthropic"
+                        ctx.token_count_input = packaged.input_tokens
+                        ctx.token_count_output = packaged.output_tokens
+                        ctx.token_count_cache_create = packaged.cache_creation_input_tokens
+                        ctx.token_count_cache_read = packaged.cache_read_input_tokens
+                        ctx.cost_usd = compute_cost(
+                            ctx.llm_model,
+                            ctx.token_count_input,
+                            ctx.token_count_output,
+                            ctx.token_count_cache_create,
+                            ctx.token_count_cache_read,
+                        )
+                    run_cost_usd += ctx.cost_usd or 0.0
+
+                    # Step 4 — POST to Ghost as a draft. Idempotent by slug.
+                    with log_manager.tool_sequence(
+                        "ghost.create_draft", f"publish draft {packaged.slug}"
+                    ) as ctx:
+                        body_html = _body_to_html(packaged.body)
+                        result = ghost.create_draft(
+                            GhostDraft(
+                                title=packaged.title,
+                                slug=packaged.slug or slugify(packaged.title),
+                                html=body_html,
+                                tags=packaged.tags,
+                                meta_description=packaged.meta_description,
+                            )
+                        )
+                        ctx.payload = {
+                            "ghost_post_id": result.post_id,
+                            "ghost_url": result.url,
+                            "source_input_id": input_id,
+                        }
+                        _record_post(
+                            conn,
+                            run_id=run_id,
+                            input_id=input_id,
+                            target_site=target_site,
+                            packaged=packaged,
+                            body_html=body_html,
+                            ghost_post_id=result.post_id,
+                            ghost_url=result.url,
+                        )
+
+                    batches_succeeded += 1
+                except Exception as exc:  # noqa: BLE001 — intentional broad catch for run resilience
+                    batches_failed += 1
+                    logger.error(
+                        "batch.failed",
+                        extra={
+                            "batch_start_sha": batch.start_sha[:8],
+                            "batch_end_sha": batch.end_sha[:8],
+                            "input_id": input_id,
+                            "error": str(exc),
+                            "error_type": type(exc).__name__,
+                        },
                     )
-                    ctx.payload = {
-                        "ghost_post_id": result.post_id,
-                        "ghost_url": result.url,
-                        "source_input_id": input_id,
-                    }
-                    _record_post(
-                        conn,
-                        run_id=run_id,
-                        input_id=input_id,
-                        target_site=target_site,
-                        packaged=packaged,
-                        body_html=body_html,
-                        ghost_post_id=result.post_id,
-                        ghost_url=result.url,
-                    )
+                    # Continue to next batch. The pipeline_inputs row stays so
+                    # _since_sha advances past this batch on the next run.
+
+            logger.info(
+                "run.summary",
+                extra={
+                    "batches_attempted": batches_succeeded + batches_failed,
+                    "batches_succeeded": batches_succeeded,
+                    "batches_failed": batches_failed,
+                    "run_cost_usd": round(run_cost_usd, 4),
+                },
+            )
 
             ghost.close()
         _finish_run(conn, run_id, "success")

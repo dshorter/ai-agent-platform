@@ -1,0 +1,49 @@
+# Term-link substitution and project metadata for the Uzelhub crew body finisher.
+#
+# How `terms` is applied (when body_finisher.py exists):
+#   - Word-boundary regex match against post body markdown
+#   - First occurrence only per term, per post
+#   - Skips fenced code blocks (```...```) so identifiers stay literal
+#   - Output: [display](url) markdown link
+#
+# How `projects` is used:
+#   - Provenance detection for the outro template. The finisher buckets each
+#     post's commits by which project's path_prefixes they touch, then picks
+#     the matching outro variant (Pipeline-only / Explorer-only / both).
+#   - Both sub-projects currently live inside one repo (/opt/predictor_ingest).
+#     Pipeline = src/, Explorer = web/.
+#
+# Blog Director-editable. No code review needed to change a URL, display form, or
+# add a new project.
+
+terms:
+  predictor_ingest:
+    display: "predictor ingest"
+    url: "https://uzelhub.com/content/predictor/pipeline.html"
+
+  predictor_explorer:
+    display: "predictor explorer"
+    url: "https://uzelhub.com/content/predictor/about.html"
+    # TODO: link to a dedicated Explorer marketing page once one exists.
+    # Today's about.html is the predictor-project overview, not Explorer-specific.
+
+  uzelhub:
+    display: "Uzelhub"
+    url: "https://uzelhub.com"
+
+projects:
+  predictor_pipeline:
+    display: "Predictor Pipeline"
+    url: "https://uzelhub.com/content/predictor/pipeline.html"
+    repo_path: "/opt/predictor_ingest"
+    path_prefixes:
+      - "src/"
+
+  predictor_explorer:
+    display: "Predictor Explorer"
+    url: "https://uzelhub.com/content/predictor/about.html"
+    # TODO: same as terms.predictor_explorer above — switch when Explorer
+    # gets its own marketing page.
+    repo_path: "/opt/predictor_ingest"
+    path_prefixes:
+      - "web/"

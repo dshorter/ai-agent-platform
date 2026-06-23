@@ -1,15 +1,22 @@
 """
 Per-model pricing for Anthropic Claude models.
 
-Rates are USD per 1M tokens, separated by input/output. Cache-hit and
-cache-write rates are not yet captured — when we wire cache token counts
-through the pipeline, extend the dict and compute_cost signature.
+Rates are USD per 1M tokens, separated by input/output. Cache pricing follows
+Anthropic's standard multipliers off the base input rate:
+  - cache write: 1.25x base input rate
+  - cache read:  0.10x base input rate
+The Anthropic API reports input_tokens, cache_creation_input_tokens, and
+cache_read_input_tokens as three disjoint counts in the usage object.
 """
 from __future__ import annotations
 
 import logging
 
 logger = logging.getLogger("uzelhub_crew")
+
+
+CACHE_WRITE_MULTIPLIER = 1.25
+CACHE_READ_MULTIPLIER = 0.10
 
 
 # Rates supplied by Blog Director on 2026-04-26. Update when Anthropic prices change.
@@ -21,12 +28,20 @@ MODEL_RATES_USD_PER_MTOK: dict[str, tuple[float, float]] = {
 
 
 def compute_cost(
-    model: str | None, input_tokens: int, output_tokens: int
+    model: str | None,
+    input_tokens: int,
+    output_tokens: int,
+    cache_create_tokens: int = 0,
+    cache_read_tokens: int = 0,
 ) -> float | None:
     """Return USD cost for a single LLM call, or None if model is unknown.
 
     None signals 'we couldn't price this' so the column stores NULL — distinct
-    from 0.0 (priced and free, e.g. a non-LLM step)."""
+    from 0.0 (priced and free, e.g. a non-LLM step).
+
+    The Anthropic usage object returns input_tokens, cache_creation_input_tokens,
+    and cache_read_input_tokens as three disjoint counts (the cached ones are
+    NOT a subset of input_tokens). We bill all three separately."""
     if not model:
         return 0.0
     rates = MODEL_RATES_USD_PER_MTOK.get(model)
@@ -34,4 +49,10 @@ def compute_cost(
         logger.warning("pricing.unknown_model", extra={"model": model})
         return None
     in_rate, out_rate = rates
-    return (input_tokens * in_rate + output_tokens * out_rate) / 1_000_000
+    cost = (
+        input_tokens * in_rate
+        + cache_create_tokens * in_rate * CACHE_WRITE_MULTIPLIER
+        + cache_read_tokens * in_rate * CACHE_READ_MULTIPLIER
+        + output_tokens * out_rate
+    ) / 1_000_000
+    return cost

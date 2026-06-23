@@ -12,8 +12,14 @@ Read these when doing ongoing work.
 
 - **[blog-director-checklist.md](blog-director-checklist.md)** — per-draft review attentions. What to notice when a draft lands in Ghost. The attention checklist, not a rubric.
 - **[prompt-tuning.md](prompt-tuning.md)** — running log of observations across drafts, plus the operating principles for *when* to tune (don't edit the prompt after one good sample) and Sprint One+ backlogs (corpus-level analysis, mermaid diagram support).
+- **[crawl-to-publish-plan.md](crawl-to-publish-plan.md)** — the active forward roadmap: pre-crawl prep → backlog crawl → analytical surface → Blog Director review → publish infrastructure → drip operate. Follow the sequence; reordering creates blocking dependencies.
 
-The two are paired: per-draft notable moments get logged from the checklist into prompt-tuning.md; tuning decisions emerge from patterns in the log, not single drafts.
+The first two are paired: per-draft notable moments get logged from the checklist into prompt-tuning.md; tuning decisions emerge from patterns in the log, not single drafts. The third is the implementation roadmap that connects them at scale.
+
+## Forward design (not yet built)
+
+- **[sysadmin-agent-design.md](sysadmin-agent-design.md)** — architectural design for the Sprint One+ Sysadmin / server maintenance agent. Scope boundaries, integration with `safe-reboot` / `backup.timer`, operating loop, tool surface, lessons-learned from the manual 2026-05-26/27 ops work. *What the agent does.*
+- **[server-maintenance-agent-persona.md](server-maintenance-agent-persona.md)** — first-draft persona / prompt-shape for the same agent. Identity, voice (SRE-terse), how-it-thinks principles, what-it-refuses list, three worked examples. Pairs with the design doc. *How the agent acts.* Open questions for the operator at the end.
 
 ## Historical / point-in-time
 

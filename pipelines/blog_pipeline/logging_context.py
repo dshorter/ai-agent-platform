@@ -35,6 +35,8 @@ class ExecutionContext:
     llm_provider: Optional[str] = None
     token_count_input: int = 0
     token_count_output: int = 0
+    token_count_cache_create: int = 0
+    token_count_cache_read: int = 0
     cost_usd: float = 0.0
     decision_confidence: Optional[float] = None
 
@@ -161,14 +163,18 @@ class DecisionWriter:
                     run_id, workflow_sequence_id, parent_decision_id, step_number,
                     agent_name, decision_type, decision_timestamp,
                     processing_time_ms, llm_model, llm_provider,
-                    token_count_input, token_count_output, cost_usd,
+                    token_count_input, token_count_output,
+                    token_count_cache_create, token_count_cache_read,
+                    cost_usd,
                     decision_confidence, routing_reason, decision_payload
                 )
                 VALUES (
                     %(task_id)s, %(task_id)s, NULL, %(step_number)s,
                     %(tool_name)s, 'invoke', %(start_time)s,
                     %(duration_ms)s, %(llm_model)s, %(llm_provider)s,
-                    %(token_in)s, %(token_out)s, %(cost)s,
+                    %(token_in)s, %(token_out)s,
+                    %(cache_create)s, %(cache_read)s,
+                    %(cost)s,
                     %(confidence)s, %(reason)s, %(payload)s
                 )
                 """,
@@ -182,6 +188,8 @@ class DecisionWriter:
                     "llm_provider": context.llm_provider,
                     "token_in": context.token_count_input,
                     "token_out": context.token_count_output,
+                    "cache_create": context.token_count_cache_create,
+                    "cache_read": context.token_count_cache_read,
                     "cost": context.cost_usd,
                     "confidence": context.decision_confidence,
                     "reason": context.reason,

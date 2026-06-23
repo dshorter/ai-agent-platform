@@ -99,6 +99,8 @@ class MarketerOutput:
     body: str
     input_tokens: int = 0
     output_tokens: int = 0
+    cache_creation_input_tokens: int = 0
+    cache_read_input_tokens: int = 0
     extraction_tokens: dict[str, int] = field(default_factory=dict)
 
 
@@ -132,10 +134,15 @@ class MarketerAgent:
         )
 
         raw = response.content[0].text.strip()
-        if raw.startswith("```"):
-            raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
+        data = _parse_json_lenient(raw)
+        if data is None:
+            import logging
+            logging.getLogger("uzelhub_crew").warning(
+                "marketer.extract.parse_failed",
+                extra={"raw_output": raw[:800]},
+            )
+            data = {}  # empty descriptor — pipeline continues with no tags
 
-        data = json.loads(raw)
         descriptor = PostDescriptor(
             topics=data.get("topics", []),
             concepts=data.get("concepts", []),
@@ -146,6 +153,12 @@ class MarketerAgent:
         usage = {
             "input_tokens": response.usage.input_tokens,
             "output_tokens": response.usage.output_tokens,
+            "cache_creation_input_tokens": getattr(
+                response.usage, "cache_creation_input_tokens", 0
+            ) or 0,
+            "cache_read_input_tokens": getattr(
+                response.usage, "cache_read_input_tokens", 0
+            ) or 0,
         }
         return descriptor, usage
 
@@ -163,6 +176,10 @@ class MarketerAgent:
             draft, descriptor, link_candidates, queue_depth
         )
 
+        # cache_control here is forward-compatible (see content_agent.py for
+        # full note). MARKETER_SYSTEM_PROMPT is ~308 tokens as of 2026-05-08,
+        # well below the 1024-token Sonnet cache minimum. Marker activates
+        # automatically when the prompt grows past the threshold.
         response = self.client.messages.create(
             model=self.marketer_model,
             max_tokens=1024,
@@ -177,23 +194,37 @@ class MarketerAgent:
         )
 
         raw = response.content[0].text.strip()
-        if raw.startswith("```"):
-            raw = raw.split("\n", 1)[1].rsplit("```", 1)[0]
-
-        data = json.loads(raw)
+        data = _parse_json_lenient(raw)
+        if data is None:
+            import logging
+            logging.getLogger("uzelhub_crew").error(
+                "marketer.package.parse_failed",
+                extra={"raw_output": raw[:800]},
+            )
+            raise ValueError(
+                "marketer.package returned unparseable output; cannot continue this batch"
+            )
 
         return MarketerOutput(
             title=data["title"],
             slug=data["slug"],
             tags=data["tags"],
             meta_description=data["meta_description"],
-            suggested_publish_date=date.fromisoformat(data["suggested_publish_date"]),
+            suggested_publish_date=_parse_date_lenient(
+                data.get("suggested_publish_date")
+            ),
             series=data.get("series"),
             internal_links=data.get("internal_links", []),
             descriptor=descriptor,
             body=draft.body,
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
+            cache_creation_input_tokens=getattr(
+                response.usage, "cache_creation_input_tokens", 0
+            ) or 0,
+            cache_read_input_tokens=getattr(
+                response.usage, "cache_read_input_tokens", 0
+            ) or 0,
         )
 
     @staticmethod
@@ -224,3 +255,66 @@ class MarketerAgent:
             "internal_links (list of {anchor, slug} — pick 0-2 from the candidates). "
             "No prose."
         )
+
+
+def _parse_date_lenient(value) -> "date | None":
+    """Tolerate model output that omits or malforms suggested_publish_date.
+
+    The publish pipeline orders by `suggested_publish_date NULLS LAST`, so
+    None is a clean signal that the marketer didn't suggest a date. Better
+    than crashing on a missing/null field, and more honest than fabricating
+    today's date as a stand-in."""
+    from datetime import date as _date
+
+    if not value or not isinstance(value, str):
+        return None
+    try:
+        return _date.fromisoformat(value.strip())
+    except ValueError:
+        return None
+
+
+def _parse_json_lenient(raw: str) -> dict | None:
+    """Try several strategies to extract a JSON object from a model response.
+
+    Models occasionally wrap output in markdown fences, prefix with explanatory
+    prose, or include a trailing comment. Returns the first parseable dict
+    found, or None if no strategy works."""
+    import json
+    import re
+
+    # Strategy 1: response is just JSON.
+    try:
+        result = json.loads(raw)
+        if isinstance(result, dict):
+            return result
+    except json.JSONDecodeError:
+        pass
+
+    # Strategy 2: wrapped in markdown code fence (```json ... ``` or ``` ... ```).
+    if "```" in raw:
+        # Take the first fenced block.
+        try:
+            after_open = raw.split("```", 1)[1]
+            # Drop optional language tag on the same line as the opening fence.
+            if "\n" in after_open:
+                after_open = after_open.split("\n", 1)[1]
+            inner = after_open.rsplit("```", 1)[0].strip()
+            result = json.loads(inner)
+            if isinstance(result, dict):
+                return result
+        except (json.JSONDecodeError, IndexError):
+            pass
+
+    # Strategy 3: find the first {...} block in the text and parse it.
+    # Use a non-greedy outer match with DOTALL; bracket-balance heuristic for the close.
+    match = re.search(r"\{.*\}", raw, re.DOTALL)
+    if match:
+        try:
+            result = json.loads(match.group())
+            if isinstance(result, dict):
+                return result
+        except json.JSONDecodeError:
+            pass
+
+    return None
