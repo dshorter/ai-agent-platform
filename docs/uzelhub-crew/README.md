@@ -1,8 +1,8 @@
 # Uzelhub Crew — Documentation
 
-The Uzelhub Crew is the agent system that turns commits from `predictor_ingest` into blog drafts in Dan's voice and publishes them to Ghost (`blog.uzelhub.com`) for director review.
+The Uzelhub Crew is the agent system that turns commits from `predictor_ingest` into blog drafts in Dan's voice and publishes them to Ghost (`blog.uzelhub.com`) for Blog Director review.
 
-Pipeline shape: `git commits → Content agent (drafts) → Marketer agents (extract + package) → Ghost (creates draft) → Director review`. Each call is single-shot dataflow, not an agent loop.
+Pipeline shape: `git commits → Content agent (drafts) → Marketer agents (extract + package) → Ghost (creates draft) → Blog Director review`. Each call is single-shot dataflow, not an agent loop.
 
 ---
 
@@ -10,7 +10,7 @@ Pipeline shape: `git commits → Content agent (drafts) → Marketer agents (ext
 
 Read these when doing ongoing work.
 
-- **[director-checklist.md](director-checklist.md)** — per-draft review attentions. What to notice when a draft lands in Ghost. The attention checklist, not a rubric.
+- **[blog-director-checklist.md](blog-director-checklist.md)** — per-draft review attentions. What to notice when a draft lands in Ghost. The attention checklist, not a rubric.
 - **[prompt-tuning.md](prompt-tuning.md)** — running log of observations across drafts, plus the operating principles for *when* to tune (don't edit the prompt after one good sample) and Sprint One+ backlogs (corpus-level analysis, mermaid diagram support).
 
 The two are paired: per-draft notable moments get logged from the checklist into prompt-tuning.md; tuning decisions emerge from patterns in the log, not single drafts.
@@ -59,7 +59,7 @@ The `posts` table is keyed on `ghost_post_id` (UNIQUE) and holds one row per Gho
 ## Per-draft flow
 
 1. Pipeline runs (`python -m pipelines.blog_pipeline.runner --max-batches N`). New drafts appear in Ghost as `status: draft`.
-2. Director opens the draft in Ghost, clicks **Preview** (admin editor doesn't render HTML cards or run footer JS).
-3. Director walks through `director-checklist.md` — voice, story, human stake, SEO, length, sanity, cross-sample diff.
+2. Blog Director opens the draft in Ghost, clicks **Preview** (admin editor doesn't render HTML cards or run footer JS).
+3. Blog Director walks through `blog-director-checklist.md` — voice, story, human stake, SEO, length, sanity, cross-sample diff.
 4. Notable moments → logged in `prompt-tuning.md` as observations. One entry per pattern candidate.
 5. The agent prompt is **not** touched after a single observation. Tuning waits for patterns across multiple drafts (per the cadence principle in prompt-tuning.md's preamble).

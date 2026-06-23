@@ -1,7 +1,7 @@
 """
 Ghost Admin API client.
 
-Creates drafts (not published posts) so the Director reviews and approves
+Creates drafts (not published posts) so the Blog Director reviews and approves
 inside Ghost's own admin UI. Uses the standard JWT flow against a Ghost
 instance running on the same VPS.
 """

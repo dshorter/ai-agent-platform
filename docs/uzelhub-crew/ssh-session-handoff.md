@@ -27,7 +27,7 @@
 - `predictor_ingest` path identification
 - Ghost Admin API key setup
 - First dry run, then first live single-batch run
-- Director review of the first draft in Ghost admin
+- Blog Director review of the first draft in Ghost admin
 
 ---
 
@@ -163,7 +163,7 @@ SELECT agent_name, llm_model, token_count_input, token_count_output, processing_
 SQL
 ```
 
-### 8. Director review the first draft
+### 8. Blog Director review the first draft
 
 Open Ghost admin in a browser, find the draft, read it.
 
@@ -242,7 +242,7 @@ When SSH work wraps up, note these for the next planning round:
 
 - Number of backlog drafts generated
 - Total tokens consumed (sum from `agent_decisions`)
-- Director's voice-quality verdict on the first 5 drafts
+- Blog Director's voice-quality verdict on the first 5 drafts
 - Any prompt tweaks made to `CONTENT_SYSTEM_PROMPT` or `MARKETER_SYSTEM_PROMPT`
 - Triviality filter tuning (if any)
 - Whether the cohesion graph's empty `candidates` list noticeably hurt link quality

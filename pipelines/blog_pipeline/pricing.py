@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger("uzelhub_crew")
 
 
-# Rates supplied by director on 2026-04-26. Update when Anthropic prices change.
+# Rates supplied by Blog Director on 2026-04-26. Update when Anthropic prices change.
 MODEL_RATES_USD_PER_MTOK: dict[str, tuple[float, float]] = {
     "claude-opus-4-7": (5.00, 25.00),
     "claude-sonnet-4-6": (3.00, 15.00),

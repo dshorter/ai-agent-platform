@@ -1,6 +1,6 @@
-# Director's Review Checklist — Uzelhub Crew Drafts
+# Blog Director's Review Checklist — Uzelhub Crew Drafts
 
-A short list of *attentions* the director runs through when reviewing a draft in Ghost. Not gates. Not a rubric to score. Notice what's there and log notable moments to [prompt-tuning.md](prompt-tuning.md).
+A short list of *attentions* the Blog Director runs through when reviewing a draft in Ghost. Not gates. Not a rubric to score. Notice what's there and log notable moments to [prompt-tuning.md](prompt-tuning.md).
 
 The agent's prompt holds **principles** (durable: voice, audience, craft). This checklist holds **attentions** (per-draft: what stood out, what was missed). Mixing them bloats the prompt.
 

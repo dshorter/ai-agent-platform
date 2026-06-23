@@ -9,7 +9,7 @@ Flow:
   5. Publish each package as a Ghost draft (idempotent by slug)
 
 Everything runs inside a task_sequence so agent_decisions gets the full
-decision trail. Director reviews in Ghost admin; publish cadence is handled
+decision trail. Blog Director reviews in Ghost admin; publish cadence is handled
 by a separate throttled job (not in Sprint Zero).
 """
 from __future__ import annotations

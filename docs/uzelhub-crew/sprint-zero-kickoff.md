@@ -27,7 +27,7 @@ The broader crew architecture (Developer, Solution Engineer, Systems Admin agent
 
 - **Source:** local `git log` against a `predictor_ingest` clone on the VPS. No GitHub API, no rate limits.
 - **Target:** Ghost at `http://localhost:2368` via the Admin API (JWT-authenticated) on the same VPS.
-- **Review queue:** Ghost's own drafts view. The Director approves, edits, or redirects inside Ghost admin. No custom Streamlit UI for v1.
+- **Review queue:** Ghost's own drafts view. The Blog Director approves, edits, or redirects inside Ghost admin. No custom Streamlit UI for v1.
 - **Syndication:** Ghost canonical only. Hashnode and Dev.to deferred.
 
 ### Two-agent crew for v1
@@ -101,7 +101,7 @@ The Python reference at `docs/05-development/code-examples/sequence-aware-loggin
 - Voice calibration (requires draft output to react to)
 - Developer, Solution Engineer, Systems Admin agents
 - Hashnode / Dev.to syndication
-- Custom Director UI
+- Custom Blog Director UI
 - Sysadmin agent's weekly reflection loop
 
 ---
@@ -119,7 +119,7 @@ These resolve by writing code and reacting to output, not by more planning.
 
 ## Deferred architectural questions
 
-- Director UI (artifact vs Streamlit) — revisit after first month of use
+- Blog Director UI (artifact vs Streamlit) — revisit after first month of use
 - LinkedIn Articles as fourth syndication target
 - CPX11 → CPX21 rescale — defer to actual memory pressure
 - Prompt caching wiring — add when backstories stabilize

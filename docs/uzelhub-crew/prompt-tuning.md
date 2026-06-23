@@ -1,6 +1,6 @@
 # Prompt Tuning Notes — Uzelhub Crew
 
-A running log of director feedback on agent output. The point is to collect several observations before iterating prompts, so changes are informed by patterns rather than single drafts.
+A running log of Blog Director feedback on agent output. The point is to collect several observations before iterating prompts, so changes are informed by patterns rather than single drafts.
 
 Each entry: what the agent did, whether to keep or change, and a description of the underlying voice/structure that produced it. The descriptions are deliberately non-evaluative — we're characterizing what's there so we can name it in prompts.
 
@@ -139,7 +139,7 @@ If yes across the board, this is the answer. If it over-uses or produces noise, 
 These are real-but-solvable problems regardless of which path we pick:
 
 - **Rendering.** Ghost doesn't render mermaid natively. Lowest-friction route: load mermaid JS site-wide via Ghost's global code injection, agent emits `<pre class="mermaid">…</pre>` blocks. Per-post cost is just the JS already-cached on second load.
-- **Verifiability.** Syntax errors render as red error boxes in production. For a first pass, the director catches them in Ghost review (it's already a checklist item). Pre-flight rendering (mermaid-cli or headless Chromium) is a Sprint One+ option if errors prove common.
+- **Verifiability.** Syntax errors render as red error boxes in production. For a first pass, the Blog Director catches them in Ghost review (it's already a checklist item). Pre-flight rendering (mermaid-cli or headless Chromium) is a Sprint One+ option if errors prove common.
 - **Body conversion.** The current `_body_to_html` is paragraph-only. Whatever markdown→HTML upgrade we do has to preserve fenced code blocks (mermaid blocks live inside ```` ```mermaid ```` fences in markdown).
 - **Accessibility.** A bare mermaid block has no alt text. Brief prose description above or below the diagram. In Path 2/3, this is part of the agent's instruction.
 

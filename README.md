@@ -28,7 +28,7 @@ The HVAC work is preserved in-repo — schema, workflows, and portfolio pages ar
 
 ### First pipeline: Uzelhub commit-to-blog
 
-Crawls `predictor_ingest` commit history, clusters commits into story batches, drafts posts in Dan Uzel's voice via a Content agent, packages them with SEO via a Marketer agent, and POSTs to Ghost as drafts for Director review.
+Crawls `predictor_ingest` commit history, clusters commits into story batches, drafts posts in Dan Uzel's voice via a Content agent, packages them with SEO via a Marketer agent, and POSTs to Ghost as drafts for Blog Director review.
 
 Design details: [`docs/uzelhub-crew/sprint-zero-kickoff.md`](docs/uzelhub-crew/sprint-zero-kickoff.md).
 
