@@ -149,9 +149,9 @@ CREATE TABLE posts (
     suggested_publish_date DATE,
     published_at TIMESTAMP,
 
-    -- Director review
-    director_action VARCHAR(30),           -- 'approve', 'edit', 'redirect', 'reject'
-    director_notes TEXT,
+    -- Blog Director review
+    blog_director_action VARCHAR(30),      -- 'approve', 'edit', 'redirect', 'reject'
+    blog_director_notes TEXT,
 
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),

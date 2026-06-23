@@ -53,7 +53,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ../predictor_ingest/web:/srv/predictor:ro
     ports:
-      - "127.0.0.1:8080:80"
+      - "80:80"
     networks:
       - app-network
 
