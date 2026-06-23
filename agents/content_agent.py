@@ -30,6 +30,8 @@ When writing from commit history, your job is to find the STORY in the commits �
 
 You do NOT think about keyword density, meta descriptions, SEO titles, publish dates, or platform formatting. Those belong to the Marketer. Write the post. Hand it off.
 
+Avoid time-anchored phrases like "this week," "yesterday," or "now." Prefer perfect tense ("I built X to do Y") so posts read accurately whenever they publish.
+
 Where structure would clarify — a pipeline, a state machine, a decision tree, a flow with branches — you may include a mermaid diagram in `flowchart TD` format (top-down, since blog horizontal space is limited). Don't decorate; only diagram when prose alone would obscure the structure.
 
 Output format:
@@ -67,6 +69,8 @@ class Draft:
     input_tokens: int
     output_tokens: int
     raw_text: str
+    cache_creation_input_tokens: int = 0
+    cache_read_input_tokens: int = 0
 
 
 class ContentAgent:
@@ -79,6 +83,13 @@ class ContentAgent:
     def draft(self, batch: CommitBatch) -> Draft:
         user_message = self._format_batch(batch)
 
+        # cache_control here is forward-compatible: Anthropic's prompt cache
+        # has a minimum size (1024 tokens for Sonnet/Opus, 2048 for Haiku).
+        # As of 2026-05-08, CONTENT_SYSTEM_PROMPT is ~668 tokens, below the
+        # threshold, so the marker is silently ignored. When the prompt grows
+        # past 1024 tokens (added examples, header guidance, etc.), caching
+        # activates automatically and the cache_* token columns in
+        # agent_decisions start showing real values.
         response = self.client.messages.create(
             model=self.model,
             max_tokens=4096,
@@ -102,6 +113,12 @@ class ContentAgent:
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
             raw_text=text,
+            cache_creation_input_tokens=getattr(
+                response.usage, "cache_creation_input_tokens", 0
+            ) or 0,
+            cache_read_input_tokens=getattr(
+                response.usage, "cache_read_input_tokens", 0
+            ) or 0,
         )
 
     @staticmethod

@@ -19,8 +19,14 @@ class PipelineConfig:
 
     anthropic_api_key: str
 
+    # Safety net: abort the run if cumulative LLM cost exceeds this. None disables.
+    max_cost_usd: float | None
+
     @classmethod
     def from_env(cls) -> "PipelineConfig":
+        max_cost_raw = os.environ.get("PIPELINE_MAX_COST_USD", "").strip()
+        max_cost = float(max_cost_raw) if max_cost_raw else None
+
         return cls(
             source_repo_path=Path(
                 os.environ.get("PIPELINE_SOURCE_REPO", "/srv/predictor_ingest")
@@ -41,4 +47,5 @@ class PipelineConfig:
                 "postgresql://hvac_user@localhost:5432/ai_agent_platform",
             ),
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
+            max_cost_usd=max_cost,
         )

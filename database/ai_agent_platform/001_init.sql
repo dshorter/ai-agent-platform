@@ -85,6 +85,8 @@ CREATE TABLE agent_decisions (
     llm_provider VARCHAR(30),              -- 'anthropic', etc.
     token_count_input INT,
     token_count_output INT,
+    token_count_cache_create INT,          -- Anthropic prompt-cache write tokens
+    token_count_cache_read INT,            -- Anthropic prompt-cache read tokens
     cost_usd DECIMAL(10,6),
 
     -- Sequence-aware logging (LOG003 pattern)

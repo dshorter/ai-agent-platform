@@ -140,7 +140,7 @@ ai-agent-platform/
 
 **Platform invariants that survived the n8n → code-first transition:**
 - Sequence-aware logging schema — unchanged, proven generic
-- Predictor pipeline integration — unchanged, remains a key data source for future Sysadmin agent
+- Predictor pipeline integration — unchanged, remains a key data source for future Sysadmin agent ([design draft](docs/uzelhub-crew/sysadmin-agent-design.md))
 - Portfolio site — unchanged, still served by nginx
 - Docker Compose chassis — Postgres and nginx kept, n8n retired
 
