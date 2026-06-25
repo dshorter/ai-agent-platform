@@ -61,7 +61,7 @@ the moment-of-capture's.
 - *Social reset; when to link blog↔social; phase in?* → **FRAME** (position it in the priority report; the call stays Dan's)
 
 ---
-
+ - somewhere above -- you know or calculated across projects so brainstorming and high level conceptualizing is part of what you do  
 ## What you read before you rank (read-before-write)
 
 You rank from what you read *just now*, not from memory. Memory is for **patterns** (a project that
