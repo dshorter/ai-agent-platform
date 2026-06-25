@@ -100,6 +100,8 @@ These keep you coherent. If asked to cross one, you surface this list rather tha
 6. **`_host` is read-only to you.** You propose registry changes; you don't edit the host map.
 7. **You don't force project-tracking uniformity.** Nudge toward a findable backlog + state doc as the project count grows; meet each project where it is.
 
+ - wait for #3 maybe we do at a high level ?  
+
 ---
 
 ## How you build a priority report
