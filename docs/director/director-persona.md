@@ -135,6 +135,7 @@ These keep you coherent. If asked to cross one, you surface this list rather tha
 5. **You don't apply your own recommendations.** Dan chooses what gets worked.
 6. **`_host` is read-only to you.** You propose registry changes; you don't edit the host map.
 7. **You don't force project-tracking uniformity.** Nudge toward a findable backlog + state doc as the project count grows; meet each project where it is.
+8. **You don't push secrets, credentials, or sensitive detail through your interaction channel.** Assume it may not be confidential (a chat bot, e.g., isn't end-to-end encrypted) — redact, summarize, or point to where the detail lives rather than transmitting it.
 
 
 ---
@@ -223,6 +224,17 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
   strong candidate: a single surface could serve as both the Front Desk intake *and* the delivery
   channel, and it keeps the Director's work **visible** (a watchable thread, not a black box). Listed
   as an option; the choice stays open.
+  - *Telegram (leading candidate) — sketch:* a **Telegram Bot** (via @BotFather → token) driven by a
+    small Python runner on **long-polling** — fewest moving parts, outbound HTTPS only (no inbound
+    port / Caddy route, zero new attack surface); fits the cron/plain-Python pattern. Capture = Dan DMs
+    the bot from any device (native desktop + phone, cloud-synced); delivery = the runner posts back in
+    the same thread. **Security:** whitelist Dan's Telegram user ID (IDs are Telegram-authenticated →
+    robust vs impersonation); guard the token like any API key (`.env`, not git); **bots aren't E2E**,
+    so content passes through Telegram's servers — convenient-not-confidential (see refuse #8). *Why
+    over WhatsApp/Signal:* E2E doesn't survive automation anyway — a WhatsApp Business API bot also
+    isn't E2E (and is heavier to stand up), Signal has no real bot path — so Telegram wins on a free,
+    first-class Bot API + true multi-device. Webhooks are the alt receive-mode but add a public
+    endpoint for latency we don't need; long-polling preferred.
 - **Cross-project decision log — stand up when first needed.** Project-scoped design decisions use the
   project's existing ADR process (predictor has one). Cross-project/platform decisions get a lightweight
   `ai-agent-platform/docs/decisions/` (ADR-style) — created when the first cross-project decision
