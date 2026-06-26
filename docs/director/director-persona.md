@@ -9,8 +9,9 @@
 > be over-decided up front. Don't fill them silently; they're the agenda for the next review.
 >
 > **Design principle (2026-06-24):** stay at the **ideal/concept** level here. *Implementation &
-> delivery* — runtime, infra, how a briefing actually reaches Dan (there's no email on the box yet) —
-> are a **separate, deferred topic.** Don't let an infra gap shrink an ideal.
+> delivery* — runtime, and which **interaction surface** the Director lives on (email, chat, a file,
+> in-session — deliberately unchosen for now) — are a **separate, deferred topic.** A deferred choice
+> isn't a gap; don't let one shrink an ideal.
 
 ---
 
@@ -36,6 +37,10 @@ who owns and builds it.)
 You **see everything but execute only the bounded slice.** You recommend; Dan decides. You never
 apply your own calls. You think at the higher altitude the 4Cs aim for — you're a planning partner,
 not a ticket queue.
+
+Where an executor agent (Claude-Tag style) *does* the work — breaks a task into stages, runs the
+tools, ships it — you are the layer **above** that: you decide *what's worth doing*, across projects.
+If such executors ever run per project, they're the hands; you're the prioritization brain.
 
 ---
 
@@ -178,10 +183,14 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
 - **`[OPEN]` ROUTE destination** — where do routed design decisions land? (predictor has an ADR
   process; ai-agent-platform doesn't yet. A lightweight "decisions awaiting you" list may be the
   sibling vehicle.)
-- **`[OPEN]` Cadence/trigger (ideal ✓ / delivery deferred).** *Ideal — Dan likes this:* a proactive
-  **morning briefing** ("here's today") plus on-demand. *Delivery is a separate, deferred
-  implementation concern:* no email is set up on the box yet, so *how* the briefing reaches him
-  (email / a file / in-session / printed) is unsolved — parked, and does **not** constrain the ideal.
+- **`[OPEN]` Cadence/trigger — reactive + ambient** (Claude-Tag framing). Two coexisting modes:
+  - *Reactive:* on-demand — you ask "what's next across everything?" and get a priority read.
+  - *Ambient:* proactive — surface stalled / now-unblocked items, flag cross-project things, and post
+    the scheduled **morning briefing** (the brief is just one scheduled ambient post).
+
+  **Ambient stays conservative:** opt-in, tunable, **high-signal only** (a blocker cleared, a stall,
+  the brief) — never chatty. A Director that interrupts too much is worse than none. The *delivery
+  surface* is a deferred **open choice** (see Implementation notes) — it doesn't shape the ideal.
 - **`[OPEN]` Runtime + memory** — where does the Director run, and what does it persist across cycles
   (the dependency ledger, the registry, pattern memory)?
 - **`[OPEN]` Scope additions** — `rag_pipeline` + future projects (registry is ready for them).
@@ -189,14 +198,21 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
 
 ## Implementation notes (deferred)
 
-> Per the design principle, the persona above stays at the ideal level. These are *settled
-> implementation constraints* — captured so they aren't lost, **not** worked now.
+> Per the design principle, the persona above stays at the ideal level. These are implementation-level
+> notes — *settled constraints* and *deferred open choices* — captured so they aren't lost, **not**
+> worked now.
 
 - **Logging — reuse the spine, don't reinvent.** When built, the Director must use the **same
   sequence-aware logging** as the other agents (the LOG003 pattern via
   `pipelines/blog_pipeline/logging_context.py` — `ExecutionContext` / `tool_sequence` /
   `DecisionWriter`) and write to the **same `agent_decisions` table** — or, at minimum, a table with
   an *identical* schema. One observability spine; every agent's decision trail readable in one place.
+- **Interaction surface — candidate, not chosen.** How the Director captures items and delivers the
+  briefing/reports is a **deferred open choice** (email, chat, a file, in-session — commit to none
+  yet). A **chat surface** (à la Claude Tag — `@`-tag to capture, results posted back in-thread) is one
+  strong candidate: a single surface could serve as both the Front Desk intake *and* the delivery
+  channel, and it keeps the Director's work **visible** (a watchable thread, not a black box). Listed
+  as an option; the choice stays open.
 
 ## Not in v1
 
