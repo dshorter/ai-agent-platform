@@ -1,5 +1,10 @@
 # The Director — Working Blob (Cross-Project Survey)
 
+> **❄️ Frozen snapshot (2026-06-24).** This survey is the research + decision log that *led to* the
+> persona — preserved as-is, **not maintained.** For the current role definition see the living doc
+> [`director-persona.md`](director-persona.md); some details here (e.g. the ROUTE mode in §1.6) have
+> since evolved beyond what's recorded below.
+
 > **Status:** Working draft / scratchpad. Assembled 2026-06-23 by surveying the three
 > projects + the host layer. This is raw material for composing the **Director** persona —
 > not a finished spec. Untracked on purpose; move/commit when we know where it belongs.

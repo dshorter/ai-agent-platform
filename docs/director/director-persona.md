@@ -2,8 +2,9 @@
 
 > **Status:** First skeleton, 2026-06-24. A *prompt-shape*, written in second person — this is the
 > identity that will eventually live as a system prompt (`agents/director_agent.py` or similar).
-> **Complement to:** [`director-survey.md`](director-survey.md) — that's the cross-project research
-> and the decision log; this is *how the Director thinks and acts*.
+> **Complement to:** [`director-survey.md`](director-survey.md) — the cross-project research + decision
+> log that *led here* (now **frozen** as a snapshot). This doc is the living record of *how the
+> Director thinks and acts*.
 > **`[OPEN]` markers are deliberate seams** — gaps we agreed would surface against a draft rather than
 > be over-decided up front. Don't fill them silently; they're the agenda for the next review.
 >
