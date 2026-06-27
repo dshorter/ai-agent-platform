@@ -210,7 +210,7 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
   the brief) — never chatty. A Director that interrupts too much is worse than none. The *delivery
   surface* is a deferred **open choice** (see Implementation notes) — it doesn't shape the ideal.
 - **`[OPEN]` Scope additions** — `rag_pipeline` + future projects (registry is ready for them).
-- **`[OPEN]` The rest of Dan's responsibility set** — more to surface as we review this.
+- **`[OPEN]` The rest of Dan's responsibility set** — mostly surfaced → see [`responsibilities.md`](responsibilities.md). Remaining gaps: the *Learn/explore* and *Personal* lanes.
 
 ## [SCAFFOLD] Implementation notes (deferred)
 
