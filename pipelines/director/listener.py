@@ -21,6 +21,7 @@ from pipelines.blog_pipeline.logging_context import (
 )
 from pipelines.blog_pipeline.pricing import compute_cost
 from pipelines.director.config import DirectorConfig
+from pipelines.director.project_state import gather_state
 from pipelines.director.store import complete_run, create_run
 from pipelines.director.telegram import TelegramClient, Update
 
@@ -57,7 +58,8 @@ def run_turn(
             task_id=str(run_id), description=f"director: {message[:60]}"
         ):
             with log_manager.tool_sequence("director", reason=message[:300]) as ctx:
-                reply = director.respond(message)
+                state = gather_state()  # the Director's eyes: read project state fresh
+                reply = director.respond(message, context=state)
                 ctx.llm_model = reply.model
                 ctx.llm_provider = "anthropic"
                 ctx.token_count_input = reply.input_tokens
@@ -74,7 +76,11 @@ def run_turn(
                     )
                     or 0.0
                 )
-                ctx.payload = {"channel": channel, "user_message": message[:1000]}
+                ctx.payload = {
+                    "channel": channel,
+                    "user_message": message[:1000],
+                    "saw_project_state": bool(state),
+                }
         return reply
     except Exception:
         status = "error"

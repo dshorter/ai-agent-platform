@@ -53,10 +53,14 @@ class DirectorAgent:
         self.model = model
 
     def respond(
-        self, message: str, history: list[dict[str, Any]] | None = None
+        self,
+        message: str,
+        history: list[dict[str, Any]] | None = None,
+        context: str | None = None,
     ) -> DirectorReply:
+        user_content = f"{context}\n\n---\n\n{message}" if context else message
         messages = list(history or [])
-        messages.append({"role": "user", "content": message})
+        messages.append({"role": "user", "content": user_content})
 
         response = self.client.messages.create(
             model=self.model,

@@ -1,0 +1,20 @@
+{
+  "_comment": "Work-projects the Director orchestrates. Projects-as-data: add/remove here, no code change. Could later sync from /opt/_host/README.md.",
+  "projects": [
+    {
+      "name": "predictor_ingest",
+      "path": "/opt/predictor_ingest",
+      "note": "The engine: RSS -> LLM extract -> trend knowledge graph. Dev tree; prod is /opt/predictor_prod (pinned to main). Currently dormant; ADR-010 plans a film+semiconductors restart."
+    },
+    {
+      "name": "uzelhub-web",
+      "path": "/opt/uzelhub-web",
+      "note": "Public marketing site + Studio + Uzella chat. Work tracked in BACKLOG.md and notes (README is empty)."
+    },
+    {
+      "name": "ai-agent-platform",
+      "path": "/opt/ai-agent-platform",
+      "note": "The agent spine: blog crew, Blog Director, and the Director itself live here."
+    }
+  ]
+}
