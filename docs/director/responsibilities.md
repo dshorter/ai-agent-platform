@@ -65,3 +65,13 @@
 - **Learn / explore** lane — staying current, R&D (nothing specific flagged yet).
 - **Personal** lane — undefined (what should the Director be aware of, or explicitly stay *out* of?).
 - _…whatever else is in your head._
+
+## Parking lot — raw ideas (don't design yet)
+
+> Dropped pre-dawn — revisit later today (~9–10am). Captured so they're not lost; **not** to flush out now.
+
+- **"The Historian"** — a smarter version of the commit-blog story-finder that *searches / looks across
+  everything* for stories, more proactively than the current weekly editorial pass. Possibly its own role.
+- **Per-agent callout quotes in the weekly post** — pull-quotes in each agent's *own voice* (even a flat
+  one — e.g. sysadmin: *"Same as last week. Nothing blew up."*). A "cute" touch; connects to the future
+  per-agent-voices idea.
