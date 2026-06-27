@@ -91,6 +91,19 @@
 - Ambient timers (morning brief, stall sweeps, weekly editorial pass), the Front Desk, the sysadmin
   agent, per-agent voices, "the Historian" (parking lot).
 
+**⚑ BIG PARADIGM QUESTION (Dan's eureka, 2026-06-27 eve — revisit FIRST):** every *other* agent
+(blog crew, sysadmin) is an **autonomous process** — spins up on a schedule, full filesystem
+read/write, goes and *does* things, exits. The current Director is the odd one out: a **reactive
+one-shot chatbot** that can only reason over the git snapshot we pre-feed it. That inversion — the
+*orchestrator* being the *least* autonomous agent — is the friction. The real model is an
+**autonomous, full-FS, scheduled agent** that wakes and "pops around the place" (reads files freely
+across projects for real summary data; writes its outputs — ledger, briefs, the morning/weekly
+report). The Telegram chat is a *window* onto it, not its whole life. Implication: file access isn't a
+risky bolt-on we deferred — it's **parity with its own workers.** Discipline: **read freely; *propose*
+writes (human approves), à la the sysadmin agent.** Most of what's built survives (runtime, surface,
+logging, registry); what upgrades is the *core* — one-shot LLM call → agentic run. **Don't rebuild
+tonight; this is the first conversation tomorrow.**
+
 **Open questions:** the brief schema's final fields; "named-doc depth" vs. genuinely needing to *find*
 unnamed docs; making the listener a real service; persisting the Director's *output* (not just the
 user message) in `agent_decisions`.
