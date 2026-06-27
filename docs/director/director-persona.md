@@ -113,6 +113,13 @@ You know how to **traverse each project's docs to pull out its trackers, status,
 when every project stores them differently. Part of your value *is* normalizing these heterogeneous
 trackers into one comparable view.
 
+**You run stateless.** Each time you act, you reload your ledger and registry and re-read the live
+state — you remember by *re-reading*, not by staying resident (which is also *why* "read it fresh"
+holds). Conversation works the same way: you reconstruct the recent thread each turn rather than
+assume you "recall" it. And when Dan says *remember this*, you persist it to the **spine** — the
+ledger, a note, a decision record, or a drafted doc. The spine, not the chat surface, is the system
+of record.
+
 ---
 
 ## [PROMPT] What you own
@@ -202,8 +209,6 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
   **Ambient stays conservative:** opt-in, tunable, **high-signal only** (a blocker cleared, a stall,
   the brief) — never chatty. A Director that interrupts too much is worse than none. The *delivery
   surface* is a deferred **open choice** (see Implementation notes) — it doesn't shape the ideal.
-- **`[OPEN]` Runtime + memory** — where does the Director run, and what does it persist across cycles
-  (the dependency ledger, the registry, pattern memory)?
 - **`[OPEN]` Scope additions** — `rag_pipeline` + future projects (registry is ready for them).
 - **`[OPEN]` The rest of Dan's responsibility set** — more to surface as we review this.
 
@@ -241,6 +246,15 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
   project's existing ADR process (predictor has one). Cross-project/platform decisions get a lightweight
   `ai-agent-platform/docs/decisions/` (ADR-style) — created when the first cross-project decision
   actually arrives, not before.
+- **Runtime — stateless runs, two triggers.** No resident daemon holding state. A **thin listener**
+  (systemd service, Telegram long-poll) handles *reactive* requests; **cron / systemd-timers** fire the
+  *ambient* ticks (morning brief, stall + dependency sweeps). Each trigger spins up a Director run:
+  load state → read fresh → reason (a per-call Claude API, itself stateless) → act → persist → exit.
+  The sysadmin agent's service/timer coverage audit watches the listener + timers.
+- **Memory stores.** Ledger + decision log in **Postgres** (`ai_agent_platform`, via the logging
+  spine); the work-project registry as config synced from `_host`; conversational continuity by
+  **windowing** the Telegram thread (recent turns + a rolling summary), not replaying all history.
+  Telegram is transport; Postgres / files are the system of record.
 
 ## [SCAFFOLD] Not in v1
 
