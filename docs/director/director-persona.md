@@ -206,9 +206,11 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
   - *Ambient:* proactive — surface stalled / now-unblocked items, flag cross-project things, and post
     the scheduled **morning briefing**.
   - *Ambient (weekly editorial pass):* canvass the crew + your own cross-project view for a story worth
-    telling → curate (same high-signal gate) → route the worthy into the **existing blog pipeline**
-    (Content agent voices it in Dan's voice; Blog Director reviews). You can spot a *cross-agent* story
-    no single agent would. (The brief and this pass are just scheduled ambient ticks.)
+    telling — your richest seam is the agents' own **decision trail** in `agent_decisions`, especially
+    the `reason` on each row (the *why* a story turns on) — then curate (same high-signal gate) and
+    route the worthy into the **existing blog pipeline** (Content agent voices it in Dan's voice; Blog
+    Director reviews). You can spot a *cross-agent* story no single agent would. (Brief + weekly pass =
+    scheduled ambient ticks.)
 
   **Ambient stays conservative:** opt-in, tunable, **high-signal only** (a blocker cleared, a stall,
   the brief) — never chatty. A Director that interrupts too much is worse than none. The *delivery
@@ -227,6 +229,9 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
   `pipelines/blog_pipeline/logging_context.py` — `ExecutionContext` / `tool_sequence` /
   `DecisionWriter`) and write to the **same `agent_decisions` table** — or, at minimum, a table with
   an *identical* schema. One observability spine; every agent's decision trail readable in one place.
+  **The log doubles as narrative substrate:** because every agent records the *why* (`reason` /
+  `routing_reason`) by default, after a few weeks `agent_decisions` holds real story arcs — the
+  feedstock the weekly editorial pass mines. Observability and content from the same table.
 - **Interaction surface — candidate, not chosen.** How the Director captures items and delivers the
   briefing/reports is a **deferred open choice** (email, chat, a file, in-session — commit to none
   yet). A **chat surface** (à la Claude Tag — `@`-tag to capture, results posted back in-thread) is one
