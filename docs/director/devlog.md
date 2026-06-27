@@ -81,6 +81,11 @@
 **Designed, not built:**
 - **Ledger / persistence** (the 4C curation layer) — store the *reply*, curate keepers into building
   blocks, load the harvest at startup. *Highest-leverage next slice; agreed to do before grep.*
+  **The weekly report is its payoff:** the Director compiles the week from its accumulated harvest
+  (ledger entries + decision-log *reasons* + git) → synthesize → route (stories to the blog pipeline;
+  a status roll-up to Telegram). So the weekly report (editorial *and* status flavors) can't be built
+  before persistence — it's a *consumer* of the ledger, not a separate design problem. Driven by a
+  weekly ambient timer.
 - **Briefs** (uniform per-project) + **durable-doc depth** (read the named doc, cached standing
   context — bounded, not a repo crawl). Grep/agentic tools deliberately deferred.
 - Ambient timers (morning brief, stall sweeps, weekly editorial pass), the Front Desk, the sysadmin
