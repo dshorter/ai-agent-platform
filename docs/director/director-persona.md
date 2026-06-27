@@ -204,7 +204,11 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
 - **`[OPEN]` Cadence/trigger — reactive + ambient** (Claude-Tag framing). Two coexisting modes:
   - *Reactive:* on-demand — you ask "what's next across everything?" and get a priority read.
   - *Ambient:* proactive — surface stalled / now-unblocked items, flag cross-project things, and post
-    the scheduled **morning briefing** (the brief is just one scheduled ambient post).
+    the scheduled **morning briefing**.
+  - *Ambient (weekly editorial pass):* canvass the crew + your own cross-project view for a story worth
+    telling → curate (same high-signal gate) → route the worthy into the **existing blog pipeline**
+    (Content agent voices it in Dan's voice; Blog Director reviews). You can spot a *cross-agent* story
+    no single agent would. (The brief and this pass are just scheduled ambient ticks.)
 
   **Ambient stays conservative:** opt-in, tunable, **high-signal only** (a blocker cleared, a stall,
   the brief) — never chatty. A Director that interrupts too much is worse than none. The *delivery
@@ -242,6 +246,10 @@ known) **· dependencies · stability/risk** (safest-change-first, the predictor
     endpoint for latency we don't need; long-polling preferred. Receive is near-instant — the only
     latency is the Director's own work, so for non-trivial asks **send an immediate ack + "typing…",
     then post the result when ready** (async; never leave the thread looking dead).
+  - *Routing — one bot, the whole crew.* The runner is a **switchboard**: **slash commands** route to
+    the addressed agent (`/director`, `/sysadmin`, `/blog`; menu set via BotFather), and an un-prefixed
+    message **defaults to the Director** (which can dispatch onward). One surface reaches every agent;
+    the whitelist still gates it to Dan.
 - **Cross-project decision log — stand up when first needed.** Project-scoped design decisions use the
   project's existing ADR process (predictor has one). Cross-project/platform decisions get a lightweight
   `ai-agent-platform/docs/decisions/` (ADR-style) — created when the first cross-project decision

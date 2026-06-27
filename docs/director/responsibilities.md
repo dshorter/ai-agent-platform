@@ -25,6 +25,10 @@
 - **`ai-agent-platform/docs/decisions/`** — stand up at the first cross-project decision. `[OWN — deferred]`
 - **Predictor images → marketing pages** — cross-project dependency (blocked on marketing going live). `[OWN — blocked]`
 - **"Should the sysadmin agent know when `make daily` runs?"** — routed design decision. `[ROUTE]`
+- **Weekly blog convener (new feature)** — extend the blog pipeline to accept agent stories: the
+  Director runs a weekly editorial pass (canvass crew + curate), worthy ones go Content (Dan's voice)
+  → Marketer → Ghost → Blog Director. Generalizes the pipeline's source from predictor commits to
+  *any agent's noteworthy week.* `[OWN — v1: one voice; future: per-agent voices, already defined in each persona]`
 
 ## Get-it-out-there — content / brand / GTM
 
