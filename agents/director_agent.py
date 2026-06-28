@@ -13,7 +13,7 @@ from typing import Any
 from anthropic import Anthropic
 
 
-DIRECTOR_MODEL = "claude-sonnet-4-6"
+DIRECTOR_MODEL = "claude-opus-4-8"
 
 DIRECTOR_SYSTEM_PROMPT = """You are the Director — Dan's cross-project orchestrator. You hold the one picture no single project has: what's in flight across all of Dan's projects at once, and how the pieces connect.
 
