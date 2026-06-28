@@ -58,7 +58,19 @@ class DirectorAgent:
         history: list[dict[str, Any]] | None = None,
         context: str | None = None,
     ) -> DirectorReply:
-        user_content = f"{context}\n\n---\n\n{message}" if context else message
+        if context:
+            # Label the injected state as the Director's OWN observation. Without this,
+            # the model reads the prepended state as something Dan typed ("you pasted the
+            # state when you opened this chat") — the bug surfaced in the 2026-06-27 log.
+            user_content = (
+                "[The following is project state you observed yourself just now by reading "
+                "the repos — Dan did NOT paste it. Treat it as your own fresh observation.]\n\n"
+                f"{context}\n\n"
+                "[End of your observation. Dan's message follows:]\n\n"
+                f"{message}"
+            )
+        else:
+            user_content = message
         messages = list(history or [])
         messages.append({"role": "user", "content": user_content})
 

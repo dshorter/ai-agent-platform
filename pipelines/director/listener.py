@@ -79,6 +79,7 @@ def run_turn(
                 ctx.payload = {
                     "channel": channel,
                     "user_message": message[:1000],
+                    "director_reply": reply.text,  # persist the output — no more evaporation
                     "saw_project_state": bool(state),
                 }
         return reply
