@@ -12,6 +12,10 @@ working from a handed-over snapshot. Discipline, not capability, is the guardrai
 
 There are deliberately NO write tools: the loop proposes writes as text for Dan to
 approve. The ledger (a later slice) is the one thing the Director will own.
+
+Output bounding — the three-layer guard against a single tool blowing the context
+(`_bounded_output` at the pipe, the per-result ceiling in `dispatch`, and the
+per-turn cap in the loop) — is documented in docs/director/ledger.md (2026-06-29).
 """
 from __future__ import annotations
 
