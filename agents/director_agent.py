@@ -25,6 +25,10 @@ from pipelines.director.tools import TOOL_DEFS, ToolBox, default_toolbox
 DIRECTOR_MODEL = "claude-opus-4-8"
 DIRECTOR_MAX_ITERATIONS = 8  # tool round-trips before the loop is forced to close
 DIRECTOR_MAX_TOKENS = 8192
+# Hard ceiling on total tool output fed back across one turn. Each result is already
+# clipped in the toolbox; this bounds the *sum* so the growing prompt can't approach
+# the model's context limit (the 3.77M-token grep-bomb that 400'd on 2026-06-29).
+DIRECTOR_MAX_TOOL_CHARS = 200_000
 
 DIRECTOR_SYSTEM_PROMPT = """You are the Director — Dan's cross-project orchestrator. You hold the one picture no single project has: what's in flight across all of Dan's projects at once, and how the pieces connect.
 
@@ -139,6 +143,7 @@ class DirectorAgent:
         usage = {"in": 0, "out": 0, "cc": 0, "cr": 0}
         tool_calls: list[str] = []
         cost = 0.0
+        tool_chars = 0
         iterations = 0
         response = None
 
@@ -167,6 +172,7 @@ class DirectorAgent:
                     continue
                 args = dict(block.input or {})
                 out, is_err = self.toolbox.dispatch(block.name, args)
+                tool_chars += len(out)
                 tool_calls.append(
                     f"{block.name}({_brief(args)})" + (" !err" if is_err else "")
                 )
@@ -180,8 +186,9 @@ class DirectorAgent:
                 )
             messages.append({"role": "user", "content": results})
 
-            if self.max_cost_usd is not None and cost >= self.max_cost_usd:
-                break  # budget spent — fall through to a forced close
+            over_budget = self.max_cost_usd is not None and cost >= self.max_cost_usd
+            if over_budget or tool_chars >= DIRECTOR_MAX_TOOL_CHARS:
+                break  # budget/output spent — fall through to a forced close
 
         finished = response is not None and response.stop_reason != "tool_use"
         final_text = _text_of(response) if finished else ""

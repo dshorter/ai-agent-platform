@@ -15,16 +15,24 @@ approve. The ledger (a later slice) is the one thing the Director will own.
 """
 from __future__ import annotations
 
+import os
+import select
 import subprocess
+import time
 from pathlib import Path
 from typing import Any
 
 from pipelines.director.registry import load_registry
 
 
-# Bounded outputs keep the token cost of a single read sane.
-MAX_READ_BYTES = 60_000
+# Bounded outputs keep the token cost of a single tool result sane. The universal
+# ceiling matters: a single grep over scraped data (predictor_ingest stores raw HTML
+# with 700k-char lines) once produced a 3.77M-token prompt and a 400. Every result is
+# clipped to MAX_TOOL_RESULT_CHARS in dispatch, and grep clips per-line as well.
+MAX_TOOL_RESULT_CHARS = 40_000  # hard ceiling on ANY single tool result (~10k tokens)
+MAX_READ_BYTES = 40_000
 MAX_GREP_LINES = 120
+MAX_GREP_LINE_CHARS = 300  # clip long matched lines (minified/bundled/raw-HTML files)
 MAX_DIR_ENTRIES = 200
 
 # Never worth walking — noise, vendored deps, or secrets.
@@ -48,6 +56,50 @@ _GIT_READONLY = {
     "blame", "shortlog", "describe", "remote", "tag", "for-each-ref", "rev-list",
     "cat-file", "name-rev", "reflog",
 }
+
+# How many bytes we ever pull off a subprocess pipe. The clip happens at the PIPE,
+# not after the child finishes — `capture_output=True` buffers the whole stream first,
+# which OOM-killed the process on a grep over scraped data. We read at most this, with
+# a wall-clock deadline, then kill the child.
+_PIPE_READ_LIMIT = 600_000
+_PIPE_TIMEOUT = 15
+
+
+def _bounded_output(cmd: list[str], limit: int = _PIPE_READ_LIMIT, timeout: int = _PIPE_TIMEOUT) -> str:
+    """Run `cmd`, reading at most `limit` bytes within `timeout` seconds, then kill it.
+
+    Bounds BOTH memory (never buffers more than `limit`) and time (a slow no-match scan
+    over a huge tree can't hang the loop). stderr is merged so git errors surface.
+    """
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    except Exception as exc:
+        return f"(could not run: {exc})"
+    fd = proc.stdout.fileno()
+    chunks: list[bytes] = []
+    got = 0
+    deadline = time.monotonic() + timeout
+    try:
+        while got < limit:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                break
+            ready, _, _ = select.select([fd], [], [], remaining)
+            if not ready:
+                break  # wall-clock timeout
+            buf = os.read(fd, min(65536, limit - got))
+            if not buf:
+                break  # EOF — child finished
+            chunks.append(buf)
+            got += len(buf)
+    finally:
+        proc.kill()
+        try:
+            proc.stdout.close()
+            proc.wait(timeout=5)
+        except Exception:
+            pass
+    return b"".join(chunks).decode("utf-8", errors="ignore")
 
 
 TOOL_DEFS: list[dict[str, Any]] = [
@@ -154,17 +206,26 @@ class ToolBox:
 
     # --- dispatch -----------------------------------------------------------
     def dispatch(self, name: str, tool_input: dict[str, Any]) -> tuple[str, bool]:
-        """Return (content, is_error). Never raises — a tool error feeds back to the model."""
+        """Return (content, is_error). Never raises, and never exceeds the result ceiling."""
         try:
             if name == "read_file":
-                return self._read_file(tool_input.get("path", ""))
-            if name == "grep":
-                return self._grep(tool_input.get("pattern", ""), tool_input.get("path", ""))
-            if name == "run_git":
-                return self._run_git(tool_input.get("project_path", ""), tool_input.get("args", []))
-            return (f"unknown tool: {name}", True)
+                content, is_err = self._read_file(tool_input.get("path", ""))
+            elif name == "grep":
+                content, is_err = self._grep(
+                    tool_input.get("pattern", ""), tool_input.get("path", "")
+                )
+            elif name == "run_git":
+                content, is_err = self._run_git(
+                    tool_input.get("project_path", ""), tool_input.get("args", [])
+                )
+            else:
+                return (f"unknown tool: {name}", True)
         except Exception as exc:  # never crash the loop on a bad tool call
             return (f"tool error: {exc}", True)
+        # Universal chokepoint — guarantees no single result can blow the context.
+        if len(content) > MAX_TOOL_RESULT_CHARS:
+            content = content[:MAX_TOOL_RESULT_CHARS] + "\n…(result truncated to the tool-output limit)"
+        return (content, is_err)
 
     def _read_file(self, raw: str) -> tuple[str, bool]:
         p = self._within_roots(raw)
@@ -182,14 +243,15 @@ class ToolBox:
         if self._looks_secret(p):
             return ("refused: this looks like a secrets/credential file; I don't read those.", True)
         try:
-            raw_bytes = p.read_bytes()
+            with p.open("rb") as fh:
+                chunk = fh.read(MAX_READ_BYTES + 1)  # read a bounded prefix, not the whole file
         except Exception as exc:
             return (f"could not read: {exc}", True)
-        try:
-            text = raw_bytes[:MAX_READ_BYTES].decode("utf-8")
-        except UnicodeDecodeError:
+        head = chunk[:MAX_READ_BYTES]
+        if b"\x00" in head:  # NUL byte => binary, don't dump it into the prompt
             return ("refused: not a UTF-8 text file (binary?).", True)
-        if len(raw_bytes) > MAX_READ_BYTES:
+        text = head.decode("utf-8", errors="ignore")  # ignore avoids splitting a multibyte char
+        if len(chunk) > MAX_READ_BYTES:
             text += "\n…(truncated — file is larger than the read limit)"
         return (text, False)
 
@@ -202,20 +264,21 @@ class ToolBox:
         cmd = ["grep", "-rIn", "--max-count=5"]
         cmd += [f"--exclude-dir={d}" for d in sorted(_SKIP_DIRS)]
         cmd += ["-E", "--", pattern, str(base)]
-        try:
-            out = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
-        except Exception as exc:
-            return (f"grep error: {exc}", True)
-        lines = (out.stdout or "").splitlines()
+        lines = _bounded_output(cmd).splitlines()
         if not lines:
             return ("(no matches)", False)
-        shown = lines[:MAX_GREP_LINES]
+        clipped: list[str] = []
+        for ln in lines[:MAX_GREP_LINES]:
+            if len(ln) > MAX_GREP_LINE_CHARS:
+                # one matched line can be a whole minified bundle or a 700k-char raw-HTML row
+                ln = ln[:MAX_GREP_LINE_CHARS] + " …(line truncated)"
+            clipped.append(ln)
         more = (
-            f"\n…({len(lines) - len(shown)} more matching lines — narrow the pattern or path)"
-            if len(lines) > len(shown)
+            f"\n…({len(lines) - len(clipped)} more matching lines — narrow the pattern or path)"
+            if len(lines) > len(clipped)
             else ""
         )
-        return ("\n".join(shown) + more, False)
+        return ("\n".join(clipped) + more, False)
 
     def _run_git(self, raw: str, args: Any) -> tuple[str, bool]:
         base = self._within_roots(raw)
@@ -229,14 +292,7 @@ class ToolBox:
                 f"(allowed: {', '.join(sorted(_GIT_READONLY))}).",
                 True,
             )
-        try:
-            out = subprocess.run(
-                ["git", "-C", str(base), *args],
-                capture_output=True, text=True, timeout=20,
-            )
-        except Exception as exc:
-            return (f"git error: {exc}", True)
-        text = (out.stdout or out.stderr).strip()
+        text = _bounded_output(["git", "-C", str(base), *args]).strip()
         if len(text) > MAX_READ_BYTES:
             text = text[:MAX_READ_BYTES] + "\n…(truncated)"
         return (text or "(no output)", False)
