@@ -150,6 +150,37 @@ snapshot, with calibrated uncertainty. Logged trace + tokens + cost, all in the 
 
 ---
 
+## 2026-06-29 (later) — the grep-bomb: a three-layer tool-output guardrail
+
+First real-world break of the live loop, and a good one to hit early. A vague Telegram nudge ("let's
+try another read test") — no named doc — made the loop do the literal thing: `grep` across
+`predictor_ingest/data/raw`, scraped HTML with **single lines up to 731k chars**. Two failures at once:
+`subprocess.run(capture_output=True)` buffered the whole multi-GB match stream (**OOM, exit 137**), and
+the matches that returned built a **3.77M-token prompt → `400` "prompt is too long."** The 400 was
+rejected at validation, so it was **not billed** — only the normal pre-bomb calls were.
+
+The fix is **defense in depth** — a per-result clip alone runs *after* the buffer fills (too late for
+the OOM); a pipe bound alone still lets many 40k results creep toward the limit:
+
+1. **Bound at the pipe** — `_bounded_output()` reads subprocess stdout off the pipe, ≤600 KB within a
+   15 s deadline, then kills the child. The root fix: never let `capture_output=True` buffer an
+   unbounded stream first. (`grep` + `run_git`.)
+2. **Per-result ceiling** — every result clipped to 40 k chars in `dispatch()`, plus a 300-char
+   per-line clip; `read_file` reads a bounded prefix with a NUL-byte binary check.
+3. **Per-turn budget** — the loop stops once cumulative tool output passes 200 k chars.
+
+**The lesson worth keeping:** never `capture_output=True` on a tool that can touch large or untrusted
+data — bound at the pipe (memory) *and* with a wall-clock deadline (time); a clip after the call returns
+protects neither. And: a vague instruction to an agent with read tools means "search everything" — name
+the file, or let recent-history carry the reference. (commit `d4af2c3`.)
+
+**Open hardening items:** (1) no automated tests yet — `pyproject` declares pytest but it isn't installed
+and there are zero test files; the toolbox guards (`_within_roots`, `_looks_secret`, the output bounds,
+the git allowlist) are pure functions begging for fast units, and this bomb is exactly what they'd catch.
+(2) listener is still a detached `nohup`, not systemd (slice 6).
+
+---
+
 ## Map
 
 - **Branch `claude/director-build`** — the code (`agents/director_agent.py`, `pipelines/director/*`,

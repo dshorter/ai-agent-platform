@@ -15,7 +15,8 @@ approve. The ledger (a later slice) is the one thing the Director will own.
 
 Output bounding — the three-layer guard against a single tool blowing the context
 (`_bounded_output` at the pipe, the per-result ceiling in `dispatch`, and the
-per-turn cap in the loop) — is documented in docs/director/ledger.md (2026-06-29).
+per-turn cap in the loop) — is documented in docs/director/devlog.md (the
+2026-06-29 grep-bomb entry).
 """
 from __future__ import annotations
 
