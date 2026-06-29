@@ -7,6 +7,11 @@
 > **One-line goal:** turn the Director from a *reactive one-shot chatbot* into an *autonomous,
 > full-parity, scheduled agent* — same capabilities as the other agents, with persona discipline as
 > the guardrail.
+>
+> **Progress (2026-06-29):** slices **1–3 shipped & live** on `claude/director-build` — persist-output
+> + label fix (`dedfd7f`), Opus 4.8 + pricing (`d8f53a4`), and the **agentic read-only loop** + a
+> **recent-history** turn-memory slice (this commit). The listener now runs the loop on Opus 4.8.
+> Remaining: ledger (4), scheduled wake (5), propose-writes / systemd (6).
 
 ---
 
@@ -14,17 +19,25 @@
 
 | | Now (walking skeleton) | After (rework) |
 |---|---|---|
-| **Brain** | one `messages.create` call | an **agentic loop** (Claude Agent SDK) — reads/acts over multiple round-trips |
-| **Sight** | a pre-fed git snapshot (metadata only) | **full filesystem read** — opens ADRs, backlogs, devlogs, *on demand* |
-| **Memory** | none (only Dan's messages logged) | a **ledger** it writes to + loads at startup → continuity across sessions |
-| **Trigger** | reactive only (Telegram) | reactive **+ scheduled** (weekly cron, morning timer) |
-| **Model** | `claude-sonnet-4-6` (a default) | **`claude-opus-4-8`** (best Opus candidate in the crew) |
+| **Brain** | one `messages.create` call | ✅ an **agentic loop on the anthropic SDK** (not the Claude Agent SDK — see core #1) — reads/acts over bounded round-trips |
+| **Sight** | a pre-fed git snapshot (metadata only) | ✅ **read the box on demand** — `read_file` / `grep` / `run_git`, scoped to the registered roots |
+| **Memory** | none (only Dan's messages logged) | ✅ **recent-history** turn replay (raw); ⬜ a curated **ledger** it writes + loads at startup (slice 4) |
+| **Trigger** | reactive only (Telegram) | ⬜ reactive **+ scheduled** (weekly cron, morning timer — slice 5) |
+| **Model** | `claude-sonnet-4-6` (a default) | ✅ **`claude-opus-4-8`** (best Opus candidate in the crew) |
 
 ## What changes (the core)
 
-1. **Agentic run, not one-shot.** Replace `DirectorAgent.respond()`'s single call with an agentic loop
-   (the **Claude Agent SDK** — already a dependency) that has tools: read-file, grep, run-git. Bounded
-   by an **iteration cap + a cost cap** (`PIPELINE_MAX_COST_USD` pattern) so it never spelunks forever.
+1. **Agentic run, not one-shot.** ✅ `DirectorAgent.respond()` is now a bounded tool loop with
+   tools: `read_file`, `grep`, `run_git` ([`pipelines/director/tools.py`](../../pipelines/director/tools.py)),
+   bounded by an **iteration cap (`DIRECTOR_MAX_ITERATIONS=8`) + a cost cap** (`config.max_cost_usd`,
+   the `PIPELINE_MAX_COST_USD` pattern) so it never spelunks forever.
+   **Engine — corrected:** built on the **anthropic SDK** (the crew's own substrate), *not* the Claude
+   Agent SDK. The scope originally said "Agent SDK" — that wording carried over from the content &
+   marketing agents, which *are* built with it. But the Director's whole value is the sequence-aware
+   logging + cost spine; the anthropic loop instruments every round-trip natively (tokens/cost → 
+   `agent_decisions`), gives finer control over the caps and read-scoping, needs no `claude` CLI
+   subprocess, and keeps the orchestrator on the same substrate as the rest of the crew. More tool
+   code, but simpler code we own. (Decided with Dan, 2026-06-29.)
 2. **Full-parity filesystem access.** Capability parity with the other agents — it can read the box.
    This dissolves awareness-vs-depth: it confirms what ADR-010 *says* before routing, reads `BACKLOG.md`
    before sequencing, sees the devlog and reasons from what *actually happened*.
@@ -54,12 +67,17 @@ Parity means the OS doesn't stop it; the **persona** does — exactly how the sy
 
 ## Proposed build order (incremental, shippable, observable)
 
-1. **Persist the output** + fix the injected-context label. *(Tiny; do first — closes evaporation.)*
-2. **Opus 4.8 flip** — `DIRECTOR_MODEL=claude-opus-4-8` + add it to `pricing.py` rates.
-3. **Agentic run with full read** — SDK loop + read/grep/git tools, capped. *(The paradigm slice.)*
-4. **Ledger write + load-at-startup** — memory across sessions.
-5. **Scheduled wake** — weekly cron (poll the agents) + morning timer.
-6. *(Later)* propose-writes to files; per-agent dispatch; systemd-ify the listener.
+1. ✅ **Persist the output** + fix the injected-context label. `dedfd7f`. *(Closed evaporation.)*
+2. ✅ **Opus 4.8 flip** — `DIRECTOR_MODEL=claude-opus-4-8` + `pricing.py` rate. `d8f53a4`.
+3. ✅ **Agentic run with full read** — anthropic tool-loop + `read_file`/`grep`/`run_git`, capped by
+   iterations + cost. *(The paradigm slice.)*
+3.5. ✅ **Recent-history turn memory** — replay the last N (user, reply) turns from the decision log so a
+   thread feels continuous (`DIRECTOR_HISTORY_TURNS`, default 6; per-reply char cap). Newly possible
+   *because* slice 1 persists replies. Folded in here (Dan, 2026-06-29); token-tunable via N.
+4. ⬜ **Ledger write + load-at-startup** — *curated* memory across sessions (distinct from 3.5's raw
+   recent turns: the ledger is the harvest of keepers).
+5. ⬜ **Scheduled wake** — weekly cron (poll the agents) + morning timer.
+6. ⬜ *(Later)* propose-writes to files; per-agent dispatch; systemd-ify the listener.
 
 ## Open questions
 

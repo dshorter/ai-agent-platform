@@ -23,7 +23,9 @@ def run_selftest(config: DirectorConfig, message: str) -> None:
     conn = psycopg.connect(config.postgres_dsn)
     log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
     director = DirectorAgent(
-        Anthropic(api_key=config.anthropic_api_key), model=config.model
+        Anthropic(api_key=config.anthropic_api_key),
+        model=config.model,
+        max_cost_usd=config.max_cost_usd,
     )
 
     print(f"\n>>> {message}\n")

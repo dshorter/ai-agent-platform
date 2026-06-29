@@ -8,6 +8,7 @@ agent_decisions via the sequence-aware spine.
 from __future__ import annotations
 
 import logging
+import os
 import sys
 import time
 
@@ -43,6 +44,43 @@ def route(text: str) -> tuple[str, str]:
     return "director", stripped
 
 
+# Recent-conversation memory: replay the last N turns back to the Director so a
+# thread feels continuous. Bounded (turns + per-reply chars) to keep tokens sane;
+# DIRECTOR_HISTORY_TURNS=0 disables it. Only possible because slice 1 now persists
+# the Director's replies — before that there was nothing to replay.
+RECENT_HISTORY_TURNS = int(os.environ.get("DIRECTOR_HISTORY_TURNS", "6"))
+HISTORY_REPLY_CAP = 1200  # chars of each past reply fed back as context
+
+
+def load_recent_history(conn, channel: str, limit: int = RECENT_HISTORY_TURNS):
+    """Last `limit` (user, reply) turns on this channel, oldest-first, as messages."""
+    if limit <= 0:
+        return []
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT decision_payload->>'user_message',
+                   decision_payload->>'director_reply'
+            FROM agent_decisions
+            WHERE agent_name = 'director'
+              AND decision_payload->>'channel' = %s
+              AND decision_payload->>'director_reply' IS NOT NULL
+              AND decision_payload->>'director_reply' <> ''
+            ORDER BY decision_timestamp DESC
+            LIMIT %s
+            """,
+            (channel, limit),
+        )
+        rows = cur.fetchall()
+    messages: list[dict[str, str]] = []
+    for user_message, director_reply in reversed(rows):
+        if not user_message or not director_reply:
+            continue
+        messages.append({"role": "user", "content": user_message})
+        messages.append({"role": "assistant", "content": director_reply[:HISTORY_REPLY_CAP]})
+    return messages
+
+
 def run_turn(
     message: str,
     director: DirectorAgent,
@@ -58,8 +96,9 @@ def run_turn(
             task_id=str(run_id), description=f"director: {message[:60]}"
         ):
             with log_manager.tool_sequence("director", reason=message[:300]) as ctx:
+                history = load_recent_history(conn, channel)  # recent-turn memory
                 state = gather_state()  # the Director's eyes: read project state fresh
-                reply = director.respond(message, context=state)
+                reply = director.respond(message, history=history, context=state)
                 ctx.llm_model = reply.model
                 ctx.llm_provider = "anthropic"
                 ctx.token_count_input = reply.input_tokens
@@ -81,6 +120,9 @@ def run_turn(
                     "user_message": message[:1000],
                     "director_reply": reply.text,  # persist the output — no more evaporation
                     "saw_project_state": bool(state),
+                    "history_turns": len(history) // 2,
+                    "iterations": reply.iterations,
+                    "tool_calls": reply.tool_calls,  # what it read this turn — the trace
                 }
         return reply
     except Exception:
@@ -117,7 +159,9 @@ def run_listener(config: DirectorConfig) -> None:
     conn = psycopg.connect(config.postgres_dsn)
     log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
     director = DirectorAgent(
-        Anthropic(api_key=config.anthropic_api_key), model=config.model
+        Anthropic(api_key=config.anthropic_api_key),
+        model=config.model,
+        max_cost_usd=config.max_cost_usd,
     )
     tg = TelegramClient(config.telegram_token, timeout=config.poll_timeout)
 

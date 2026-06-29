@@ -110,6 +110,46 @@ user message) in `agent_decisions`.
 
 ---
 
+## 2026-06-29 — slices 1–3: the autonomous loop, built
+
+The eureka became code. Three slices shipped and went live on `claude/director-build`:
+
+- **Slice 1 (`dedfd7f`)** — persist the Director's *reply* into `agent_decisions` (it was evaporating —
+  we'd logged only Dan's messages) and fix the "you pasted the state" bug by labelling the injected git
+  snapshot as the Director's *own* observation. Small, but it unlocked slice 3.5 (see below).
+- **Slice 2 (`d8f53a4`)** — flip the model to **`claude-opus-4-8`** and add its rate to `pricing.py` so
+  cost-tracking prices the runs instead of writing NULL. The cross-cutting job is the right Opus candidate.
+- **Slice 3** — the paradigm slice: `respond()` is now a **bounded read-only agentic loop** with
+  `read_file` / `grep` / `run_git`, capped by iterations + cost.
+
+**The engine decision (the real fork).** The scope said "Claude Agent SDK — already a dependency," and
+that was *true* (`claude-agent-sdk 0.1.68` is installed). But we chose the **anthropic SDK tool-loop**
+instead. Why: the Director's entire value is the sequence-aware logging + cost spine, and the anthropic
+loop instruments every round-trip natively (tokens/cost → `agent_decisions`), gives finer control over
+caps and read-scoping, and needs no `claude` CLI subprocess. The "Agent SDK" wording had carried over
+from the **content & marketing agents, which *are* built with it** — and that's the insight: it's a
+**principled producer-vs-orchestrator split**, not an inconsistency. Producers get the batteries-included
+SDK; the orchestrator lives *on* the spine. More tool code, but simpler code we own.
+
+**Guardrail = discipline, made literal.** "Propose writes, human approves" isn't enforced by a permission
+prompt — the loop simply has *no write tool*. Reads are scoped to the registered roots (`..`/symlink
+rejected), credential-shaped files refused. The OS doesn't stop it; the tool surface does.
+
+**Slice 3.5, folded in — recent-history.** Replay the last N (user, reply) turns from the decision log so
+a thread feels continuous. This was Dan's "was the chat context going back to the agent?" question — the
+answer was *no* (the `history` hook existed but was never populated). It's newly *possible* precisely
+because slice 1 stopped the replies evaporating. Distinct from the slice-4 ledger: 3.5 is raw recent
+turns, the ledger will be the curated harvest.
+
+**The moment it proved itself.** First real agentic run, asked to read the rework-scope doc: it read the
+doc, then *kept going* — ran `git log`/`status`/`diff`, found its own half-written slice-3 files in the
+working tree, cited `dedfd7f`/`d8f53a4`, grepped for the cost cap, and flagged "I see the iteration cap
+but not the cost cap — confirm before you commit." (A false alarm — the cost cap *was* wired — but it
+hedged honestly instead of asserting.) That's the read-the-box paradigm working: ground truth over
+snapshot, with calibrated uncertainty. Logged trace + tokens + cost, all in the spine.
+
+---
+
 ## Map
 
 - **Branch `claude/director-build`** — the code (`agents/director_agent.py`, `pipelines/director/*`,
