@@ -1,0 +1,20 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ai-agent-platform//ops-calendar//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:ai-agent-platform ops
+BEGIN:VEVENT
+UID:sonnet5-price-bump-20260901@ai-agent-platform
+DTSTAMP:20260701T120000Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20260902
+SUMMARY:Sonnet 5 intro pricing ends — bump pricing.py to $3/$15
+DESCRIPTION:Claude Sonnet 5 introductory pricing ($2/$10 per MTok) ended 2026-08-31.\nUpdate MODEL_RATES_USD_PER_MTOK["claude-sonnet-5"] in pipelines/blog_pipeline/pricing.py from (2.00\, 10.00) to (3.00\, 15.00) so cost-tracking stays accurate. The Director defaults to Sonnet 5\, so this affects its logged cost_usd.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:In 3 days: Sonnet 5 price bump — update pricing.py claude-sonnet-5 to (3.00, 15.00)
+TRIGGER:-P3D
+END:VALARM
+END:VEVENT
+END:VCALENDAR

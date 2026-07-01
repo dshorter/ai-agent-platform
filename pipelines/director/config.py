@@ -29,7 +29,7 @@ class DirectorConfig:
                 "postgresql://hvac_user@localhost:5432/ai_agent_platform",
             ),
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
-            model=os.environ.get("DIRECTOR_MODEL", "claude-opus-4-8"),
+            model=os.environ.get("DIRECTOR_MODEL", "claude-sonnet-5"),
             max_cost_usd=float(max_cost_raw) if max_cost_raw else None,
             poll_timeout=int(os.environ.get("DIRECTOR_POLL_TIMEOUT", "30")),
         )

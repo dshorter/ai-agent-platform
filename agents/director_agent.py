@@ -22,7 +22,7 @@ from pipelines.blog_pipeline.pricing import compute_cost
 from pipelines.director.tools import TOOL_DEFS, ToolBox, default_toolbox
 
 
-DIRECTOR_MODEL = "claude-opus-4-8"
+DIRECTOR_MODEL = "claude-sonnet-5"
 DIRECTOR_MAX_ITERATIONS = 8  # tool round-trips before the loop is forced to close
 DIRECTOR_MAX_TOKENS = 8192
 # Hard ceiling on total tool output fed back across one turn. Each result is already

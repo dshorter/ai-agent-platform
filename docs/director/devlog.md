@@ -181,6 +181,27 @@ the git allowlist) are pure functions begging for fast units, and this bomb is e
 
 ---
 
+## 2026-07-01 — switched the Director to Sonnet 5
+
+Sonnet 5 shipped (2026-06-30) at the Sonnet-4.6 price ($3/$15; intro **$2/$10** through 2026-08-31),
+benchmarking near Opus 4.8 — and *matching* it on the two rows that are the Director's actual job:
+knowledge-work and reasoning-with-tools. It only trails Opus meaningfully on pure agentic *coding*
+(~6 pts), which isn't what an orchestrator does. So we moved the Director's default from Opus 4.8 →
+`claude-sonnet-5`: near-Opus orchestration at ~40–60% of the cost. Opus 4.8 stays one env-var away
+(`DIRECTOR_MODEL`) for a genuinely gnarly call.
+
+The switch was a **one-liner** — the whole point of the LCD + env-model design from slice 2. Sonnet 5
+is the same 4.6-family API surface (adaptive thinking, no `temperature`/`budget_tokens`, `effort`
+defaults high), so nothing changed but the default string and a `pricing.py` row. Two days after
+agonizing over Opus-vs-Sonnet, the infra let us ride the new release for free — and the first Sonnet-5
+selftest promptly read its own dirty tree and flagged the pricing time-bomb itself.
+
+Pricing note: logged at the intro **$2/$10** for accuracy; reverts to **$3/$15 on 2026-09-01** — the
+reminder lives in `ops/calendar.ics` (importable into a real calendar) and as a comment at the rate in
+`pricing.py`.
+
+---
+
 ## Map
 
 - **Branch `claude/director-build`** — the code (`agents/director_agent.py`, `pipelines/director/*`,
