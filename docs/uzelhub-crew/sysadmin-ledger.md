@@ -26,6 +26,24 @@
 
 ---
 
+## 2026-07-06 (evening) — Root-session droppings broke an agent's write path
+
+First live use of `calendar_add` by the Director failed: `PermissionError`
+on `ops/calendar.ics`. **Cause:** engineering sessions running as root had
+rewritten that file — and `.git/index` — inside the claude-owned
+ai-agent-platform repo. Ownership drift from privileged hands in an
+unprivileged agent's workspace: the write path the Director was granted on
+paper was physically root-locked by the people who granted it. **Fix:**
+`chown -R claude:claude /opt/ai-agent-platform`; verified zero root-owned
+files remain and claude can write the file + git plumbing. **Rule derived:**
+when root touches an agent-owned tree, ownership restoration is part of the
+change, not cleanup — and root-session git operations in agent-owned repos
+re-pollute `.git`, so they end with a re-chown. **Receipts:** Director
+listener log 2026-07-06T20:45 turn (its own correct triage: perms bug ≠
+missing verb); chown ~21:05. The Director's smoke-test UID
+(`test-smoke-20260707@…`) was never consumed — its retry is the end-to-end
+proof.
+
 ## 2026-07-06 — Ledger opened; inherited state
 
 Seeded at persona second-draft time. The four canonical case studies
