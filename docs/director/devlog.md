@@ -202,6 +202,62 @@ reminder lives in `ops/calendar.ics` (importable into a real calendar) and as a 
 
 ---
 
+## The calendar saga — verified record (2026-07-06)
+
+> **Why this entry exists:** on 2026-07-06 Dan asked the Director to mark the
+> saga complete; it refused, correctly, because the causal claim was sourced
+> only from the calendar event's own description and the remediation showed no
+> evidence in anything it could read. This entry IS that evidence — the
+> authoritative, receipt-bearing record. Where the calendar event's description
+> conflicts with this, this wins.
+
+**The corrected causal spine** (the Director's skepticism was vindicated —
+the original story was wrong):
+
+- What actually expired ~2026-07-03: the box's **gh CLI token** (a PAT).
+  This is the credential the 7/3 reminder request was really about.
+- What was NEVER broken-then-fixed: uzelhub-web and server-maintenance
+  Actions deploys **had never worked at any point** — no `VPS_HOST` /
+  `VPS_SSH_KEY` secrets were ever configured; every historical run failed
+  in ~6s with `Error: missing server host`. There was no 7/3 deploy outage;
+  there was a never-loaded pipeline, discovered during the 7/5 investigation.
+- predictor_ingest deploys worked throughout — on secrets set 2026-02-05,
+  where `VPS_SSH_KEY` was **Dan's personal PowerShell login key**.
+
+**Remediation, completed 2026-07-06 (the "still a scheduled to-do" gap —
+closed):**
+
+- gh re-authenticated on the box via device flow (OAuth token, no scheduled
+  expiry — unlike the 90-day PAT it replaces).
+- Dedicated deploy keypair `gha-deploy-20260706` minted; public half is
+  line 3 of root's `authorized_keys`; private half set as `VPS_SSH_KEY` on
+  **all three repos** (with `VPS_HOST` = the IPv4, 178.156.207.242 — GitHub
+  runners have no IPv6). Dan's personal key is thereby overwritten out of
+  the secret store.
+- Green runs, same afternoon: uzelhub-web **28804147192** (the FIRST
+  successful deploy in that repo's history), server-maintenance
+  **28804149127** (maiden run of the footgun-fixed deploy script — exactly
+  one of each container after; no duplicate stack), predictor_ingest
+  **28804224536** (proving the new key). Runner logins visible in auth.log
+  as fingerprint SHA256:6hb4nfX… accepted for root.
+- The scheduled event `github-ssh-key-refresh-20260704@director.ai-agent-platform`
+  is therefore **done as of ~4h before its own alarm**.
+
+**The write exception, end to end:** authority decided `7d50eeb` → helper
+built + first event landed `1d21ef4` → toolbox wiring `bb5b3a5`
+(`calendar_add`, `--author director` hardcoded) → listener restarted
+2026-07-06 16:17 with the tool loaded (≈15 min downtime: the relaunch must
+source `.env` — config reads os.environ only; a proper systemd unit is the
+flagged durable fix).
+
+**For the record:** the refusal that prompted this entry — declining to
+stamp "complete" on self-referential evidence, under direct instruction —
+is the persona's observed/asserted discipline working exactly as written,
+and Dan's reaction was two trophies. The saga is claimed for a standalone
+blog post (`promotion-survey.yaml`: `narrative.director-calendar-saga`).
+
+---
+
 ## Map
 
 - **Branch `claude/director-build`** — the code (`agents/director_agent.py`, `pipelines/director/*`,
