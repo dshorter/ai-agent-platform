@@ -63,4 +63,14 @@ DESCRIPTION:To-do: refresh the GitHub SSH key + gh token
 TRIGGER:-PT1H
 END:VALARM
 END:VEVENT
+BEGIN:VEVENT
+UID:test-smoke-20260707@director.ai-agent-platform
+DTSTAMP:20260706T205449Z
+DTSTART;VALUE=DATE:20260707
+DTEND;VALUE=DATE:20260708
+SUMMARY:Director smoke test — calendar_add write path
+DESCRIPTION:Retry after root-ownership fix (ecb3f57). Verifies calendar_ad
+ d write path is live post-chown. Safe to cancel/ignore — not a real appoi
+ ntment.
+END:VEVENT
 END:VCALENDAR
