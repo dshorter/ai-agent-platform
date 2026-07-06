@@ -10,8 +10,12 @@ working from a handed-over snapshot. Discipline, not capability, is the guardrai
     defense-in-depth behind the persona's "don't pull secrets into reasoning".
   - Only read-only git subcommands run.
 
-There are deliberately NO write tools: the loop proposes writes as text for Dan to
-approve. The ledger (a later slice) is the one thing the Director will own.
+There is deliberately ONE write tool: `calendar_add`, the persona's single
+write exception (director-persona.md §Calendar, decided 2026-07-05). It shells
+to `ops/calendar-add` with `--author director` HARDCODED — the model cannot
+claim operator — so the namespace/no-clobber/rate-cap guardrails are enforced
+by the helper, not by prompt discipline. Every other write is still proposed
+as text for Dan to approve. The ledger (a later slice) is the next candidate.
 
 Output bounding — the three-layer guard against a single tool blowing the context
 (`_bounded_output` at the pipe, the per-result ceiling in `dispatch`, and the
@@ -177,6 +181,38 @@ TOOL_DEFS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "name": "calendar_add",
+        "description": (
+            "Append ONE event to the ops calendar (ops/calendar.ics) — your single "
+            "write exception (persona §Calendar). Your UID must end "
+            "@director.ai-agent-platform; existing events are never modified or "
+            "clobbered; writes are rate-capped per day and committed to git with "
+            "attribution. Provide either date (all-day) OR start+end (floating "
+            "local, America/New_York). After a successful add, ANNOUNCE the event "
+            "in your reply — announce, don't ask."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string",
+                    "description": "Event UID, must end @director.ai-agent-platform.",
+                },
+                "summary": {"type": "string", "description": "One-line event title."},
+                "description": {"type": "string", "description": "Optional body text."},
+                "date": {"type": "string", "description": "All-day event: YYYYMMDD."},
+                "start": {"type": "string", "description": "Timed event start: YYYYMMDDTHHMMSS."},
+                "end": {"type": "string", "description": "Timed event end: YYYYMMDDTHHMMSS."},
+                "alarm": {
+                    "type": "string",
+                    "description": "Optional ICS trigger, e.g. -PT1H (1h before) or -P1D (1 day).",
+                },
+            },
+            "required": ["uid", "summary"],
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -223,6 +259,8 @@ class ToolBox:
                 content, is_err = self._run_git(
                     tool_input.get("project_path", ""), tool_input.get("args", [])
                 )
+            elif name == "calendar_add":
+                content, is_err = self._calendar_add(tool_input)
             else:
                 return (f"unknown tool: {name}", True)
         except Exception as exc:  # never crash the loop on a bad tool call
@@ -284,6 +322,47 @@ class ToolBox:
             else ""
         )
         return ("\n".join(clipped) + more, False)
+
+    def _calendar_add(self, tool_input: dict[str, Any]) -> tuple[str, bool]:
+        """The one write: shell to ops/calendar-add with --author director hardcoded.
+
+        The helper owns the guardrails (namespace suffix, no-clobber UIDs, field
+        validation, daily rate cap); this method owns two things only — the model
+        can never pass --author, and a successful write is git-committed with
+        attribution so the audit trail the persona promises actually exists.
+        """
+        helper = Path(__file__).resolve().parents[2] / "ops" / "calendar-add"
+        if not helper.exists():
+            return ("calendar-add helper is missing on this box — tell Dan.", True)
+        cmd = [
+            str(helper), "--author", "director",
+            "--uid", str(tool_input.get("uid", "")),
+            "--summary", str(tool_input.get("summary", "")),
+        ]
+        for k in ("description", "date", "start", "end"):
+            v = tool_input.get(k)
+            if v:
+                cmd += [f"--{k}", str(v)]
+        alarm = tool_input.get("alarm")
+        if alarm:
+            cmd.append(f"--alarm={alarm}")  # equals-form: the value may start with '-'
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        except Exception as exc:
+            return (f"could not run calendar-add: {exc}", True)
+        out = (proc.stdout + proc.stderr).strip() or "(no output)"
+        if proc.returncode != 0:
+            return (out, True)
+        # Commit the write with attribution (persona §Calendar: audit trail).
+        root = helper.parent.parent
+        summary = str(tool_input.get("summary", ""))[:60]
+        commit = _bounded_output([
+            "git", "-C", str(root),
+            "-c", "user.name=Director", "-c", "user.email=director@ai-agent-platform",
+            "commit", "-o", "ops/calendar.ics", "-m", f"calendar: {summary} (director, via calendar_add)",
+        ]).strip()
+        note = "" if "calendar:" in commit else f"\n(note: event added but git commit failed: {commit[:200]})"
+        return (out + note, False)
 
     def _run_git(self, raw: str, args: Any) -> tuple[str, bool]:
         base = self._within_roots(raw)
