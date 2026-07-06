@@ -213,6 +213,35 @@ TOOL_DEFS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "name": "calendar_mark",
+        "description": (
+            "Apply ONE lifecycle transform to ONE calendar item you authored "
+            "(UID must end @director.ai-agent-platform). action=cancel sets "
+            "STATUS:CANCELLED on a VEVENT or VTODO; action=complete is legal "
+            "only on a VTODO (RFC 5545 — events cannot be COMPLETED). SEQUENCE "
+            "bumps and DTSTAMP refreshes automatically so subscribed clients "
+            "see the change. Never deletes; never re-keys; refuses if already "
+            "in the requested state. After a successful mark, ANNOUNCE it in "
+            "your reply — announce, don't ask."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "uid": {
+                    "type": "string",
+                    "description": "UID of an item you authored (@director.ai-agent-platform).",
+                },
+                "action": {
+                    "type": "string",
+                    "enum": ["cancel", "complete"],
+                    "description": "cancel (VEVENT/VTODO) or complete (VTODO only).",
+                },
+            },
+            "required": ["uid", "action"],
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -261,6 +290,8 @@ class ToolBox:
                 )
             elif name == "calendar_add":
                 content, is_err = self._calendar_add(tool_input)
+            elif name == "calendar_mark":
+                content, is_err = self._calendar_mark(tool_input)
             else:
                 return (f"unknown tool: {name}", True)
         except Exception as exc:  # never crash the loop on a bad tool call
@@ -362,6 +393,35 @@ class ToolBox:
             "commit", "-o", "ops/calendar.ics", "-m", f"calendar: {summary} (director, via calendar_add)",
         ]).strip()
         note = "" if "calendar:" in commit else f"\n(note: event added but git commit failed: {commit[:200]})"
+        return (out + note, False)
+
+    def _calendar_mark(self, tool_input: dict[str, Any]) -> tuple[str, bool]:
+        """The mutation half of the write exception: shell to ops/calendar-mark,
+        --author director hardcoded. Helper owns the guardrails; this owns the
+        author identity and the attributed git commit."""
+        helper = Path(__file__).resolve().parents[2] / "ops" / "calendar-mark"
+        if not helper.exists():
+            return ("calendar-mark helper is missing on this box — tell Dan.", True)
+        cmd = [
+            str(helper), "--author", "director",
+            "--uid", str(tool_input.get("uid", "")),
+            "--action", str(tool_input.get("action", "")),
+        ]
+        try:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        except Exception as exc:
+            return (f"could not run calendar-mark: {exc}", True)
+        out = (proc.stdout + proc.stderr).strip() or "(no output)"
+        if proc.returncode != 0:
+            return (out, True)
+        root = helper.parent.parent
+        commit = _bounded_output([
+            "git", "-C", str(root),
+            "-c", "user.name=Director", "-c", "user.email=director@ai-agent-platform",
+            "commit", "-o", "ops/calendar.ics",
+            "-m", f"calendar: mark {tool_input.get('action')} {str(tool_input.get('uid',''))[:60]} (director, via calendar_mark)",
+        ]).strip()
+        note = "" if "calendar:" in commit else f"\n(note: mark applied but git commit failed: {commit[:200]})"
         return (out + note, False)
 
     def _run_git(self, raw: str, args: Any) -> tuple[str, bool]:

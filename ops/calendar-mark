@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""calendar-mark — the ONLY mutation verb for ops/calendar.ics. Spec: ops/CALENDAR.md.
+
+Applies exactly one lifecycle transform to exactly one component, matched by
+UID, within the author's namespace:
+
+  --action cancel    VEVENT or VTODO -> STATUS:CANCELLED
+  --action complete  VTODO only      -> STATUS:COMPLETED + COMPLETED:<utc>
+                     (RFC 5545: VEVENTs have no COMPLETED status)
+
+Every mark also bumps SEQUENCE (created at 1 if absent) and refreshes DTSTAMP
+so subscribed clients learn the item changed.
+
+Hard limits, enforced here and not by prompt discipline:
+  * --author director/sysadmin may mark ONLY UIDs in their own namespace
+    suffix; --author operator may mark any (human hands, same transforms).
+  * never deletes a component; never touches UID / DTSTART / SUMMARY / VALARM;
+    never edits anything outside the matched component.
+  * refuses if the item is already in the requested state.
+  * shares the daily write budget (DTSTAMP-stamped-today count) with
+    calendar-add: adds and marks draw from one MAX_PER_DAY pool.
+
+Usage:
+  calendar-mark --author director --action cancel \
+      --uid some-event@director.ai-agent-platform
+"""
+import argparse, datetime, re, sys, os
+
+CAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'calendar.ics')
+SUFFIX = {
+    'director': '@director.ai-agent-platform',
+    'sysadmin': '@sysadmin.ai-agent-platform',
+}
+MAX_PER_DAY = 5
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--author', choices=['operator', 'director', 'sysadmin'], required=True)
+    ap.add_argument('--uid', required=True)
+    ap.add_argument('--action', choices=['cancel', 'complete'], required=True)
+    a = ap.parse_args()
+
+    if a.author != 'operator' and not a.uid.endswith(SUFFIX[a.author]):
+        sys.exit(f'REFUSED: {a.author}-authored marks are limited to UIDs ending {SUFFIX[a.author]}')
+
+    text = open(CAL).read()
+
+    # Locate the one component holding this UID.
+    blocks = list(re.finditer(r'BEGIN:(VEVENT|VTODO)\n.*?END:\1\n', text, re.S))
+    target = None
+    for m in blocks:
+        if f'\nUID:{a.uid}\n' in '\n' + m.group(0):
+            target = m
+            break
+    if target is None:
+        sys.exit(f'REFUSED: no VEVENT/VTODO with UID {a.uid}')
+    kind, block = target.group(1), target.group(0)
+
+    if a.action == 'complete' and kind != 'VTODO':
+        sys.exit('REFUSED: complete is only legal on a VTODO (RFC 5545 — VEVENTs can only be CANCELLED)')
+
+    new_status = 'CANCELLED' if a.action == 'cancel' else 'COMPLETED'
+    if f'STATUS:{new_status}' in block:
+        sys.exit(f'REFUSED: item is already {new_status}')
+
+    # Shared daily write budget (same scan calendar-add uses).
+    now = datetime.datetime.now(datetime.timezone.utc)
+    today = now.strftime('%Y%m%d')
+    if sum(1 for s in re.findall(r'DTSTAMP:(\d{8})T', text) if s == today) >= MAX_PER_DAY:
+        sys.exit(f'REFUSED: rate cap — {MAX_PER_DAY} writes already stamped today; talk to the operator')
+
+    stamp = now.strftime('%Y%m%dT%H%M%SZ')
+    nb = block
+
+    # STATUS: replace if present, else insert directly after the UID line.
+    if re.search(r'^STATUS:.*$', nb, re.M):
+        nb = re.sub(r'^STATUS:.*$', f'STATUS:{new_status}', nb, count=1, flags=re.M)
+    else:
+        nb = nb.replace(f'UID:{a.uid}\n', f'UID:{a.uid}\nSTATUS:{new_status}\n', 1)
+
+    # SEQUENCE: bump, or create at 1.
+    seq = re.search(r'^SEQUENCE:(\d+)$', nb, re.M)
+    if seq:
+        nb = re.sub(r'^SEQUENCE:\d+$', f'SEQUENCE:{int(seq.group(1)) + 1}', nb, count=1, flags=re.M)
+    else:
+        nb = nb.replace(f'STATUS:{new_status}\n', f'STATUS:{new_status}\nSEQUENCE:1\n', 1)
+
+    # DTSTAMP: refresh (exactly one exists in components we write).
+    nb = re.sub(r'^DTSTAMP:.*$', f'DTSTAMP:{stamp}', nb, count=1, flags=re.M)
+
+    # Completion timestamps for VTODO.
+    if a.action == 'complete':
+        nb = re.sub(r'^COMPLETED:.*\n', '', nb, flags=re.M)
+        nb = re.sub(r'^PERCENT-COMPLETE:.*\n', '', nb, flags=re.M)
+        nb = nb.replace('STATUS:COMPLETED\n', f'STATUS:COMPLETED\nCOMPLETED:{stamp}\nPERCENT-COMPLETE:100\n', 1)
+
+    open(CAL, 'w').write(text[:target.start()] + nb + text[target.end():])
+    print(f'marked {new_status}: {a.uid} ({a.author}; SEQUENCE bumped)')
+
+
+if __name__ == '__main__':
+    main()
