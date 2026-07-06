@@ -17,4 +17,31 @@ DESCRIPTION:In 3 days: Sonnet 5 price bump — update pricing.py claude-sonnet-5
 TRIGGER:-P3D
 END:VALARM
 END:VEVENT
+BEGIN:VEVENT
+UID:sprint-20-kickoff@ai-agent-platform
+DTSTAMP:20260703T190000Z
+DTSTART;VALUE=DATE:20260706
+DTEND;VALUE=DATE:20260707
+SUMMARY:Sprint 20 kickoff — predictor restart + methodology + fusion
+DESCRIPTION:Plan of record: /opt/predictor_ingest/docs/project-plan.md §Sprint 20 (commit c3c7cbd).\nOpener: 20.1 synthetic trend_history cleanup (ai/film/biosafety\, NOT semis — verify zeroed-component fingerprint first)\, then 20.2 semis stall diagnosis\, 20.3 film full-chain resume\, 20.4 staleness paging.\nTrack B scoring changes land WITH the restart\, not after (mid-window scoring changes create velocity artifacts).\nFusion (Track C) starts with the pre-registered hypothesis page (20.15) before any data.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Sprint 20 kickoff today — start with 20.1 (synthetic row cleanup)
+TRIGGER:PT9H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:backup-restore-drill-monthly@ai-agent-platform
+DTSTAMP:20260703T160000Z
+DTSTART;VALUE=DATE:20260801
+DTEND;VALUE=DATE:20260802
+RRULE:FREQ=MONTHLY;BYDAY=1SA
+SUMMARY:Backup restore drill (monthly — every 3rd is full scratch-VPS rebuild)
+DESCRIPTION:On-box drill: pull latest host-*.tar.gz from B2 → extract to /var/tmp/restore-drill → replay ghost + postgres dumps into throwaway containers (one at a time\, --memory capped — 2GB box) → PRAGMA integrity_check on sqlite copies → checksum n8n encryption key vs live → page result via notify-telegram SYSADMIN → delete drill dir.\nScript planned at /opt/server-maintenance/scripts/restore-drill.sh — until it exists\, follow /opt/_host/README.md §Restore.\nEvery 3rd drill (Oct\, Jan\, Apr\, Jul): skip on-box\, do the full rebuild instead — hourly-billed scratch Hetzner VPS\, restore from B2 only\, verify blog serves\, destroy.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: monthly backup restore drill (see event for steps)
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
 END:VCALENDAR
