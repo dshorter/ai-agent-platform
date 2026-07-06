@@ -55,13 +55,17 @@ or `SUMMARY` (that's a re-key/rewrite — make a new item instead); never edit
 anything outside the matched component; own rate cap; git commit with
 attribution, e.g. `calendar: mark done <uid> (director, via calendar-mark)`.
 
-**Named acceptance test:** the build isn't done until the Director itself,
-conversationally, marks `github-ssh-key-refresh-20260704@director.ai-agent-platform`
-CANCELLED — the "golden todo": completed on the back end 2026-07-06 (receipts
-in docs/director/devlog.md) but untouchable on the calendar because this verb
-didn't exist. The saga's reminder becomes the first mutation its author ever
-performs. Until then it stays as-is, deliberately — a live specimen of
-state-drift-by-missing-verb.
+**Named acceptance test — PASSED 2026-07-06 (`fe543ee`):** the Director
+itself, conversationally, marked
+`github-ssh-key-refresh-20260704@director.ai-agent-platform` CANCELLED — after
+warming up on its own smoke event (`8d9838c`) and volunteering, unprompted,
+the RFC correction that "mark done" must be `cancel` on a VEVENT. The
+"live specimen of state-drift-by-missing-verb" is no longer live; the verb
+exists and its author has used it. Original criterion preserved below for the
+record: *the build isn't done until the Director itself marks the golden todo
+CANCELLED — completed on the back end 2026-07-06 (receipts in
+docs/director/devlog.md) but untouchable on the calendar because this verb
+didn't exist.*
 
 ### `calendar-add --todo` (SPEC)
 
