@@ -5,12 +5,19 @@
 > output and provider APIs; above the `_host` README and repo prose) per the
 > persona §"Your ledger, and precedence".
 >
-> **Write contract:** append-only, dated entries, receipts inline. Until the
-> agent is built, sessions append on its behalf (as with the Director's devlog).
-> Once built, the agent appends via a constrained helper (`ledger-append`,
-> the calendar-add pattern: validated shape, no edits to prior entries,
-> rate-capped) — never freehand. Prior entries are immutable; corrections are
-> new dated entries that cite what they correct.
+> **Write contract:** add-only, dated entries, receipts inline — and **newest
+> entries go at the TOP** (immediately below this header). Immutability is
+> semantic, not positional: prior entries are never altered; corrections are
+> new dated entries citing what they correct. Newest-first matters because the
+> agent's read_file tool returns a bounded PREFIX of the file (~40KB) — an
+> append-at-bottom ledger would silently lose its newest entries first, the
+> exact inversion of what a reconciliation loop needs. When the file nears the
+> read budget, the weekly loop proposes a compaction: oldest entries distilled
+> into the persona's case-study canon or an archive file, never silently
+> dropped. Until the agent is built, sessions add entries on its behalf (as
+> with the Director's devlog); once built, it writes via a constrained helper
+> (`ledger-append`, the calendar-add pattern: validated shape, no edits to
+> prior entries, rate-capped) — never freehand.
 >
 > **Read contract:** the agent reads this at the start of every reconciliation
 > loop — this is where "memory is for pattern recognition" lives. New findings
