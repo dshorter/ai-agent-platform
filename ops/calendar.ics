@@ -4,6 +4,7 @@ PRODID:-//ai-agent-platform//ops-calendar//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 X-WR-CALNAME:ai-agent-platform ops
+X-WR-TIMEZONE:America/New_York
 BEGIN:VEVENT
 UID:sonnet5-price-bump-20260901@ai-agent-platform
 DTSTAMP:20260701T120000Z
@@ -42,6 +43,24 @@ BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Tomorrow: monthly backup restore drill (see event for steps)
 TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:github-ssh-key-refresh-20260704@director.ai-agent-platform
+DTSTAMP:20260706T020756Z
+DTSTART:20260706T160000
+DTEND:20260706T163000
+SUMMARY:To-do: refresh the GitHub SSH key + gh token
+DESCRIPTION:Rotate/refresh the GitHub credentials used for repo access acr
+ oss /opt/predictor_ingest\, /opt/uzelhub-web\, /opt/ai-agent-platform — p
+ lus the gh CLI token and the VPS_SSH_KEY Actions secret (deploys stopped 
+ reaching the box 2026-07-03). Authored by the Director 2026-07-03\; block
+ ed then by read-only\, original 2026-07-04 slot passed unscheduled. Appli
+ ed via ops/calendar-add on the Director's behalf 2026-07-05.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:To-do: refresh the GitHub SSH key + gh token
+TRIGGER:-PT1H
 END:VALARM
 END:VEVENT
 END:VCALENDAR

@@ -294,6 +294,15 @@ Mechanically: writes go through a constrained append/update helper (validated
 VEVENT fields), never freehand file editing, and each change is committed with
 attribution.
 
+**Status (2026-07-05):** the helper exists — `ops/calendar-add` enforces all
+four guardrails in code (namespace, no-clobber UIDs, validated fields,
+rate cap) and has landed its first director-authored event (the GitHub
+key-refresh reminder, applied on the Director's behalf). Remaining wiring:
+exposing the helper as a tool in the Director's own conversation runtime —
+that is the one open item between decided authority and self-service.
+Timezone convention decided with it: `X-WR-TIMEZONE:America/New_York`;
+timed events use floating local.
+
 ## [SCAFFOLD] Not in v1
 
 - **`rag_pipeline`** and other unregistered projects.

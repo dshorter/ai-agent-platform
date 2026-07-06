@@ -1,0 +1,103 @@
+#!/usr/bin/env python3
+"""calendar-add — the constrained append helper for ops/calendar.ics.
+
+This is the mechanism behind the Director's one write exception
+(director-persona.md §Calendar). It appends ONE validated VEVENT; it never
+edits or deletes existing events, and it is the only sanctioned way for an
+agent to write this file — freehand editing of the .ics is operator-only.
+
+Rules enforced here (the persona's guardrails, in code):
+  * --author director  =>  UID must end @director.ai-agent-platform
+  * duplicate UIDs are refused (events are never re-keyed or clobbered)
+  * text fields are ICS-escaped; times are floating local, interpreted in
+    the calendar's X-WR-TIMEZONE (America/New_York — decided 2026-07-05)
+  * rate cap: an author gets at most MAX_PER_DAY appends per day, counted
+    by DTSTAMP; beyond that this tool refuses (complain, don't loop)
+
+Usage:
+  calendar-add --author director --uid my-event@director.ai-agent-platform \
+      --summary "..." --description "..." \
+      (--date YYYYMMDD | --start YYYYMMDDTHHMMSS --end YYYYMMDDTHHMMSS) \
+      [--alarm=-PT1H]
+
+NOTE the = in --alarm=-PT1H: the value starts with a dash, so argparse
+needs the equals form. (Learned the hard way — a space-separated -PT1H
+parses as a flag and the event silently doesn't land.)
+"""
+import argparse, datetime, re, sys, os
+
+CAL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'calendar.ics')
+DIRECTOR_SUFFIX = '@director.ai-agent-platform'
+MAX_PER_DAY = 5
+
+def esc(s):
+    return s.replace('\\', '\\\\').replace(';', '\\;').replace(',', '\\,').replace('\n', '\\n')
+
+def fold(line, limit=74):
+    out = []
+    while len(line.encode()) > limit:
+        out.append(line[:limit]); line = ' ' + line[limit:]
+    out.append(line)
+    return '\n'.join(out)
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--author', choices=['operator', 'director'], required=True)
+    ap.add_argument('--uid', required=True)
+    ap.add_argument('--summary', required=True)
+    ap.add_argument('--description', default='')
+    ap.add_argument('--date', help='all-day: YYYYMMDD')
+    ap.add_argument('--start', help='timed: YYYYMMDDTHHMMSS (floating local)')
+    ap.add_argument('--end')
+    ap.add_argument('--alarm', help='ICS trigger, e.g. -PT1H or -P1D')
+    a = ap.parse_args()
+
+    if a.author == 'director' and not a.uid.endswith(DIRECTOR_SUFFIX):
+        sys.exit(f'REFUSED: director-authored UIDs must end {DIRECTOR_SUFFIX}')
+    if not re.fullmatch(r'[A-Za-z0-9._-]+@[A-Za-z0-9.-]+', a.uid):
+        sys.exit('REFUSED: malformed UID')
+    if bool(a.date) == bool(a.start):
+        sys.exit('REFUSED: exactly one of --date or --start/--end')
+    if a.date and not re.fullmatch(r'\d{8}', a.date):
+        sys.exit('REFUSED: --date must be YYYYMMDD')
+    if a.start and not (a.end and re.fullmatch(r'\d{8}T\d{6}', a.start) and re.fullmatch(r'\d{8}T\d{6}', a.end)):
+        sys.exit('REFUSED: --start/--end must both be YYYYMMDDTHHMMSS')
+    if a.alarm and not re.fullmatch(r'-?P(\d+[WD])?(T\d+[HMS])?', a.alarm):
+        sys.exit('REFUSED: --alarm must be an ICS duration like -PT1H or -P1D')
+    if a.alarm in ('-P', 'P', '-PT', 'PT'):
+        sys.exit('REFUSED: empty alarm duration')
+
+    text = open(CAL).read()
+    if f'UID:{a.uid}' in text:
+        sys.exit(f'REFUSED: UID already exists: {a.uid}')
+
+    today = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d')
+    stamps = re.findall(r'DTSTAMP:(\d{8})T', text)
+    # crude but honest: cap total appends stamped today
+    if sum(1 for s in stamps if s == today) >= MAX_PER_DAY:
+        sys.exit(f'REFUSED: rate cap — {MAX_PER_DAY} events already stamped today; talk to the operator')
+
+    dtstamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+    lines = ['BEGIN:VEVENT', f'UID:{a.uid}', f'DTSTAMP:{dtstamp}']
+    if a.date:
+        nxt = (datetime.datetime.strptime(a.date, '%Y%m%d') + datetime.timedelta(days=1)).strftime('%Y%m%d')
+        lines += [f'DTSTART;VALUE=DATE:{a.date}', f'DTEND;VALUE=DATE:{nxt}']
+    else:
+        lines += [f'DTSTART:{a.start}', f'DTEND:{a.end}']
+    lines.append(fold(f'SUMMARY:{esc(a.summary)}'))
+    if a.description:
+        lines.append(fold(f'DESCRIPTION:{esc(a.description)}'))
+    if a.alarm:
+        lines += ['BEGIN:VALARM', 'ACTION:DISPLAY',
+                  fold(f'DESCRIPTION:{esc(a.summary)}'), f'TRIGGER:{a.alarm}', 'END:VALARM']
+    lines.append('END:VEVENT')
+
+    marker = 'END:VCALENDAR'
+    if marker not in text:
+        sys.exit('REFUSED: calendar file missing END:VCALENDAR')
+    new = text.replace(marker, '\n'.join(lines) + '\n' + marker)
+    open(CAL, 'w').write(new)
+    print(f'added {a.uid} ({a.author})')
+
+if __name__ == '__main__':
+    main()
