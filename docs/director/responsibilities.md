@@ -57,7 +57,9 @@
 
 ## Parked / Not-in-v1 (already decided)
 
-- Calendar integration (deferred).
+- ~~Calendar integration (deferred).~~ **Un-deferred 2026-07-05:** read-write
+  to `ops/calendar.ics` as the Director's single write exception — own-UID
+  namespace only, announce-don't-ask, rate-capped. See persona §Calendar.
 - `rag_pipeline` registration ("not yet").
 
 ## Gaps — your turn (not yet surfaced)
