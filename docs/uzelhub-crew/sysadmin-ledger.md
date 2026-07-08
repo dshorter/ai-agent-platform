@@ -26,6 +26,32 @@
 
 ---
 
+## 2026-07-07 (evening) — Root droppings, occurrences #2 and #3: it's a law, not an incident
+
+The 2026-07-06 root-droppings entry re-fired twice tonight, during the apex
+cutover Phase 0 — different files, same physics:
+
+- **#2, Caddy log:** `caddy validate` run from a root shell doesn't just parse —
+  it *instantiates* the config, pre-creating `/var/log/caddy/studio.uzelhub.com.log`
+  as root:root 600. The real reload, running as user `caddy`, then failed with
+  `permission denied`. Fix: `chown caddy:caddy` the file; reload succeeded.
+  Prevention folded into `marketing/CUTOVER.md` Phase 2.3 (pre-touch + chown
+  the apex log before the flip's validate). **Receipts:** systemctl status
+  ExecReload 2026-07-07 ~20:50 (status=1 → status=0 after chown).
+- **#3, git object store:** root-ssh commits in `/opt/uzelhub-web` left
+  root-owned fan-out dirs in `.git/objects/`; the claude user's commit of the
+  runbook corrections failed with `insufficient permission for adding an
+  object`. Fix: `chown -R claude:claude /opt/uzelhub-web` (operator-run,
+  ~21:55). **Receipts:** commit `bf4289c` landing immediately after.
+
+**Pattern, now three-for-three:** any root session that *touches* an
+agent-or-service-owned tree (write, commit, or even a validating read that
+instantiates) leaves ownership droppings that break the unprivileged owner
+*later*, at a distance, mid-task. The 07-06 rule upgrades from repo-specific
+to box-wide: **root work in any non-root workspace ends with a re-chown of
+that workspace, same change, not cleanup** — and validation commands count
+as writes.
+
 ## 2026-07-06 (evening) — Root-session droppings broke an agent's write path
 
 First live use of `calendar_add` by the Director failed: `PermissionError`
