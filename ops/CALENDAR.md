@@ -1,10 +1,11 @@
 # The Ops Calendar — format, guardrails, service (spec)
 
-> **Status:** spec, 2026-07-06. The append path (`calendar-add`) is built and
-> proven; the lifecycle verbs and the subscription route specced here are not
-> yet built. Design doctrine: RFC 5545 is the application — git is history,
-> the helpers are the write API, agents and phone clients are readers. No
-> calendar server exists or is wanted.
+> **Status:** updated 2026-07-11. The append path (`calendar-add`, including
+> VEVENT and VTODO) and the lifecycle verb (`calendar-mark`) are both built
+> and proven; only the subscription route (Caddy) remains spec. Design
+> doctrine: RFC 5545 is the application — git is history, the helpers are the
+> write API, agents and phone clients are readers. No calendar server exists
+> or is wanted.
 
 ## The file
 
@@ -67,13 +68,29 @@ CANCELLED — completed on the back end 2026-07-06 (receipts in
 docs/director/devlog.md) but untouchable on the calendar because this verb
 didn't exist.*
 
-### `calendar-add --todo` (SPEC)
+### `calendar-add --todo` (BUILT — `ops/calendar-add --todo`, 2026-07-11)
 
-To-do–shaped items (like the GitHub key refresh was) should be `VTODO`, not
+To-do–shaped items (like the GitHub key refresh was) are `VTODO`, not
 `VEVENT` — that's the component with a real completion lifecycle (`DUE`,
 `STATUS:COMPLETED`, `PERCENT-COMPLETE`). Same validation, same namespaces,
-same alarms. Existing to-do-flavored VEVENTs stay as they are (immutability);
-new to-dos use VTODO.
+same alarms; the one difference is the deadline field: `--due YYYYMMDD` (all-day,
+emits `DUE;VALUE=DATE:`) or `--due YYYYMMDDTHHMMSS` (timed, emits `DUE:`) in
+place of `--date`/`--start`/`--end`. New VTODOs are created
+`STATUS:NEEDS-ACTION`; `calendar-mark --action complete` (VTODO-only) and
+`--action cancel` both work on them unchanged — verified interop 2026-07-11
+(a smoke VTODO created with `--todo` was marked `COMPLETED` via
+`calendar-mark` with `SEQUENCE`/`COMPLETED`/`PERCENT-COMPLETE` set correctly).
+
+**Subtasks — `RELATED-TO`:** `--related-to <uid>` chains a new VTODO to an
+existing component's UID, emitting `RELATED-TO;RELTYPE=<type>:<uid>`.
+`--reltype` is `PARENT` (default), `CHILD`, or `SIBLING`. The target UID must
+already exist in the calendar — `calendar-add` refuses a dangling reference
+or a self-reference — but the target can be in *any* namespace; `RELATED-TO`
+is a descriptive link, not a grant of write access. Only settable at creation
+(one per component; `calendar-add` never edits an existing item to add a
+second relation later). `--todo`-only for now — not offered on `VEVENT`.
+Existing to-do-flavored VEVENTs stay as they are (immutability); new to-dos
+use VTODO.
 
 ## The subscription route (SPEC — operator applies; Caddy is operator-only)
 
