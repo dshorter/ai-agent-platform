@@ -90,9 +90,12 @@ DESCRIPTION:Fresh test event created to exercise the new calendar_mark ver
 END:VEVENT
 BEGIN:VTODO
 UID:investigate-ai-agent-platform-service-failed@ai-agent-platform
-DTSTAMP:20260711T185649Z
+DTSTAMP:20260711T200427Z
 DUE;VALUE=DATE:20260714
-STATUS:NEEDS-ACTION
+STATUS:COMPLETED
+COMPLETED:20260711T200427Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
 SUMMARY:Investigate ai-agent-platform.service failed state
 DESCRIPTION:In failed state since at least 2026-05-10\, last failure 2026-
  06-18 (3+ weeks\, verified 2026-07-11). Containers run anyway via unless-
