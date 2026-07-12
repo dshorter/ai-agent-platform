@@ -25,6 +25,7 @@ MODEL_RATES_USD_PER_MTOK: dict[str, tuple[float, float]] = {
     # 2026-08-31; it reverts to standard $3/$15 on 2026-09-01. BUMP the rate below to
     # (3.00, 15.00) then — reminder is on the ops calendar (ops/calendar.ics).
     "claude-sonnet-5": (2.00, 10.00),
+    "claude-fable-5": (10.00, 50.00),
     "claude-opus-4-8": (5.00, 25.00),
     "claude-opus-4-7": (5.00, 25.00),
     "claude-sonnet-4-6": (3.00, 15.00),

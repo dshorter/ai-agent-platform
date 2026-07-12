@@ -13,12 +13,13 @@ Read these when doing ongoing work.
 - **[blog-director-checklist.md](blog-director-checklist.md)** — per-draft review attentions. What to notice when a draft lands in Ghost. The attention checklist, not a rubric.
 - **[prompt-tuning.md](prompt-tuning.md)** — running log of observations across drafts, plus the operating principles for *when* to tune (don't edit the prompt after one good sample) and Sprint One+ backlogs (corpus-level analysis, mermaid diagram support).
 - **[crawl-to-publish-plan.md](crawl-to-publish-plan.md)** — the active forward roadmap: pre-crawl prep → backlog crawl → analytical surface → Blog Director review → publish infrastructure → drip operate. Follow the sequence; reordering creates blocking dependencies.
+- **Scout leads** — `pipelines/scout/state/leads.yaml`, the Scout's story queue (v1, shipped 2026-07-12). **Local-only, deliberately not committed:** this repo's origin is public, and leads are transcript-derived — the redaction gate (NEWSROOM, absolute) forbids publishing them unscrubbed. The Scout appends `status: new` leads; the Editor (operator today) flips to `claimed`/`spiked`. Spikes are never fed back to the Scout (pineapple rule). Run a pass: `python -m pipelines.scout --pass` (ingest first, as root: `--ingest`).
 
 The first two are paired: per-draft notable moments get logged from the checklist into prompt-tuning.md; tuning decisions emerge from patterns in the log, not single drafts. The third is the implementation roadmap that connects them at scale.
 
 ## Forward design (not yet built)
 
-- **[NEWSROOM.md](NEWSROOM.md)** (`read: full`) — the content operation as a newsroom: the Scout / Writer / Editor org chart, the Scout in full (its sources, session-logs-read-by-cursor, the opaque scratchpad, the redaction gate), content types + editorial cadence, and the v1-vs-mature forks. The **Writer *is* the content agent**; the **Editor *is* the Director's weekly editorial pass**. Read it whole — the Scout spec spans four sections. *(Moved here from `uzelhub-web/marketing/` on 2026-07-12 to sit with the crew; a frozen `NEWSROOM.ARCHIVED.md` stays in that repo for commit history.)*
+- **[NEWSROOM.md](NEWSROOM.md)** (`read: full`) — the content operation as a newsroom: the Scout / Writer / Editor org chart, the Scout in full (its sources, session-logs-read-by-cursor, the opaque scratchpad, the redaction gate), content types + editorial cadence, and the v1-vs-mature forks. The **Writer *is* the content agent**; the **Editor *is* the Director's weekly editorial pass**. Read it whole — the Scout spec spans four sections. *(Moved here from `uzelhub-web/marketing/` on 2026-07-12 to sit with the crew; a frozen `NEWSROOM.ARCHIVED.md` stays in that repo for commit history.)* **§Scout shipped as v1 on 2026-07-12** — the walk-and-file fork, operator as editor; see the Scout-leads entry above and the code table below.
 - **[sysadmin-agent-design.md](sysadmin-agent-design.md)** — architectural design for the Sprint One+ Sysadmin / server maintenance agent. Scope boundaries, integration with `safe-reboot` / `backup.timer`, operating loop, tool surface, lessons-learned from the manual 2026-05-26/27 ops work. *What the agent does.*
 - **[server-maintenance-agent-persona.md](server-maintenance-agent-persona.md)** — first-draft persona / prompt-shape for the same agent. Identity, voice (SRE-terse), how-it-thinks principles, what-it-refuses list, three worked examples. Pairs with the design doc. *How the agent acts.* Open questions for the operator at the end.
 
@@ -41,6 +42,9 @@ Some things are code-resident by design. Look here:
 |---|---|
 | Content agent prompt | `agents/content_agent.py` (`CONTENT_SYSTEM_PROMPT`) |
 | Marketer agent prompts | `agents/marketer_agent.py` |
+| Scout prompts (triage + synthesis) | `agents/scout_agent.py` |
+| Scout pipeline (ingest / walk / leads) | `pipelines/scout/` — cursor, map, and the leads queue in `pipelines/scout/state/` (gitignored; leads are transcript-derived, redaction-gated) |
+| Scout ore table | `scout_session_log` (Postgres) — `database/ai_agent_platform/002_scout_session_log.sql` |
 | Pipeline runner / orchestrator | `pipelines/blog_pipeline/runner.py` |
 | Markdown → HTML conversion | `_body_to_html` in `runner.py` (markdown-it-py + mermaid HTML-card wrap) |
 | Per-model token pricing | `pipelines/blog_pipeline/pricing.py` |
