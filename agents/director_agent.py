@@ -82,6 +82,40 @@ def _brief(tool_input: dict[str, Any]) -> str:
     return ""
 
 
+def _mark_cache_breakpoint(messages: list[dict[str, Any]]) -> None:
+    """Cache the growing conversation prefix across agentic iterations.
+
+    The static system + tools prefix already carries a breakpoint in _create().
+    But the anthropic tool-loop re-sends the *entire* accumulated transcript
+    (every tool result read this turn) on each round-trip, and without a
+    breakpoint on it that transcript is billed at full input price every
+    iteration — the dominant cost of a multi-iteration run (a 2026-07 morning
+    brief spent ~$0.44 of $0.49 this way). Keep one moving breakpoint on the
+    last block of the latest turn so each iteration re-reads the prior turns
+    from cache (~0.1x input) instead of paying full price again.
+
+    One breakpoint here + the system one stays well under the 4-breakpoint cap.
+    The last message at create-time is always our own dict (the injected-state
+    string on turn 1, a tool_result list after), so the assistant SDK blocks are
+    never touched. (Turns stay well under the 20-block cache lookback window; if
+    parallel tool use ever pushes past it, add breakpoints on the last 2-3 turns.)
+    """
+    for message in messages:  # clear any stale breakpoint — keep exactly one
+        content = message.get("content")
+        if isinstance(content, list):
+            for block in content:
+                if isinstance(block, dict):
+                    block.pop("cache_control", None)
+    last = messages[-1]
+    content = last.get("content")
+    if isinstance(content, str):
+        last["content"] = [
+            {"type": "text", "text": content, "cache_control": {"type": "ephemeral"}}
+        ]
+    elif isinstance(content, list) and content and isinstance(content[-1], dict):
+        content[-1]["cache_control"] = {"type": "ephemeral"}
+
+
 class DirectorAgent:
     """A bounded read-only agentic loop: a message (+ history + eyes) -> a reply."""
 
@@ -160,6 +194,7 @@ class DirectorAgent:
 
         while iterations < self.max_iterations:
             iterations += 1
+            _mark_cache_breakpoint(messages)  # cache the growing transcript
             response = self._create(messages)
             _tally(response)
             if response.stop_reason != "tool_use":
@@ -203,6 +238,7 @@ class DirectorAgent:
                     ),
                 }
             )
+            _mark_cache_breakpoint(messages)  # cache the growing transcript
             response = self._create(messages, tool_choice={"type": "none"})
             _tally(response)
             final_text = _text_of(response)
