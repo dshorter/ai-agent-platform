@@ -18,6 +18,7 @@ The first two are paired: per-draft notable moments get logged from the checklis
 
 ## Forward design (not yet built)
 
+- **[NEWSROOM.md](NEWSROOM.md)** (`read: full`) — the content operation as a newsroom: the Scout / Writer / Editor org chart, the Scout in full (its sources, session-logs-read-by-cursor, the opaque scratchpad, the redaction gate), content types + editorial cadence, and the v1-vs-mature forks. The **Writer *is* the content agent**; the **Editor *is* the Director's weekly editorial pass**. Read it whole — the Scout spec spans four sections. *(Moved here from `uzelhub-web/marketing/` on 2026-07-12 to sit with the crew; a frozen `NEWSROOM.ARCHIVED.md` stays in that repo for commit history.)*
 - **[sysadmin-agent-design.md](sysadmin-agent-design.md)** — architectural design for the Sprint One+ Sysadmin / server maintenance agent. Scope boundaries, integration with `safe-reboot` / `backup.timer`, operating loop, tool surface, lessons-learned from the manual 2026-05-26/27 ops work. *What the agent does.*
 - **[server-maintenance-agent-persona.md](server-maintenance-agent-persona.md)** — first-draft persona / prompt-shape for the same agent. Identity, voice (SRE-terse), how-it-thinks principles, what-it-refuses list, three worked examples. Pairs with the design doc. *How the agent acts.* Open questions for the operator at the end.
 
