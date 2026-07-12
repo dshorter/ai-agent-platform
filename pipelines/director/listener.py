@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import time
+from datetime import date
 
 import psycopg
 from anthropic import Anthropic
@@ -32,6 +33,24 @@ log = logging.getLogger("uzelhub_crew.director")
 # Agents reachable on the shared bot. Only `director` is wired in the walking
 # skeleton; the rest are switchboard stubs.
 KNOWN_AGENTS = {"director", "sysadmin", "blog"}
+
+# Utility commands the listener answers itself (not routed to an agent). Also
+# registered as the bot's "/" autocomplete menu on startup.
+BOT_COMMANDS: list[tuple[str, str]] = [
+    ("brief", "Run the morning brief now"),
+    ("director", "Message the Director (bare text works too)"),
+    ("help", "List commands"),
+]
+
+
+def help_text() -> str:
+    lines = "\n".join(f"/{name} — {desc}" for name, desc in BOT_COMMANDS)
+    stubs = ", ".join(f"/{a}" for a in sorted(KNOWN_AGENTS - {"director"}))
+    return (
+        f"Commands:\n{lines}\n\n"
+        f"Bare text goes to the Director. ({stubs} are reserved for agents "
+        "not wired up yet.)"
+    )
 
 
 def route(text: str) -> tuple[str, str]:
@@ -133,6 +152,23 @@ def run_turn(
 
 
 def handle(update: Update, director, log_manager, conn) -> str:
+    stripped = update.text.strip()
+    if stripped.startswith("/"):
+        head, _, rest = stripped[1:].partition(" ")
+        cmd = head.split("@", 1)[0].lower()  # groups append @botname; harmless in 1:1
+        if cmd in ("help", "start"):  # Telegram clients auto-send /start on first open
+            return help_text()
+        if cmd == "brief":
+            from pipelines.director.tick import TICKS  # lazy: tick.py imports run_turn from here
+
+            name = (rest.strip() or "morning").lower()
+            if name not in TICKS:
+                return f"Unknown brief {name!r} — known: {', '.join(sorted(TICKS))}."
+            header, prompt = TICKS[name]
+            # channel="telegram" (not tick:*) so the brief lands in this thread's
+            # replayed history and follow-up questions can refer to it.
+            reply = run_turn(prompt, director, log_manager, conn, channel="telegram")
+            return f"{header} — {date.today():%a %b %-d}\n\n{reply.text}"
     agent, message = route(update.text)
     if agent != "director":
         return (
@@ -164,6 +200,7 @@ def run_listener(config: DirectorConfig) -> None:
         max_cost_usd=config.max_cost_usd,
     )
     tg = TelegramClient(config.telegram_token, timeout=config.poll_timeout)
+    tg.set_my_commands(BOT_COMMANDS)  # register the "/" autocomplete menu
 
     log.info("director.listener.start (model=%s)", config.model)
     offset: int | None = None

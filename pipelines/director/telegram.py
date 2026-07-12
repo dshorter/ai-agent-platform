@@ -65,6 +65,21 @@ class TelegramClient:
         except httpx.HTTPError:
             pass  # cosmetic only
 
+    def set_my_commands(self, commands: list[tuple[str, str]]) -> None:
+        """Register the bot's "/" autocomplete menu. Best-effort — cosmetic only."""
+        try:
+            self._http.post(
+                f"{self._base}/setMyCommands",
+                json={
+                    "commands": [
+                        {"command": name, "description": desc}
+                        for name, desc in commands
+                    ]
+                },
+            )
+        except httpx.HTTPError:
+            pass
+
 
 def _chunk(text: str, n: int) -> Iterator[str]:
     for i in range(0, len(text), n):
