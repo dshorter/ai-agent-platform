@@ -239,4 +239,18 @@ DESCRIPTION:Crawl-to-publish roadmap (docs/uzelhub-crew/crawl-to-publish-p
  t.py\; 0.2/0.3 optional\, skipped. Task-level detail lives in the plan do
  c\, not here\; this is just the phase-active rollup marker.
 END:VEVENT
+BEGIN:VTODO
+UID:persona-doc-naming-convention@ai-agent-platform
+DTSTAMP:20260712T185347Z
+DUE;VALUE=DATE:20260725
+STATUS:NEEDS-ACTION
+SUMMARY:Adopt a -persona filename suffix for persona docs (lighter than a 
+ personas/ subfolder)
+DESCRIPTION:Rename the agent/persona design docs with a -persona suffix so
+  they're greppable/identifiable in place — a file rename is lighter than 
+ moving them into docs/personas/. director-persona.md already fits\; align
+  server-maintenance-agent-persona.md and future persona docs. Low-priorit
+ y cleanup surfaced 2026-07-12 during the NEWSROOM relocation to docs/uzel
+ hub-crew/.
+END:VTODO
 END:VCALENDAR
