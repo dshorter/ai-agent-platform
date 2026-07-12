@@ -95,6 +95,7 @@ Each step produces an artifact (decision row + optional patch file). Nothing is 
 | B2 API read access via a separate "audit" key (listKeys, listBuckets, listFiles) | Credential scope audits; restore drills |
 | Write access to `/var/lib/sysadmin-agent/proposals/` only | Patch proposals — no direct writes to live config |
 | Postgres write to `agent_decisions` table | Decision trace, shared with Content/Marketer |
+| Outbound HTTPS to `api.telegram.org` via `notify-telegram` helper (sendMessage only) | Failure-class push notifications |
 | No `sudo`, no `docker compose up`, no `systemctl start/restart`, no rclone delete | Hard-coded absences |
 
 This is the minimum capability surface. The agent's identity should be a dedicated user (e.g. `sysadmin-agent`) with these rights, not root with self-restraint.
@@ -111,6 +112,32 @@ This is the minimum capability surface. The agent's identity should be a dedicat
 
 ---
 
+## Notifications — Telegram push
+
+> **Decided 2026-07-02.** Motivating incident: the off-site B2 upload failed silently from ~2026-06-09 to 2026-07-02 (storage cap exceeded). Nothing on the box could push "backups are broken" to a human; discovery took a manual audit three weeks later. The proposals directory + a log line is the right channel for *drift*; it is the wrong channel for *failure*.
+>
+> **Implemented 2026-07-02** (helper + backup coverage, ahead of the agent): `/usr/local/sbin/notify-telegram`, config at `/etc/default/notify-telegram` (root:root 600, mirrors `DIRECTOR_TELEGRAM_*` from `/opt/ai-agent-platform/.env` — rotate both together), template unit `notify-telegram@.service`, `OnFailure=` on `backup.service`, and a warn-counting page at the end of `backup.sh`. Shared-channel convention: every message is prefixed `[AGENT]`, uppercased — one chat, many senders. The bot is the same one the Director listens on; this helper only ever sends.
+
+**Mechanism.** A small shared helper, `/usr/local/sbin/notify-telegram`, wrapping a single Bot API call (`sendMessage`). Bot token + operator chat ID live in `/etc/default/notify-telegram` (root:root, mode 600) — same single-source-of-truth pattern as the env-var lesson below. The agent calls the helper, but so can plain systemd units (`OnFailure=notify-telegram@%n.service`), which means `backup.service` failures get push coverage *before* the agent exists. Build the helper first; it stands alone.
+
+**What pushes vs. what logs.** Push is reserved for failure-class events:
+
+- `backup.service` failure, or an off-site upload/prune WARNING in its journal output
+- restore drill failure (monthly loop)
+- recurring-incident escalation (weekly reflection loop)
+- hourly health-probe anomaly that persists across two consecutive probes (debounced — one flapping endpoint is a row in `agent_decisions`, not a page)
+
+Everything else — drift deltas, clean audits, new proposals — stays in the proposals directory and `agent_decisions`. The only non-failure push is a weekly one-message digest ("3 proposals open, 0 incidents, backups green"), so a silent bot is itself a signal.
+
+**Constraints.**
+
+- Hard cap on pushes per day (default 10); overflow collapses into a single "notification storm — see journal" message. Same runaway-loop spirit as the `agent_decisions` rate limit.
+- Message bodies carry unit names, timestamps, and a one-line error class — never secrets, tokens, dump contents, or anything from `incidents/`. Telegram is an external service; treat every message as published.
+- Send failures are logged and non-fatal. A Telegram outage must never block the caller — in particular it cannot abort `safe-reboot` or a backup run.
+- Outbound-only: HTTPS to `api.telegram.org`, `sendMessage`, nothing else. No polling, no inbound commands. The bot is a pager, not a control channel — accepting commands from Telegram would be a new attack surface on a box that already had a cryptominer incident.
+
+---
+
 ## Safety constraints
 
 These are non-negotiable for v1.
@@ -121,6 +148,7 @@ These are non-negotiable for v1.
 4. **No interaction with the `/opt/_host/incidents/*/` directories beyond linking.** Forensic evidence is not the agent's domain.
 5. **Hard rate limit on decisions per day** (e.g. 100 rows in `agent_decisions`) to catch runaway loops early.
 6. **Reflection-loop output capped at one PR-equivalent per week.** Drift fixes should be batched, not drip-fed.
+7. **Notifications are outbound-only and rate-capped.** No inbound command path from Telegram, ever (see Notifications section).
 
 ---
 
@@ -129,6 +157,7 @@ These are non-negotiable for v1.
 What the design above is reacting to, concretely:
 
 - **"Write-only is best" was wrong for this stack.** rclone+B2 needs `listBuckets` + `listFiles` to function. The right protection is *no `deleteFiles`*, not no read. The agent's credential audit should encode this: `writeFiles` ✅, `listBuckets` ✅, `listFiles` ✅, `readFiles` ✅, `deleteFiles` ❌, `writeBuckets` ❌.
+  - **Amended 2026-07-02:** `deleteFiles` on the backup key is now *expected*, not a violation. B2 lifecycle rules can't prune this layout (unique filenames are never hidden, so hide-based rules never fire — this is how the bucket silently hit the account storage cap in June), so 7-day off-site retention is enforced by `rclone delete --min-age 7d --b2-hard-delete` inside `backup.sh`. The mitigation for a delete-capable key is the monthly restore drill + the separate read-only audit key, not scope denial. The audit should instead flag `writeBuckets`/`deleteBuckets`/`writeKeys` — capabilities nothing on the box legitimately uses.
 - **Bootstrap-then-harden is a trap.** Don't design the agent to "start with Read+Write and downgrade." Land on the correct posture once.
 - **Single source of truth for env vars.** The `BACKUP_OFFSITE_REMOTE` env var ended up in *two* places (systemd unit + would-be safe-reboot). The agent should detect this pattern and propose factoring into `/etc/default/<service>` files.
 - **The README is the source of truth, but only if something reconciles it.** Without the agent, the README drifts. Don't try to fix this with "operator discipline" — that's how we got here.
@@ -142,7 +171,7 @@ These resolve once the agent runs against real data, not via more design.
 
 - **Where does the agent live?** Likely `/opt/ai-agent-platform/agents/sysadmin_agent.py` for code parity with Content/Marketer. Decision pending.
 - **Single agent or sub-agent crew?** Could split into Inspector (read-only audit) + Drafter (patch proposals) + Reflector (weekly synthesis). Likely YAGNI for v1; revisit once the manual loop is captured.
-- **Notification channel.** Email? Drop into n8n? Append to a `proposals.md` the operator reads? The cheapest answer is the proposals directory + a summary line in `agent-platform-health` output. Start there.
+- ~~**Notification channel.**~~ **Resolved 2026-07-02:** Telegram push for failure-class events, proposals directory for everything else — see [Notifications — Telegram push](#notifications--telegram-push). The `notify-telegram` helper is buildable now, ahead of the agent itself.
 - **Postgres-on-agent-decisions vs. SQLite-local.** `agent_decisions` keeps schema parity with the rest of the crew. Cost: the agent depends on hvac-postgres being up, which is exactly the kind of thing it might be diagnosing. Mitigation: light health probes write to a fallback SQLite file under `/var/lib/sysadmin-agent/`.
 - **What about a "snapshot" before any operator-initiated change?** Like `etckeeper` but for the whole `/opt`. Maybe later; the daily off-site backup partly covers this.
 
@@ -156,3 +185,4 @@ These resolve once the agent runs against real data, not via more design.
 - Secret rotation
 - Network/firewall management beyond reading UFW state
 - Cross-agent coordination beyond shared `agent_decisions` table
+- Two-way Telegram control (inbound commands / chat-ops) — the bot pages, it does not listen

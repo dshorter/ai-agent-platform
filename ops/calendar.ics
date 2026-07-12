@@ -1,0 +1,256 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ai-agent-platform//ops-calendar//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:ai-agent-platform ops
+X-WR-TIMEZONE:America/New_York
+BEGIN:VEVENT
+UID:sonnet5-price-bump-20260901@ai-agent-platform
+DTSTAMP:20260701T120000Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20260902
+SUMMARY:Sonnet 5 intro pricing ends — bump pricing.py to $3/$15
+DESCRIPTION:Claude Sonnet 5 introductory pricing ($2/$10 per MTok) ended 2026-08-31.\nUpdate MODEL_RATES_USD_PER_MTOK["claude-sonnet-5"] in pipelines/blog_pipeline/pricing.py from (2.00\, 10.00) to (3.00\, 15.00) so cost-tracking stays accurate. The Director defaults to Sonnet 5\, so this affects its logged cost_usd.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:In 3 days: Sonnet 5 price bump — update pricing.py claude-sonnet-5 to (3.00, 15.00)
+TRIGGER:-P3D
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:sprint-20-kickoff@ai-agent-platform
+DTSTAMP:20260703T190000Z
+DTSTART;VALUE=DATE:20260706
+DTEND;VALUE=DATE:20260707
+SUMMARY:Sprint 20 kickoff — predictor restart + methodology + fusion
+DESCRIPTION:Plan of record: /opt/predictor_ingest/docs/project-plan.md §Sprint 20 (commit c3c7cbd).\nOpener: 20.1 synthetic trend_history cleanup (ai/film/biosafety\, NOT semis — verify zeroed-component fingerprint first)\, then 20.2 semis stall diagnosis\, 20.3 film full-chain resume\, 20.4 staleness paging.\nTrack B scoring changes land WITH the restart\, not after (mid-window scoring changes create velocity artifacts).\nFusion (Track C) starts with the pre-registered hypothesis page (20.15) before any data.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Sprint 20 kickoff today — start with 20.1 (synthetic row cleanup)
+TRIGGER:PT9H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:backup-restore-drill-monthly@ai-agent-platform
+DTSTAMP:20260703T160000Z
+DTSTART;VALUE=DATE:20260801
+DTEND;VALUE=DATE:20260802
+RRULE:FREQ=MONTHLY;BYDAY=1SA
+SUMMARY:Backup restore drill (monthly — every 3rd is full scratch-VPS rebuild)
+DESCRIPTION:On-box drill: pull latest host-*.tar.gz from B2 → extract to /var/tmp/restore-drill → replay ghost + postgres dumps into throwaway containers (one at a time\, --memory capped — 2GB box) → PRAGMA integrity_check on sqlite copies → checksum n8n encryption key vs live → page result via notify-telegram SYSADMIN → delete drill dir.\nScript planned at /opt/server-maintenance/scripts/restore-drill.sh — until it exists\, follow /opt/_host/README.md §Restore.\nEvery 3rd drill (Oct\, Jan\, Apr\, Jul): skip on-box\, do the full rebuild instead — hourly-billed scratch Hetzner VPS\, restore from B2 only\, verify blog serves\, destroy.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Tomorrow: monthly backup restore drill (see event for steps)
+TRIGGER:-P1D
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:github-ssh-key-refresh-20260704@director.ai-agent-platform
+STATUS:CANCELLED
+SEQUENCE:1
+DTSTAMP:20260706T221109Z
+DTSTART:20260706T160000
+DTEND:20260706T163000
+SUMMARY:To-do: refresh the GitHub SSH key + gh token
+DESCRIPTION:Rotate/refresh the GitHub credentials used for repo access acr
+ oss /opt/predictor_ingest\, /opt/uzelhub-web\, /opt/ai-agent-platform — p
+ lus the gh CLI token and the VPS_SSH_KEY Actions secret (deploys stopped 
+ reaching the box 2026-07-03). Authored by the Director 2026-07-03\; block
+ ed then by read-only\, original 2026-07-04 slot passed unscheduled. Appli
+ ed via ops/calendar-add on the Director's behalf 2026-07-05.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:To-do: refresh the GitHub SSH key + gh token
+TRIGGER:-PT1H
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:test-smoke-20260707@director.ai-agent-platform
+STATUS:CANCELLED
+SEQUENCE:1
+DTSTAMP:20260706T210614Z
+DTSTART;VALUE=DATE:20260707
+DTEND;VALUE=DATE:20260708
+SUMMARY:Director smoke test — calendar_add write path
+DESCRIPTION:Retry after root-ownership fix (ecb3f57). Verifies calendar_ad
+ d write path is live post-chown. Safe to cancel/ignore — not a real appoi
+ ntment.
+END:VEVENT
+BEGIN:VEVENT
+UID:test-smoke-20260708@director.ai-agent-platform
+STATUS:CANCELLED
+SEQUENCE:1
+DTSTAMP:20260706T221109Z
+DTSTART;VALUE=DATE:20260708
+DTEND;VALUE=DATE:20260709
+SUMMARY:Director smoke test — calendar_mark acceptance run
+DESCRIPTION:Fresh test event created to exercise the new calendar_mark ver
+ b end-to-end (built 48c4bcd\, wired same commit).
+END:VEVENT
+BEGIN:VTODO
+UID:investigate-ai-agent-platform-service-failed@ai-agent-platform
+DTSTAMP:20260711T200427Z
+DUE;VALUE=DATE:20260714
+STATUS:COMPLETED
+COMPLETED:20260711T200427Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
+SUMMARY:Investigate ai-agent-platform.service failed state
+DESCRIPTION:In failed state since at least 2026-05-10\, last failure 2026-
+ 06-18 (3+ weeks\, verified 2026-07-11). Containers run anyway via unless-
+ stopped so it is silently broken. Run journalctl -u ai-agent-platform.ser
+ vice -n 100 before next reboot.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Investigate ai-agent-platform.service failed state
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:remove-web-server-from-compose@ai-agent-platform
+DTSTAMP:20260711T185655Z
+DUE;VALUE=DATE:20260718
+STATUS:NEEDS-ACTION
+SUMMARY:Remove web-server from docker-compose.yml
+DESCRIPTION:Conflicts with caddy on :80\, stays in Created state\, unused.
+  Caddy handles all reverse-proxying now.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Remove web-server from docker-compose.yml
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:cleanup-old-predictor-data@ai-agent-platform
+DTSTAMP:20260711T185659Z
+DUE;VALUE=DATE:20260718
+STATUS:NEEDS-ACTION
+SUMMARY:Clean up old predictor_ingest data dirs
+DESCRIPTION:/opt/predictor_ingest/data/: 62 metrics_snapshot_* dirs (keep 
+ latest 3\, delete rest) plus 6 feed_test_* dirs (safe to delete). Count a
+ s of 2026-07-11\, grown from 43 on 2026-06-10.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Clean up old predictor_ingest data dirs
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:cleanup-opt-stray-dirs@ai-agent-platform
+DTSTAMP:20260711T185704Z
+DUE;VALUE=DATE:20260718
+STATUS:NEEDS-ACTION
+SUMMARY:Clean up typo'd stray dirs at /opt root
+DESCRIPTION:Clone/\, repo/\, your/ (confirmed empty) and ai=agent-platform
+ / (one leftover .claude/settings.json file\, junk only) at /opt root. Def
+ erred from the _host reorg. Verified 2026-07-11.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Clean up typo'd stray dirs at /opt root
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:restore-verification-checksum-check@ai-agent-platform
+DTSTAMP:20260711T185717Z
+DUE;VALUE=DATE:20260803
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=PARENT:backup-restore-drill-monthly@ai-agent-platform
+SUMMARY:Restore-verification checksum check during backup drill
+DESCRIPTION:host-2026060{6\,7\,8}*.tar.gz were byte-identical in size (684
+ 841818) three days running -- plausible for stable content but worth a ch
+ ecksum/extract comparison to rule out a stale-staging bug. Check during t
+ he next scheduled restore drill.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Restore-verification checksum check during backup drill
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-card-thumbnail@ai-agent-platform
+DTSTAMP:20260711T190102Z
+DUE;VALUE=DATE:20260725
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor suite card thumbnail
+DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
+ oducts.json (image field). Marketing site graphics punch list.
+END:VTODO
+BEGIN:VTODO
+UID:predictor-explorer-screenshot@ai-agent-platform
+DTSTAMP:20260711T190102Z
+DUE;VALUE=DATE:20260725
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor Explorer -- screenshot of the live graph
+DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
+ oducts.json (image field). Marketing site graphics punch list.
+END:VTODO
+BEGIN:VTODO
+UID:predictor-ingest-diagram@ai-agent-platform
+DTSTAMP:20260711T190102Z
+DUE;VALUE=DATE:20260725
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor Ingest -- pipeline diagram (ingest to extract to rank)
+DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
+ oducts.json (image field). Marketing site graphics punch list.
+END:VTODO
+BEGIN:VTODO
+UID:review-silent-backup-failure-note@ai-agent-platform
+DTSTAMP:20260711T190120Z
+DUE;VALUE=DATE:20260718
+STATUS:NEEDS-ACTION
+SUMMARY:Review draft note: silent-backup-failure.html
+DESCRIPTION:First notes-pipeline entry (the June backup silence postmortem
+ ) is drafted and needs review. Open register question: does a postmortem 
+ sit next to product cut sheets\, or does the Notes index framing carry it
+ ?
+END:VTODO
+BEGIN:VTODO
+UID:decide-status-taxonomy@ai-agent-platform
+DTSTAMP:20260711T190120Z
+DUE;VALUE=DATE:20260801
+STATUS:NEEDS-ACTION
+SUMMARY:Decide marketing status taxonomy
+DESCRIPTION:Keep Paused / Coming soon labels on product cards\, or only sh
+ ow flattering states? uzelhub.com marketing site decision.
+END:VTODO
+BEGIN:VTODO
+UID:marketing-visual-identity-signoff@ai-agent-platform
+DTSTAMP:20260711T190120Z
+DUE;VALUE=DATE:20260801
+STATUS:NEEDS-ACTION
+SUMMARY:Marketing visual identity sign-off
+DESCRIPTION:Current treatment (light theme\, Inter typeface\, blue accent)
+  is just the unreviewed default -- needs an actual sign-off decision.
+END:VTODO
+BEGIN:VEVENT
+UID:uzelhub-crew-phase1-active@ai-agent-platform
+STATUS:CANCELLED
+SEQUENCE:1
+DTSTAMP:20260711T193532Z
+DTSTART;VALUE=DATE:20260711
+DTEND;VALUE=DATE:20260712
+SUMMARY:Uzelhub Crew: Phase 1 (Backlog crawl) -- active phase
+DESCRIPTION:Crawl-to-publish roadmap (docs/uzelhub-crew/crawl-to-publish-p
+ lan.md) now at Phase 1: run the full predictor_ingest backlog crawl (~277
+  batches\, ~10 dollars\, few hours wall time). Phase 0 prep is done -- 0.
+ 1 temporal-neutrality prompt nudge already applied to agents/content_agen
+ t.py\; 0.2/0.3 optional\, skipped. Task-level detail lives in the plan do
+ c\, not here\; this is just the phase-active rollup marker.
+END:VEVENT
+BEGIN:VTODO
+UID:persona-doc-naming-convention@ai-agent-platform
+DTSTAMP:20260712T185347Z
+DUE;VALUE=DATE:20260725
+STATUS:NEEDS-ACTION
+SUMMARY:Adopt a -persona filename suffix for persona docs (lighter than a 
+ personas/ subfolder)
+DESCRIPTION:Rename the agent/persona design docs with a -persona suffix so
+  they're greppable/identifiable in place — a file rename is lighter than 
+ moving them into docs/personas/. director-persona.md already fits\; align
+  server-maintenance-agent-persona.md and future persona docs. Low-priorit
+ y cleanup surfaced 2026-07-12 during the NEWSROOM relocation to docs/uzel
+ hub-crew/.
+END:VTODO
+END:VCALENDAR

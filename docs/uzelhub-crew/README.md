@@ -18,17 +18,18 @@ The first two are paired: per-draft notable moments get logged from the checklis
 
 ## Forward design (not yet built)
 
+- **[NEWSROOM.md](NEWSROOM.md)** (`read: full`) — the content operation as a newsroom: the Scout / Writer / Editor org chart, the Scout in full (its sources, session-logs-read-by-cursor, the opaque scratchpad, the redaction gate), content types + editorial cadence, and the v1-vs-mature forks. The **Writer *is* the content agent**; the **Editor *is* the Director's weekly editorial pass**. Read it whole — the Scout spec spans four sections. *(Moved here from `uzelhub-web/marketing/` on 2026-07-12 to sit with the crew; a frozen `NEWSROOM.ARCHIVED.md` stays in that repo for commit history.)*
 - **[sysadmin-agent-design.md](sysadmin-agent-design.md)** — architectural design for the Sprint One+ Sysadmin / server maintenance agent. Scope boundaries, integration with `safe-reboot` / `backup.timer`, operating loop, tool surface, lessons-learned from the manual 2026-05-26/27 ops work. *What the agent does.*
 - **[server-maintenance-agent-persona.md](server-maintenance-agent-persona.md)** — first-draft persona / prompt-shape for the same agent. Identity, voice (SRE-terse), how-it-thinks principles, what-it-refuses list, three worked examples. Pairs with the design doc. *How the agent acts.* Open questions for the operator at the end.
 
-## Historical / point-in-time
+## Archive
 
-Self-labeled with status headers. Kept for reference; not part of the live operating loop.
+Sprint Zero is genuinely done — the pipeline works, the backlog crawl ran
+(all ~277 drafts created, ~2026-05-30 or earlier), and Phase 0.1 is live in
+`agents/content_agent.py`. Moved to `archive/` 2026-07-11.
 
-- **[sprint-zero-kickoff.md](sprint-zero-kickoff.md)** — original Sprint Zero scaffolding plan from the cloud session.
-- **[ssh-session-handoff.md](ssh-session-handoff.md)** — procedure for picking up Sprint Zero on the Hetzner VPS after the cloud session.
-
-These can move to an archive folder when Sprint Zero work is genuinely done. For now their headers do enough self-labeling to keep them in place without contributing to drift.
+- **[archive/sprint-zero-kickoff.md](archive/sprint-zero-kickoff.md)** — original Sprint Zero scaffolding plan from the cloud session.
+- **[archive/ssh-session-handoff.md](archive/ssh-session-handoff.md)** — procedure for picking up Sprint Zero on the Hetzner VPS after the cloud session.
 
 ---
 

@@ -21,6 +21,11 @@ CACHE_READ_MULTIPLIER = 0.10
 
 # Rates supplied by Blog Director on 2026-04-26. Update when Anthropic prices change.
 MODEL_RATES_USD_PER_MTOK: dict[str, tuple[float, float]] = {
+    # Sonnet 5 (launched 2026-06-30) is on INTRODUCTORY pricing ($2/$10 per MTok) through
+    # 2026-08-31; it reverts to standard $3/$15 on 2026-09-01. BUMP the rate below to
+    # (3.00, 15.00) then — reminder is on the ops calendar (ops/calendar.ics).
+    "claude-sonnet-5": (2.00, 10.00),
+    "claude-opus-4-8": (5.00, 25.00),
     "claude-opus-4-7": (5.00, 25.00),
     "claude-sonnet-4-6": (3.00, 15.00),
     "claude-haiku-4-5-20251001": (0.25, 1.25),
