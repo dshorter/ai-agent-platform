@@ -291,4 +291,31 @@ DESCRIPTION:Compare Fable week vs Sonnet week from agent_decisions (agent_
  ool_calls per pass\, cost per lead. Lead QUALITY verdict is the operator'
  s — two lead lists side by side\, per NEWSROOM §Model tiers.
 END:VTODO
+BEGIN:VTODO
+UID:route-first-scout-queue@ai-agent-platform
+DTSTAMP:20260713T011734Z
+DUE;VALUE=DATE:20260717
+STATUS:NEEDS-ACTION
+SUMMARY:Find homes for the articles from the Scout's first queue (apex vs 
+ studio)
+DESCRIPTION:The first filed queue (24 leads\, pipelines/scout/state/leads.
+ yaml) needs sinks once written up. NEWSROOM's routing table already assig
+ ns by register: notes -> apex /notes/\, ticker -> apex home text pack\, n
+ ewsletter -> apex /newsletter/\, blog -> Ghost. Open question is the stud
+ io's role (literary register?) and standing up the Writer leg (leads -> n
+ otes.json -> generate.js). Editor routes per lead.
+END:VTODO
+BEGIN:VTODO
+UID:smooth-apex-studio-transition@ai-agent-platform
+DTSTAMP:20260713T011734Z
+DUE;VALUE=DATE:20260714
+STATUS:NEEDS-ACTION
+SUMMARY:Smooth the apex<->studio transition (studio links open new tabs\, 
+ no way back to apex)
+DESCRIPTION:Currently studio links open a new browser tab and there is no 
+ return path to the apex. Decide: keep new-tab behavior (might be fine) or
+  add a return affordance (header link back to uzelhub.com / consistent ta
+ rget behavior). Falls under uzelhub-web\; relates to the CUTOVER.md apex 
+ flip design.
+END:VTODO
 END:VCALENDAR
