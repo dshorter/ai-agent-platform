@@ -26,6 +26,45 @@
 
 ---
 
+## 2026-07-13 (afternoon) — Every push to main was bouncing the stack; three-layer fix
+
+**Symptom:** operator's Telegram turn to the Director failed with a disconnect
+error; usage limit suspected. Actual: `psycopg AdminShutdown` then "the
+connection is closed" — the listener's long-lived Postgres connection was dead
+(listener log 18:34Z).
+
+**Root cause (receipts):** the "Deploy to VPS" GitHub Action fires on *every*
+push to ai-agent-platform main and ran `scripts/deploy.sh`, which did
+`docker compose down` + `pull` + `up -d` — six deploys in the prior 24h, each
+container recreate matching a run to the second (run 29259370247 at 14:46:21Z →
+hvac-postgres recreate 14:46:35Z; run 29275842025 at 18:46:47Z → recreate
+18:47:00Z; docker journal). ngrok bounced alongside; n8n survived only because
+it is no longer in that compose file. Suspects cleared on evidence: no OOM
+(`docker inspect`), `monitor.sh`'s panic branch never fired (0 hits in
+/var/log/monitor.log), the hourly health timer runs at :48 — a minute late
+both times. The bounce is the "surprise container bounce" the 07-12 leviathan
+merge feared; the workflow was live all along.
+
+**Fixes, three layers:**
+1. `deploy.sh` rewritten (`957e27f`): `sudo -u claude git pull --ff-only`
+   (root SSH tripped git's dubious-ownership guard) + `up -d --no-deps
+   postgres ngrok` — named services per the _host overlap rule, no down, no
+   blind pull. Verified live: run 29277507091 completed 13s, postgres
+   `StartedAt` unchanged. Docs/calendar pushes are now docker no-ops.
+2. Listener reconnects on a dead DB socket (`a870515`) — a DB bounce now
+   costs one retried turn, not a dead Director.
+3. `director-listener.service` installed + enabled (15:12 EDT, User=claude,
+   Restart=on-failure, OnFailure pager) — **closes the 07-06 entry's armed
+   drift risk** "Director listener runs in an abandoned SSH session scope
+   with hand-sourced .env (needs a systemd unit)". Logs now in
+   `journalctl -u director-listener`.
+
+**Related, found in the same review:** the Director had no clock — nothing in
+the prompt or injected state carries a date, so it inferred one and ran a day
+fast (declared the Scout's 07-13 leads "not run today"; reframed a 07-14
+VTODO as due-today). Fixed by stamping `gather_state()` with the real clock.
+Root-droppings law honored throughout (re-chowns after each root git op).
+
 ## 2026-07-07 (evening) — Root droppings, occurrences #2 and #3: it's a law, not an incident
 
 The 2026-07-06 root-droppings entry re-fired twice tonight, during the apex
