@@ -8,8 +8,17 @@ tier, inheriting the marketer's Haiku-extraction split. The SYNTHESIS (the
 premium tier, env-var'd, Fable 5 by plan. Nothing filters the Scout's missing
 leads, so the synthesis model sets the ceiling on what stories ever exist.
 
+Synthesis has HANDS: a bounded read-only roam (the Director's ToolBox —
+read_file / grep / run_git — plus read_transcript over the ingested ore).
+"Where do we go next" is a judgment call, so it lives on the premium seat;
+Haiku is never asked to be curious — during the walk the cursor answers
+"where next" mechanically. The tool-call trace lands in the spine, so which
+sources each model *chooses* is an observable, not a vibe (the foraging half
+of the Fable-vs-Sonnet A/B).
+
 Both prompts hold the pineapple rule: aperture never narrows. Triage includes
 when unsure; synthesis errs reckless; neither ever sees an Editor verdict.
+The roam is free — a catalog of sources, no rotation, no quotas.
 """
 from __future__ import annotations
 
@@ -20,9 +29,39 @@ from typing import Any
 
 from anthropic import Anthropic
 
+from agents.director_agent import _brief, _mark_cache_breakpoint
+from pipelines.director.tools import MAX_TOOL_RESULT_CHARS, TOOL_DEFS, ToolBox, default_toolbox
+
 
 SCOUT_TRIAGE_MAX_TOKENS = 4096
 SCOUT_SYNTHESIS_MAX_TOKENS = 8192
+# Hard ceiling on total roam tool output across one synthesis (same guard the
+# Director's loop carries against a context blowout).
+SCOUT_MAX_TOOL_CHARS = 120_000
+_TRANSCRIPT_MAX_ROWS = 80
+_TRANSCRIPT_ROW_CLIP = 1500
+
+# The roam borrows the Director's read-only hands (scoped roots, secret-file
+# refusal, output bounding — all inherited), plus one Scout-native tool.
+_ROAM_TOOL_NAMES = {"read_file", "grep", "run_git"}
+_READ_TRANSCRIPT_DEF: dict[str, Any] = {
+    "name": "read_transcript",
+    "description": (
+        "Read a range of ingested session-log rows (the Scout's ore) by seq — "
+        "the numbers your jewels reference. Returns session/turn/role, the raw "
+        "text (clipped), and any scratchpad arc-notes you left on prior walks. "
+        "Use it to pull a thread a jewel points at."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "from_seq": {"type": "integer", "description": "First seq (inclusive)."},
+            "to_seq": {"type": "integer", "description": f"Last seq (inclusive; max {_TRANSCRIPT_MAX_ROWS} rows per call)."},
+        },
+        "required": ["from_seq", "to_seq"],
+        "additionalProperties": False,
+    },
+}
 
 
 SCOUT_TRIAGE_PROMPT = """You are the Scout's walker — the cheap, wide-aperture triage stage of the uzelhub newsroom. You are reading one bounded page of Claude Code session transcripts: the human-AI collaboration that builds this platform ("the box"). The box narrates its own work; you mine the narration.
@@ -43,17 +82,23 @@ seq values must come from the [seq=N] tags in the input. Keep notes short; the f
 
 SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged transcript jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
 
+You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
+- read_transcript — the ingested session-log ore, by seq (your jewels cite seqs; your own scratchpad arc-notes ride along).
+- read_file / grep — the repos and docs: design docs (NEWSROOM, personas), the sysadmin ledger (docs/uzelhub-crew/sysadmin-ledger.md), the ops calendar (ops/calendar.ics), the marketing survey (uzelhub-web/marketing/promotion-survey.yaml), devlogs.
+- run_git — read-only git across the registered projects (log/show/blame — when a story turns on when-and-why).
+Your tool budget is small; spend it pulling threads, not surveying. When you have enough, stop and pitch.
+
 Generate WIDE. Bold many-way connections are welcome — the best stories are the ones no pattern predicted. False positives are cheap (an editor spikes them); missed leads are invisible and unrecoverable. Err reckless.
 
 Weighting: a lead whose evidence spans multiple agents deserves extra weight (stories live at the seams between agents) — but span never disqualifies a lone-actor story; keep surfacing those too.
 
 Dedup: skip only a lead whose pitch is essentially identical to one in the already-pitched list. Never generalize that list into "avoid this kind of story."
 
-REDACTION (absolute): these transcripts contain credentials, keys, internal paths, personal data. Never reproduce secret material in a pitch — point to it (session id, turns, sequence id) and paraphrase the story around it.
+REDACTION (absolute): these transcripts contain credentials, keys, internal paths, personal data. Never reproduce secret material in a pitch — point to it (session id, turns, sequence id, file) and paraphrase the story around it.
 
 Registers: ticker (terse verb line), newsletter (weekly digest item), note (durable field note — self-awareness first, war story second), blog (narrative retelling).
 
-Output STRICT JSON, nothing else:
+Your FINAL message must be STRICT JSON, nothing else:
 {"leads": [{"slug": "<kebab-case>", "pitch": "<2-4 sentences>", "why_now": "<one sentence>",
             "sources": ["<pointer, e.g. 'session 37e71c90 turns 210-260' or 'agent_decisions sequence <uuid>'>"],
             "register": "ticker|newsletter|note|blog", "agent_span": <int, 1 if single-actor>}]}"""
@@ -70,6 +115,8 @@ class ScoutCall:
     cache_read_input_tokens: int = 0
     stop_reason: str | None = None
     fallback_used: bool = False
+    iterations: int = 1
+    tool_calls: list[str] = field(default_factory=list)  # the foraging trace
     raw_text: str = field(default="", repr=False)
 
 
@@ -88,6 +135,12 @@ def _parse_json(text: str) -> dict:
         return {}
 
 
+def _text_of(resp: Any) -> str:
+    return "".join(
+        b.text for b in (resp.content or []) if getattr(b, "type", None) == "text"
+    ).strip()
+
+
 class ScoutAgent:
     def __init__(
         self,
@@ -95,12 +148,20 @@ class ScoutAgent:
         walk_model: str,
         synthesis_model: str,
         synthesis_fallback: str,
+        roam_iterations: int = 6,
+        toolbox: ToolBox | None = None,
     ) -> None:
         self.client = client
         self.walk_model = walk_model
         self.synthesis_model = synthesis_model
         self.synthesis_fallback = synthesis_fallback
+        self.roam_iterations = roam_iterations
+        self.toolbox = toolbox if toolbox is not None else default_toolbox()
+        self.roam_tools = [d for d in TOOL_DEFS if d["name"] in _ROAM_TOOL_NAMES] + [
+            _READ_TRANSCRIPT_DEF
+        ]
 
+    # --- plain single call (triage + refusal fallback) -----------------------
     def _call(self, model: str, system: str, user: str, max_tokens: int) -> ScoutCall:
         resp = self.client.messages.create(
             model=model,
@@ -108,20 +169,18 @@ class ScoutAgent:
             system=system,
             messages=[{"role": "user", "content": user}],
         )
-        text = "".join(
-            b.text for b in (resp.content or []) if getattr(b, "type", None) == "text"
-        )
+        call = ScoutCall(data=_parse_json(_text_of(resp)), model=model, raw_text=_text_of(resp))
+        self._tally(call, resp)
+        call.stop_reason = resp.stop_reason
+        return call
+
+    @staticmethod
+    def _tally(call: ScoutCall, resp: Any) -> None:
         u = resp.usage
-        return ScoutCall(
-            data=_parse_json(text),
-            model=model,
-            input_tokens=u.input_tokens,
-            output_tokens=u.output_tokens,
-            cache_creation_input_tokens=getattr(u, "cache_creation_input_tokens", 0) or 0,
-            cache_read_input_tokens=getattr(u, "cache_read_input_tokens", 0) or 0,
-            stop_reason=resp.stop_reason,
-            raw_text=text,
-        )
+        call.input_tokens += u.input_tokens
+        call.output_tokens += u.output_tokens
+        call.cache_creation_input_tokens += getattr(u, "cache_creation_input_tokens", 0) or 0
+        call.cache_read_input_tokens += getattr(u, "cache_read_input_tokens", 0) or 0
 
     def triage(self, page_text: str) -> ScoutCall:
         return self._call(
@@ -131,13 +190,44 @@ class ScoutAgent:
             SCOUT_TRIAGE_MAX_TOKENS,
         )
 
-    def synthesize(self, context: dict[str, Any]) -> ScoutCall:
-        """One leap over the pass's triaged material. Handles the Fable caveat:
-        on stop_reason=refusal, retry once on the fallback model (NEWSROOM
-        §Model tiers — story-prospecting shouldn't trip the classifier, but
-        wire the handling anyway)."""
+    # --- the ore tool ---------------------------------------------------------
+    @staticmethod
+    def _read_transcript(conn, args: dict[str, Any]) -> tuple[str, bool]:
+        try:
+            a, b = int(args.get("from_seq")), int(args.get("to_seq"))
+        except (TypeError, ValueError):
+            return ("read_transcript needs integer from_seq/to_seq.", True)
+        b = min(b, a + _TRANSCRIPT_MAX_ROWS - 1)
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT seq, session_id, turn, role, turn_type,
+                       LEFT(text, %s), scratchpad
+                FROM scout_session_log
+                WHERE seq BETWEEN %s AND %s
+                ORDER BY seq
+                """,
+                (_TRANSCRIPT_ROW_CLIP, a, b),
+            )
+            rows = cur.fetchall()
+        if not rows:
+            return (f"(no rows in seq {a}-{b})", False)
+        out = []
+        for seq, sid, turn, role, ttype, text, pad in rows:
+            head = f"[seq={seq} session={sid[:8]} turn={turn} {role}/{ttype}]"
+            if pad:
+                head += f"\n  (scratchpad: {pad})"
+            out.append(f"{head}\n{text}")
+        return ("\n\n".join(out)[:MAX_TOOL_RESULT_CHARS], False)
+
+    # --- the leap, with hands -------------------------------------------------
+    def synthesize(self, context: dict[str, Any], conn=None) -> ScoutCall:
+        """Bounded agentic roam + the pitch. On stop_reason=refusal at any
+        point, retry once as a plain (tool-less) call on the fallback model
+        (NEWSROOM §Model tiers caveat — story-prospecting shouldn't trip the
+        classifier, but wire the handling anyway)."""
         user = (
-            "Jewels from this pass's transcript walk:\n"
+            "Jewels from this pass's transcript walk (seqs are read_transcript coordinates):\n"
             f"{json.dumps(context.get('jewels', []), indent=1)}\n\n"
             "Cross-agent decision sequences (agent_span = distinct agents touched; "
             "a weight, never a filter):\n"
@@ -146,14 +236,90 @@ class ScoutAgent:
             f"{context.get('map', '(empty — first pass)')}\n\n"
             "Already-pitched (dedup ONLY — skip near-identical pitches, infer nothing else):\n"
             f"{json.dumps(context.get('pitched', []), indent=1)}\n\n"
-            "Surface your leads."
+            "Investigate if it helps, then surface your leads."
         )
-        call = self._call(
-            self.synthesis_model, SCOUT_SYNTHESIS_PROMPT, user, SCOUT_SYNTHESIS_MAX_TOKENS
-        )
-        if call.stop_reason == "refusal":
-            call = self._call(
-                self.synthesis_fallback, SCOUT_SYNTHESIS_PROMPT, user, SCOUT_SYNTHESIS_MAX_TOKENS
+        call = ScoutCall(data={}, model=self.synthesis_model)
+        messages: list[dict[str, Any]] = [{"role": "user", "content": user}]
+        tool_chars = 0
+        response = None
+
+        def _create(tool_choice: Any | None = None):
+            kwargs: dict[str, Any] = dict(
+                model=self.synthesis_model,
+                max_tokens=SCOUT_SYNTHESIS_MAX_TOKENS,
+                system=[
+                    {
+                        "type": "text",
+                        "text": SCOUT_SYNTHESIS_PROMPT,
+                        "cache_control": {"type": "ephemeral"},
+                    }
+                ],
+                messages=messages,
+                tools=self.roam_tools,
             )
-            call.fallback_used = True
+            if tool_choice is not None:
+                kwargs["tool_choice"] = tool_choice
+            return self.client.messages.create(**kwargs)
+
+        while call.iterations <= self.roam_iterations:
+            _mark_cache_breakpoint(messages)  # re-read prior roam turns from cache
+            response = _create()
+            self._tally(call, response)
+            if response.stop_reason == "refusal":
+                fb = self._call(
+                    self.synthesis_fallback, SCOUT_SYNTHESIS_PROMPT, user, SCOUT_SYNTHESIS_MAX_TOKENS
+                )
+                fb.fallback_used = True
+                fb.tool_calls = call.tool_calls
+                return fb
+            if response.stop_reason != "tool_use":
+                break
+            call.iterations += 1
+            messages.append({"role": "assistant", "content": response.content})
+            results: list[dict[str, Any]] = []
+            for block in response.content:
+                if getattr(block, "type", None) != "tool_use":
+                    continue
+                args = dict(block.input or {})
+                if block.name == "read_transcript":
+                    if conn is None:
+                        out, is_err = ("transcript store not available this run.", True)
+                    else:
+                        out, is_err = self._read_transcript(conn, args)
+                    tag = f"read_transcript({args.get('from_seq')}-{args.get('to_seq')})"
+                else:
+                    out, is_err = self.toolbox.dispatch(block.name, args)
+                    tag = f"{block.name}({_brief(args)})"
+                tool_chars += len(out)
+                call.tool_calls.append(tag + (" !err" if is_err else ""))
+                results.append(
+                    {
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": out,
+                        "is_error": is_err,
+                    }
+                )
+            messages.append({"role": "user", "content": results})
+            if tool_chars >= SCOUT_MAX_TOOL_CHARS:
+                break  # roam budget spent — force the pitch
+
+        finished = response is not None and response.stop_reason != "tool_use"
+        if not finished:
+            messages.append(
+                {
+                    "role": "user",
+                    "content": (
+                        "Roam budget reached. Stop investigating and output your leads "
+                        "now — strict JSON only."
+                    ),
+                }
+            )
+            _mark_cache_breakpoint(messages)
+            response = _create(tool_choice={"type": "none"})
+            self._tally(call, response)
+
+        call.raw_text = _text_of(response)
+        call.data = _parse_json(call.raw_text)
+        call.stop_reason = response.stop_reason
         return call

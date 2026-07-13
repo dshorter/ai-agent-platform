@@ -23,6 +23,7 @@ class ScoutConfig:
     synthesis_fallback: str    # used once if synthesis stops with stop_reason=refusal
     page_rows: int             # log rows per triage page (bounded chunk per NEWSROOM cursor rules)
     walk_pages: int            # max triage pages per pass
+    roam_iterations: int       # synthesis tool round-trips before the pitch is forced
     max_cost_usd: float        # soft cap across one pass
     logs_dir: Path             # Claude Code session logs root (needs root to read)
     state_dir: Path            # cursor + map — external, inspectable, warm-bootable
@@ -41,6 +42,7 @@ class ScoutConfig:
             synthesis_fallback=os.environ.get("SCOUT_SYNTHESIS_FALLBACK", "claude-opus-4-8"),
             page_rows=int(os.environ.get("SCOUT_PAGE_ROWS", "150")),
             walk_pages=int(os.environ.get("SCOUT_WALK_PAGES", "3")),
+            roam_iterations=int(os.environ.get("SCOUT_ROAM_ITERATIONS", "6")),
             max_cost_usd=float(os.environ.get("SCOUT_MAX_COST_USD", "2.0")),
             logs_dir=Path(os.environ.get("SCOUT_LOGS_DIR", "/root/.claude/projects")),
             state_dir=Path(os.environ.get("SCOUT_STATE_DIR", str(_HERE / "state"))),

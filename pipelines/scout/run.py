@@ -61,6 +61,7 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
         walk_model=config.walk_model,
         synthesis_model=config.synthesis_model,
         synthesis_fallback=config.synthesis_fallback,
+        roam_iterations=config.roam_iterations,
     )
 
     run_id = create_run(conn, "scout")
@@ -123,7 +124,8 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
                         "sequences": sequences,
                         "map": walk.read_map(config.state_dir),
                         "pitched": pitched,
-                    }
+                    },
+                    conn=conn,
                 )
                 new_leads = call.data.get("leads", []) or []
                 cost += _record(
@@ -133,6 +135,8 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
                         "leads": len(new_leads),
                         "fallback_used": call.fallback_used,
                         "stop_reason": call.stop_reason,
+                        "iterations": call.iterations,
+                        "tool_calls": call.tool_calls,  # the foraging trace — the A/B's second axis
                         "dry_run": dry_run,
                     },
                 )
@@ -141,6 +145,7 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
             summary["leads"] = new_leads
             summary["cost_usd"] = round(cost, 4)
             summary["synthesis_model"] = call.model
+            summary["roam"] = call.tool_calls
 
             if not dry_run and new_leads:
                 filed = leads_mod.append_leads(config.leads_path, new_leads, call.model)

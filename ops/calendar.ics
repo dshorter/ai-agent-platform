@@ -266,4 +266,29 @@ DESCRIPTION:Scout ingestion shipped for Claude Code JSONL (pipelines/scout
  files over. Same table shape takes them (session_id\, turn). Operator fla
  gs rich story potential in that corpus.
 END:VTODO
+BEGIN:VTODO
+UID:scout-ab-flip-to-sonnet@ai-agent-platform
+DTSTAMP:20260713T010204Z
+DUE;VALUE=DATE:20260719
+STATUS:NEEDS-ACTION
+SUMMARY:Scout A/B week 2: flip SCOUT_SYNTHESIS_MODEL to claude-sonnet-5 in
+  .env
+DESCRIPTION:Week 1 (07-13..07-19) runs synthesis+roam on claude-fable-5 (c
+ onfig default). Week 2: set SCOUT_SYNTHESIS_MODEL=claude-sonnet-5 in /opt
+ /ai-agent-platform/.env. Same daily 05:45 pass\, same ore. The spine pric
+ es both\; tool_calls traces capture foraging character.
+END:VTODO
+BEGIN:VTODO
+UID:scout-ab-week3-readout@ai-agent-platform
+DTSTAMP:20260713T010204Z
+DUE;VALUE=DATE:20260726
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=SIBLING:scout-ab-flip-to-sonnet@ai-agent-platform
+SUMMARY:Scout A/B week 3: read the two weeks side by side (Editor judges\,
+  not the contestant)
+DESCRIPTION:Compare Fable week vs Sonnet week from agent_decisions (agent_
+ name=scout): leads/pass\, register mix\, agent_span distribution\, roam t
+ ool_calls per pass\, cost per lead. Lead QUALITY verdict is the operator'
+ s — two lead lists side by side\, per NEWSROOM §Model tiers.
+END:VTODO
 END:VCALENDAR
