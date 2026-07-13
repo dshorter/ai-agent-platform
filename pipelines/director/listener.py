@@ -180,6 +180,16 @@ def handle(update: Update, director, log_manager, conn) -> str:
     return run_turn(message, director, log_manager, conn, channel="telegram").text
 
 
+def _connect_db(config: DirectorConfig):
+    """The long-lived connection + the spine writer bound to it. Rebuilt
+    whenever Postgres bounces: on 2026-07-13 a clean container restart left
+    the old socket dead, and every turn failed (AdminShutdown, then "the
+    connection is closed") until the process was kicked — the error surfaces
+    lazily on first use, so reconnect must too."""
+    conn = psycopg.connect(config.postgres_dsn)
+    return conn, SequenceAwareLogManager(db_writer=DecisionWriter(conn))
+
+
 def run_listener(config: DirectorConfig) -> None:
     if not config.telegram_token:
         sys.exit(
@@ -192,8 +202,7 @@ def run_listener(config: DirectorConfig) -> None:
             "world. Set your numeric Telegram user id."
         )
 
-    conn = psycopg.connect(config.postgres_dsn)
-    log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
+    conn, log_manager = _connect_db(config)
     director = DirectorAgent(
         Anthropic(api_key=config.anthropic_api_key),
         model=config.model,
@@ -218,7 +227,19 @@ def run_listener(config: DirectorConfig) -> None:
                 continue
             try:
                 tg.send_typing(u.chat_id)
-                tg.send_message(u.chat_id, handle(u, director, log_manager, conn))
+                if conn.closed:  # died while idle — rebuild before the turn
+                    conn, log_manager = _connect_db(config)
+                try:
+                    reply = handle(u, director, log_manager, conn)
+                except psycopg.Error:
+                    log.warning("db connection lost — reconnecting")
+                    try:
+                        conn.close()
+                    except Exception:
+                        pass
+                    conn, log_manager = _connect_db(config)
+                    reply = handle(u, director, log_manager, conn)  # one retry
+                tg.send_message(u.chat_id, reply)
             except Exception as exc:
                 log.exception("handler error")
                 tg.send_message(u.chat_id, f"Hit an error: {exc}")
