@@ -531,3 +531,15 @@ problem being deferred.
   one instance = one blog).
 - Synthesis-stage model: **Fable 5 is the plan**, but env-var it and A/B against
   Sonnet 5 on real passes before locking in (see "Model tiers").
+- **A dedicated ticker table** (added 2026-07-13, once the Scout started filing
+  ticker-register leads): the ticker is a *rolling* pulse, so accumulating items
+  need lifecycle management — when one rolls on, how long it stays, when it
+  rolls off. The interval is unknown right now; the shape (a table/data file the
+  generator samples from, superseding the v1 survey-sample source) firms up once
+  a few passes of ticker leads exist to look at.
+- **Pull as well as push** (added 2026-07-13): after the Scout has accumulated
+  state (leads, scratchpad arcs, the map), a *query* mode — "what do you have
+  on X?" — i.e. commissioned prospecting: a targeted roam + synthesis over its
+  own material on demand. Distinct from the spiked /scout-as-chat idea (ranking
+  "most promising" stays Editor judgment) and pineapple-compatible: a commission
+  scopes one errand, it doesn't narrow the ambient aperture.
