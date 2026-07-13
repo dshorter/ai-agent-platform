@@ -7,6 +7,7 @@ persona's "rank from what you read just now."
 from __future__ import annotations
 
 import subprocess
+from datetime import datetime
 
 from pipelines.director.registry import Project, load_registry
 
@@ -48,4 +49,8 @@ def gather_state() -> str:
     if not projects:
         return ""
     blocks = "\n\n".join(snapshot(p) for p in projects)
-    return "CURRENT PROJECT STATE (read just now):\n\n" + blocks
+    # The clock line exists because the model otherwise has NO date source and
+    # infers one (2026-07-13: it ran a day fast, declared that morning's Scout
+    # leads "not run today" and reframed a tomorrow-VTODO as due-today).
+    clock = datetime.now().astimezone().strftime("%A %Y-%m-%d %H:%M %Z")
+    return f"CURRENT PROJECT STATE (read just now; clock: {clock}):\n\n" + blocks
