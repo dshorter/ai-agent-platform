@@ -318,4 +318,32 @@ DESCRIPTION:Currently studio links open a new browser tab and there is no
  rget behavior). Falls under uzelhub-web\; relates to the CUTOVER.md apex 
  flip design.
 END:VTODO
+BEGIN:VTODO
+UID:curated-survey-subset@ai-agent-platform
+DTSTAMP:20260713T144618Z
+DUE;VALUE=DATE:20260718
+STATUS:NEEDS-ACTION
+SUMMARY:Curate a subset of the promotion-survey list (featured view\, not 
+ the full 55)
+DESCRIPTION:The survey (uzelhub-web/marketing/promotion-survey.yaml) rende
+ rs whole at /inventory.html\; this is a curated subset for a lighter surf
+ ace - which nodes\, and where it lives (homepage highlights? featured str
+ ip?). Honors the id-stability contract\; curation is a selection layer ov
+ er the survey\, never edits to it. Per the charter: data + generate.js\, 
+ no hand HTML.
+END:VTODO
+BEGIN:VTODO
+UID:agent-highlight-cards@ai-agent-platform
+DTSTAMP:20260713T144618Z
+DUE;VALUE=DATE:20260718
+STATUS:NEEDS-ACTION
+SUMMARY:Page of highlight cards: each agent's mission + skills (the crew r
+ oster)
+DESCRIPTION:One card per agent (Director\, Scout\, Writer/content\, Market
+ er\, sysadmin-when-built): mission\, skills/tools\, model tier\, status. 
+ Sources exist: docs/director/director-persona.md\, NEWSROOM org chart\, s
+ ysadmin persona doc. Platform-is-the-product surface - decide apex vs stu
+ dio placement. Built as data records + generate.js template per the decis
+ ion-free production charter.
+END:VTODO
 END:VCALENDAR
