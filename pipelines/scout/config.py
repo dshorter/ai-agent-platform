@@ -26,6 +26,7 @@ class ScoutConfig:
     roam_iterations: int       # synthesis tool round-trips before the pitch is forced
     max_cost_usd: float        # soft cap across one pass
     logs_dir: Path             # Claude Code session logs root (needs root to read)
+    codex_logs_dir: Path       # Codex rollout logs (work-machine corpus, pulled from gdrive:)
     state_dir: Path            # cursor + map — external, inspectable, warm-bootable
     leads_path: Path           # the leads ledger (the Editor's queue)
 
@@ -45,6 +46,9 @@ class ScoutConfig:
             roam_iterations=int(os.environ.get("SCOUT_ROAM_ITERATIONS", "6")),
             max_cost_usd=float(os.environ.get("SCOUT_MAX_COST_USD", "2.0")),
             logs_dir=Path(os.environ.get("SCOUT_LOGS_DIR", "/root/.claude/projects")),
+            codex_logs_dir=Path(
+                os.environ.get("SCOUT_CODEX_LOGS_DIR", "/root/staging/codex-logs/logs")
+            ),
             state_dir=Path(os.environ.get("SCOUT_STATE_DIR", str(_HERE / "state"))),
             # In the STATE dir, deliberately outside the committed tree: origin is a
             # PUBLIC repo, and leads are transcript-derived — the redaction gate

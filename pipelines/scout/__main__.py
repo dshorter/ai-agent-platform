@@ -34,7 +34,7 @@ def main() -> None:
 
         conn = psycopg.connect(config.postgres_dsn)
         try:
-            stats = ingest(conn, config.logs_dir)
+            stats = ingest(conn, config.logs_dir, config.codex_logs_dir)
         finally:
             conn.close()
         print(json.dumps(stats))

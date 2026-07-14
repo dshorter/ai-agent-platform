@@ -255,9 +255,12 @@ DESCRIPTION:Rename the agent/persona design docs with a -persona suffix so
 END:VTODO
 BEGIN:VTODO
 UID:ingest-codex-session-logs@ai-agent-platform
-DTSTAMP:20260713T001231Z
+DTSTAMP:20260714T013034Z
 DUE;VALUE=DATE:20260715
-STATUS:NEEDS-ACTION
+STATUS:COMPLETED
+COMPLETED:20260714T013034Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
 SUMMARY:Ingest Codex session logs from the other machine into the Scout's 
  ore
 DESCRIPTION:Scout ingestion shipped for Claude Code JSONL (pipelines/scout
