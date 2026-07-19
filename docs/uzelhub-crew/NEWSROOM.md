@@ -1,6 +1,6 @@
 ---
 read: full
-status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, open items flagged inline
+status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, shipped 2026-07-12 — the build settled four open choices, synced 2026-07-14; open items flagged inline
 ---
 
 # The Newsroom — content architecture (living sketch, ongoing)
@@ -70,9 +70,10 @@ trail with a complete, human-walked specimen.*
 
 | Role | Job | Who | Status |
 |---|---|---|---|
-| [**Scout**](#scout-in-detail) | Wander docs/repos/logs/`agent_decisions`/ledger; re-walk the survey; maintain the `featured: []` queue | nobody, autonomously | **new** |
-| **Writer** | Turn a claimed lead into copy in the right register — a `notes.json` entry *or* a blog draft, `copyDraft` stamped | the **content agent** (276 runs) | exists — needs a 2nd assignment type + voice profiles |
-| **Editor** | Route each candidate (notes / blog / spike); approve the draft | **operator** today; the Director's weekly editorial pass by design | planned |
+| [**Scout**](#scout-in-detail) | Wander logs/docs/repos/`agent_decisions`; file leads on the leads ledger (the unpromoted story queue) | nobody, autonomously | **shipped 2026-07-12** (`c749c31`) — daily 05:45 pass, filing since day one |
+| **Writer** | Turn a claimed lead into copy in the right register — a `notes.json` entry *or* a blog draft, `copyDraft` stamped | the **content agent** (276 runs) + the new **note desk** | **note leg shipped 2026-07-14** — voice bottle + convergent roam (`pipelines/writer/`, persona: `writer-persona.md`); blog leg = the content agent, unchanged |
+| **Wire Editor** | Triage the new-lead queue into a claim/spike/hold shortlist; carry the Editor-in-chief's shadow verdicts (gate-① concordance) | its own desk agent (Sonnet seat); proposals-only, never the pen | **hired + built 2026-07-18** (`pipelines/wire_editor/`, plan doc Phase 2) |
+| **Editor** | Dispose the Wire Editor's shortlist (gate ①); scrub + approve drafts (gate ②, permanent) | **operator** today; Director inherits gate ① on sustained shadow concordance | **live, as operator** — gate ② never migrates |
 
 Drilling into the pipeline *reduced* the new-build surface: the Writer half
 was already on the payroll (content agent), the Editor half was already
@@ -401,18 +402,41 @@ the box provides material. None alone writes like this — which is *why* it mus
 be bottled: "the current model on a good night" is not a durable dependency,
 and this operation swaps model brains routinely.
 
+**The bootstrap is not the process (operator, 2026-07-18).** The first
+story's cycle — four Writer runs, live voice calibration, an Editor splice —
+was *voice refinement*, not the standing workflow: each hand-tuned draft
+exists to enrich the bottle (moves named, exemplars banked) precisely so the
+next story needs less of it. Steady state is one Writer draft against a
+matured bottle, a light Editor pass, approve. Judge pipeline maturity by the
+trend in hands-on minutes per story, not by the first story's cost.
+
 ## Marketer & Editor — mostly already here
 
 - **Marketer:** unchanged, and stays **dedicated to the Ghost blog** (see
   "Reuse vs fork"). Its extraction *technique* is what the Scout reuses via a
   shared lib — **not** the marketer agent itself, which bakes in a
   Ghost-authoritative canonical model.
-- **Editor:** operator today → the Director's designed weekly editorial pass,
-  routing on the survey's `featured:` field. `promotion-survey.yaml` is the
-  routing desk's ledger (claimed/resolved states; the calendar saga was its
-  first customer). Producer-vs-orchestrator stays intact: Scout and Writer are
-  producers (Agent SDK, like their siblings); the Director approves and routes
-  but never writes.
+- **Editor:** operator today → the Director's designed weekly editorial pass.
+  **Topology settled 2026-07-18: the triage half of that pass is a hired
+  desk, the Wire Editor** (publishing-automation-plan.md Phase 2) — reads
+  the ledger, proposes claim/spike/register shortlists; operator applies via
+  `lead_mark`; Director stays Editor-in-chief and its morning brief stays an
+  ops organ (at most a one-line queue stat, never pitches — the two hats
+  are different altitudes and must not re-conflate). **The Editor-in-chief
+  shadows gate ① from day one** — suggested verdicts alongside the Wire
+  Editor's proposals, operator disposes; concordance over real cycles is
+  the maturity metric that eventually hands the Director the routing pen
+  (plan doc §Gate-① shadow mode). Gate ② — scrub + approval to publish —
+  is the operator's permanently.
+  The routing desk's ledger turned out to be the Scout's leads file
+  (`pipelines/scout/state/leads.yaml`; lifecycle since 2026-07-18:
+  `new → claimed → drafted → approved → published`, `spiked` from
+  new|claimed, all transitions via the `lead_mark` verb with dated stamps —
+  publishing-automation-plan.md Phase 1) —
+  the build chose the ledger pattern over the survey's `featured:` field, which
+  stays the *marketing-promotion* queue, a different desk. Producer-vs-
+  orchestrator stays intact: Scout and Writer are producers (Agent SDK, like
+  their siblings); the Director approves and routes but never writes.
 
 ## Content types = the Editor's routing dimension
 
@@ -426,7 +450,7 @@ extraction technique doesn't.
 
 | Type | Primarily for | Sink / canonical | Voice | Audience |
 |---|---|---|---|---|
-| **Ticker** | the box's *activity*, in verbs — a rolling pulse under the header | apex home, generate-time text pack | terse verb crawl | everyone — "running right now" |
+| **Ticker** | the box's *activity*, in verbs — a rolling pulse under the header | site-wide masthead (fixed second row, since 2026-07-19; was apex-home), generate-time text pack | terse verb crawl | everyone — "running right now" |
 | **Weekly newsletter** | the Director's weekly report, made public — the week's digest | apex `/newsletter/`, self-canonical | newspaper broadsheet | prospects / followers |
 | **Field notes** | the ecosystem's **self-awareness** (4C / platform-is-the-product); war stories second | apex `/notes/`, self-canonical | man-page dry | prospects — "see the receipts" |
 | **Blog** | predictor-ingest commit history; grows by **subfolders** (Ghost = one instance, one blog) | Ghost, Ghost-canonical | narrative | developers / followers |
@@ -440,6 +464,24 @@ Two guardrails:
 - **White papers are genuinely different** — audience AND depth, not just
   voice. Sink unplaced (apex `/papers/` via generate.js? Ghost? its own
   thing?), deliberately unsolved for now.
+- **Field-note shape (Editor's standing order, 2026-07-16, set while routing
+  the first story through the Writer):** three beats — the problem, the
+  solution, the lessons learned — one screen, with a Clemens lean: wit
+  wherever it crystallizes a fact, engaging and factual at once (the
+  Kodiak-diary measure — riveting *because* every detail is true).
+  Receipts stay; play-by-play goes. Long-form depth is the blog leg's job
+  (a retelling that links back to the note), so detail is banked, not lost.
+  **Amended 2026-07-17** (from reviewing an external rewrite of the first
+  published note — its scannability was right, its stripped receipts were
+  not): a note may open with a **Quick-context block** — a `context` field
+  citing keys in the shared lexicon (`marketing/data/lexicon.json`, one
+  canonical definition per house term); the generator renders only the
+  cited terms, and notes without the field render unchanged, so published
+  pages stay frozen. Enumerable receipts (commits, read histories, fix
+  steps) render as list body entries (`{"list": []}` / `{"numbered": []}`)
+  carrying the full receipt — scannability never at the receipts' expense.
+  Receipts remain non-negotiable; the published copy of a stamped note is
+  never retro-edited — shape improvements fold forward into the next note.
 
 ## Editorial rules — the cadence, the ticker filter, the three registers
 
@@ -450,6 +492,17 @@ digest → feature. All three draw from the same source (the box narrating
 itself); they differ by cadence, register, and durability — three sink
 profiles, one set of mechanics.
 
+**Day-job-derived material — technique-forward, application-anonymous
+(operator, 2026-07-18).** The ingested work-machine sessions are legitimate
+ore, and their stories publish under one hard rule on top of the usual
+scrub + Editor approval: the employer's application is never named,
+described, or identifiable. What publishes is the *method* arc —
+spreadsheet-to-archetypes, feature-to-technique mapping, agentic API
+discovery, plain-language-to-test — which the operator judges tellable
+compellingly with zero application specifics. Employer confidentiality is
+a distinct gate from credential/PII redaction; a lead can pass the scrub
+and still fail this. The Editor applies it at routing time.
+
 **All generator-native, not Ghost.** The newsletter and ticker are built the
 same way as field notes (data → generate.js → index + page-per-entry), NOT in
 Ghost. Ghost stays the narrative-blog sink. Embedding Ghost content into the
@@ -459,6 +512,11 @@ newsletter is ever *emailed* to subscribers, that's a delivery leg — Ghost or 
 relay — not a reason to move the content's home into Ghost.)
 
 **The ticker — "live" is euphemistic; it's a text pack compiled on generate.**
+**(v1 SHIPPED 2026-07-19 — home-hero crawl, all running non-hidden survey
+nodes in survey order, deliberately deterministic: a random sample would
+break the CI regenerate-diff gate, so "rotation" arrives when the survey
+re-walks. Pure CSS marquee, hover-pause, reduced-motion fallback. The
+dedicated ticker table below remains the open v2 question.)**
 No real-time infra: a rolling set of recent items refreshed on each regenerate
 (driven by a cron) is indistinguishable from "live" for a crawl. **v1 source: a
 rotating sample of the inventory** (the survey — already generated, so *zero new
@@ -497,6 +555,18 @@ newspaper editorial, field notes = man-page technical. Not three formats that
 happen to coexist — the *visual range of an actual newsroom*, which makes the
 metaphor real instead of decorative.
 
+**House wit rule (operator, 2026-07-17) — every content type except the
+ticker.** When composing, stay on the lookout for sharp, clever wit —
+opportunistic, never a requirement, never forced when the material doesn't
+offer it. The measure stays the Clemens lean / Kodiak diary (wit that
+crystallizes a fact); this rule extends it from the field-note register to
+the whole house — newsletter, blog, notes, papers — the ticker alone stays
+pure verb crawl. Provenance worth keeping: the snark in an external rewrite
+of the first note ("Revolutionary, we know") traced back to an explicit
+"add some gen-Z comments" instruction — well executed, wrong ask.
+Commissioned wit produces snark; opportunistic wit produces the Clemens
+lean. Never instruct a writer to *add* wit — instruct it to *watch for* it.
+
 ## The one real fork — where the Scout stops (v1 vs mature)
 
 - **v1 — Scout writes the draft.** One agent walks *and* files a `copyDraft`
@@ -512,25 +582,45 @@ roles; **ship v1 as one Scout + operator-editor, decompose when volume forces
 it.** The split is an open choice to make after watching the Scout run — not a
 problem being deferred.
 
+**Settled — by the build, in the other direction (synced 2026-07-14).** The
+Scout that shipped (`c749c31`, 2026-07-12) files leads only: pitch, why-now,
+sources, suggested register — no copy. The lead was simply the natural output
+unit of walk+synthesis, so the build landed on the *mature* side of this fork
+without ever holding the meeting — the recommended v1 was skipped, not chosen
+against. The cost surfaced immediately and honestly: a queue of pitches with no
+Writer behind it (the 07-17 routing TODO). The fork is closed; what it leaves
+behind is the real next build — the Writer leg, claimed lead → copy (see
+`writer-persona.md`).
+
 ## Open choices (none are blockers)
 
-- Which log/source streams feed the graze (`agent_decisions`, session logs,
-  ledger, devlog, repos, docs — all, or a subset first?).
+**Settled since — by the build, not the whiteboard** (synced 2026-07-14; the
+Scout shipping answered four of these before anyone re-opened this doc):
+
+- *Source streams:* session logs by cursor (the ore); `agent_decisions`
+  sequences in the synthesis context; repos, docs, ledger, calendar, survey by
+  free roam — a catalog, no rotation, no quotas.
+- *Pass cadence:* daily, 05:45 systemd timer — not weekly — at least through
+  the A/B; revisit once the queue's fill rate has met an actual Editor.
+- *The curation queue:* the ledger pattern won —
+  `pipelines/scout/state/leads.yaml`, gitignored (origin is public; a push is a
+  publish). The survey's `featured: []` stays the marketing-promotion queue.
+- *Scout-writes-draft vs files-lead:* files-lead (see §The one real fork).
+
+Still open:
+
 - Link-vs-copy SEO shape for the blog leg (notes are apex-canonical and
   self-contained — no duplication question; blog gets narrative *retellings*,
   linked not copied).
-- Pass cadence (ambient weekly, à la the Director's editorial timer?).
-- Where the curation queue lives (the survey's `featured: []` is the prototype;
-  the ledger pattern is the other candidate).
-- Scout-writes-draft (v1) vs Scout-files-lead (mature).
 - Whether the "assess" muscle is literally shared code with the marketer or a
   parallel implementation.
 - Where the white-paper / case-study type lives (apex `/papers/` via
   generate.js, Ghost, or its own surface).
 - Ghost subfolder / tag-routing mechanics for new blog topics (Ghost hardwires
   one instance = one blog).
-- Synthesis-stage model: **Fable 5 is the plan**, but env-var it and A/B against
-  Sonnet 5 on real passes before locking in (see "Model tiers").
+- Synthesis-stage model: **A/B underway** — week 1 (07-13..19) on Fable 5,
+  week 2 on Sonnet 5 (`SCOUT_SYNTHESIS_MODEL` flip, calendar TODO), side-by-side
+  readout due 07-26; the Editor judges, not the contestant (see "Model tiers").
 - **A dedicated ticker table** (added 2026-07-13, once the Scout started filing
   ticker-register leads): the ticker is a *rolling* pulse, so accumulating items
   need lifecycle management — when one rolls on, how long it stays, when it
