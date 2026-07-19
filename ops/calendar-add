@@ -152,6 +152,17 @@ def main():
     new = text.replace(marker, '\n'.join(lines) + '\n' + marker)
     open(CAL, 'w').write(new)
     print(f'added {a.uid} ({a.author}, {kind})')
+    refresh_views()
+
+def refresh_views():
+    # Derived views (ops/calendar-views) regenerate after every write.
+    # Best-effort: the calendar write already succeeded — a view failure is
+    # a warning to the author, never a refusal of the write.
+    import subprocess
+    views = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'calendar-views')
+    r = subprocess.run([views], capture_output=True, text=True)
+    if r.returncode != 0:
+        print(f'WARNING: view regeneration failed: {r.stderr.strip()}', file=sys.stderr)
 
 if __name__ == '__main__':
     main()

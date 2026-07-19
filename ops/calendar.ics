@@ -271,9 +271,10 @@ DESCRIPTION:Scout ingestion shipped for Claude Code JSONL (pipelines/scout
 END:VTODO
 BEGIN:VTODO
 UID:scout-ab-flip-to-sonnet@ai-agent-platform
-DTSTAMP:20260713T010204Z
+DTSTAMP:20260718T040908Z
 DUE;VALUE=DATE:20260719
-STATUS:NEEDS-ACTION
+STATUS:CANCELLED
+SEQUENCE:1
 SUMMARY:Scout A/B week 2: flip SCOUT_SYNTHESIS_MODEL to claude-sonnet-5 in
   .env
 DESCRIPTION:Week 1 (07-13..07-19) runs synthesis+roam on claude-fable-5 (c
@@ -283,9 +284,10 @@ DESCRIPTION:Week 1 (07-13..07-19) runs synthesis+roam on claude-fable-5 (c
 END:VTODO
 BEGIN:VTODO
 UID:scout-ab-week3-readout@ai-agent-platform
-DTSTAMP:20260713T010204Z
+DTSTAMP:20260718T040908Z
 DUE;VALUE=DATE:20260726
-STATUS:NEEDS-ACTION
+STATUS:CANCELLED
+SEQUENCE:1
 RELATED-TO;RELTYPE=SIBLING:scout-ab-flip-to-sonnet@ai-agent-platform
 SUMMARY:Scout A/B week 3: read the two weeks side by side (Editor judges\,
   not the contestant)
@@ -348,5 +350,288 @@ DESCRIPTION:One card per agent (Director\, Scout\, Writer/content\, Market
  ysadmin persona doc. Platform-is-the-product surface - decide apex vs stu
  dio placement. Built as data records + generate.js template per the decis
  ion-free production charter.
+END:VTODO
+BEGIN:VTODO
+UID:pipeline-artifact-viewer@ai-agent-platform
+DTSTAMP:20260716T173543Z
+DUE;VALUE=DATE:20260724
+STATUS:NEEDS-ACTION
+SUMMARY:Build hardened read-only web viewer for pipeline artifacts (leads.
+ yaml\, writer drafts)
+DESCRIPTION:Super-simple\, super-hardened page for flipping through newsro
+ om pipeline artifacts: the Scout's leads ledger and the Writer's parked d
+ rafts. Read-only\, no write path. Serve like the ops-cal spec: capability
+  URL or basic_auth behind Caddy\, X-Robots-Tag noindex — artifacts are UN
+ SCRUBBED session-log-derived\, so this must never be publicly reachable. 
+ Consider: static render (yaml/json -> html on a timer\, generate.js spiri
+ t) over a live app\; 'yaml reader' question resolves to this. Console app
+  idea scratched 2026-07-16 in favor of secure web page.
+END:VTODO
+BEGIN:VTODO
+UID:apply-ops-cal-subscription-route@ai-agent-platform
+DTSTAMP:20260718T030930Z
+DUE;VALUE=DATE:20260718
+STATUS:COMPLETED
+COMPLETED:20260718T030930Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
+SUMMARY:Apply the ops-calendar subscription route in Caddy (capability URL
+ )
+DESCRIPTION:CALENDAR.md spec section 'The subscription route' was never ap
+ plied: mint token (openssl rand -hex 16)\, add the handle /ops-cal-<TOKEN
+ >.ics block to an HTTPS site block in /etc/caddy/Caddyfile\, reload\, sub
+ scribe phone (iOS Add Subscribed Calendar). Token lives only in the Caddy
+ file.
+END:VTODO
+BEGIN:VTODO
+UID:editor-note-hyperlinks@ai-agent-platform
+DTSTAMP:20260716T214427Z
+DUE;VALUE=DATE:20260725
+STATUS:NEEDS-ACTION
+SUMMARY:Notes: let the Editor hyperlink terms in field-note copy
+DESCRIPTION:Field-note prose (notes.json JSON-prose sections) currently re
+ nders as plain escaped text — the Editor cannot link a term like 'the Sco
+ ut' in scout-design-was-already-written to its page (none exists yet\, wh
+ ich is half the point: links should light up as targets appear). Needs: a
+  safe inline-link convention in note body text (e.g. the survey's see:-st
+ yle resolution or the marketing:notes/<slug> routing generate.js already 
+ has)\, resolved at generate time with the existing link sweep guarding ag
+ ainst dead targets. This is SEO layer 4 (link graph) growing into the not
+ es corpus. Filed 2026-07-16 while publishing the first field note.
+END:VTODO
+BEGIN:VTODO
+UID:revamp-agents-pages@ai-agent-platform
+DTSTAMP:20260716T214714Z
+DUE;VALUE=DATE:20260728
+STATUS:NEEDS-ACTION
+SUMMARY:Marketing: revamp the agents presence — an agents home + a cut she
+ et per agent
+DESCRIPTION:Replace/expand the single 'Agent Crew' product page with an ag
+ ents home page and one cut sheet per crew member (Director\, Scout\, Writ
+ er\, Editor\, marketer\, content agent\, SysAdmin\, Uzella — roster per N
+ EWSROOM org chart and the crew persona docs). Decision-free production pe
+ r the charter: records in data/*.json -> generate.js\, no hand-authored H
+ TML\; register per the gradient (cut-sheet step). Natural link targets fo
+ r editor-note-hyperlinks (e.g. 'the Scout' in the first field note). File
+ d 2026-07-16.
+END:VTODO
+BEGIN:VTODO
+UID:resume-scout-daily-pass@ai-agent-platform
+DTSTAMP:20260718T051949Z
+DUE;VALUE=DATE:20260801
+STATUS:CANCELLED
+SEQUENCE:1
+SUMMARY:Resume the Scout daily pass (remove SCOUT_PAUSED from .env)
+DESCRIPTION:Paused 2026-07-18 until the pipeline legs catch up: Director e
+ ditorial pass\, ledger lifecycle states\, Writer tuning. Resume = delete 
+ the SCOUT_PAUSED line from /opt/ai-agent-platform/.env (timer stayed enab
+ led\; the pass idles). The synthesis-model A/B (Fable week vs Sonnet week
+ \, NEWSROOM §Model tiers) restarts fresh on resume — both A/B todos were 
+ cancelled with the pause. Due date is a check-in nag\, not a deadline\; p
+ ush it if the legs aren't ready.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Resume the Scout daily pass (remove SCOUT_PAUSED from .env)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:scout-ab-flip-to-sonnet-r2@ai-agent-platform
+DTSTAMP:20260718T051949Z
+DUE;VALUE=DATE:20260719
+STATUS:NEEDS-ACTION
+SUMMARY:Scout A/B week 2: flip SCOUT_SYNTHESIS_MODEL to claude-sonnet-5 in
+  .env
+DESCRIPTION:Recreated 2026-07-18 after an accidental cancel during a brief
+  Scout pause (reverted same night\, zero passes lost). Week 1 (07-13..07-
+ 19) runs synthesis+roam on claude-fable-5 (config default). Week 2: set S
+ COUT_SYNTHESIS_MODEL=claude-sonnet-5 in /opt/ai-agent-platform/.env. Same
+  daily 05:45 pass\, same ore. The spine prices both\; tool_calls traces c
+ apture foraging character.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Scout A/B week 2: flip SCOUT_SYNTHESIS_MODEL to claude-sonnet-
+ 5 in .env
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:scout-ab-week3-readout-r2@ai-agent-platform
+DTSTAMP:20260718T051949Z
+DUE;VALUE=DATE:20260726
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=SIBLING:scout-ab-flip-to-sonnet-r2@ai-agent-platform
+SUMMARY:Scout A/B week 3: read the two weeks side by side (Editor judges\,
+  not the contestant)
+DESCRIPTION:Recreated 2026-07-18 (see sibling flip todo). Compare Fable we
+ ek vs Sonnet week from agent_decisions (agent_name=scout): leads/pass\, r
+ egister mix\, agent_span distribution\, roam tool_calls per pass\, cost p
+ er lead. Lead QUALITY verdict is the operator's — two lead lists side by 
+ side\, per NEWSROOM §Model tiers.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Scout A/B week 3: read the two weeks side by side (Editor judg
+ es\, not the contestant)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:define-why-now-in-scout-schema@ai-agent-platform
+DTSTAMP:20260718T091216Z
+DUE;VALUE=DATE:20260727
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=SIBLING:scout-ab-week3-readout-r2@ai-agent-platform
+SUMMARY:Define why_now in the Scout synthesis schema (post-A/B — decided\,
+  not optional)
+DESCRIPTION:DECIDED 2026-07-18\, timing-gated only: after the Sonnet week 
+ ends (07-26 readout) so both A/B weeks run identical prompts. Change: in 
+ agents/scout_agent.py SCOUT_SYNTHESIS_PROMPT output schema\, replace '"wh
+ y_now": "<one sentence>"' with a defined form: timeliness OR durability —
+  'never told and still true' is a valid answer. Why: the undefined field 
+ name acted as a silent recency filter — 101/101 pitches cite July subject
+ s while ~70 Scout scratchpad pins sit on fully-walked April Codex materia
+ l with zero pitches (verified 2026-07-18\, ledger + scout_session_log). L
+ esson on record: in a model-facing schema\, every field name is a prompt.
+  Also fold subject-date spread into the A/B readout comparison.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Define why_now in the Scout synthesis schema (post-A/B — decid
+ ed\, not optional)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:explore-agent-decisions-queries@ai-agent-platform
+DTSTAMP:20260718T211049Z
+DUE;VALUE=DATE:20260723
+STATUS:NEEDS-ACTION
+SUMMARY:Play with queries over the agent_decisions table
+DESCRIPTION:Exploratory query session over the cost/decision spine: per-ag
+ ent cost and token rollups\\\, leads-per-pass and cost-per-lead cuts (fee
+ ds the 07-26 Scout A/B readout)\\\, cross-agent stories via workflow_sequ
+ ence_id spanning agent_name\\\, wire_editor triage rows. Known gotcha fou
+ nd 2026-07-18: DecisionWriter writes the TOOL name (wire_triage/chief_sha
+ dow/writer_draft) into agent_decisions.agent_name — decide whether to fix
+  the writer or query around it.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Play with queries over the agent_decisions table
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:commit-review-week-of-0718@ai-agent-platform
+DTSTAMP:20260718T212213Z
+DUE;VALUE=DATE:20260720
+STATUS:NEEDS-ACTION
+SUMMARY:Review & commit the uncommitted week across both public repos
+DESCRIPTION:ai-agent-platform: calendar-views + helper hooks\\\, lead_mark
+  + lifecycle contract\\\, wire_editor pipeline + agent\\\, scout pause gu
+ ard\\\, why_now-era NEWSROOM/moves/writer-prompt edits\\\, publishing-aut
+ omation-plan.md. uzelhub-web: lexicon.json + context/list schema in gener
+ ate.js + css + tests + README. Both repos PUBLIC — review each hunk befor
+ e push (a push is a publish)\; transcript-derived material stays gitignor
+ ed. Suggested calendar commit message convention is in CALENDAR.md.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Review & commit the uncommitted week across both public repos
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:writer-tuning-batch@ai-agent-platform
+DTSTAMP:20260718T212213Z
+DUE;VALUE=DATE:20260722
+STATUS:NEEDS-ACTION
+SUMMARY:Writer tuning batch (plan Phase 3 — parallel-safe\, publish-indepe
+ ndent)
+DESCRIPTION:The known list from story #1: WRITER_ROAM_ITERATIONS=9 default
+ \\\, state the registered project roots in WRITER_NOTE_PROMPT (~15 wasted
+  roam calls otherwise)\\\, exclude pipelines/writer/state/drafts/ from th
+ e toolbox (self-paraphrase statelessness leak\\\, caused v4 receipts back
+ slide). Detail: publishing-automation-plan.md Phase 3 + writer-first-stor
+ y memory.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Writer tuning batch (plan Phase 3 — parallel-safe\, publish-in
+ dependent)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:identity-profiles-setup@ai-agent-platform
+DTSTAMP:20260718T212213Z
+DUE;VALUE=DATE:20260725
+STATUS:NEEDS-ACTION
+SUMMARY:Online-self setup: identity.profiles URLs\, LinkedIn refresh\, bio
+ s point at apex
+DESCRIPTION:The operator-side gate on the POINT of publishing (PUBLISHING.
+ md): fill site.json identity.profiles (LinkedIn refresh first\\\, ~30 min
+ )\\\, point profile bios back at uzelhub.com\\\, byline hub is /about.htm
+ l permanently. Upstream of resuming the release drip — a findable person 
+ behind the byline is what the drip is for.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Online-self setup: identity.profiles URLs\, LinkedIn refresh\,
+  bios point at apex
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:resume-release-drip-post-sonnet@ai-agent-platform
+DTSTAMP:20260718T212213Z
+DUE;VALUE=DATE:20260727
+STATUS:NEEDS-ACTION
+SUMMARY:Lift the publishing hold after the Sonnet-week review
+DESCRIPTION:Hold set 2026-07-18: no final drafts publish until Sonnet's Sc
+ out week is reviewed (A/B readout due 07-26). Lifting = resume release.js
+  drip per PUBLISHING.md cadence\\\, gated on identity-profiles-setup. Wri
+ ter drafting and all non-publishing automation continued through the hold
+  by design.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Lift the publishing hold after the Sonnet-week review
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:export-anonymize-beforeafter-grid@ai-agent-platform
+DTSTAMP:20260718T212213Z
+DUE;VALUE=DATE:20260801
+STATUS:NEEDS-ACTION
+SUMMARY:Export + app-anonymize the human-vs-AI before/after grid (Codex ep
+ ic receipt)
+DESCRIPTION:The operator already maintains a grid of framework components:
+  before vs after\\\, human-built vs AI-built — the Codex testing epic's c
+ enterpiece receipt (arc brief: pipelines/writer/state/drafts/codex-testin
+ g-epic.arc.md). Needs export off the work machine + application-anonymizi
+ ng per the employer gate (NEWSROOM doctrine 2026-07-18). Also wanted: bef
+ ore/after table of framework components.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Export + app-anonymize the human-vs-AI before/after grid (Code
+ x epic receipt)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:codex-corpus-grazed-check@ai-agent-platform
+DTSTAMP:20260718T212213Z
+DUE;VALUE=DATE:20260804
+STATUS:NEEDS-ACTION
+SUMMARY:Codex corpus fully grazed? Revisit epic assembly + the batch-arc-f
+ inder question
+DESCRIPTION:Cursor eats ~450 rows/pass\; the May-June Codex backlog (~7.6k
+  rows unconsumed on 2026-07-18) finishes early August. Then: do the scrat
+ chpad arc-pins connect across the corpus (113 pins were mostly solo on 07
+ -18)? Assemble the epic from Scout fragments + the operator-dictated arc 
+ brief\; only if inline pins prove too shallow does the parked batch arc-f
+ inder earn a build (NEWSROOM: do not build on spec).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Codex corpus fully grazed? Revisit epic assembly + the batch-a
+ rc-finder question
+TRIGGER:-P1D
+END:VALARM
 END:VTODO
 END:VCALENDAR

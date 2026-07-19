@@ -1,11 +1,12 @@
 # The Ops Calendar — format, guardrails, service (spec)
 
-> **Status:** updated 2026-07-11. The append path (`calendar-add`, including
-> VEVENT and VTODO) and the lifecycle verb (`calendar-mark`) are both built
-> and proven; only the subscription route (Caddy) remains spec. Design
-> doctrine: RFC 5545 is the application — git is history, the helpers are the
-> write API, agents and phone clients are readers. No calendar server exists
-> or is wanted.
+> **Status:** updated 2026-07-17. The append path (`calendar-add`, including
+> VEVENT and VTODO), the lifecycle verb (`calendar-mark`), and the derived
+> views (`calendar-views` — todos.ics projection + todos.html list) are all
+> built and proven; the subscription/serving routes (Caddy) remain spec.
+> Design doctrine: RFC 5545 is the application — git is history, the helpers
+> are the write API, agents and phone clients are readers. No calendar server
+> exists or is wanted.
 
 ## The file
 
@@ -126,6 +127,63 @@ Security posture, stated honestly:
   belt-and-suspenders, not the protection.
 - Behind Cloudflare, `no-cache` from origin is respected for proxied content;
   if a stale copy ever persists, purge the single URL rather than everything.
+
+## Derived views (BUILT — `ops/calendar-views`, 2026-07-17)
+
+The client gap this closes: **Google Calendar and Apple Calendar silently
+drop VTODOs from URL-subscribed feeds**, and neither offers a todo-list view
+of a subscribed calendar — the todos publish fine and render nowhere. The
+spec had the right component all along; the read stopped at the client. So
+the calendar stays the single source of truth and grows two read-only,
+decision-free projections in `ops/views/` (gitignored — derived, regenerated
+wholesale, never edited):
+
+- **`todos.ics`** — every open VTODO projected as a VEVENT on its `DUE` date
+  (all-day, or a 1-hour block for timed DUEs; `☐ ` summary prefix;
+  `todo-view.` UID prefix so both feeds subscribe side by side without UID
+  collisions; VALARMs carried over; completed/cancelled drop out on next
+  regeneration). Subscribed as its own URL it gets its own color and toggle —
+  Google's **Schedule view with only this calendar visible is the todo list**
+  Google won't otherwise provide.
+- **`todos.html`** — the actual list: overdue / due today / next 7 days /
+  later buckets, namespace badges from the UID suffix, `RELATED-TO` subtask
+  links, descriptions behind a tap, completions from the last 14 days struck
+  through. No lag behind a lazy poll — it is current as of the last write.
+
+Regeneration: `calendar-add` and `calendar-mark` both call `calendar-views`
+after every successful write (best-effort — a view failure warns, never
+refuses the write that already landed). Run it by hand after an operator
+freehand edit. Date buckets are computed at generation time, so between
+writes the HTML's "overdue" line can lag the calendar date; if that ever
+matters in practice, a daily timer invoking `calendar-views` fixes it — not
+pre-built, per don't-build-on-spec.
+
+Serving (SPEC — operator applies, same capability-URL posture as the
+subscription route; tokens minted at apply time, never committed):
+
+```caddy
+handle /ops-todos-<TOKEN>.ics {
+    header Content-Type "text/calendar; charset=utf-8"
+    header X-Robots-Tag "noindex"
+    header Cache-Control "no-cache, max-age=0"
+    root * /opt/ai-agent-platform/ops/views
+    rewrite * /todos.ics
+    file_server
+}
+handle /ops-todos-<TOKEN>.html {
+    header X-Robots-Tag "noindex"
+    header Cache-Control "no-cache, max-age=0"
+    root * /opt/ai-agent-platform/ops/views
+    rewrite * /todos.html
+    file_server
+}
+```
+
+One token can serve both handles; rotation is the same one-reload story as
+the calendar URL. The HTML page carries `noindex` in its own meta as well.
+Known client caveat, stated honestly: Google polls URL subscriptions on a
+lazy schedule (hours to a day), so a completed todo can linger checked-off
+in Google until the next poll; the HTML view has no such lag.
 
 ## Failure posture
 

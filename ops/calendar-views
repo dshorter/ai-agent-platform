@@ -1,0 +1,231 @@
+#!/usr/bin/env python3
+"""calendar-views — derived, read-only projections of ops/calendar.ics.
+
+Why this exists: Google Calendar (and Apple Calendar) silently DROP VTODOs
+from URL-subscribed feeds — the todos publish fine and render nowhere, and
+neither client offers a todo-list view of a subscribed calendar. The spec
+already had the right component; the clients are the gap. So: keep
+calendar.ics as the single source of truth and project it, decision-free,
+into shapes the clients actually render (spec: ops/CALENDAR.md §Derived views).
+
+Outputs (ops/views/ — gitignored, derived, regenerated wholesale, never edited):
+  todos.ics   every OPEN VTODO projected as a VEVENT on its DUE date
+              ("☐ " prefix, todo-view. UID prefix so both feeds can be
+              subscribed side by side). Subscribe it as a second capability
+              URL: its own color + toggle in Google, and Schedule view with
+              only it visible is the todo list Google won't otherwise give.
+  todos.html  the actual list — overdue / today / this week / later, namespace
+              badges, subtask links, recently-completed strikethroughs.
+
+Read-only by doctrine: this tool never writes calendar.ics. It is called
+automatically after every calendar-add / calendar-mark; run it by hand after
+an operator freehand edit, or from a timer if date-bucket drift between
+writes ever matters. Refuses loudly on a malformed calendar; never loops.
+"""
+import datetime, html, os, re, sys
+from zoneinfo import ZoneInfo
+
+OPS = os.path.dirname(os.path.abspath(__file__))
+CAL = os.path.join(OPS, 'calendar.ics')
+OUT = os.path.join(OPS, 'views')
+TZ = ZoneInfo('America/New_York')  # matches X-WR-TIMEZONE in the source
+
+def fold(line, limit=74):
+    out = []
+    while len(line.encode()) > limit:
+        out.append(line[:limit]); line = ' ' + line[limit:]
+    out.append(line)
+    return '\n'.join(out)
+
+def unesc(s):
+    return re.sub(r'\\(.)', lambda m: '\n' if m.group(1) in 'nN' else m.group(1), s)
+
+def unfold(text):
+    return text.replace('\n ', '').replace('\n\t', '')
+
+def parse(text):
+    """All VEVENT/VTODO components → dicts of (unfolded) property lines."""
+    comps = []
+    for m in re.finditer(r'BEGIN:(VEVENT|VTODO)\n(.*?)END:\1\n', unfold(text), re.S):
+        kind, body = m.group(1), m.group(2)
+        alarms = re.findall(r'BEGIN:VALARM\n.*?END:VALARM', body, re.S)
+        body = re.sub(r'BEGIN:VALARM\n.*?END:VALARM\n', '', body, flags=re.S)
+        c = {'kind': kind, 'alarms': alarms}
+        for line in body.strip('\n').split('\n'):
+            key, _, value = line.partition(':')
+            c[key.split(';')[0]] = value
+            c[key] = value  # keep the param-qualified form too (DUE;VALUE=DATE)
+        comps.append(c)
+    return comps
+
+def due_of(c):
+    """(date, timed:bool) from DUE, or (None, False)."""
+    v = c.get('DUE')
+    if not v:
+        return None, False
+    if re.fullmatch(r'\d{8}', v):
+        return datetime.datetime.strptime(v, '%Y%m%d').date(), False
+    return datetime.datetime.strptime(v, '%Y%m%dT%H%M%S'), True
+
+def namespace(uid):
+    domain = uid.partition('@')[2]
+    if domain == 'ai-agent-platform':
+        return 'operator'
+    return domain.split('.', 1)[0]  # director. / sysadmin. prefixes
+
+def is_open(c):
+    return c['kind'] == 'VTODO' and c.get('STATUS', 'NEEDS-ACTION') not in ('COMPLETED', 'CANCELLED')
+
+def emit_ics(todos):
+    out = ['BEGIN:VCALENDAR', 'VERSION:2.0',
+           'PRODID:-//ai-agent-platform//ops-todo-view//EN',
+           'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+           'X-WR-CALNAME:ai-agent-platform ops — todos',
+           'X-WR-TIMEZONE:America/New_York']
+    for c in todos:
+        due, timed = due_of(c)
+        if due is None:
+            continue  # a dateless todo has no place on a grid; the HTML view carries it
+        out.append('BEGIN:VEVENT')
+        out.append(f"UID:todo-view.{c['UID']}")
+        out.append(f"DTSTAMP:{c.get('DTSTAMP', '19700101T000000Z')}")
+        if 'SEQUENCE' in c:
+            out.append(f"SEQUENCE:{c['SEQUENCE']}")
+        if timed:
+            out.append(f"DTSTART:{due.strftime('%Y%m%dT%H%M%S')}")
+            out.append(f"DTEND:{(due + datetime.timedelta(hours=1)).strftime('%Y%m%dT%H%M%S')}")
+        else:
+            out.append(f"DTSTART;VALUE=DATE:{due.strftime('%Y%m%d')}")
+            out.append(f"DTEND;VALUE=DATE:{(due + datetime.timedelta(days=1)).strftime('%Y%m%d')}")
+        out.append(fold(f"SUMMARY:☐ {c.get('SUMMARY', '')}"))
+        desc = c.get('DESCRIPTION', '')
+        tail = f"— projected from ops todo {c['UID']}"
+        out.append(fold(f"DESCRIPTION:{desc + chr(92) + 'n' if desc else ''}{tail}"))
+        for al in c['alarms']:
+            out.append(al)
+        out.append('END:VEVENT')
+    out.append('END:VCALENDAR')
+    return '\n'.join(out) + '\n'
+
+CSS = """
+:root { --bg:#fff; --fg:#1a1a1a; --dim:#667; --line:#e2e4e8; --accent:#2563eb;
+        --over:#b91c1c; --badge:#eef1f5; }
+@media (prefers-color-scheme: dark) {
+  :root { --bg:#101216; --fg:#e6e8ec; --dim:#99a; --line:#2a2e36; --accent:#7aa2ff;
+          --over:#f87171; --badge:#1d2129; } }
+body { margin:0 auto; max-width:720px; padding:24px 16px 48px;
+       font:16px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--fg); }
+h1 { font-size:20px; } h1 small { color:var(--dim); font-weight:normal; }
+h2 { font-size:13px; text-transform:uppercase; letter-spacing:.08em;
+     color:var(--dim); border-bottom:1px solid var(--line); padding-bottom:4px;
+     margin:28px 0 8px; }
+h2.overdue { color:var(--over); }
+ul { list-style:none; margin:0; padding:0; }
+li { padding:8px 0; border-bottom:1px solid var(--line); }
+.row { display:flex; gap:10px; align-items:baseline; flex-wrap:wrap; }
+.box { color:var(--accent); }
+.due { color:var(--dim); font-size:13px; white-space:nowrap; margin-left:auto; }
+.due.late { color:var(--over); }
+.ns { font-size:11px; background:var(--badge); color:var(--dim);
+      border-radius:4px; padding:1px 6px; }
+.rel { font-size:13px; color:var(--dim); margin:2px 0 0 26px; }
+.done { text-decoration:line-through; color:var(--dim); }
+details { margin:2px 0 0 26px; font-size:14px; color:var(--dim); }
+summary { cursor:pointer; }
+footer { margin-top:36px; font-size:12px; color:var(--dim); }
+"""
+
+REL_LABEL = {'PARENT': '↳ subtask of', 'CHILD': '↰ parent of', 'SIBLING': '↔ paired with'}
+
+def li(c, names, today, done=False):
+    due, timed = due_of(c)
+    uid = c['UID']
+    parts = ['<li>', '<div class="row">']
+    box = '☑' if done else '☐'
+    cls = ' done' if done else ''
+    parts.append(f'<span class="box">{box}</span>')
+    parts.append(f'<strong class="{cls.strip()}">{html.escape(unesc(c.get("SUMMARY", "")))}</strong>')
+    parts.append(f'<span class="ns">{namespace(uid)}</span>')
+    if due is not None:
+        d = due.date() if timed else due
+        delta = (d - today).days
+        rel = 'today' if delta == 0 else (f'{-delta}d overdue' if delta < 0 else f'in {delta}d')
+        when = due.strftime('%b %-d %H:%M') if timed else due.strftime('%b %-d')
+        late = ' late' if (delta < 0 and not done) else ''
+        parts.append(f'<span class="due{late}">{when} · {rel}</span>')
+    parts.append('</div>')
+    rt = next((k for k in c if k.startswith('RELATED-TO')), None)
+    if rt:
+        reltype = (re.search(r'RELTYPE=(\w+)', rt) or [None, 'PARENT'])[1]
+        target = c[rt]
+        label = REL_LABEL.get(reltype, '→')
+        parts.append(f'<div class="rel">{label} {html.escape(unesc(names.get(target, target)))}</div>')
+    desc = unesc(c.get('DESCRIPTION', ''))
+    if desc:
+        parts.append(f'<details><summary>detail</summary>{html.escape(desc)}</details>')
+    parts.append('</li>')
+    return ''.join(parts)
+
+def emit_html(comps):
+    now = datetime.datetime.now(TZ)
+    today = now.date()
+    names = {c['UID']: c.get('SUMMARY', c['UID']) for c in comps}
+    todos = [c for c in comps if c['kind'] == 'VTODO']
+    open_ = sorted((c for c in todos if is_open(c)),
+                   key=lambda c: (due_of(c)[0] is None,
+                                  str(due_of(c)[0] or ''), c['UID']))
+    buckets = {'Overdue': [], 'Due today': [], 'Next 7 days': [], 'Later': [], 'No due date': []}
+    for c in open_:
+        due, timed = due_of(c)
+        if due is None:
+            buckets['No due date'].append(c); continue
+        d = due.date() if timed else due
+        delta = (d - today).days
+        key = ('Overdue' if delta < 0 else 'Due today' if delta == 0
+               else 'Next 7 days' if delta <= 7 else 'Later')
+        buckets[key].append(c)
+    recent = []
+    for c in todos:
+        if c.get('STATUS') == 'COMPLETED' and 'COMPLETED' in c:
+            when = datetime.datetime.strptime(c['COMPLETED'], '%Y%m%dT%H%M%SZ')
+            if (now.replace(tzinfo=None) - when).days <= 14:
+                recent.append(c)
+    out = ['<!doctype html><html lang="en"><head><meta charset="utf-8">',
+           '<meta name="viewport" content="width=device-width,initial-scale=1">',
+           '<meta name="robots" content="noindex,nofollow">',
+           '<title>ops todos</title>', f'<style>{CSS}</style></head><body>',
+           f'<h1>ops todos <small>— {len(open_)} open</small></h1>']
+    for name, items in buckets.items():
+        if not items:
+            continue
+        cls = ' class="overdue"' if name == 'Overdue' else ''
+        out.append(f'<h2{cls}>{name} ({len(items)})</h2><ul>')
+        out += [li(c, names, today) for c in items]
+        out.append('</ul>')
+    if recent:
+        out.append(f'<h2>Completed, last 14 days ({len(recent)})</h2><ul>')
+        out += [li(c, names, today, done=True) for c in recent]
+        out.append('</ul>')
+    out.append(f'<footer>Derived read-only from ops/calendar.ics — write via calendar-add / '
+               f'calendar-mark, never here. Buckets computed at generation: '
+               f'{now.strftime("%Y-%m-%d %H:%M %Z")}. Regenerate: ops/calendar-views.</footer>')
+    out.append('</body></html>')
+    return '\n'.join(out) + '\n'
+
+def main():
+    text = open(CAL).read()
+    if 'END:VCALENDAR' not in text:
+        sys.exit('REFUSED: calendar file missing END:VCALENDAR')
+    comps = parse(text)
+    open_todos = sorted((c for c in comps if is_open(c)),
+                        key=lambda c: (str(due_of(c)[0] or '9999'), c['UID']))
+    os.makedirs(OUT, exist_ok=True)
+    with open(os.path.join(OUT, 'todos.ics'), 'w') as f:
+        f.write(emit_ics(open_todos))
+    with open(os.path.join(OUT, 'todos.html'), 'w') as f:
+        f.write(emit_html(comps))
+    n_dated = sum(1 for c in open_todos if due_of(c)[0] is not None)
+    print(f'views: {len(open_todos)} open todos ({n_dated} dated → todos.ics; all → todos.html)')
+
+if __name__ == '__main__':
+    main()
