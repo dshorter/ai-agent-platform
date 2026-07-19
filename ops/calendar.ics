@@ -521,9 +521,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:commit-review-week-of-0718@ai-agent-platform
-DTSTAMP:20260718T212213Z
+DTSTAMP:20260719T212818Z
 DUE;VALUE=DATE:20260720
-STATUS:NEEDS-ACTION
+STATUS:COMPLETED
+COMPLETED:20260719T212818Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
 SUMMARY:Review & commit the uncommitted week across both public repos
 DESCRIPTION:ai-agent-platform: calendar-views + helper hooks\\\, lead_mark
   + lifecycle contract\\\, wire_editor pipeline + agent\\\, scout pause gu
