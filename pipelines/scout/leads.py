@@ -24,10 +24,13 @@ HEADER = """\
 #
 # Contract:
 #   - The Scout appends leads with status: new. It never edits or removes entries.
-#   - The Editor (operator today; the Director's weekly pass by design) flips status:
-#       new -> claimed | spiked
+#   - Lifecycle (forward-only, one dated stamp per transition, mutations ONLY
+#     via `python -m pipelines.scout.lead_mark`, never freehand):
+#       new -> claimed -> drafted -> approved -> published;  spiked from new|claimed
+#     Editor claims/spikes/approves; the writer pipeline stamps drafted;
+#     the publish step stamps published. Drafted leads may be redrafted.
 #   - Spikes are NOT feedback. The Scout reads back ids + pitches only (dedup);
-#     it never sees statuses. The next pass must be no less reckless.
+#     it never sees statuses or stamps. The next pass must be no less reckless.
 #   - REDACTION (absolute): session logs contain credentials, keys, PII. Nothing
 #     derived from them publishes without a hard scrub AND Editor approval.
 #     `redaction: required` marks that gate; it is not advisory.

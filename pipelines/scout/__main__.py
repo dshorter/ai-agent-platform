@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 
 import psycopg
@@ -18,6 +19,12 @@ from pipelines.scout.config import ScoutConfig
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
+    # Operator pause switch: SCOUT_PAUSED=1 in .env idles the whole pass
+    # (ingest included — the cursor catches ingest up on resume). Exit 0 so
+    # the timer's OnFailure page stays quiet; this is a pause, not a failure.
+    if os.environ.get("SCOUT_PAUSED"):
+        print("scout: paused (SCOUT_PAUSED set in .env) — remove the line to resume")
+        return
     parser = argparse.ArgumentParser(prog="scout")
     parser.add_argument("--ingest", action="store_true", help="ingest session logs into Postgres")
     parser.add_argument("--pass", dest="do_pass", action="store_true", help="run one prospecting pass")
