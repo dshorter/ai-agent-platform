@@ -1,0 +1,49 @@
+{
+  "slug": "silent-backup-failure",
+  "surveyId": "ops.backup-june-silence",
+  "kicker": "Field note",
+  "date": "July 2026",
+  "title": "The backups looked fine. They'd been failing for three weeks.",
+  "metaDescription": "A storage cap, a retention rule that could never fire, and three weeks of green checkmarks over dead backups — what it took to make silence itself an alarm.",
+  "tagline": "A storage cap, a retention rule that structurally could never fire, and three weeks of green checkmarks over dead backups.",
+  "bullets": [
+    "Every nightly run reported success — the off-site half hadn't uploaded in three weeks",
+    "Root cause: a retention rule that can never delete files that are never overwritten",
+    "The bucket filled to its storage cap and uploads quietly died",
+    "Now: the script prunes for itself, failures page a phone, and silence is an alarm"
+  ],
+  "image": {
+    "label": "Timeline — cap exceeded → 23 silent nights → detection → paging"
+  },
+  "sections": [
+    {
+      "h": "What happened",
+      "body": [
+        "The server runs a nightly backup with two halves: a local snapshot, and an off-site bundle uploaded to cloud storage. The local half always succeeded. The off-site half had been failing since June 9 — and the job still exited clean every night, because an off-site failure was deliberately non-fatal (you don't want a cloud outage blocking a reboot). Reasonable decision, plus no one watching the warnings, equals three weeks of green.",
+        "It surfaced during a routine audit: the newest bundle in the bucket was 23 days old, and the error log said the same thing every night — storage cap exceeded."
+      ]
+    },
+    {
+      "h": "The rule that could never fire",
+      "body": [
+        "The bucket had a retention rule, set through the provider's console, that looked exactly right: keep seven days, delete the rest. But that rule type only deletes prior versions of files that get overwritten or hidden — and every nightly bundle was a brand-new, unique filename that would never be either. The rule was perfectly configured to do nothing, forever.",
+        "So the bucket only ever grew, hit the account's storage cap, and every upload after that was refused. The retention policy wasn't broken. It just never applied to a single file."
+      ]
+    },
+    {
+      "h": "The fix was mostly not code",
+      "body": [
+        "The code change was small: the backup script now prunes its own old bundles before each upload, with a key scoped to exactly that one bucket — verified against the provider's API rather than trusted from the docs, which turned out to be claiming a much safer key than the one actually in use. An immutability lock on the newest week of bundles is the final layer, so even a compromised server can't delete the copies that matter.",
+        "The bigger fix was making silence impossible. Warnings inside a 'successful' run now count, and a run with warnings sends one message to a phone. A separate check pages if backups simply stop happening. And a monthly restore drill is on the calendar — because a backup you've never restored is a hypothesis, not a backup."
+      ]
+    },
+    {
+      "h": "What it taught",
+      "body": [
+        "Exit codes are claims, not facts — a job that exits 0 is asserting success, and something independent should be in a position to disagree.",
+        "Retention rules deserve the same testing as code: the question isn't 'is a policy configured' but 'has it ever actually deleted anything.'",
+        "And the failure mode that costs you isn't the loud one. It's the one that produces green checkmarks the whole time it's failing."
+      ]
+    }
+  ]
+}
