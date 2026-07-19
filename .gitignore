@@ -21,3 +21,14 @@ build/
 
 # Scout state (cursor, navigation map) — external, inspectable, NOT committed
 pipelines/scout/state/
+# Writer drafts — session-log-derived, unpublished by definition; they cross
+# into uzelhub-web only after the scrub + Editor approval (a push is a publish)
+pipelines/writer/state/
+# Blog mermaid sweep — extracted draft sources + rendered PNGs (drafts are unpublished; public repo)
+pipelines/blog_pipeline/state/
+# mermaid-cli install (chromium-backed renderer)
+tools/mermaid-render/node_modules/
+
+# Derived calendar views (calendar-views output) — regenerated, never edited
+ops/views/
+pipelines/wire_editor/state/
