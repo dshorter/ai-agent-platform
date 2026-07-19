@@ -460,6 +460,17 @@ def main(argv: list[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO)
     config = PipelineConfig.from_env()
     run(config, dry_run=args.dry_run, max_batches=args.max_batches)
+    if not args.dry_run:
+        # New drafts carry script-dependent mermaid cards (the fence hook
+        # above); email and RSS strip scripts, so sweep fresh cards into
+        # PNGs now. Idempotent — already-swept drafts are untouched. A
+        # render failure leaves that card as-is and is non-fatal here.
+        from .mermaid_sweep import main as mermaid_sweep_main
+        if mermaid_sweep_main(["--apply"]) != 0:
+            logging.warning(
+                "mermaid sweep reported render failures; "
+                "retry with: python -m pipelines.blog_pipeline.mermaid_sweep --apply"
+            )
     return 0
 
 
