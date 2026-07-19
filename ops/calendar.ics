@@ -636,9 +636,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:chyron-links-and-content-mix@operator.ai-agent-platform
-DTSTAMP:20260719T170126Z
+DTSTAMP:20260719T170846Z
 DUE;VALUE=DATE:20260719
-STATUS:NEEDS-ACTION
+STATUS:COMPLETED
+COMPLETED:20260719T170846Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
 SUMMARY:Chyron: link each item to /inventory.html (easy\, maybe today)\; v
  2 content-mix backlog
 DESCRIPTION:Yesterday's goal was just getting the strip on the page\; it n
@@ -651,5 +654,18 @@ DESCRIPTION:Yesterday's goal was just getting the strip on the page\; it n
  ticker table is the open v2 question)\, a little more color / leader sepa
  rators between item types. Keep the register: status pulse\, verbs and st
  ates\, never victories.
+END:VTODO
+BEGIN:VTODO
+UID:chyron-content-mix-v2@operator.ai-agent-platform
+DTSTAMP:20260719T170846Z
+DUE;VALUE=DATE:20260802
+STATUS:NEEDS-ACTION
+SUMMARY:Chyron v2: content mix beyond the systems list
+DESCRIPTION:The link pass shipped 2026-07-19 (uzelhub-web 3373af9). Banked
+  from that discussion: mix in occasional field-note headlines and blog it
+ ems (NEWSROOM's activity-verb register — the dedicated ticker table is th
+ e open v2 question there)\, and a little visual seasoning (color / leader
+  separators between item types). Guardrail: status pulse register — verbs
+  and states\, never victories.
 END:VTODO
 END:VCALENDAR
