@@ -42,6 +42,29 @@ None of these are exotic problems. They're all "did the docs keep up with the st
 
 - **Documentation reconciliation.** Re-derive the truth tables in `/opt/_host/README.md` (projects, ports, volumes, systemd units, databases) from live system inspection. Flag deltas as a PR-like patch proposal.
 - **Coverage audits.** Every script in any `scripts/` directory under `/opt` should be either (a) scheduled via cron/systemd, (b) called by another scheduled thing (e.g. `safe-reboot` → `backup.sh`), or (c) explicitly marked as manual-only in a `MANUAL.md` or a comment header. Anything else is a "loaded gun unloaded" and gets flagged.
+
+  > **Logged in advance, 2026-07-20 — first real target once this agent exists.**
+  > `predictor_ingest`'s daily pipeline (`make daily DOMAIN=<film|semiconductors|weapons_detection>`)
+  > has systemd units fully written in `deploy/systemd/` (`predictor-daily@.service`
+  > + per-domain `.timer`s, `predictor-staleness.service/.timer` with
+  > `OnFailure=notify-telegram@%n.service`) but **not installed** — a textbook
+  > "loaded gun unloaded." **Not an oversight to flag as new drift**: the operator
+  > made a deliberate, dated choice on 2026-07-20 to run these manually (login
+  > ~7pm daily, all three domains) rather than install the timers yet. The agent's
+  > coverage audit should recognize this as an acknowledged manual-only case once
+  > it's marked as such (a comment header in the unit files, or an entry in
+  > `/opt/_host/README.md`'s coverage table) — not re-flag a choice already made.
+  > Two related gaps worth the same audit pass: (1) predictor_ingest's entry in
+  > `config/director_registry.json` still describes pre-restart state (says
+  > "Currently dormant... ADR-010 plans a restart") — Director's project_state
+  > snapshot is git-only (branch/commits/working-tree), so it never notices
+  > pipeline-level activity or staleness on its own; (2) Director and
+  > `notify-telegram` share a bot token but Director's `getUpdates` long-poll
+  > never sees `notify-telegram`'s own outbound `sendMessage` pages (Telegram's
+  > API doesn't loop a bot's sent messages back to itself) — so today, nobody
+  > but the operator's phone sees a predictor staleness page. Session:
+  > `session_01Jmi2eGGfSsh1PML5aGcQRQ` in predictor_ingest, if more context is
+  > needed later.
 - **Drift detection between compose files and running containers.** Compare `com.docker.compose.project` labels on running containers against the `docker-compose.yml` files in `/opt/*/`. The current overlap (server-maintenance compose file defines all services but only owns ghost) is exactly the kind of thing this catches.
 - **Backup verification.** Beyond "backup ran without error" — periodic *restore drills* into a scratch directory, confirming files extract and DB dumps are valid (mysqlcheck / pg_dump --schema-only roundtrip). Cadence: monthly.
 - **Recurring incident detection.** If the same failure mode appears in `journalctl` within N days, that's worth a human's attention — not "another auto-restart."
