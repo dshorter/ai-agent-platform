@@ -671,4 +671,46 @@ DESCRIPTION:The link pass shipped 2026-07-19 (uzelhub-web 3373af9). Banked
   separators between item types). Guardrail: status pulse register — verbs
   and states\, never victories.
 END:VTODO
+BEGIN:VTODO
+UID:predictor-revert-2x-budget-2026@ai-agent-platform
+DTSTAMP:20260720T194843Z
+DUE;VALUE=DATE:20260815
+STATUS:NEEDS-ACTION
+SUMMARY:Revert predictor_ingest 2x doc budgets (Anthropic rate reduction e
+ nds)
+DESCRIPTION:Restore doc_selection.budget/stretch_max in domains/{film\,sem
+ iconductors\,weapons_detection}/domain.yaml to normal (film 35/40\, semic
+ onductors 20/25\, weapons_detection 10/15). Also revert tests/test_select
+ .py::TestBudgetFromProfile::test_active_domain_profiles_carry_d3_budgets 
+ and close the note in docs/backend/operational-state.md. See that doc for
+  the full context.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Revert predictor_ingest 2x doc budgets (Anthropic rate reducti
+ on ends)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-apply-2x-budget-film-semis-2026@ai-agent-platform
+DTSTAMP:20260720T195533Z
+DUE;VALUE=DATE:20260802
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=SIBLING:predictor-revert-2x-budget-2026@ai-agent-platform
+SUMMARY:Apply 2x doc budget to predictor_ingest film + semiconductors (dam
+ pening window closed)
+DESCRIPTION:The epoch-2 14-day dampening window (D6\, started 2026-07-19) 
+ closes today. Bump domains/film/domain.yaml and domains/semiconductors/do
+ main.yaml doc_selection to 70/80 and 40/50 respectively (Anthropic rate r
+ eduction runs through 2026-08-15). Also flip tests/test_select.py::TestBu
+ dgetFromProfile::test_active_domain_profiles_carry_d3_budgets's film/semi
+ conductors assertions. See docs/backend/operational-state.md for full con
+ text. weapons_detection is unaffected (already at 2x since day one).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Apply 2x doc budget to predictor_ingest film + semiconductors 
+ (dampening window closed)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
 END:VCALENDAR
