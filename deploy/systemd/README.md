@@ -7,7 +7,7 @@ editing live units). Until 2026-07-23 this repo's units existed **only** in
 
 | Unit | Job | Status |
 |---|---|---|
-| `sysadmin-daily.{service,timer}` | daily reconciliation pass, 06:20 ET | written 2026-07-23, **not yet installed** |
+| `sysadmin-daily.{service,timer}` | daily reconciliation pass, 06:20 ET | written 2026-07-23, **installed + enabled 2026-07-25** |
 
 Existing live units NOT yet mirrored here (recreate from `/etc` if adopting):
 `director-listener.service`, `director-morning-brief.{service,timer}`,

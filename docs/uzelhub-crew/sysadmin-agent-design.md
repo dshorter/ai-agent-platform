@@ -1,7 +1,7 @@
 # Sysadmin Agent — Design
 
-> **Status:** BUILT (daily pass) 2026-07-23 — `agents/sysadmin_agent.py` + `pipelines/sysadmin/` + `ops/ledger-append` + `deploy/systemd/sysadmin-daily.*`; timer install + journal group are operator gates (`deploy/systemd/README.md`). Hourly probe, weekly reflection, monthly drill: not yet built. Design history: draft from manual ops through 2026-05-27; pre-build sweep 2026-07-23 folded in the sibling-build lessons and post-07-06 state changes (§Pre-build sweep)
-> **Sprint:** One+ (not yet started; Content/Marketer agents come first)
+> **Status:** BUILT (daily pass) 2026-07-23 — `agents/sysadmin_agent.py` + `pipelines/sysadmin/` + `ops/ledger-append` + `deploy/systemd/sysadmin-daily.*`; **operator gates closed 2026-07-25** — timer enabled (06:20 ET) and `claude` granted `systemd-journal`. Hourly probe, weekly reflection, monthly drill: deliberately not built — see §Cadence scope. Design history: draft from manual ops through 2026-05-27; pre-build sweep 2026-07-23 folded in the sibling-build lessons and post-07-06 state changes (§Pre-build sweep)
+> **Sprint:** n/a — the "Sprint One+, after Content/Marketer" sequencing this line used to carry was Sprint Zero-era planning; the daily pass shipped 2026-07-23 outside that frame.
 > **Relationship to crew:** The Sysadmin agent is the *third* role after Content (Sprint Zero) and Marketer (Sprint Zero). Developer and Solution Engineer agents come after.
 
 ---
@@ -114,6 +114,55 @@ monthly:  restore drill
 ```
 
 Each step produces an artifact (decision row + optional patch file). Nothing is applied without operator approval — patches are written to `/var/lib/sysadmin-agent/proposals/` as `.diff` files; operator runs `sysadmin-agent apply <id>` to land them.
+
+---
+
+## Cadence scope — why v1 is daily-only
+
+> **Decided 2026-07-25**, after the first two real passes. The loop above specs
+> four cadences; only `daily` is built. The other three are deferred for three
+> *different* reasons, recorded here so the gap reads as a decision rather than
+> an omission — and so this question stops getting re-asked.
+
+**Hourly probe — obsolete as specced, not pending.** `agent-platform-health`
+(hourly + `OnBootSec`, pages via `OnFailure=notify-telegram@%n`) already covers
+most of it: the five expected containers by exact name including the ghost pair,
+per-container health status, the n8n API endpoint, ngrok's API + tunnel, disk,
+and predictor data on-disk. §Integration already treats that timer as a *data
+source* rather than something this agent manages — an hourly LLM pass would be
+duplicating it. Uncovered residue: caddy itself, and B2 reachability (caught
+daily instead by `backup.sh`'s warn-counting `[BACKUP]` page — the silent
+June 2026 upload failure is exactly that path). Residue that small is a `curl`
+in the existing health script, not an agent pass: at the measured $0.52/pass,
+24 passes/day is ~$375/month to re-assert what a free shell script already
+checks. **If this is ever revisited, the change belongs in
+`agent-platform-health`, not here.**
+
+**Weekly reflection — blocked on corpus, genuinely pending.** It reads the past
+week's `agent_decisions` rows plus journal patterns for recurrences. On
+2026-07-25 the spine held **2** sysadmin rows, and journal access
+(`systemd-journal`) was granted that same afternoon — so there is no
+journal-informed history to reflect over yet, and reflection across a two-row
+corpus is noise. The cheap half already ships inside the daily pass: every
+finding is rhyme-checked against the ledger and the four canonical case studies
+(pass #2 fired that check on findings 1 and 2). The daily Telegram push is the
+interim stand-in for the weekly digest — `_pass_summary` in
+`pipelines/sysadmin/run.py`, deliberate, so silence means the run failed.
+**Revisit after ~4 weeks of daily rows**, per §Open questions' "resolve once the
+agent runs against real data, not via more design."
+
+**Monthly restore drill — blocked on the B2 key, AND mis-shaped as a pass.** The
+identity gate is real and still open (§Pre-build sweep, Identity: rclone's config
+is root-only, so B2 audits and the drill cannot run as `claude` until the
+read-only audit key is minted). But the deeper problem is architectural and was
+not in the original spec: the drill is specced to replay a dump "into a throwaway
+mysql container," and **this agent cannot create containers** — safety
+constraint 2 forbids autonomous container management, and
+`pipelines/sysadmin/tools.py` refuses every `docker` verb outside the read-only
+allowlist *by construction*, not by prompt discipline. So the drill is not an
+agent pass at all. It is a script + timer (the `backup.sh` /
+`agent-platform-health` shape) whose *result* the agent audits — exactly how it
+audits backup coverage today. **Build it that way, or not at all.**
 
 ---
 
