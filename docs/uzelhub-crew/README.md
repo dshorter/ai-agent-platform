@@ -22,8 +22,8 @@ The first two are paired: per-draft notable moments get logged from the checklis
 
 - **[NEWSROOM.md](NEWSROOM.md)** (`read: full`) — the content operation as a newsroom: the Scout / Writer / Editor org chart, the Scout in full (its sources, session-logs-read-by-cursor, the opaque scratchpad, the redaction gate), content types + editorial cadence, and the v1-vs-mature forks. The **Writer *is* the content agent**; the **Editor *is* the Director's weekly editorial pass**. Read it whole — the Scout spec spans four sections. *(Moved here from `uzelhub-web/marketing/` on 2026-07-12 to sit with the crew; a frozen `NEWSROOM.ARCHIVED.md` stays in that repo for commit history.)* **§Scout shipped as v1 on 2026-07-12** — the walk-and-file fork, operator as editor; see the Scout-leads entry above and the code table below.
 - **[super-flywheel.md](super-flywheel.md)** (`read: full`) — whiteboard sketch (2026-07-13): prompt tuning for agents every __ turns, from their own observability. Three commitments captured — manual approval always, "no changes needed" is a first-class verdict, the Scout is (probably) out (pineapple rule at the meta-level). The manual ancestor is prompt-tuning.md; the content agent is the first patient when built.
-- **[sysadmin-agent-design.md](sysadmin-agent-design.md)** — architectural design for the Sprint One+ Sysadmin / server maintenance agent. Scope boundaries, integration with `safe-reboot` / `backup.timer`, operating loop, tool surface, lessons-learned from the manual 2026-05-26/27 ops work. *What the agent does.*
-- **[server-maintenance-agent-persona.md](server-maintenance-agent-persona.md)** — first-draft persona / prompt-shape for the same agent. Identity, voice (SRE-terse), how-it-thinks principles, what-it-refuses list, three worked examples. Pairs with the design doc. *How the agent acts.* Open questions for the operator at the end.
+- **[sysadmin-agent-design.md](sysadmin-agent-design.md)** — architectural design for the Sysadmin / server maintenance agent. Scope boundaries, integration with `safe-reboot` / `backup.timer`, operating loop, tool surface, lessons-learned from the manual 2026-05-26/27 ops work, and the 2026-07-23 pre-build sweep. *What the agent does.* **§Daily pass built 2026-07-23** (`pipelines/sysadmin/`, code table below); timer install + journal-group grant await the operator (`deploy/systemd/README.md`).
+- **[server-maintenance-agent-persona.md](server-maintenance-agent-persona.md)** — persona / prompt-shape for the same agent (second draft, post-Director). Identity, voice (SRE-terse), the epistemic spine, canonical case studies, what-it-refuses list. Pairs with the design doc. *How the agent acts.* Compiled into code 2026-07-23 as `SYSADMIN_SYSTEM_PROMPT` (condensed working version; this doc stays canonical).
 
 ## Archive
 
@@ -54,6 +54,10 @@ Some things are code-resident by design. Look here:
 | Commit batching | `pipelines/blog_pipeline/commit_batcher.py` |
 | Sequence-aware logging + decision writer | `pipelines/blog_pipeline/logging_context.py` |
 | Decision trace table | `agent_decisions` (Postgres) — populated by `DecisionWriter` |
+| Sysadmin agent prompt | `agents/sysadmin_agent.py` (`SYSADMIN_SYSTEM_PROMPT`; canonical persona is the doc above) |
+| Sysadmin pipeline (tools / passes / selftest) | `pipelines/sysadmin/` — proposals fallback + spine-fallback trace in `pipelines/sysadmin/state/` (gitignored); real proposals home `/var/lib/sysadmin-agent/proposals` |
+| Sysadmin ledger append helper | `ops/ledger-append` (constrained; the calendar-add pattern) |
+| Systemd unit sources (this repo's units) | `deploy/systemd/` — install blocks in its README |
 
 Mermaid rendering lives in **Ghost admin → Settings → Code Injection → Site Footer** (loads `mermaid@11` from CDN). Not a repo artifact.
 

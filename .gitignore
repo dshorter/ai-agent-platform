@@ -32,3 +32,6 @@ tools/mermaid-render/node_modules/
 # Derived calendar views (calendar-views output) — regenerated, never edited
 ops/views/
 pipelines/wire_editor/state/
+# Sysadmin agent state — proposals fallback + spine-fallback trace (reports may
+# cite host detail; the real proposals home is /var/lib/sysadmin-agent)
+pipelines/sysadmin/state/

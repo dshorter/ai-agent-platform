@@ -1,0 +1,22 @@
+[Unit]
+Description=Sysadmin agent — daily reconciliation pass (coverage audit + drift, report to proposals dir)
+After=network-online.target docker.service
+Wants=network-online.target
+# Failure-class push, same pager the rest of the crew uses.
+OnFailure=notify-telegram@%n.service
+
+[Service]
+Type=oneshot
+# User= from day one — the Director-listener template, not the scout-pass gap
+# (a unit without User= runs as root and mints root droppings; ledger, 3-for-3).
+User=claude
+Group=claude
+WorkingDirectory=/opt/ai-agent-platform
+EnvironmentFile=/opt/ai-agent-platform/.env
+# The real proposals home (install block creates it, claude-owned). Unset, the
+# agent falls back to the repo's gitignored state dir.
+Environment=SYSADMIN_PROPOSALS_DIR=/var/lib/sysadmin-agent/proposals
+ExecStart=/opt/ai-agent-platform/.venv/bin/python -m pipelines.sysadmin --pass daily
+# The loop is bounded by iteration + cost + tool-output caps; this is the hard
+# wall-clock backstop so a hung API call can't leave the run open forever.
+TimeoutStartSec=1200

@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""ledger-append — the constrained append helper for the sysadmin ledger.
+
+Write exception 4 of the sysadmin persona (server-maintenance-agent-persona.md
+§Your write exceptions), the calendar-add pattern applied to prose: validated
+shape, never edits prior entries, rate-capped, refuse loudly. Freehand edits of
+the ledger stay operator-only; this is the only sanctioned agent write path.
+
+Rules enforced here:
+  * entries insert NEWEST-FIRST, immediately after the header block's closing
+    `---` — the ledger's read contract (the agent reads a bounded PREFIX, so
+    append-at-bottom would silently lose the newest entries first)
+  * prior text is never modified: this tool does pure insertion, and it
+    verifies the file's before/after tails are byte-identical
+  * shape: `## YYYY-MM-DD — Title` + body; title single-line ≤90 chars;
+    body non-empty ≤8000 chars, read from stdin
+  * duplicate same-day titles are refused (entries are never re-keyed)
+  * rate cap: at most MAX_PER_DAY entries dated today, counted from the file
+    itself (crude but honest — the calendar-add precedent)
+  * the ledger path resolves at CALL time (--ledger to override for tests) —
+    the lead_mark lesson: an import-time default once silently ignored a test
+    override and wrote the real file
+
+Usage:
+  echo "body with receipts" | ledger-append --author sysadmin --title "One line"
+  ledger-append --author operator --title "..." [--date YYYY-MM-DD] [--ledger PATH] < body.md
+"""
+import argparse
+import datetime
+import os
+import re
+import sys
+
+MAX_PER_DAY = 3
+MAX_TITLE = 90
+MAX_BODY = 8000
+HEADER_SENTINEL = "# SysAdmin Agent — Ledger"
+
+
+def default_ledger():
+    # Resolved inside main() at call time, never as an argparse default object.
+    return os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "docs", "uzelhub-crew", "sysadmin-ledger.md",
+    )
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--author", choices=["operator", "sysadmin"], required=True)
+    ap.add_argument("--title", required=True)
+    ap.add_argument("--date", help="YYYY-MM-DD (default: today)")
+    ap.add_argument("--ledger", help="target file (default: the repo ledger)")
+    a = ap.parse_args()
+
+    ledger = a.ledger or default_ledger()
+    date = a.date or datetime.date.today().isoformat()
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", date):
+        sys.exit("REFUSED: --date must be YYYY-MM-DD")
+    title = a.title.strip()
+    if not title or "\n" in a.title:
+        sys.exit("REFUSED: title must be a non-empty single line")
+    if len(title) > MAX_TITLE:
+        sys.exit(f"REFUSED: title exceeds {MAX_TITLE} chars")
+    body = sys.stdin.read().strip()
+    if not body:
+        sys.exit("REFUSED: empty body (pipe the entry text on stdin)")
+    if len(body) > MAX_BODY:
+        sys.exit(f"REFUSED: body exceeds {MAX_BODY} chars — distill; the ledger is curated, not compost")
+    if re.search(r"^#\s", body, re.MULTILINE):
+        sys.exit("REFUSED: body contains a top-level heading — entries use plain text under their own ## header")
+
+    try:
+        text = open(ledger).read()
+    except OSError as exc:
+        sys.exit(f"REFUSED: cannot read ledger: {exc}")
+    if not text.startswith(HEADER_SENTINEL):
+        sys.exit("REFUSED: target does not look like the sysadmin ledger (header sentinel missing)")
+
+    header = f"## {date} — {title}"
+    if header in text:
+        sys.exit(f"REFUSED: an entry with this date and title already exists: {header}")
+
+    today = datetime.date.today().isoformat()
+    todays = len(re.findall(rf"^## {re.escape(today)}\b", text, re.MULTILINE))
+    if a.date is None and todays >= MAX_PER_DAY:
+        sys.exit(f"REFUSED: rate cap — {MAX_PER_DAY} entries already dated today; talk to the operator")
+
+    # Insertion point: after the first standalone `---` (the header block's
+    # closing rule), before the newest existing entry.
+    m = re.search(r"^---\s*$", text, re.MULTILINE)
+    if not m:
+        sys.exit("REFUSED: ledger header closing '---' not found")
+    cut = m.end()
+    entry = f"\n\n{header}\n\n{body}\n"
+    new = text[:cut] + entry + text[cut:]
+
+    # Pure-insertion invariant: everything before and after the cut is untouched.
+    if not (new.startswith(text[:cut]) and new.endswith(text[cut:])):
+        sys.exit("REFUSED: internal error — insertion would have altered existing text")
+
+    with open(ledger, "w") as fh:
+        fh.write(new)
+    print(f"appended: {header} ({a.author})")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,6 +1,6 @@
 # Sysadmin Agent — Design
 
-> **Status:** Draft — informed by manual ops work through 2026-05-27
+> **Status:** BUILT (daily pass) 2026-07-23 — `agents/sysadmin_agent.py` + `pipelines/sysadmin/` + `ops/ledger-append` + `deploy/systemd/sysadmin-daily.*`; timer install + journal group are operator gates (`deploy/systemd/README.md`). Hourly probe, weekly reflection, monthly drill: not yet built. Design history: draft from manual ops through 2026-05-27; pre-build sweep 2026-07-23 folded in the sibling-build lessons and post-07-06 state changes (§Pre-build sweep)
 > **Sprint:** One+ (not yet started; Content/Marketer agents come first)
 > **Relationship to crew:** The Sysadmin agent is the *third* role after Content (Sprint Zero) and Marketer (Sprint Zero). Developer and Solution Engineer agents come after.
 
@@ -65,6 +65,16 @@ None of these are exotic problems. They're all "did the docs keep up with the st
   > but the operator's phone sees a predictor staleness page. Session:
   > `session_01Jmi2eGGfSsh1PML5aGcQRQ` in predictor_ingest, if more context is
   > needed later.
+  >
+  > **Amended 2026-07-23:** the operator ran the install block on 2026-07-22 —
+  > `predictor-daily-{film 06:00, semiconductors 06:45, weapons_detection 07:30}`
+  > plus `predictor-staleness` (6h) are installed, enabled, and firing (the
+  > third domain is weapons_detection, which queue-jumped fusion). The
+  > manual-only carve-out above is history; the audit's job here flips to the
+  > normal one — verify the timers fire and their `OnFailure=` pages. Related
+  > gaps (1) and (2) remain live: the registry note still says "dormant"
+  > (re-verified 2026-07-23), and nobody but the operator's phone sees a
+  > staleness page.
 - **Drift detection between compose files and running containers.** Compare `com.docker.compose.project` labels on running containers against the `docker-compose.yml` files in `/opt/*/`. The current overlap (server-maintenance compose file defines all services but only owns ghost) is exactly the kind of thing this catches.
 - **Backup verification.** Beyond "backup ran without error" — periodic *restore drills* into a scratch directory, confirming files extract and DB dumps are valid (mysqlcheck / pg_dump --schema-only roundtrip). Cadence: monthly.
 - **Recurring incident detection.** If the same failure mode appears in `journalctl` within N days, that's worth a human's attention — not "another auto-restart."
@@ -139,7 +149,7 @@ This is the minimum capability surface. The agent's identity should be a dedicat
 
 > **Decided 2026-07-02.** Motivating incident: the off-site B2 upload failed silently from ~2026-06-09 to 2026-07-02 (storage cap exceeded). Nothing on the box could push "backups are broken" to a human; discovery took a manual audit three weeks later. The proposals directory + a log line is the right channel for *drift*; it is the wrong channel for *failure*.
 >
-> **Implemented 2026-07-02** (helper + backup coverage, ahead of the agent): `/usr/local/sbin/notify-telegram`, config at `/etc/default/notify-telegram` (root:root 600, mirrors `DIRECTOR_TELEGRAM_*` from `/opt/ai-agent-platform/.env` — rotate both together), template unit `notify-telegram@.service`, `OnFailure=` on `backup.service`, and a warn-counting page at the end of `backup.sh`. Shared-channel convention: every message is prefixed `[AGENT]`, uppercased — one chat, many senders. The bot is the same one the Director listens on; this helper only ever sends.
+> **Implemented 2026-07-02** (helper + backup coverage, ahead of the agent): `/usr/local/sbin/notify-telegram`, config at `/etc/default/notify-telegram` (root:root 600 at install — **corrected 2026-07-23:** live mode is 640 root:**claude**, deliberately group-readable so agents running as `claude` can send, per the claude-sender doctrine in server-maintenance `docs/alerting/`; delivery proof is syslog's `sent:` line, never the helper's exit code, which is 0 by design even on failure; mirrors `DIRECTOR_TELEGRAM_*` from `/opt/ai-agent-platform/.env` — rotate both together), template unit `notify-telegram@.service`, `OnFailure=` on `backup.service`, and a warn-counting page at the end of `backup.sh`. Shared-channel convention: every message is prefixed `[AGENT]`, uppercased — one chat, many senders. The bot is the same one the Director listens on; this helper only ever sends.
 
 **Mechanism.** A small shared helper, `/usr/local/sbin/notify-telegram`, wrapping a single Bot API call (`sendMessage`). Bot token + operator chat ID live in `/etc/default/notify-telegram` (root:root, mode 600) — same single-source-of-truth pattern as the env-var lesson below. The agent calls the helper, but so can plain systemd units (`OnFailure=notify-telegram@%n.service`), which means `backup.service` failures get push coverage *before* the agent exists. Build the helper first; it stands alone.
 
@@ -188,11 +198,145 @@ What the design above is reacting to, concretely:
 
 ---
 
+## Pre-build sweep — 2026-07-23
+
+> Final pass before the build: every lesson from the sibling builds (Director,
+> Scout, Writer, Wire Editor) and every box change since this doc's sections
+> were written, checked against the spec. Sources: the Director devlog,
+> NEWSROOM + writer docs, `_host/WORKFLOW.md`, the ledger, commit history in
+> both repos, session transcripts, and live commands run 2026-07-23. The
+> persona's skeleton survives untouched; the deltas below are what the spec
+> was missing.
+
+### The world moved under three sections of this doc
+
+- **Box-native workflow (adopted 2026-07-19; `_host/WORKFLOW.md`, `read: full`).**
+  There are no deploy Actions anymore — all three repos' deploy legs were
+  deleted (`b4f8cfb`, `e0219be`, `344b55a`); push triggers nothing; CI
+  verifies only. Consequences for this spec:
+  - WORKFLOW.md joins the reconciliation corpus beside the `_host` README —
+    it is documented *intent*, same precedence tier.
+  - The coverage audit's GitHub surface changes: dead-deploy-workflow checks
+    are history; the live checks are per-posture drift — dirty files in
+    `predictor_prod` are a bug; uncommitted state in `/opt/uzelhub-web` is
+    production with no undo point (flag trees dirty for days, not minutes);
+    ai-agent-platform's review window is the gap before its next timer fire.
+  - Credential follow-through: the `gha-deploy-20260706` keypair's consumers
+    were retired with the deploy legs. An `authorized_keys` line whose
+    consumer no longer exists is exactly this agent's kind of finding — flag
+    for operator removal, don't assume.
+  - Persona case study 3's fix shape ("three green runs") is now historical
+    context; its lesson (never-succeeded ≠ pipeline) stands.
+- **The 2026-07-20 predictor note is superseded** — see its inline amendment
+  above: timers live 2026-07-22, the audit flips to verify-it-fires-and-pages.
+- **notify-telegram config perms** — see the dated correction in
+  §Notifications; the agent can send as `claude`, no privilege games needed.
+
+### Identity (open question) now has hard data — verified 2026-07-23 as `claude`
+
+Running as `claude` today, the loop is blocked in three of its four data
+sources:
+
+- **Journal-blind:** not in `systemd-journal`/`adm`, so `journalctl` returns
+  nothing system-level. Recurring-incident detection and every "reads journal
+  output" integration are dead until the agent's user gets the group
+  (operator sudo, one line).
+- **gh unauthenticated:** GitHub run history (provider-API precedence rank 2)
+  404s anonymously. Device-flow login for the agent's user at build time.
+- **rclone config is root-only** (`/root/.config/rclone/rclone.conf`): B2
+  audits and the restore drill can't run as claude. Mint the read-only audit
+  key at build and store it under the agent's own identity — don't share
+  root's config.
+- Already working as claude: docker (group), git over SSH, notify-telegram
+  (640 root:claude, verified), and `calendar-mark --author sysadmin`
+  (namespace-enforced, shipped) — `calendar-add` still lacks the author, so
+  the persona's write exception 3 is half-plumbed.
+
+Whatever identity is chosen, the unit file is the Director's proven template
+(`director-listener.service`: `User=`, `Restart=on-failure`,
+`OnFailure=notify-telegram@%n`, `EnvironmentFile=`) — and the counterexample
+runs live today: `scout-pass.service` has no `User=` line, executes as root
+every 05:45, and mints root-owned state files in a public repo (the
+root-droppings law, on a timer).
+
+### Build lessons inherited from the sibling builds
+
+None of these were in this spec; all are proven in production on this box.
+
+1. **Engine: anthropic SDK tool-loop, not the Agent SDK.** The devlog's
+   producer-vs-orchestrator split (2026-06-29) applies: producers (Scout,
+   Writer, content crew) get the batteries-included Agent SDK; agents that
+   live on the spine — sequence-aware logging, cost caps, bounded read-only
+   tools plus constrained write helpers — inherit the Director's loop. This
+   agent is Director-shaped.
+2. **Bound every tool's output at the pipe.** The grep-bomb (`d4af2c3`):
+   never `capture_output=True` on a source that can be huge — read off the
+   pipe with a byte ceiling and a wall-clock kill, clip per result, budget
+   per turn. `journalctl` and `docker logs` are unbounded, and this agent
+   greps them for a living. Inherit `_bounded_output()` wholesale.
+3. **Inject the real clock.** The Director ran a day fast until
+   `gather_state` was stamped (`b57a366`). This agent's entire job is cadence
+   and staleness math; the timestamp goes into the state injection from day
+   one.
+4. **Cache-breakpoint the agentic transcript.** `1a86142`: one moving
+   ephemeral breakpoint on the latest turn cut Director run cost 76%. Same
+   loop shape, same fix.
+5. **Refuse loudly on truncation; stream long calls.** Wire Editor
+   (2026-07-18): thinking tokens ran ~4x the visible output; a call that
+   stops on `max_tokens` must fail the run — a truncated audit never
+   masquerades as an audit. Stream anything that could exceed 10 minutes.
+6. **Model = house default Sonnet 5 behind an env var** (`SYSADMIN_MODEL`),
+   priced in `pricing.py` at birth. The Director's benchmark logic applies
+   unchanged: reconciliation is reasoning-with-tools, not pure coding.
+7. **Survive a Postgres bounce.** `a870515`: reconnect on a dead socket; a DB
+   bounce costs one retried loop, not a dead agent. Pairs with the existing
+   SQLite-fallback open question.
+8. **Helpers resolve paths at call time.** The `lead_mark` regression: an
+   import-time default silently ignored a test override and wrote the real
+   file. `ledger-append` and the proposals writer take their targets at the
+   call.
+9. **`agent_decisions.agent_name` stores the tool name in practice** (the
+   Wire Editor's rows read `wire_triage`/`chief_shadow`, not the agent).
+   Decide this agent's row identity deliberately and query accordingly.
+10. **A pause is an env guard, not a timer edit.** The `SCOUT_PAUSED`
+    pattern: check an env flag, exit 0 so `OnFailure` stays quiet, no root
+    needed. Give this agent the same switch.
+11. **Trust promotions ride a measured shadow, not a calendar.** The Wire
+    Editor's gate-① concordance metric refines the persona's "advisory for 4
+    weeks, then blocking" — promote the safe-reboot preflight (and any future
+    authority) on measured agreement with operator decisions, not
+    time served.
+12. **Push is a publish.** This repo is public and this agent's ledger is
+    tracked. Entries carry unit names and run IDs — never tokens, secrets,
+    or session-transcript material (that stays in gitignored state dirs).
+
+### First-audit targets, logged in advance (found during this sweep)
+
+- **`anthropic-credit-check` is a loaded gun unloaded, today:** the script
+  and path-encoded unit sources exist in `/opt/_host/scripts/` but nothing is
+  installed — `systemctl` finds no such unit (verified 2026-07-23). The
+  billing-class pager believed live since 07-21 isn't. Same sudo gate that
+  held the predictor timers until 07-22.
+- **`uzella-proxy.service` still has no `OnFailure=` pager** (verified
+  2026-07-23) — a crash-loop that exhausts StartLimit pages nobody.
+- **`scout-pass.service` missing `User=claude`** — see Identity above.
+- **`config/director_registry.json` predictor note still reads "currently
+  dormant; ADR-010 plans a restart"** (verified 2026-07-23) — three daily
+  timers and an epoch-2 restart later.
+- **`_host` README "Last verified: 2026-05-27"** — the standing armed drift
+  from the 07-06 ledger entry; the first reconciliation run's job.
+- Residue from the 2026-07-14 safe-reboot drill still open: safe-reboot's
+  stop/status scope covers only the ghost pair; the gating backup's output
+  isn't persisted (exit code + B2 object only); `/var/log/backup.log` is dead
+  since ~07-05 but still logrotated.
+
+---
+
 ## Open questions
 
 These resolve once the agent runs against real data, not via more design.
 
-- **Where does the agent live?** Likely `/opt/ai-agent-platform/agents/sysadmin_agent.py` for code parity with Content/Marketer. Decision pending.
+- **Where does the agent live?** Likely `/opt/ai-agent-platform/agents/sysadmin_agent.py` for code parity with Content/Marketer. Decision pending. **Update 2026-07-23:** parity's other half is decided — engine per §Pre-build sweep item 1 (Director-shaped, anthropic tool-loop); `agents/sysadmin_agent.py` + `pipelines/sysadmin/` stays right for *layout* parity.
 - **Single agent or sub-agent crew?** Could split into Inspector (read-only audit) + Drafter (patch proposals) + Reflector (weekly synthesis). Likely YAGNI for v1; revisit once the manual loop is captured.
 - ~~**Notification channel.**~~ **Resolved 2026-07-02:** Telegram push for failure-class events, proposals directory for everything else — see [Notifications — Telegram push](#notifications--telegram-push). The `notify-telegram` helper is buildable now, ahead of the agent itself.
 - **Postgres-on-agent-decisions vs. SQLite-local.** `agent_decisions` keeps schema parity with the rest of the crew. Cost: the agent depends on hvac-postgres being up, which is exactly the kind of thing it might be diagnosing. Mitigation: light health probes write to a fallback SQLite file under `/var/lib/sysadmin-agent/`.
