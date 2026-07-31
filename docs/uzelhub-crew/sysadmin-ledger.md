@@ -26,6 +26,11 @@
 
 ---
 
+
+## 2026-07-31 — Daily-pass proposals are outliving 3 cycles unapplied, and the ledger doesn't know it
+
+2026-07-31: My own 2026-07-28 daily-pass artifact (`/var/lib/sysadmin-agent/proposals/2026-07-28-daily.md`, via `journalctl -u sysadmin-daily.service`) found: (a) `/opt/predictor_prod` root-owned droppings (occurrence #4 in the root-droppings law), (b) `uzella-proxy.service`/`server-maintenance.service` missing `OnFailure=`, (c) `monitor.sh` running on a trigger invisible to the claude user, (d) `uzelhub-web` off `main` on `content/voice-rework`. Re-checking live on 2026-07-31: (a) is fixed (`find /opt/predictor_prod -user root` clean — good, proposal P1 was applied). (b), (c), (d) are **all still unapplied**, and (d) has worsened (branch now also 22 files dirty, 11 commits ahead of a `main` that hasn't moved since 2026-07-21). Root cause of the blind spot: the ledger (this file) has not been appended to since 2026-07-13, so daily-pass findings after that date live only in per-day proposal files under `/var/lib/sysadmin-agent/proposals/`, which the read contract doesn't route through the rhyme-check step. A finding can recur for a week and still get reported as fresh, or worse, an applied fix (predictor_prod chown) can go unconfirmed as applied because nothing marks proposals as closed. Separately, `sysadmin-daily.service` failed loudly and correctly on 2026-07-29 (`TruncatedRunError`, `journalctl -u sysadmin-daily.service --since 2026-07-29`) — the failure-handling design works, but it means that day's proposals file (`2026-07-29-daily.md`) never existed, a silent one-day gap in the very audit trail this entry depends on. **Proposed remediation (for the weekly pass, not mine to apply unilaterally):** either (1) fold each daily proposals file's still-open items into this ledger on some cadence (weekly compaction, per this file's own write contract), or (2) give `ledger-append` (once built) a "still open as of <date>" bump so unapplied proposals accrue visible age instead of resetting to "novel" each morning.
+
 ## 2026-07-13 (afternoon) — Every push to main was bouncing the stack; three-layer fix
 
 **Symptom:** operator's Telegram turn to the Director failed with a disconnect
