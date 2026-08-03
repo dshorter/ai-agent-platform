@@ -35,3 +35,5 @@ pipelines/wire_editor/state/
 # Sysadmin agent state — proposals fallback + spine-fallback trace (reports may
 # cite host detail; the real proposals home is /var/lib/sysadmin-agent)
 pipelines/sysadmin/state/
+# Ops desk — assembled served root (symlinks + generated entry point)
+ops/desk/
