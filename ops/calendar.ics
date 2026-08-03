@@ -713,4 +713,328 @@ DESCRIPTION:Apply 2x doc budget to predictor_ingest film + semiconductors
 TRIGGER:-P1D
 END:VALARM
 END:VTODO
+BEGIN:VTODO
+UID:diagnose-predictor-failing-tests@ai-agent-platform
+DTSTAMP:20260728T230406Z
+DUE;VALUE=DATE:20260804
+STATUS:NEEDS-ACTION
+SUMMARY:Diagnose 26 failing predictor unit tests
+DESCRIPTION:Pre-existing on clean main\, confirmed 2026-07-28 via git stas
+ h + re-run (not caused by working-tree changes). Run in /opt/predictor_in
+ gest: venv/bin/pytest tests/ -m 'not network and not llm_live' -q  ->  26
+  failed\, 642 passed\, 27 deselected. By file: test_extract 8\, test_sche
+ ma 6 (incl. 3 movers-schema tests)\, test_resolve 4\, test_integration 3\
+ , test_source_type 2\, test_llm_eval 2\, test_retry_and_repair 1. Goal: s
+ eparate real src/ regressions from stale test expectations that drifted. 
+ Note pytest is not on PATH - use venv/bin/pytest.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Diagnose 26 failing predictor unit tests
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-sept-2026-pricing-and-consumption@ops.ai-agent-platform
+DTSTAMP:20260802T182749Z
+DUE;VALUE=DATE:20260828
+STATUS:CANCELLED
+SEQUENCE:1
+SUMMARY:Predictor: reset consumption + reprice BEFORE Sonnet 5 intro prici
+ ng ends
+DESCRIPTION:HARD DEADLINE: Sonnet 5 introductory pricing ($2/$10 per MTok)
+  ends 2026-08-31\; standard ($3/$15) starts Sept 1\, a +50% jump on the h
+ eadline rate. Sonnet 5's tokenizer emits ~30% more tokens than 4.6\, so t
+ he intro discount has been roughly cancelling that out -- from Sept 1 the
+  same work costs ~30% more than it did on Sonnet 4.6. TWO ACTIONS\, both 
+ domains (film + semiconductors): (1) set doc consumption to the level Dan
+  specified -- CONFIRM THE NUMBER\; the 2x bump fires 2026-08-02 and this 
+ is the follow-up change. (2) Update cost assumptions and any budget guard
+ s for $3/$15. Context: ops/desk/triage-2026-07-31.md
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: reset consumption + reprice BEFORE Sonnet 5 intro p
+ ricing ends
+TRIGGER:-P3D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-sept1-2x-to-1x@ops.ai-agent-platform
+DTSTAMP:20260802T183100Z
+DUE;VALUE=DATE:20260831
+STATUS:CANCELLED
+SEQUENCE:1
+SUMMARY:Predictor: cut film + semis 2x -> 1x\, timed to Sonnet 5 price ris
+ e (do NOT do early)
+DESCRIPTION:ACTION on 2026-08-31 evening\, in effect BEFORE the 06:00 ET r
+ un on Sept 1. Cut doc consumption from 2x back to 1x on BOTH film and sem
+ iconductors\, timed to Sonnet 5 introductory pricing ending 2026-08-31 ($
+ 2/$10 per MTok -> standard $3/$15\, a +50% rate jump). DO NOT CUT EARLY: 
+ every day through Aug 31 runs 2x at the discounted rate\, so cutting soon
+ er throws away cheap capacity for no saving. NET EFFECT: 2x-at-intro vs 1
+ x-at-standard works out ~25% BELOW today's spend\, so this slightly over-
+ corrects\; 1.33x would hold spend flat if level is the goal rather than a
+  cut. ALSO NOTE: 1x on Sonnet 5 standard still costs ~30% MORE than 1x di
+ d on Sonnet 4.6\, because Sonnet 5's tokenizer emits ~30% more tokens for
+  the same text -- going back to 1x does not return you to the old baselin
+ e. Second action: update cost assumptions and any budget guards for $3/$1
+ 5. Context: ops/desk/triage-2026-07-31.md. Supersedes cancelled predictor
+ -sept-2026-pricing-and-consumption@ops.ai-agent-platform
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: cut film + semis 2x -> 1x\, timed to Sonnet 5 price
+  rise (do NOT do early)
+TRIGGER:-P3D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-sept1-hold-net-cost@ops.ai-agent-platform
+DTSTAMP:20260802T183114Z
+DUE;VALUE=DATE:20260831
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor: cut film + semis 2x -> ~0.75x on Sept 1 to hold net cos
+ t flat (do NOT do early)
+DESCRIPTION:GOAL (Dan\, 2026-08-02): the 2x intake bump exists to exploit 
+ Sonnet 5 introductory pricing. When intro pricing ends 2026-08-31\, retur
+ n NET COST to roughly where it was before -- the goal is flat spend\, not
+  a fixed volume. ACT on 2026-08-31 evening\, in effect BEFORE the 06:00 E
+ T run on Sept 1. DO NOT CUT EARLY: every day through Aug 31 is 2x at the 
+ discounted rate\; cutting sooner discards cheap capacity for no saving. T
+ HE NUMBER IS ~0.75x\, NOT 1x. Reverting to 1x lands ~30% ABOVE the pre-mi
+ gration baseline\, because Sonnet 5's tokenizer emits ~30% more tokens fo
+ r the same text -- that increase is structural and survives any volume ch
+ ange. Normalized to 1.00 = 1x on Sonnet 4.6: pre-migration 1.00\; pre-bum
+ p on S5 intro 0.87\; today at 2x 1.73\; Sept 1 at 1x 1.30\; Sept 1 at 0.7
+ 5x 0.98 (flat)\; Sept 1 at 0.67x 0.87 (matches the S5 intro period instea
+ d). Use 0.75x for flat-vs-pre-migration\, 0.67x for flat-vs-intro-period.
+  Second action: update cost assumptions and budget guards for $3/$15. Con
+ text: ops/desk/triage-2026-07-31.md. Supersedes cancelled predictor-sept1
+ -2x-to-1x@ops.ai-agent-platform
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: cut film + semis 2x -> ~0.75x on Sept 1 to hold net
+  cost flat (do NOT do early)
+TRIGGER:-P3D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:unified-token-cost-report@ops.ai-agent-platform
+DTSTAMP:20260802T224317Z
+DUE;VALUE=DATE:20260901
+STATUS:NEEDS-ACTION
+SUMMARY:Build unified token-cost report shortcut across all projects
+DESCRIPTION:Deferred 2026-08-02 (explicitly not-today). Token costs are tr
+ acked 100% per-project\; want one shortcut rolling spend into a single vi
+ ew. Start by inventorying formats: predictor logs per-stage usage in data
+ /logs/<domain>/pipeline_*.json\; crew/director stack has its own. Context
+ : batch extraction max_tokens doubled 16384->32000 on 2026-08-02\, so dri
+ ft visibility matters more. Due date is a review nudge\, not a deadline.
+END:VTODO
+BEGIN:VTODO
+UID:activate-ask-tracing@ai-agent-platform
+DTSTAMP:20260803T003301Z
+DUE;VALUE=DATE:20260803
+STATUS:NEEDS-ACTION
+SUMMARY:Restart uzella-proxy to activate ask decision-tracing
+DESCRIPTION:Built + verified 2026-08-02: lib/ask-trace.js\, db/002_ask_dec
+ isions.sql (ask_writer role\, INSERT-only)\, 18 unit tests green. The run
+ ning process is 5 days old and still writes no trace. Operator step\, nee
+ ds interactive sudo: sudo systemctl restart uzella-proxy && curl -s local
+ host:3001/api/uzella/health. Then any product-page question appears as as
+ k.<product> in agent_decisions.
+END:VTODO
+BEGIN:VTODO
+UID:agent-portrait-images@ai-agent-platform
+DTSTAMP:20260803T025521Z
+DUE;VALUE=DATE:20260803
+STATUS:COMPLETED
+COMPLETED:20260803T025521Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
+RELATED-TO;RELTYPE=PARENT:revamp-agents-pages@ai-agent-platform
+SUMMARY:Drop the per-agent images into marketing/img/agents/
+DESCRIPTION:Operator has an image per agent. Convention path: marketing/im
+ g/agents/<agent-slug>.(svg|png|jpg|jpeg|webp)\, a sibling of img/notes/ s
+ o agent slugs cannot collide with product slugs. The generator's autoImag
+ e() wiring for the agents collection lands with the agents home page. NOT
+ E: marketing/ is the live docroot\, so files are publicly reachable the m
+ oment they are copied in.
+END:VTODO
+BEGIN:VTODO
+UID:studio-terminal-disposition@ai-agent-platform
+DTSTAMP:20260803T003301Z
+DUE;VALUE=DATE:20260807
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=PARENT:revamp-agents-pages@ai-agent-platform
+SUMMARY:Decide the Studio terminal's fate (the retired persona still answe
+ ring)
+DESCRIPTION:Found 2026-08-02: the persona retirement is apex-only. studio.
+ uzelhub.com (index.html:592) still calls POST /api/uzella with the embedd
+ ed SYSTEM_PROMPT at uzella-proxy.js:31\, on hardcoded claude-sonnet-4-5 (
+ two generations stale)\, with no prompt cache\, no budget cap and no deci
+ sion trace. Options: finish the retirement (point it at the pack endpoint
+  or drop it)\, bring it up to the apex standard\, or log-only for now. Op
+ erator deferred until the agents-home design lands\, since whether it is 
+ a presented agent may change the answer.
+END:VTODO
+BEGIN:VTODO
+UID:ask-question-text-logging-decision@ai-agent-platform
+DTSTAMP:20260803T003301Z
+DUE;VALUE=DATE:20260810
+STATUS:NEEDS-ACTION
+SUMMARY:Decide whether ask questions get logged as text (privacy-policy ch
+ ange first)
+DESCRIPTION:The ask trace deliberately records metrics only: model\, token
+ s\, cache counters\, cost\, latency\, product\, turn\, answer length. No 
+ question text\, no answer text\, no IP. marketing/privacy.html discloses 
+ the contact form's collection and nothing else\, so storing what visitors
+  type would be undisclosed collection. Question text is the more useful s
+ ignal for tuning the packs\, so this is a real decision: policy wording f
+ irst\, then the code.
+END:VTODO
+BEGIN:VTODO
+UID:proxy-loadpack-test-coverage@ai-agent-platform
+DTSTAMP:20260803T003301Z
+DUE;VALUE=DATE:20260808
+STATUS:NEEDS-ACTION
+SUMMARY:Test the proxy's untested validators (loadPack path-traversal guar
+ d\, sanitizeMessages)
+DESCRIPTION:services/uzella-proxy gained its first tests 2026-08-02 (18\, 
+ on lib/ask-trace.js). Everything else stays untested\, including two secu
+ rity-relevant validators: loadPack's /^[a-z0-9-]+$/ slug check is a path-
+ traversal guard\, and sanitizeMessages bounds untrusted public input. The
+  whole contact endpoint (public write path\, PII) is also uncovered. Need
+ s the same extract-to-lib treatment\, since uzella-proxy.js calls app.lis
+ ten() at module scope and cannot be imported by a test.
+END:VTODO
+BEGIN:VTODO
+UID:land-voice-rework-branch@ai-agent-platform
+DTSTAMP:20260803T050147Z
+DUE;VALUE=DATE:20260804
+STATUS:COMPLETED
+COMPLETED:20260803T050147Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
+SUMMARY:Land content/voice-rework: uzelhub-web has been serving uncommitte
+ d work since 07-28
+DESCRIPTION:The apex docroot IS the working tree\, and it sits on content/
+ voice-rework: 11 commits ahead of a main frozen at 2026-07-21\, plus dirt
+ y files (voice/copy rework\, hero mk-stats in the generator\, release.js 
+ --next\, and now the ask-trace work). Production with no undo point. The 
+ sysadmin daily pass has flagged it since 2026-07-28 and it has recurred u
+ nclosed. Review the copy diff\, commit\, merge to main\, get prod clean.
+END:VTODO
+BEGIN:VTODO
+UID:seed-voice-bottle-sample@ai-agent-platform
+DTSTAMP:20260803T004746Z
+DUE;VALUE=DATE:20260806
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=PARENT:land-voice-rework-branch@ai-agent-platform
+SUMMARY:Drop the operator writing sample into the Writer's voice bottle
+DESCRIPTION:Path: /opt/ai-agent-platform/voice/<profile>/samples/<any-file
+ name>. For the existing apex field-note register that is voice/man-page-d
+ ry/samples/ (today holds exactly one exemplar\, silent-backup-failure.jso
+ n\, harvested from the first published note). For a register the box has 
+ not spoken yet\, create a new voice/<profile>/ with samples/ plus a thin 
+ moves.md — a new voice is authored by dropping files\, no code. The loade
+ r (pipelines/writer/bottle.py) globs samples/* in sorted order and impose
+ s no schema: a .json sample renders as JSON\, a .md sample as prose\, so 
+ a prose sample is fine. Prefix filenames to control order if it matters. 
+ NOTE voice/ is TRACKED in ai-agent-platform\, whose origin is PUBLIC — a 
+ push publishes the sample\, so decide deliberately if it is unpublished p
+ ersonal writing. Doctrine: samples carry the voice\, name the moves spari
+ ngly (resist expanding moves.md). NOT the same thing as marketing/VOICE.m
+ d\, which is apex copy doctrine for humans and has no samples mechanism.
+END:VTODO
+BEGIN:VTODO
+UID:ask-assistant-icon@ai-agent-platform
+DTSTAMP:20260803T030052Z
+DUE;VALUE=DATE:20260806
+STATUS:COMPLETED
+COMPLETED:20260803T030052Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
+RELATED-TO;RELTYPE=PARENT:revamp-agents-pages@ai-agent-platform
+SUMMARY:Last agent icon: the ask assistant (8 of 9 landed)
+DESCRIPTION:marketing/img/agents/ holds 8 of 9 as of 2026-08-02: director\
+ , scout\, writer\, editor\, wire-editor\, sysadmin\, content-agent\, mark
+ eter-agent. Missing: ask-assistant. Spec + tooling in marketing/img/READM
+ E.md\; run scripts/prepare-agent-art.py (needs a throwaway Pillow venv). 
+ House rules: round head no features\, facing right\, torso at a desk with
+  no legs\, whole composition inside the frame\, flat fills not shaded ren
+ ders. A speech bubble or headset would name the job. Do NOT reintroduce t
+ he retired 'uzella' name in the filename or the art.
+END:VTODO
+BEGIN:VTODO
+UID:ask-assistant-reshoot@ai-agent-platform
+DTSTAMP:20260803T031605Z
+DUE;VALUE=DATE:20260808
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=PARENT:revamp-agents-pages@ai-agent-platform
+SUMMARY:Reshoot the ask-assistant icon (current file is a knowing placehol
+ der)
+DESCRIPTION:marketing/img/agents/ask-assistant.png is in place but flawed\
+ , kept deliberately as a placeholder 2026-08-02. Defects: (1) two overlap
+ ping speech bubbles with the second cut flat at the frame edge - they ove
+ rlap\, so cropping cannot separate them\; (2) the second bubble's tail po
+ ints down-RIGHT\, away from the figure\, reading as an absent speaker ges
+ turing off the page\; (3) no arm\, where all eight other icons show a han
+ d engaged with its prop\, which is what makes them read as an agent doing
+  a job. KEEP on reshoot: the frontal bust (the deliberate exception to fa
+ cing-right - the only agent a visitor talks to should face the reader) an
+ d no 'uzella' name. Spec: one bubble\, tail pointing down-left into the f
+ igure\, an arm raised toward it\, whole composition inside the frame with
+  margin. Full rules + tooling: marketing/img/README.md\, scripts/prepare-
+ agent-art.py.
+END:VTODO
+BEGIN:VTODO
+UID:redirect-retired-agent-crew@ai-agent-platform
+DTSTAMP:20260803T035505Z
+DUE;VALUE=DATE:20260804
+STATUS:NEEDS-ACTION
+SUMMARY:301 /products/agent-crew.html -> /agents/ (retired page now 404s)
+DESCRIPTION:The Agent Crew product page was retired 2026-08-02 when /agent
+ s/ shipped: record removed from data/products.json\, generated page delet
+ ed\, ask grounding (data/ask/agent-crew.md) and context pack (services/uz
+ ella-proxy/packs/agent-crew.txt) removed\, and the three promotion-survey
+  nodes that pointed at it repointed to marketing:agents\, marketing:agent
+ s#director and marketing:agents/newsroom#content-agent. The URL had been 
+ live roughly a month\, so it wants a 301 rather than a 404. Needs a Caddy
+ file edit inside the uzelhub.com block plus a reload - operator only\, no
+  non-interactive sudo available. Pattern to follow: the existing 'redir /
+ content/* https://studio.uzelhub.com{uri} permanent' line in the same blo
+ ck.
+END:VTODO
+BEGIN:VTODO
+UID:scout-sources-deep-dive@ai-agent-platform
+DTSTAMP:20260803T101203Z
+DUE;VALUE=DATE:20260817
+STATUS:NEEDS-ACTION
+SUMMARY:Deep dive: the Scout's full source list (raw material already gath
+ ered)
+DESCRIPTION:The agents page names sources in one clause on purpose\; the f
+ ull breakout is a deep dive for later. Findings from code 2026-08-03\, so
+  it need not be re-derived. TWO KINDS. (1) The ore\, read linearly by cur
+ sor: session transcripts in scout_session_log — Claude Code on this box (
+ 20 sessions\, 1\,234 turns\, 06-03 to 08-02) plus Codex from the work mac
+ hine (39 sessions\, 9\,118 turns\, 01-21 to 07-07). 10\,352 turns total\;
+  cursor at seq 11205 had read 9\,435 of them\, 91.1 percent\, 917 unread.
+  This is the ONLY cursored source and its only job is coverage. (2) Free 
+ roam\, cursor-free\, temporally bidirectional\, per SCOUT_SYNTHESIS_PROMP
+ T which says no rotation\, no quotas\, and ignoring all of them is legiti
+ mate: read-only git log/show/blame across the three registered roots in c
+ onfig/director_registry.json (predictor_ingest\, uzelhub-web\, ai-agent-p
+ latform)\; agent_decisions via cross_agent_sequences() in pipelines/scout
+ /sources.py\, selecting runs whose rows span more than one agent — that i
+ s how 'stories live at the seams between agents' is actually computed\, n
+ ot a metaphor\; design docs and personas and devlogs\; the sysadmin ledge
+ r\, ops/calendar.ics\, and marketing/promotion-survey.yaml. Reads sandbox
+ ed to the registered roots\, .. and symlink escapes refused\, credential 
+ files refused. THE LINE WORTH BUILDING THE PIECE AROUND: coverage is line
+ ar (cursor)\, investigation is not (free roam) — a forward-only pointer o
+ ver docs and git would close the aperture in time\, which the design forb
+ ids. TWO CAUTIONS if any of this goes public: the 91.1 percent is live an
+ d drifts\, so generate it or phrase it unstaleable\; and naming the work 
+ machine as a source touches employer confidentiality\, a separate gate fr
+ om the PII scrub.
+END:VTODO
 END:VCALENDAR

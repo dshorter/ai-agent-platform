@@ -27,6 +27,39 @@
 ---
 
 
+
+## 2026-08-03 — uzelhub-web is back on main and clean — the 07-28 finding is closed
+
+The daily pass flagged this from 2026-07-28 onward and it recurred unclosed for
+six days: /opt/uzelhub-web sitting on content/voice-rework, 11 commits ahead of
+a main frozen at 2026-07-21, working tree dirty. Because the apex docroot IS
+that working tree, the dirty files were simultaneously the live site and the
+only copy of them.
+
+Resolved 2026-08-03. The day's work was committed in two commits (b6390d9 the
+ask endpoint's decision trace, 2186983 the Agents section plus the Agent Crew
+retirement), the branch was pushed, PR #48 merged to main as 3e31928, and the
+box was moved onto main and fast-forwarded.
+
+Two things worth keeping from how it was done, both about the specific hazard of
+a working tree that is also a docroot:
+
+1. The tree comparison came BEFORE the checkout. origin/main's tree was verified
+   byte-identical to the branch tip first, which made switching branches a
+   guaranteed content no-op on a live docroot. GitHub used a merge commit rather
+   than a fast-forward, so this was worth checking rather than assuming — a merge
+   commit of a fast-forwardable branch keeps the tree, but that is a property to
+   confirm, not to trust.
+2. CI's exact gate was run locally before committing: regenerate, then
+   git diff --exit-code over marketing + packs excluding sitemap.xml. The
+   workflow only triggers on push to main, so a failure would have landed AFTER
+   the merge, on the branch that is production.
+
+Still open and operator-only: uzella-proxy needs a restart before the new ask
+decision-tracing records anything (the running process predates it), and
+/products/agent-crew.html now 404s where it wants a 301 to /agents/ — a
+Caddyfile edit, tracked as redirect-retired-agent-crew@ai-agent-platform.
+
 ## 2026-07-31 — Daily-pass proposals are outliving 3 cycles unapplied, and the ledger doesn't know it
 
 2026-07-31: My own 2026-07-28 daily-pass artifact (`/var/lib/sysadmin-agent/proposals/2026-07-28-daily.md`, via `journalctl -u sysadmin-daily.service`) found: (a) `/opt/predictor_prod` root-owned droppings (occurrence #4 in the root-droppings law), (b) `uzella-proxy.service`/`server-maintenance.service` missing `OnFailure=`, (c) `monitor.sh` running on a trigger invisible to the claude user, (d) `uzelhub-web` off `main` on `content/voice-rework`. Re-checking live on 2026-07-31: (a) is fixed (`find /opt/predictor_prod -user root` clean — good, proposal P1 was applied). (b), (c), (d) are **all still unapplied**, and (d) has worsened (branch now also 22 files dirty, 11 commits ahead of a `main` that hasn't moved since 2026-07-21). Root cause of the blind spot: the ledger (this file) has not been appended to since 2026-07-13, so daily-pass findings after that date live only in per-day proposal files under `/var/lib/sysadmin-agent/proposals/`, which the read contract doesn't route through the rhyme-check step. A finding can recur for a week and still get reported as fresh, or worse, an applied fix (predictor_prod chown) can go unconfirmed as applied because nothing marks proposals as closed. Separately, `sysadmin-daily.service` failed loudly and correctly on 2026-07-29 (`TruncatedRunError`, `journalctl -u sysadmin-daily.service --since 2026-07-29`) — the failure-handling design works, but it means that day's proposals file (`2026-07-29-daily.md`) never existed, a silent one-day gap in the very audit trail this entry depends on. **Proposed remediation (for the weekly pass, not mine to apply unilaterally):** either (1) fold each daily proposals file's still-open items into this ledger on some cadence (weekly compaction, per this file's own write contract), or (2) give `ledger-append` (once built) a "still open as of <date>" bump so unapplied proposals accrue visible age instead of resetting to "novel" each morning.
