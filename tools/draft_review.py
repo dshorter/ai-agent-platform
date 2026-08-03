@@ -481,6 +481,8 @@ function render(){
     L.push('');
     L.push('# Later, one per release day \\u2014 from /opt/uzelhub-web:');
     L.push('node marketing/release.js --next');
+    L.push('# then record the release in the lead ledger \\u2014 from /opt/ai-agent-platform:');
+    L.push('.venv/bin/python tools/reconcile_published.py');
     L.push('#   releases the head of the queue, in the order above:');
     up.forEach((c,i) => L.push('#     ' + (SLOTS[i] || 'later') + '  ' + c.dataset.slug));
   }
