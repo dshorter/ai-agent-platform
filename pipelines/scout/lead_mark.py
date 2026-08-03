@@ -6,8 +6,19 @@ philosophy applied to pipelines/scout/state/leads.yaml:
 Applies exactly one forward-only lifecycle transition to exactly one lead:
 
     new ──> claimed ──> drafted ──> approved ──> published
-     │         │
-     └────────>└──> spiked
+     │         │           │
+     │         │           └──> rejected   (the draft isn't good enough)
+     └────────>└──> spiked                 (the lead isn't worth pursuing)
+
+`spiked` and `rejected` are deliberately distinct verdicts, not one state with
+two names. Spiking says the story was never worth telling; rejecting says it
+was, and the draft failed it. Only the second is a signal about the Writer, and
+keeping them apart is what lets the ledger answer "how often does the Writer
+produce something unusable" — the metric that says whether the voice bottle is
+maturing. Collapsing them would throw exactly that away. (Added 2026-08-03:
+the draft review desk had been emitting `--to spiked` for drafts, which was
+refused every time, because until now there was no verdict for a bad draft at
+all.)
 
 Each mark flips the status line and inserts a dated provenance stamp
 (`<state>_on: YYYY-MM-DD (<actor>)`) directly after it — stamps accumulate,
@@ -44,6 +55,11 @@ TRANSITIONS = {
     "spiked": ({"new", "claimed"}, "editor"),
     "drafted": ({"claimed"}, "writer"),
     "approved": ({"drafted"}, "editor"),
+    # A drafted lead can be sent back as well as forward. `rejected` is
+    # terminal like `spiked` — a redraft re-uses `drafted` (run.py already
+    # permits redrafting from `drafted`), so this is for "stop here", not
+    # "try again".
+    "rejected": ({"drafted"}, "editor"),
     "published": ({"approved"}, "publisher"),
 }
 

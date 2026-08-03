@@ -431,7 +431,12 @@ trend in hands-on minutes per story, not by the first story's cost.
   The routing desk's ledger turned out to be the Scout's leads file
   (`pipelines/scout/state/leads.yaml`; lifecycle since 2026-07-18:
   `new → claimed → drafted → approved → published`, `spiked` from
-  new|claimed, all transitions via the `lead_mark` verb with dated stamps —
+  new|claimed, **`rejected` from drafted** (added 2026-08-03 — until then there
+  was no verdict for "the draft isn't good enough", so the review desk's
+  thumbs-down emitted an illegal transition and was refused every time;
+  `spiked` and `rejected` stay distinct because only the second is a signal
+  about the *Writer*, and that is the metric that says whether the voice bottle
+  is maturing), all transitions via the `lead_mark` verb with dated stamps —
   publishing-automation-plan.md Phase 1) —
   the build chose the ledger pattern over the survey's `featured:` field, which
   stays the *marketing-promotion* queue, a different desk. Producer-vs-

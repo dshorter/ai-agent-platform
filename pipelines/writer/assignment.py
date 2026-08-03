@@ -3,7 +3,8 @@
 The Writer READS the ledger here and never writes it freehand — its one
 sanctioned write is the `drafted` stamp via lead_mark after banking a draft
 (leads.py contract: new -> claimed -> drafted -> approved -> published,
-spiked from new|claimed; all transitions via lead_mark). Unlike the Scout's
+spiked from new|claimed, rejected from drafted; all transitions via lead_mark).
+Unlike the Scout's
 load_pitched (which deliberately reads ids+pitches only, per the pineapple
 rule), the Writer legitimately reads whole leads: an assignment IS the full
 record, status included. The pineapple rule protects the prospector's

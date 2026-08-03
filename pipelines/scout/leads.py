@@ -5,7 +5,7 @@ flat-YAML parser). The Scout APPENDS leads with status: new and never edits
 existing entries. The Editor flips status. Two contracts enforced in code,
 not just prose:
 
-  - Pineapple rule: dedup reads ids + pitches ONLY. Statuses (claimed/spiked)
+  - Pineapple rule: dedup reads ids + pitches ONLY. Statuses (claimed/spiked/rejected)
     are never loaded, so an Editor spike cannot become Scout feedback.
   - copyDraft discipline: every lead carries provenance (model, filed date)
     and `redaction: required` — nothing sourced from session logs publishes
@@ -26,7 +26,9 @@ HEADER = """\
 #   - The Scout appends leads with status: new. It never edits or removes entries.
 #   - Lifecycle (forward-only, one dated stamp per transition, mutations ONLY
 #     via `python -m pipelines.scout.lead_mark`, never freehand):
-#       new -> claimed -> drafted -> approved -> published;  spiked from new|claimed
+#       new -> claimed -> drafted -> approved -> published;  spiked from new|claimed;
+#       rejected from drafted (the draft failed; distinct from spiked, which
+#       means the lead was never worth pursuing)
 #     Editor claims/spikes/approves; the writer pipeline stamps drafted;
 #     the publish step stamps published. Drafted leads may be redrafted.
 #   - Spikes are NOT feedback. The Scout reads back ids + pitches only (dedup);

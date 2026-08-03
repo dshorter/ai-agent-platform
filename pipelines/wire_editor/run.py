@@ -118,7 +118,7 @@ def _artifact(
         f"# Wire Editor proposals — {stamp:%Y-%m-%d %H:%M} "
         f"(wire: {config.wire_model}, chief shadow: {config.chief_model})",
         "# Apply verdicts (the operator's pen, the artifact never self-applies):",
-        "#   python -m pipelines.scout.lead_mark <id> --to claimed|spiked --by editor",
+        "#   .venv/bin/python -m pipelines.scout.lead_mark <id> --to claimed|spiked --by editor",
         "# Concordance report: python -m pipelines.wire_editor --concordance",
         f"date: {stamp:%Y-%m-%d}",
         "clusters:",
@@ -152,7 +152,7 @@ def run_pass(config: WireEditorConfig, dry_run: bool = False) -> dict:
         return summary
     context = {
         s: [l["id"] for l in leads if l.get("status") == s]
-        for s in ("claimed", "drafted", "approved", "published", "spiked")
+        for s in ("claimed", "drafted", "approved", "published", "spiked", "rejected")
     }
     new_by_id = {l["id"]: l for l in new}
 
@@ -255,7 +255,11 @@ def concordance(config: WireEditorConfig) -> str:
             st = lead.get("status", "new")
             if st in ("new",):
                 continue  # operator hasn't disposed yet
-            # operator's verdict, collapsed to the proposal vocabulary
+            # Operator's verdict, collapsed to the proposal vocabulary. Only
+            # `spiked` counts as a spike: `rejected` means the lead WAS claimed
+            # and the resulting draft failed, which is a verdict on the Writer,
+            # not on this desk's routing. Folding it into "spike" would score
+            # the Wire Editor down for a call it got right.
             op = "spike" if st == "spiked" else "claim"
             decided += 1
             agree_w += op == wire_v
