@@ -362,6 +362,26 @@ only one of which is "descriptions on content":
 5. **Off-page** — backlinks, Search Console submit/monitor. Currently manual
    operator aftercare; eventual Editor/Director duty.
 
+**Who holds layer 2, per surface (resolved 2026-08-03; operator delegated
+"whichever is simpler").** "Per-item text — the marketer's job" above is a
+ROLE statement, and it was getting read as an AGENT one — a conflation,
+because the marketer *agent* is dedicated to the Ghost blog and bakes in a
+Ghost-authoritative canonical model (§Reuse vs fork) that inverts for apex
+notes. The assignment, per surface:
+- **Blog:** the marketer agent, unchanged.
+- **Notes:** the **Writer** — already true in code, now stated as doctrine:
+  title, tagline and metaDescription are REQUIRED fields of every draft
+  (`tools/promote_draft.py` refuses without them), written in-register and
+  reviewed at gate ② with the rest of the copy. Nothing to build.
+- **The "newsroom marketer" seat is real but future.** Its first genuine
+  duty is layer 4 — internal links / topic clusters over the notes corpus —
+  which at two live notes has nothing to select from. Build it from the
+  shared-lib mechanics (§Reuse vs fork) once the corpus is big enough that
+  link selection matters, not before (the batch-arc-finder rule: don't
+  build it on spec). Pointing the blog marketer at both surfaces was
+  considered and declined — retooling its canonical model per-sink is the
+  *larger* structural change, not the smaller one it looks like.
+
 **The unowned charter + the guardrail:** the Editor is the SEO strategist,
 because link-vs-copy routing *is* canonical placement. A content flywheel is a
 cannibalization machine if unguarded, so: **every story has exactly one
@@ -415,7 +435,10 @@ trend in hands-on minutes per story, not by the first story's cost.
 - **Marketer:** unchanged, and stays **dedicated to the Ghost blog** (see
   "Reuse vs fork"). Its extraction *technique* is what the Scout reuses via a
   shared lib — **not** the marketer agent itself, which bakes in a
-  Ghost-authoritative canonical model.
+  Ghost-authoritative canonical model. (Per-surface SEO assignment resolved
+  2026-08-03 — the Writer holds the notes' per-item text; a "newsroom
+  marketer" seat opens when the notes corpus earns a link graph. See §SEO
+  duties.)
 - **Editor:** operator today → the Director's designed weekly editorial pass.
   **Topology settled 2026-07-18: the triage half of that pass is a hired
   desk, the Wire Editor** (publishing-automation-plan.md Phase 2) — reads
