@@ -106,3 +106,24 @@ def test_page_orders_claims_first_and_never_emits_agent(tmp_path):
     # the human's pen: the desk must never paste an agent-attributed verdict
     assert "--agent" not in page
     assert "--by editor" in page
+
+
+def test_merge_later_artifact_wins(tmp_path):
+    """Backlogs page across artifacts (the 64k ceiling forced --limit), so
+    the desk merges — and a re-proposed lead carries the latest verdict."""
+    (tmp_path / "a").mkdir()
+    p1 = tmp_path / "a" / "2026-08-01.yaml"
+    p2 = tmp_path / "a" / "2026-08-03.yaml"
+    p1.write_text(ARTIFACT, encoding="utf-8")
+    p2.write_text(
+        "date: 2026-08-03\nclusters:\nproposals:\n"
+        "  - id: lead-c\n    wire: claim\n    register: note\n"
+        '    reason: "Ripened"\n    chief: agree\n'
+        "    chief_verdict: claim\n    chief_reason: \"Now yes\"\n",
+        encoding="utf-8")
+    art = _wr.merge_artifacts([p1, p2])
+    assert len(art["proposals"]) == 3
+    by_id = {p["id"]: p for p in art["proposals"]}
+    assert by_id["lead-c"]["wire"] == "claim"          # later file won
+    assert by_id["lead-a"]["wire"] == "claim"          # untouched survives
+    assert art["date"] == "2026-08-03"

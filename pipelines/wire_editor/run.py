@@ -12,6 +12,7 @@ import datetime
 import json
 import logging
 import re
+from pathlib import Path
 
 import psycopg
 from anthropic import Anthropic
@@ -143,10 +144,47 @@ def _artifact(
     return "\n".join(out) + "\n"
 
 
-def run_pass(config: WireEditorConfig, dry_run: bool = False) -> dict:
+def already_proposed(proposals_dir: Path) -> set[str]:
+    """Every lead id any existing artifact has already put in front of the
+    operator. Only the proposal entries match `  - id:` — cluster id lists
+    sit deeper and don't."""
+    ids: set[str] = set()
+    if proposals_dir.is_dir():
+        for f in proposals_dir.glob("*.yaml"):
+            ids.update(re.findall(r"^  - id: (\S+)$", f.read_text(encoding="utf-8"), re.M))
+    return ids
+
+
+def select_new(leads: list[dict], skip: set[str], limit: int | None) -> list[dict]:
+    """The batch for this pass: `new` leads, minus any already proposed
+    (when paging a backlog), oldest first, capped at `limit`.
+
+    The cap exists because triage output scales with queue size and the
+    64k output ceiling is a hard wall: 251 leads overran it on 2026-08-03
+    and the agent (correctly) refused rather than truncate. The queue
+    pages like everything else in this shop — a batch per pass, and
+    --skip-proposed makes consecutive passes walk the backlog instead of
+    re-triaging the same head. Holds still resurface on ordinary passes:
+    skipping is opt-in precisely so an undisposed lead isn't silently
+    retired from proposal."""
+    new = [l for l in leads if l.get("status") == "new" and l["id"] not in skip]
+    return new[:limit] if limit else new
+
+
+def run_pass(
+    config: WireEditorConfig,
+    dry_run: bool = False,
+    limit: int | None = None,
+    skip_proposed: bool = False,
+) -> dict:
     leads = assignment.load_leads(config.leads_path)
-    new = [l for l in leads if l.get("status") == "new"]
-    summary: dict = {"queue": len(leads), "new": len(new)}
+    skip = already_proposed(config.proposals_dir) if skip_proposed else set()
+    new = select_new(leads, skip, limit)
+    summary: dict = {
+        "queue": len(leads),
+        "new": len([l for l in leads if l.get("status") == "new"]),
+        "triaged": len(new),
+    }
     if not new:
         summary["skipped"] = "no new leads to triage"
         return summary

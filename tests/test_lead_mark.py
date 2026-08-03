@@ -371,3 +371,18 @@ def test_concordance_spike_reads_the_spike_stamp(tmp_path):
     report = concordance(cfg)
     # human spiked it, wire said claim: a real, scored disagreement
     assert "1 disposed — wire 0/1, chief 0/1 (1 agent-applied, excluded)" in report
+
+
+# ── batching the wire pass (the 64k ceiling, hit at 251 leads) ───────────────
+
+from pipelines.wire_editor.run import select_new  # noqa: E402
+
+
+def test_select_new_pages_the_backlog():
+    leads = [{"id": f"l{i}", "status": "new"} for i in range(5)]
+    leads[2]["status"] = "claimed"
+    # skip-proposed excludes what an artifact already asked about
+    batch = select_new(leads, skip={"l0"}, limit=2)
+    assert [l["id"] for l in batch] == ["l1", "l3"]
+    # no cap, no skip: every new lead, oldest first, non-new never included
+    assert [l["id"] for l in select_new(leads, set(), None)] == ["l0", "l1", "l3", "l4"]

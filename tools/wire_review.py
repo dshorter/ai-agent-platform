@@ -103,9 +103,26 @@ def parse_artifact(path: Path) -> dict:
     return {"header": header, "date": date, "clusters": clusters, "proposals": proposals}
 
 
-def latest_artifact(proposals_dir: Path) -> Path | None:
-    files = sorted(proposals_dir.glob("*.yaml")) if proposals_dir.is_dir() else []
-    return files[-1] if files else None
+def merge_artifacts(paths: list[Path]) -> dict:
+    """All artifacts, merged: a backlog now pages across several files
+    (run.py --limit/--skip-proposed, forced by the 64k output ceiling), so
+    the desk shows the union. Where a lead appears in more than one, the
+    later artifact's verdict wins — a re-proposed hold carries the wire's
+    latest thinking, not its first."""
+    merged: dict[str, dict] = {}
+    clusters: list[dict] = []
+    header = date = ""
+    for p in sorted(paths):
+        art = parse_artifact(p)
+        header, date = art["header"], art["date"]
+        clusters.extend(art["clusters"])
+        for prop in art["proposals"]:
+            if prop["id"] in merged:
+                merged[prop["id"]].update(prop)
+            else:
+                merged[prop["id"]] = prop
+    return {"header": header, "date": date, "clusters": clusters,
+            "proposals": list(merged.values())}
 
 
 def split_by_status(proposals: list[dict], leads: dict[str, dict]) -> tuple[list[dict], int]:
@@ -388,25 +405,30 @@ def build(art: dict, leads: dict[str, dict]) -> tuple[str, dict]:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--proposals", help="artifact to review (default: latest in state/proposals)")
+    ap.add_argument("--proposals", help="review one artifact only (default: merge every artifact)")
     ap.add_argument("--leads-path", default=str(LEADS_PATH))
     ap.add_argument("--out", default=str(OUT_PATH))
     args = ap.parse_args(argv)
 
-    path = Path(args.proposals) if args.proposals else latest_artifact(STATE_DIR / "proposals")
-    if path is None or not path.is_file():
+    if args.proposals:
+        paths = [Path(args.proposals)]
+    else:
+        pdir = STATE_DIR / "proposals"
+        paths = sorted(pdir.glob("*.yaml")) if pdir.is_dir() else []
+    if not paths or not all(p.is_file() for p in paths):
         print("no proposals artifact found — run: .venv/bin/python -m pipelines.wire_editor --pass",
               file=sys.stderr)
         return 1
 
-    art = parse_artifact(path)
+    art = merge_artifacts(paths)
     leads = {l["id"]: l for l in load_leads(Path(args.leads_path))}
     page, stats = build(art, leads)
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page, encoding="utf-8")
+    names = ", ".join(p.name for p in paths)
     print(
-        f"built {out}  ({stats['pending']} lead(s) awaiting routing from {path.name}, "
+        f"built {out}  ({stats['pending']} lead(s) awaiting routing from {names}; "
         f"{stats['decided']} already disposed)"
     )
     return 0
