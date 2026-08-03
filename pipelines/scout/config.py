@@ -45,7 +45,11 @@ class ScoutConfig:
             walk_pages=int(os.environ.get("SCOUT_WALK_PAGES", "3")),
             roam_iterations=int(os.environ.get("SCOUT_ROAM_ITERATIONS", "6")),
             max_cost_usd=float(os.environ.get("SCOUT_MAX_COST_USD", "2.0")),
-            logs_dir=Path(os.environ.get("SCOUT_LOGS_DIR", "/root/.claude/projects")),
+            # Sessions moved to the claude user on 2026-07-16 (root→claude
+            # consolidation); root's dir kept stale pre-switchover copies with
+            # the SAME session ids, so ingest looked alive while everything
+            # new went unread — found 2026-08-03, 27 of 41 sessions missing.
+            logs_dir=Path(os.environ.get("SCOUT_LOGS_DIR", "/home/claude/.claude/projects")),
             codex_logs_dir=Path(
                 os.environ.get("SCOUT_CODEX_LOGS_DIR", "/root/staging/codex-logs/logs")
             ),
