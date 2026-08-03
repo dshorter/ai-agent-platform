@@ -127,3 +127,24 @@ def test_merge_later_artifact_wins(tmp_path):
     assert by_id["lead-c"]["wire"] == "claim"          # later file won
     assert by_id["lead-a"]["wire"] == "claim"          # untouched survives
     assert art["date"] == "2026-08-03"
+
+
+def test_same_day_batches_merge_in_run_order(tmp_path):
+    """run.py names a day's first artifact YYYY-MM-DD.yaml and later ones
+    YYYY-MM-DD-HHMM.yaml — and "-1357" sorts before ".yaml", so a plain
+    alphabetical merge would let the day's FIRST pass override its last."""
+    (tmp_path / "a").mkdir()
+    first = tmp_path / "a" / "2026-08-03.yaml"
+    second = tmp_path / "a" / "2026-08-03-1357.yaml"
+    first.write_text(
+        "date: 2026-08-03\nclusters:\nproposals:\n"
+        "  - id: lead-x\n    wire: spike\n    register: note\n"
+        '    reason: "Morning read"\n    chief: silent\n',
+        encoding="utf-8")
+    second.write_text(
+        "date: 2026-08-03\nclusters:\nproposals:\n"
+        "  - id: lead-x\n    wire: claim\n    register: note\n"
+        '    reason: "Afternoon reversal"\n    chief: silent\n',
+        encoding="utf-8")
+    art = _wr.merge_artifacts([first, second])
+    assert art["proposals"][0]["wire"] == "claim"

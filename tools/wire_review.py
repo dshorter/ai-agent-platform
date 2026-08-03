@@ -112,7 +112,14 @@ def merge_artifacts(paths: list[Path]) -> dict:
     merged: dict[str, dict] = {}
     clusters: list[dict] = []
     header = date = ""
-    for p in sorted(paths):
+    # NOT plain alphabetical: run.py names the day's first artifact
+    # YYYY-MM-DD.yaml and later ones YYYY-MM-DD-HHMM.yaml, and "-1357"
+    # sorts before ".yaml" — so the plain (earliest) file would win
+    # precedence over its same-day successors. Key the bare date as 0000.
+    def when(p: Path) -> tuple[str, str]:
+        stem = p.stem
+        return (stem[:10], stem[11:] or "0000")
+    for p in sorted(paths, key=when):
         art = parse_artifact(p)
         header, date = art["header"], art["date"]
         clusters.extend(art["clusters"])
