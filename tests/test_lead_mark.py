@@ -198,3 +198,73 @@ def test_unknown_lead_refuses(ledger):
     p = ledger("new")
     with pytest.raises(SystemExit):
         mark("lead-nine", to="claimed", by="editor", path=p)
+
+
+# ── the review desk's respect for a verdict ──────────────────────────────────
+#
+# Regression guard for a real failure on 2026-08-03: four leads were marked
+# `rejected` and the desk still listed all six drafts as awaiting review. The
+# desk filtered on "is this slug already in notes.json" and nothing else, and it
+# read the status embedded in the draft FILE — a snapshot frozen at draft time
+# that says `claimed` forever. A verdict the desk itself collected had no effect
+# on the desk.
+
+import importlib.util  # noqa: E402
+
+_TOOLS = Path(__file__).resolve().parent.parent / "tools"
+sys.path.insert(0, str(_TOOLS))
+_spec = importlib.util.spec_from_file_location("draft_review", _TOOLS / "draft_review.py")
+_dr = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_dr)
+
+
+def _draft(slug, status):
+    return {"note": {"slug": slug}, "lead": {"id": f"lead-{slug}", "status": status}}
+
+
+@pytest.mark.parametrize("status,shown", [
+    ("drafted", True),      # the only status still needing a verdict
+    ("rejected", False),    # the bug: these used to stay on the desk
+    ("approved", False),
+    ("published", False),
+    ("spiked", False),
+])
+def test_desk_shows_only_undecided_drafts(status, shown):
+    assert _dr.is_pending(_draft("s", status), set()) is shown
+
+
+def test_desk_hides_anything_already_promoted():
+    assert _dr.is_pending(_draft("s", "drafted"), {"s"}) is False
+
+
+def test_desk_shows_a_draft_whose_lead_is_missing():
+    """Fail open, not closed: an unmatched draft is surfaced rather than
+    silently dropped, because a vanished card is unnoticeable."""
+    assert _dr.is_pending({"note": {"slug": "s"}, "lead": {}}, set()) is True
+    assert _dr.is_pending({"note": {"slug": "s"}}, set()) is True
+
+
+def test_live_status_overrides_the_frozen_snapshot(tmp_path):
+    """The ledger wins. This is the whole fix."""
+    ledger = tmp_path / "leads.yaml"
+    ledger.write_text(
+        "leads:\n"
+        "  - id: lead-a\n    status: rejected\n    register: note\n"
+        "  - id: lead-b\n    status: drafted\n    register: note\n",
+        encoding="utf-8")
+    drafts = [
+        {"note": {"slug": "a"}, "lead": {"id": "lead-a", "status": "claimed"}},
+        {"note": {"slug": "b"}, "lead": {"id": "lead-b", "status": "claimed"}},
+    ]
+    changed = _dr.apply_live_status(drafts, ledger)
+    assert changed == 2
+    assert drafts[0]["lead"]["status"] == "rejected"
+    assert drafts[1]["lead"]["status"] == "drafted"
+    assert _dr.is_pending(drafts[0], set()) is False
+    assert _dr.is_pending(drafts[1], set()) is True
+
+
+def test_missing_ledger_is_not_fatal(tmp_path):
+    drafts = [{"note": {"slug": "a"}, "lead": {"id": "lead-a", "status": "drafted"}}]
+    assert _dr.apply_live_status(drafts, tmp_path / "nope.yaml") == 0
+    assert drafts[0]["lead"]["status"] == "drafted"

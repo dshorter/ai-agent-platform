@@ -32,10 +32,18 @@ _REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_REPO / "tools"))
 
 from promote_draft import load_drafts, load_notes  # noqa: E402
+from pipelines.writer.assignment import load_leads  # noqa: E402
+from pipelines.writer.redaction import scan, scan_note  # noqa: E402
 
 DRAFTS_DIR = Path(os.environ.get("WRITER_DRAFTS_DIR", _REPO / "pipelines" / "writer" / "state" / "drafts"))
 NOTES_PATH = Path(os.environ.get("UZELHUB_NOTES_PATH", "/opt/uzelhub-web/marketing/data/notes.json"))
 OUT_PATH = Path(os.environ.get("REVIEW_OUT", _REPO / "pipelines" / "writer" / "state" / "review" / "index.html"))
+LEADS_PATH = Path(os.environ.get("SCOUT_LEADS_PATH", _REPO / "pipelines" / "scout" / "state" / "leads.yaml"))
+
+# A verdict already given. The desk exists to COLLECT a verdict, so a lead that
+# has one has no business on it. `drafted` is the only status that still needs
+# one; a missing lead is shown rather than hidden, so nothing vanishes silently.
+DECIDED = {"approved", "rejected", "published", "spiked"}
 
 MIN_GAP_DAYS = 3  # mirrors release.js — the cadence guard is the doctrine
 WEEKDAYS = {"mon": 0, "tue": 1, "wed": 2, "thu": 3, "fri": 4, "sat": 5, "sun": 6}
@@ -62,6 +70,32 @@ def drip_slots(notes: list[dict], slots: list[int], count: int, today: dt.date) 
     return out
 
 
+def esc(text: str) -> str:
+    """Escape, and strike through anything the redaction detector flags.
+
+    Split on the RAW string's offsets and escape each piece separately —
+    escaping first would shift every offset by the length of each entity it
+    expanded, and the marks would land in the wrong place.
+
+    Struck-through rather than blacked out: the reviewer needs to READ what was
+    caught in order to judge whether it should really be withheld. A censor's
+    block hides the very thing the decision depends on.
+    """
+    findings = scan(text)
+    if not findings:
+        return html.escape(text)
+    out, cursor = [], 0
+    for f in findings:
+        out.append(html.escape(text[cursor:f.start]))
+        out.append(
+            f'<s class="red" tabindex="0" title="{html.escape(f.kind)} — {html.escape(f.why)}">'
+            f'{html.escape(f.text)}</s><sup class="redk">{html.escape(f.kind)}</sup>'
+        )
+        cursor = f.end
+    out.append(html.escape(text[cursor:]))
+    return "".join(out)
+
+
 def render_body(body: list) -> str:
     """A section body item is a paragraph, or a receipt list. NEWSROOM's
     shape amendment: enumerable receipts render as lists so scannability
@@ -69,12 +103,12 @@ def render_body(body: list) -> str:
     parts = []
     for item in body:
         if isinstance(item, str):
-            parts.append(f"<p>{html.escape(item)}</p>")
+            parts.append(f"<p>{esc(item)}</p>")
         elif isinstance(item, dict) and "list" in item:
-            lis = "".join(f"<li>{html.escape(str(x))}</li>" for x in item["list"])
+            lis = "".join(f"<li>{esc(str(x))}</li>" for x in item["list"])
             parts.append(f"<ul>{lis}</ul>")
         elif isinstance(item, dict) and "numbered" in item:
-            lis = "".join(f"<li>{html.escape(str(x))}</li>" for x in item["numbered"])
+            lis = "".join(f"<li>{esc(str(x))}</li>" for x in item["numbered"])
             parts.append(f"<ol>{lis}</ol>")
     return "".join(parts)
 
@@ -92,17 +126,42 @@ def render_card(d: dict, i: int) -> str:
     seo_block = (
         f'<div class="seo"><span class="lbl">meta description</span>'
         f'<span class="len {meta_cls}">{meta_len} chars</span>'
-        f"<p>{html.escape(meta)}</p></div>" if meta else ""
+        f"<p>{esc(meta)}</p></div>" if meta else ""
     )
 
-    bullets = "".join(f"<li>{html.escape(str(b))}</li>" for b in note.get("bullets", []))
+    bullets = "".join(f"<li>{esc(str(b))}</li>" for b in note.get("bullets", []))
     sections = "".join(
-        f"<h3>{html.escape(s.get('h', ''))}</h3>{render_body(s.get('body', []))}"
+        f"<h3>{esc(s.get('h', ''))}</h3>{render_body(s.get('body', []))}"
         for s in note.get("sections", [])
     )
     receipts = "".join(f"<li>{html.escape(str(s))}</li>" for s in d.get("sources_cited", []))
     redaction = lead.get("redaction", "")
     flag = '<span class="flag">redaction: required</span>' if redaction == "required" else ""
+
+    # The detector's verdict for this card. `redaction: required` is a constant
+    # on every lead and says only that the gate applies; THIS says whether
+    # anything actually tripped it. A count of zero is a real, useful signal —
+    # it is the difference between "unscanned" and "scanned and clean".
+    hits = scan_note(note)
+    if hits:
+        rows = "".join(
+            f'<li><span class="rk">{html.escape(f.kind)}</span>'
+            f'<code>{html.escape(f.text)}</code>'
+            f'<span class="rw">{html.escape(f.why)}</span>'
+            f'<span class="rp">{html.escape(path)}</span></li>'
+            for path, f in hits
+        )
+        redpanel = (
+            f'<details class="redpanel" open><summary>'
+            f'{len(hits)} to verify before this can publish</summary>'
+            f'<p class="rnote">Struck through in the copy below. Confirm each one really '
+            f'should be withheld &mdash; then promote with <code>--redact</code>, which '
+            f'replaces it with a visible [redacted] marker. Promote refuses without it.</p>'
+            f'<ul>{rows}</ul></details>'
+        )
+    else:
+        redpanel = '<p class="redclean">Scanned for credentials and PII &mdash; nothing found.</p>'
+
 
     return f"""
 <article class="card" data-slug="{html.escape(slug)}" data-lead="{html.escape(lead.get('id',''))}" data-reg="{html.escape(reg)}" data-title="{html.escape(note.get('title',''))}">
@@ -115,8 +174,9 @@ def render_card(d: dict, i: int) -> str:
     </div>
   </header>
   <div class="kicker">{html.escape(note.get('kicker','Field note'))}</div>
-  <h2>{html.escape(note.get('title',''))}</h2>
-  <p class="tagline">{html.escape(note.get('tagline',''))}</p>
+  <h2>{esc(note.get('title',''))}</h2>
+  <p class="tagline">{esc(note.get('tagline',''))}</p>
+  {redpanel}
   {seo_block}
   {f'<ul class="bullets">{bullets}</ul>' if bullets else ''}
   <div class="body">{sections}</div>
@@ -233,6 +293,32 @@ summary{cursor:pointer;color:var(--acc);font-size:.8rem}
 details p{margin:.55rem 0}
 .stamp{color:var(--dim);font-size:.78rem;font-style:italic}
 .slot{margin-top:.9rem;font-size:.82rem;color:var(--up);font-weight:600;min-height:1.2em}
+/* Redaction. Struck through, not blacked out — the reviewer has to READ the
+   thing to judge whether it should be withheld, and a censor's block hides
+   exactly that. Amber rather than red: this is "look at me", not "error". */
+s.red{text-decoration:line-through;text-decoration-thickness:2px;
+text-decoration-color:var(--down);background:var(--downbg);
+border-radius:3px;padding:0 .12em;cursor:help}
+s.red:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+sup.redk{font:600 .62em/1 var(--sans);color:var(--down);
+margin-left:.2em;letter-spacing:.04em;text-transform:uppercase;vertical-align:super}
+.redpanel{background:var(--downbg);border:1px solid var(--down);border-radius:8px;
+padding:.6rem .8rem;margin:.8rem 0 0;font-size:.83rem}
+.redpanel>summary{cursor:pointer;font-weight:640;color:var(--down)}
+.redpanel .rnote{margin:.5rem 0 .6rem;color:var(--dim);line-height:1.5}
+.redpanel ul{margin:0;padding-left:0;list-style:none}
+.redpanel li{display:grid;grid-template-columns:auto 1fr;gap:.15rem .5rem;
+padding:.45rem 0;border-top:1px dotted var(--line)}
+.redpanel .rk{font:600 .72rem/1.5 var(--sans);text-transform:uppercase;
+letter-spacing:.04em;color:var(--down)}
+.redpanel code{font:.78rem var(--mono);background:var(--bg);border:1px solid var(--line);
+border-radius:3px;padding:.05rem .3rem;overflow-wrap:anywhere}
+.redpanel .rw{grid-column:1/-1;color:var(--dim);line-height:1.45}
+.redpanel .rp{grid-column:1/-1;font:.7rem var(--mono);color:var(--dim)}
+/* Scanned-and-clean is worth saying out loud: it is the difference between
+   "nothing found" and "never looked". */
+.redclean{margin:.7rem 0 0;font-size:.78rem;color:var(--dim)}
+.redclean::before{content:"\2713\a0";color:var(--up);font-weight:700}
 .apply{position:sticky;bottom:0;background:var(--card);border-top:2px solid var(--line);
 margin:2rem -1rem 0;padding:1rem 1rem 1.2rem}
 .apply h3{margin:0 0 .5rem;font-size:.95rem}
@@ -442,10 +528,39 @@ render();
 """
 
 
+def apply_live_status(drafts: list[dict], leads_path: Path) -> int:
+    """Overwrite each draft's embedded lead status with the LEDGER's.
+
+    The status inside a draft file is a snapshot frozen at draft time — it says
+    `claimed` forever. Four leads were marked `rejected` and the desk still
+    listed them as awaiting review, because it trusted the snapshot. The ledger
+    is the only source of truth for a verdict, so read it every build.
+    """
+    if not leads_path.exists():
+        return 0
+    live = {l["id"]: l.get("status", "new") for l in load_leads(leads_path)}
+    n = 0
+    for d in drafts:
+        lead = d.get("lead") or {}
+        cur = live.get(lead.get("id"))
+        if cur and cur != lead.get("status"):
+            lead["status"] = cur
+            n += 1
+    return n
+
+
+def is_pending(d: dict, note_slugs: set) -> bool:
+    """Still needs a verdict: not already promoted, and not already decided."""
+    if d["note"]["slug"] in note_slugs:
+        return False
+    return (d.get("lead") or {}).get("status", "drafted") not in DECIDED
+
+
 def build(drafts: list[dict], notes: list[dict], slots: list[int], today: dt.date) -> str:
     queued = [n for n in notes if not n.get("published")]
     released = [n for n in notes if n.get("published")]
-    pending = [d for d in drafts if d["note"]["slug"] not in {n.get("slug") for n in notes}]
+    note_slugs = {n.get("slug") for n in notes}
+    pending = [d for d in drafts if is_pending(d, note_slugs)]
     last = max((n["published"] for n in released), default=None)
 
     dates = drip_slots(notes, slots, max(len(pending), 1), today)
@@ -601,6 +716,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--slots", default="tue,fri", help="weekly publish days (default: tue,fri)")
     ap.add_argument("--drafts-dir", default=str(DRAFTS_DIR))
     ap.add_argument("--notes-path", default=str(NOTES_PATH))
+    ap.add_argument("--leads-path", default=str(LEADS_PATH))
     ap.add_argument("--out", default=str(OUT_PATH))
     ap.add_argument("--open", action="store_true", help="print a file:// URL too")
     args = ap.parse_args(argv)
@@ -616,6 +732,7 @@ def main(argv: list[str] | None = None) -> int:
 
     drafts = load_drafts(Path(args.drafts_dir))
     notes = load_notes(Path(args.notes_path))
+    refreshed = apply_live_status(drafts, Path(args.leads_path))
     today = dt.date.today()
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -624,9 +741,16 @@ def main(argv: list[str] | None = None) -> int:
     queue_out = out.parent / "queue.html"
     queue_out.write_text(build_queue(notes, slots, today), encoding="utf-8")
 
-    pending = len([d for d in drafts if d["note"]["slug"] not in {n.get("slug") for n in notes}])
+    note_slugs = {n.get("slug") for n in notes}
+    pending = len([d for d in drafts if is_pending(d, note_slugs)])
+    decided = len([d for d in drafts
+                   if (d.get("lead") or {}).get("status") in DECIDED
+                   and d["note"]["slug"] not in note_slugs])
     live = len([n for n in notes if n.get("published")])
-    print(f"built {out}  ({pending} draft(s) awaiting review, {len(drafts)} found)")
+    extra = f", {decided} already decided" if decided else ""
+    print(f"built {out}  ({pending} draft(s) awaiting review, {len(drafts)} found{extra})")
+    if refreshed:
+        print(f"  ({refreshed} draft(s) had a stale embedded status; the ledger won)")
     print(f"built {queue_out}  ({live} live, {len(notes) - live} queued)")
     if args.open:
         print(f"file://{out}")
