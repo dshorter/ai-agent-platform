@@ -20,6 +20,12 @@ dev = [
     "pytest-asyncio>=0.24",
 ]
 
+[tool.pytest.ini_options]
+# rootdir on sys.path so tests import `pipelines.*` without an editable install
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
