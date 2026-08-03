@@ -268,3 +268,106 @@ def test_missing_ledger_is_not_fatal(tmp_path):
     drafts = [{"note": {"slug": "a"}, "lead": {"id": "lead-a", "status": "drafted"}}]
     assert _dr.apply_live_status(drafts, tmp_path / "nope.yaml") == 0
     assert drafts[0]["lead"]["status"] == "drafted"
+
+
+# ── who wore the hat: agent-applied marks and the concordance metric ─────────
+# On 2026-08-03 the gate-① concordance read 6/6 — but all six claims had been
+# stamped `--by editor` by an AGENT session on 07-30, almost certainly working
+# from the Wire Editor's own proposals. A machine agreeing with a machine.
+# The fix is provenance: `--agent` stamps `(<role>, agent)`, and concordance
+# counts only human dispositions. These tests keep both halves honest.
+
+import re  # noqa: E402
+
+from pipelines.wire_editor.config import WireEditorConfig  # noqa: E402
+from pipelines.wire_editor.run import concordance  # noqa: E402
+
+
+def test_agent_flag_lands_in_the_stamp(ledger):
+    p = ledger()
+    mark("lead-one", to="claimed", by="editor", path=p, agent=True)
+    assert "    claimed_on: " in p.read_text()
+    assert re.search(r"^    claimed_on: \d{4}-\d{2}-\d{2} \(editor, agent\)$",
+                     p.read_text(), re.M)
+
+
+def test_human_stamp_is_unchanged_by_default(ledger):
+    p = ledger()
+    mark("lead-one", to="claimed", by="editor", path=p)
+    assert re.search(r"^    claimed_on: \d{4}-\d{2}-\d{2} \(editor\)$",
+                     p.read_text(), re.M)
+
+
+PROPOSALS = """\
+proposals:
+  - id: lead-human
+    wire: claim
+    chief: claim
+    chief_verdict: claim
+  - id: lead-robot
+    wire: claim
+    chief: claim
+    chief_verdict: claim
+"""
+
+
+def _concordance_config(tmp_path) -> WireEditorConfig:
+    state = tmp_path / "state"
+    (state / "proposals").mkdir(parents=True)
+    (state / "proposals" / "2026-07-18.yaml").write_text(PROPOSALS, encoding="utf-8")
+    return WireEditorConfig(
+        postgres_dsn="", anthropic_api_key="", wire_model="", chief_model="",
+        leads_path=tmp_path / "leads.yaml", state_dir=state,
+    )
+
+
+def _concordance_ledger(tmp_path, robot_stamp: str) -> None:
+    (tmp_path / "leads.yaml").write_text(
+        "leads:\n"
+        "  - id: lead-human\n    status: claimed\n"
+        "    claimed_on: 2026-07-30 (editor)\n"
+        "  - id: lead-robot\n    status: claimed\n"
+        f"    claimed_on: {robot_stamp}\n",
+        encoding="utf-8")
+
+
+def test_concordance_counts_only_human_dispositions(tmp_path):
+    cfg = _concordance_config(tmp_path)
+    _concordance_ledger(tmp_path, "2026-07-30 (editor, agent)")
+    report = concordance(cfg)
+    assert "1 disposed — wire 1/1, chief 1/1 (1 agent-applied, excluded)" in report
+    assert "TOTAL wire: 1/1" in report
+
+
+def test_concordance_with_only_agent_marks_is_unscored(tmp_path):
+    """The poisoned shape itself: every disposition agent-applied. The report
+    must refuse to produce a percentage rather than print a flattering one."""
+    cfg = _concordance_config(tmp_path)
+    (tmp_path / "leads.yaml").write_text(
+        "leads:\n"
+        "  - id: lead-human\n    status: claimed\n"
+        "    claimed_on: 2026-07-30 (editor, agent)\n"
+        "  - id: lead-robot\n    status: claimed\n"
+        "    claimed_on: 2026-07-30 (editor, agent)\n",
+        encoding="utf-8")
+    report = concordance(cfg)
+    assert "%" not in report
+    assert "no human dispositions yet" in report
+    assert "2 agent-applied marks excluded" in report
+
+
+def test_concordance_spike_reads_the_spike_stamp(tmp_path):
+    """A lead claimed by an agent but SPIKED by the human is a human routing
+    verdict — the disposing stamp is spiked_on, not claimed_on."""
+    cfg = _concordance_config(tmp_path)
+    (tmp_path / "leads.yaml").write_text(
+        "leads:\n"
+        "  - id: lead-human\n    status: spiked\n"
+        "    claimed_on: 2026-07-30 (editor, agent)\n"
+        "    spiked_on: 2026-08-03 (editor)\n"
+        "  - id: lead-robot\n    status: claimed\n"
+        "    claimed_on: 2026-07-30 (editor, agent)\n",
+        encoding="utf-8")
+    report = concordance(cfg)
+    # human spiked it, wire said claim: a real, scored disagreement
+    assert "1 disposed — wire 0/1, chief 0/1 (1 agent-applied, excluded)" in report

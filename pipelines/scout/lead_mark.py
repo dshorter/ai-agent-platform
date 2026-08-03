@@ -26,6 +26,15 @@ so the ledger carries the story's full timeline (time-to-publish metrics
 read straight off the file). `--on` backdates a stamp when recording history
 (e.g. backfilling a lead that published before this verb existed).
 
+`--agent` marks the stamp `(<actor>, agent)`: the role was exercised by an
+agent, not the human operator. The distinction exists because concordance —
+the gate-① maturity metric — is only meaningful against HUMAN verdicts, and
+on 2026-08-03 it was found scoring 6/6 against six leads an agent session had
+claimed `--by editor` on 2026-07-30: a machine agreeing with a machine that
+had read its proposals. Roles say which hat was worn; `agent` says whose head
+it was on. Any agent invoking this verb in an editor/publisher role MUST pass
+--agent; the concordance calc excludes agent-applied dispositions.
+
 Hard limits, enforced here and not by prompt discipline:
   * one lead, one transition per invocation; transitions are forward-only
     and validated against the table (a lead is never un-published, never
@@ -64,7 +73,14 @@ TRANSITIONS = {
 }
 
 
-def mark(lead_id: str, to: str, by: str, on: str | None = None, path: Path | None = None) -> str:
+def mark(
+    lead_id: str,
+    to: str,
+    by: str,
+    on: str | None = None,
+    path: Path | None = None,
+    agent: bool = False,
+) -> str:
     # LEDGER is resolved at call time, not bound as a default — a default
     # freezes the path at import and silently ignores test-time overrides
     # (learned the hard way: the first verification run marked the real file).
@@ -104,15 +120,16 @@ def mark(lead_id: str, to: str, by: str, on: str | None = None, path: Path | Non
     # so accumulated stamps read in chronological order.
     stamps = list(re.finditer(r"^    \w+_on: .+$", block, re.M))
     anchor = stamps[-1].end() if stamps else sm.end()
+    who = f"{by}, agent" if agent else by
     new_block = (
         block[:sm.start()]
         + f"    status: {to}"
         + block[sm.end():anchor]
-        + f"\n    {to}_on: {stamp_date} ({by})"
+        + f"\n    {to}_on: {stamp_date} ({who})"
         + block[anchor:]
     )
     path.write_text(text[:m.start()] + new_block + text[end:], encoding="utf-8")
-    return f"marked {to}: {lead_id} ({current} -> {to}, {stamp_date}, by {by})"
+    return f"marked {to}: {lead_id} ({current} -> {to}, {stamp_date}, by {who})"
 
 
 def main() -> None:
@@ -121,8 +138,13 @@ def main() -> None:
     ap.add_argument("--to", required=True, choices=sorted(TRANSITIONS))
     ap.add_argument("--by", required=True, choices=["editor", "writer", "publisher"])
     ap.add_argument("--on", help="backdate the stamp (YYYY-MM-DD) when recording history")
+    ap.add_argument(
+        "--agent",
+        action="store_true",
+        help="the mark is applied by an agent acting in this role, not the human operator",
+    )
     a = ap.parse_args()
-    print(mark(a.lead_id, a.to, a.by, a.on))
+    print(mark(a.lead_id, a.to, a.by, a.on, agent=a.agent))
 
 
 if __name__ == "__main__":

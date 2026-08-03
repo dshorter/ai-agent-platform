@@ -241,7 +241,7 @@ def concordance(config: WireEditorConfig) -> str:
     files = sorted(config.proposals_dir.glob("*.yaml")) if config.proposals_dir.is_dir() else []
     if not files:
         return "no proposals artifacts yet — run a pass first"
-    out, tw = [], {"wire": [0, 0], "chief": [0, 0]}
+    out, tw, agent_total = [], {"wire": [0, 0], "chief": [0, 0]}, 0
     for f in files:
         text = f.read_text(encoding="utf-8")
         rows = re.findall(
@@ -249,12 +249,22 @@ def concordance(config: WireEditorConfig) -> str:
             r"    chief_verdict: (\w+)",
             text, re.M,
         )
-        n = agree_w = agree_c = decided = 0
+        n = agree_w = agree_c = decided = agent_applied = 0
         for lead_id, wire_v, _stance, chief_v in rows:
             lead = leads.get(lead_id, {})
             st = lead.get("status", "new")
             if st in ("new",):
                 continue  # operator hasn't disposed yet
+            # Ground truth here is the HUMAN's routing verdict. The routing
+            # decision is the claim/spike, so its provenance lives in that
+            # stamp — and a `(<role>, agent)` stamp means an agent wore the
+            # editor hat (see lead_mark). Scoring those would measure a
+            # machine agreeing with a machine, which is how this metric got
+            # poisoned on 2026-07-30. Excluded, and reported, not hidden.
+            stamp = lead.get("spiked_on" if st == "spiked" else "claimed_on", "")
+            if stamp.endswith(", agent)"):
+                agent_applied += 1
+                continue
             # Operator's verdict, collapsed to the proposal vocabulary. Only
             # `spiked` counts as a spike: `rejected` means the lead WAS claimed
             # and the resulting draft failed, which is a verdict on the Writer,
@@ -265,15 +275,22 @@ def concordance(config: WireEditorConfig) -> str:
             agree_w += op == wire_v
             agree_c += op == chief_v
         n = decided
+        agent_total += agent_applied
+        suffix = f" ({agent_applied} agent-applied, excluded)" if agent_applied else ""
         if n:
             tw["wire"][0] += agree_w; tw["wire"][1] += n
             tw["chief"][0] += agree_c; tw["chief"][1] += n
             out.append(
-                f"{f.name}: {n} disposed — wire {agree_w}/{n}, chief {agree_c}/{n}"
+                f"{f.name}: {n} disposed — wire {agree_w}/{n}, chief {agree_c}/{n}{suffix}"
             )
         else:
-            out.append(f"{f.name}: 0 disposed yet")
+            out.append(f"{f.name}: 0 disposed yet{suffix}")
     for who, (a, n) in tw.items():
         if n:
             out.append(f"TOTAL {who}: {a}/{n} = {a / n:.0%} concordance")
+    if not tw["wire"][1]:
+        out.append(
+            f"no human dispositions yet — the metric is unscored"
+            + (f" ({agent_total} agent-applied marks excluded)" if agent_total else "")
+        )
     return "\n".join(out)
