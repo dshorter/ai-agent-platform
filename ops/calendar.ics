@@ -1037,4 +1037,17 @@ DESCRIPTION:The agents page names sources in one clause on purpose\; the f
  machine as a source touches employer confidentiality\, a separate gate fr
  om the PII scrub.
 END:VTODO
+BEGIN:VTODO
+UID:server-om-manual@ai-agent-platform
+DTSTAMP:20260804T180526Z
+DUE;VALUE=DATE:20260811
+STATUS:NEEDS-ACTION
+SUMMARY:Write the server O&M manual
+DESCRIPTION:Consolidate the box's operations & maintenance knowledge into 
+ one manual: what runs where (Caddy\, Docker stacks\, systemd timers)\, th
+ e Telegram alerting paths (OnFailure units\, health-check pager\, uzella-
+ proxy 429 hook — wired 2026-08-04)\, backup/restore procedure\, deploy fl
+ ows per repo\, and the known gotchas (per-user auth\, repo visibility). A
+ udience: the operator\, six months from now\, at 2am.
+END:VTODO
 END:VCALENDAR
