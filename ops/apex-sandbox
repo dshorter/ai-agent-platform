@@ -1,0 +1,297 @@
+#!/usr/bin/env node
+/*
+ * apex-sandbox — build a throwaway copy of the apex marketing site for review.
+ *
+ *   ops/apex-sandbox            build (or rebuild) the sandbox
+ *   ops/apex-sandbox --open     build, then print the capability URL
+ *
+ * Why this exists: /opt/uzelhub-web/marketing IS the live apex docroot, so
+ * running generate.js there publishes to production the instant it writes.
+ * This builds into a scratch stage instead, then serves the result behind the
+ * ops-desk capability URL — so copy can be walked and rewritten with no risk
+ * to prod and no commit in between.
+ *
+ * The walk: every generated page in reading order, prev/next chrome injected,
+ * minus the two pages we don't dictate copy for (see SKIP). Each page's chrome
+ * names the data file and key that produced it, so a dictated rewrite has an
+ * unambiguous destination.
+ *
+ * Nothing here writes to /opt/uzelhub-web. The stage is a copy; prod is
+ * read-only to this script.
+ *
+ * Zero dependencies, matching generate.js.
+ */
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+const { execFileSync } = require('child_process');
+const os = require('os');
+
+const SRC = '/opt/uzelhub-web/marketing';
+const OUT = path.join(__dirname, 'desk', 'apex');
+const STAGE = path.join(os.tmpdir(), 'apex-sandbox-stage');
+const CADDYFILE = '/etc/caddy/Caddyfile';
+
+// Pages that stay reachable (so cross-links resolve) but sit out of the walk.
+// inventory.html is the man-page register exception; contact.html is a mailto
+// stub with no prose to dictate.
+const SKIP = new Set(['inventory.html', 'contact.html']);
+
+// Assets copied verbatim alongside the pages.
+const ASSET_DIRS = ['css', 'img', 'js'];
+
+// ── stage: full copy of the source tree, regenerated in place ────────────────
+
+function build() {
+  fs.rmSync(STAGE, { recursive: true, force: true });
+  fs.cpSync(SRC, STAGE, { recursive: true, dereference: true });
+  execFileSync('node', [path.join(STAGE, 'generate.js')], {
+    cwd: STAGE, stdio: ['ignore', 'pipe', 'inherit'],
+  });
+}
+
+// ── walk order, derived from the data so new products join automatically ─────
+
+function walkOrder() {
+  const site = JSON.parse(fs.readFileSync(path.join(STAGE, 'data', 'site.json'), 'utf8'));
+  const products = JSON.parse(fs.readFileSync(path.join(STAGE, 'data', 'products.json'), 'utf8'));
+  const agentsData = JSON.parse(fs.readFileSync(path.join(STAGE, 'data', 'agents.json'), 'utf8'));
+  const notes = JSON.parse(fs.readFileSync(path.join(STAGE, 'data', 'notes.json'), 'utf8'));
+
+  // A suite's `id` is what products point at; `slug` is only its URL segment.
+  const suites = site.suites || [];
+  const suiteById = Object.fromEntries(suites.map(s => [s.id, s]));
+  const pages = [];
+
+  pages.push({ file: 'index.html', title: 'Home', src: 'data/site.json → home' });
+  pages.push({ file: 'products/index.html', title: 'Catalog', src: 'data/site.json → catalog' });
+
+  // Suites first, each immediately followed by its members — the reading order
+  // a stranger actually takes through the catalog.
+  for (const s of suites) {
+    const members = products.filter(p => p.suite === s.id);
+    if (!members.length) continue;
+    pages.push({
+      file: `products/${s.slug}/index.html`,
+      title: s.title || s.slug,
+      src: `data/site.json → suites[id=${s.id}]`,
+    });
+    for (const p of members) {
+      pages.push({
+        file: `products/${s.slug}/${p.slug}.html`,
+        title: p.name || p.slug,
+        src: `data/products.json → [slug=${p.slug}]`,
+      });
+    }
+  }
+  for (const p of products) {
+    if (p.suite && suiteById[p.suite]) continue;
+    pages.push({
+      file: `products/${p.slug}.html`,
+      title: p.name || p.slug,
+      src: `data/products.json → [slug=${p.slug}]`,
+    });
+  }
+
+  pages.push({ file: 'agents/index.html', title: 'Agents', src: 'data/agents.json → agents[]' });
+  for (const g of agentsData.groups || []) {
+    pages.push({
+      file: `agents/${g.slug}/index.html`,
+      title: g.name || g.slug,
+      src: `data/agents.json → groups[slug=${g.slug}]`,
+    });
+  }
+
+  const released = (Array.isArray(notes) ? notes : []).filter(
+    n => fs.existsSync(path.join(STAGE, 'notes', n.slug + '.html')));
+  if (fs.existsSync(path.join(STAGE, 'notes', 'index.html'))) {
+    pages.push({ file: 'notes/index.html', title: 'Field notes', src: 'data/notes.json' });
+  }
+  for (const n of released) {
+    pages.push({
+      file: `notes/${n.slug}.html`,
+      title: n.title || n.slug,
+      src: `data/notes.json → [slug=${n.slug}]`,
+    });
+  }
+
+  pages.push({ file: 'about.html', title: 'About', src: 'data/site.json → about' });
+  pages.push({ file: 'privacy.html', title: 'Privacy', src: 'data/site.json → privacy' });
+
+  return pages.filter(p => !SKIP.has(p.file) && fs.existsSync(path.join(STAGE, p.file)));
+}
+
+// ── link rewriting ───────────────────────────────────────────────────────────
+
+// Root-absolute hrefs would escape the sandbox and land on live prod. Rewrite
+// them depth-relative rather than prefixing the capability path, so the sandbox
+// survives a token rotation the same way ops/desk/index.html does.
+function relPrefix(file) {
+  const depth = file.split('/').length - 1;
+  return depth === 0 ? '' : '../'.repeat(depth);
+}
+
+function rewriteLinks(html, file) {
+  const up = relPrefix(file);
+  return html.replace(/(href|src)="\/([^"]*)"/g, (m, attr, rest) => {
+    // Live app tenants have no sandbox copy — send those to the real site.
+    if (rest.startsWith('apps/') || rest.startsWith('api/')) {
+      return `${attr}="https://uzelhub.com/${rest}"`;
+    }
+    if (rest === '') return `${attr}="${up || './'}index.html"`;
+    return `${attr}="${up}${rest}"`;
+  });
+}
+
+// ── walker chrome ────────────────────────────────────────────────────────────
+
+const CHROME_CSS = `
+.sbx{position:fixed;left:0;right:0;bottom:0;z-index:9999;font:500 14px/1.35 ui-sans-serif,
+-apple-system,"Segoe UI",Roboto,sans-serif;background:#14151ae6;color:#e9e9e6;
+-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-top:1px solid #ffffff24;
+padding:.55rem .5rem calc(.55rem + env(safe-area-inset-bottom));
+display:flex;align-items:center;gap:.4rem}
+.sbx a,.sbx button{color:inherit;text-decoration:none;font:inherit;background:#ffffff1a;
+border:1px solid #ffffff2b;border-radius:9px;padding:.5rem .7rem;min-width:2.75rem;
+min-height:2.5rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sbx a:active,.sbx button:active{background:#ffffff30}
+.sbx .off{opacity:.32;pointer-events:none}
+.sbx .mid{flex:1;min-width:0;text-align:center;padding:0 .2rem}
+.sbx .ttl{display:block;font-weight:640;white-space:nowrap;overflow:hidden;
+text-overflow:ellipsis}
+.sbx .met{display:block;font-size:11.5px;font-weight:400;color:#a6a8b0;
+white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.sbx-tag{position:fixed;top:0;left:0;z-index:9999;background:#b4541e;color:#fff;
+font:600 10.5px/1 ui-sans-serif,-apple-system,sans-serif;letter-spacing:.09em;
+padding:.3rem .5rem;border-bottom-right-radius:7px;text-transform:uppercase}
+.sbx-menu{position:fixed;inset:0;z-index:10000;background:#14151af5;
+-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+overflow:auto;padding:2.6rem 1rem calc(1rem + env(safe-area-inset-bottom));display:none}
+.sbx-menu.on{display:block}
+.sbx-menu ol{margin:0;padding:0 0 0 2rem;color:#8c8e96;
+font:14px/1.5 ui-sans-serif,-apple-system,sans-serif}
+.sbx-menu li{margin:.1rem 0}
+.sbx-menu a{display:block;padding:.6rem .1rem;color:#e9e9e6;text-decoration:none;
+border-bottom:1px solid #ffffff14}
+.sbx-menu a.here{color:#f0a06a;font-weight:640}
+.sbx-menu .src{display:block;font-size:11.5px;color:#8c8e96;margin-top:.15rem}
+.sbx-menu .x{position:absolute;top:.6rem;right:.9rem;color:#e9e9e6;font-size:1.5rem;
+text-decoration:none;padding:.2rem .5rem}
+body{padding-bottom:5.2rem!important}
+@media(prefers-reduced-motion:reduce){.sbx *{transition:none}}
+`.trim();
+
+function chrome(pages, i) {
+  const cur = pages[i];
+  const up = relPrefix(cur.file);
+  const href = f => up + f;
+  const prev = i > 0 ? pages[i - 1] : null;
+  const next = i < pages.length - 1 ? pages[i + 1] : null;
+  const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  const items = pages.map((p, n) => `<li${n === i ? ' value="' + (n + 1) + '"' : ''}>` +
+    `<a href="${href(p.file)}"${n === i ? ' class="here"' : ''}>${esc(p.title)}` +
+    `<span class="src">${esc(p.src)}</span></a></li>`).join('');
+
+  return `
+<div class="sbx-tag">sandbox</div>
+<nav class="sbx">
+  <a class="${prev ? '' : 'off'}" href="${prev ? href(prev.file) : '#'}"
+     aria-label="Previous page" id="sbxP">&lsaquo;</a>
+  <button class="mid" id="sbxM" aria-label="Show all pages">
+    <span class="ttl">${esc(cur.title)}</span>
+    <span class="met">${i + 1} / ${pages.length} &middot; ${esc(cur.src)}</span>
+  </button>
+  <a class="${next ? '' : 'off'}" href="${next ? href(next.file) : '#'}"
+     aria-label="Next page" id="sbxN">&rsaquo;</a>
+</nav>
+<div class="sbx-menu" id="sbxL"><a class="x" href="#" id="sbxX">&times;</a><ol>${items}</ol></div>
+<script>
+(function(){
+  var l=document.getElementById('sbxL');
+  document.getElementById('sbxM').onclick=function(){l.classList.add('on')};
+  document.getElementById('sbxX').onclick=function(e){e.preventDefault();l.classList.remove('on')};
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    var t=(e.target.tagName||'').toLowerCase();
+    if(t==='input'||t==='textarea')return;
+    if(e.key==='Escape')l.classList.remove('on');
+    var g=function(id){var a=document.getElementById(id);
+      if(a&&!a.className.match(/off/))location.href=a.getAttribute('href')};
+    if(e.key==='ArrowLeft')g('sbxP');
+    if(e.key==='ArrowRight')g('sbxN');
+  });
+})();
+</script>`;
+}
+
+// ── emit ─────────────────────────────────────────────────────────────────────
+
+function emit(pages) {
+  fs.rmSync(OUT, { recursive: true, force: true });
+  fs.mkdirSync(OUT, { recursive: true });
+
+  for (const d of ASSET_DIRS) {
+    const from = path.join(STAGE, d);
+    if (fs.existsSync(from)) fs.cpSync(from, path.join(OUT, d), { recursive: true });
+  }
+
+  const index = new Map(pages.map((p, i) => [p.file, i]));
+  // Every generated page, including the two out of the walk — they stay
+  // reachable so cross-links (mostly /inventory.html anchors) resolve locally.
+  const SKIP_DIRS = new Set(['data', 'test', 'syndication', ...ASSET_DIRS]);
+  const all = [];
+  (function collect(dir) {
+    for (const e of fs.readdirSync(path.join(STAGE, dir), { withFileTypes: true })) {
+      const rel = dir ? `${dir}/${e.name}` : e.name;
+      if (e.isDirectory()) {
+        if (!SKIP_DIRS.has(rel)) collect(rel);
+      } else if (e.name.endsWith('.html')) {
+        all.push(rel);
+      }
+    }
+  })('');
+
+  for (const file of all) {
+    let html = fs.readFileSync(path.join(STAGE, file), 'utf8');
+    html = rewriteLinks(html, file);
+    // Behind a capability URL already; noindex is belt-and-suspenders, and the
+    // prod canonical would otherwise contradict it.
+    html = html.replace(/\s*<link rel="canonical"[^>]*>/g, '');
+    html = html.replace('</head>',
+      `  <meta name="robots" content="noindex,nofollow">\n  <style>${CHROME_CSS}</style>\n</head>`);
+    const i = index.get(file);
+    html = html.replace('</body>', (i === undefined
+      ? `<div class="sbx-tag">sandbox</div>\n<nav class="sbx"><a href="${relPrefix(file)}index.html">&lsaquo;</a>` +
+        `<span class="mid"><span class="ttl">Not in the walk</span>` +
+        `<span class="met">reachable for cross-links only</span></span>` +
+        `<a class="off" href="#">&rsaquo;</a></nav>`
+      : chrome(pages, i)) + '\n</body>');
+
+    const dest = path.join(OUT, file);
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, html);
+  }
+  return all.length;
+}
+
+function deskUrl() {
+  try {
+    const m = fs.readFileSync(CADDYFILE, 'utf8').match(/handle_path \/(desk-[a-f0-9]+)\/\*/);
+    return m ? `https://uzelhub.com/${m[1]}/apex/` : null;
+  } catch { return null; }
+}
+
+// ── main ─────────────────────────────────────────────────────────────────────
+
+build();
+const pages = walkOrder();
+const total = emit(pages);
+
+console.log(`apex sandbox: ${pages.length} pages in the walk, ${total} copied`);
+console.log(`  out:  ${OUT}`);
+const url = deskUrl();
+console.log(`  url:  ${url || '(desk route not found in ' + CADDYFILE + ')'}`);
+if (SKIP.size) console.log(`  skipped from walk: ${[...SKIP].join(', ')}`);

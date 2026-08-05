@@ -47,7 +47,13 @@ ENTRIES = [
 # desk is one hop from anything.
 SUBPAGES = [("notes/queue.html", "Publication queue",
              "Read-only. What is live, what is waiting, and the id each "
-             "server-side command takes.")]
+             "server-side command takes."),
+            # Built by ops/apex-sandbox into desk/apex/ — a real directory, not
+            # a symlink, so assemble() leaves it alone. Absent until first build.
+            ("apex/", "Apex copy walk",
+             "A throwaway rebuild of uzelhub.com, every page in reading order "
+             "with prev/next at the thumb. For dictating final copy — nothing "
+             "here is live, and the chrome names the data key behind each page.")]
 
 CSS = """
 :root{--bg:#f6f6f4;--card:#fff;--fg:#17181c;--dim:#64666e;--line:#e4e4e1;--acc:#2f5d8a;
