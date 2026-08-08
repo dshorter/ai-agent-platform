@@ -157,7 +157,9 @@ border:1px solid #ffffff2b;border-radius:9px;padding:.5rem .7rem;min-width:2.75r
 min-height:2.5rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
 .sbx a:active,.sbx button:active{background:#ffffff30}
 .sbx .off{opacity:.32;pointer-events:none}
-.sbx .mid{flex:1;min-width:0;text-align:center;padding:0 .2rem}
+/* display:block overrides the flex from the a/button rule above — as flex
+   items the title and meta sat on one line ("Home1 / 17"). */
+.sbx .mid{display:block;flex:1;min-width:0;text-align:center;padding:0 .2rem}
 .sbx .ttl{display:block;font-weight:640;white-space:nowrap;overflow:hidden;
 text-overflow:ellipsis}
 .sbx .met{display:block;font-size:11.5px;font-weight:400;color:#a6a8b0;
