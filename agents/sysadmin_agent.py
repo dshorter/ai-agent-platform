@@ -26,11 +26,21 @@ from pipelines.sysadmin.tools import TOOL_DEFS, ToolBox, default_toolbox
 
 SYSADMIN_MODEL = "claude-sonnet-5"
 SYSADMIN_MAX_ITERATIONS = 24  # reconciliation reads wide; still a hard wall
-# A ceiling, not a target — billed on what's produced. Sized for Opus at xhigh
-# effort, where thinking and response share this budget and Anthropic's guidance
-# is 64k minimum; 8192 made every xhigh run a hard TruncatedRunError. The real
-# spend limit is max_cost_usd, not this.
-SYSADMIN_MAX_TOKENS = 64000
+# A ceiling, not a target — billed on what's produced; max_cost_usd is the real
+# spend limit.
+#
+# 16000 is the NON-STREAMING ceiling. The SDK raises
+#   ValueError: Streaming is required for operations that may take longer than
+#   10 minutes
+# for a non-streaming request whose max_tokens implies a long call — it is a
+# hard refusal before the request is sent, not a timeout. This was set to 64000
+# on 2026-08-08 for the planned Opus 5 / xhigh switch and broke the 06:20 pass
+# outright, because `_create` uses `client.messages.create`, not `.stream()`.
+#
+# Opus 5 at xhigh DOES want ~64k (thinking and response share the budget), so
+# raising this is a real prerequisite for that switch — but the prerequisite is
+# converting `_create` to streaming first. See docs/security-agent.md §7.
+SYSADMIN_MAX_TOKENS = 16000
 # Ceiling on total tool output fed back across one pass (the Director's
 # grep-bomb budget, sized up for an agent whose job is reading the whole host).
 SYSADMIN_MAX_TOOL_CHARS = 240_000

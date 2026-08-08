@@ -2,8 +2,9 @@
 read: full
 status: SPEC — not built. Written 2026-08-06 after the 2026-08-06 security audit
        found a critical exposure the sysadmin agent's charter could not have caught.
-       Blocker 1 (max_tokens) CLEARED 2026-08-06. Blocker 2 (refusal handling)
-       open. Model decision settled: Claude Opus 5, xhigh, no fallback.
+       Blocker 1 REOPENED 2026-08-08 — the real prerequisite is converting
+       _create to streaming, not raising max_tokens. Blocker 2 (refusal
+       handling) DONE. Model settled: Claude Opus 5, xhigh, no fallback.
 ---
 
 # Security agent — a second crew member, pointed outward
@@ -185,7 +186,29 @@ at call time from the Caddyfile. Not a general HTTP tool.
 
 ## 7. ⚠️ Blockers
 
-**1. ~~`max_tokens` is 8192 and would hard-fail at `xhigh`.~~ CLEARED 2026-08-06** — raised to 64000 in `agents/sysadmin_agent.py`.
+**1. `max_tokens` — REOPENED 2026-08-08. The real blocker is streaming, not the number.**
+
+Marked cleared on 2026-08-06 by raising it 8192 → 64000. That **broke the
+06:20 pass outright** the next morning:
+
+```
+ValueError: Streaming is required for operations that may take longer
+            than 10 minutes
+```
+
+The SDK refuses a *non-streaming* request whose `max_tokens` implies a long
+call — a hard refusal before the request is sent, not a timeout. `_create`
+uses `client.messages.create`, not `.stream()`. Reverted to **16000**, the
+non-streaming ceiling.
+
+Opus 5 at xhigh genuinely does want ~64k, since thinking and response share
+the budget. So the blocker was never the constant — **it is converting
+`_create` to streaming** (`client.messages.stream(...)` +
+`.get_final_message()`), after which 64000 is available. That conversion is a
+prerequisite for the model switch, not an optional tidy.
+
+Worth noting the failure was loud and correctly paged: `OnFailure=` fired the
+Telegram notification at 06:20:01. The guard behaved; the change was wrong.
 `agents/sysadmin_agent.py:29` sets `SYSADMIN_MAX_TOKENS = 8192`, and `_create`
 **raises `TruncatedRunError`** on `stop_reason == "max_tokens"` rather than
 returning a partial. Anthropic's guidance for Claude Opus 5 at `xhigh`/`max` is
