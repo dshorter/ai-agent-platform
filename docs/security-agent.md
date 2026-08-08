@@ -532,3 +532,120 @@ prompt-injected instruction reach protected surfaces.
 **The agent verifies the boundary, never the contents.** Checking that the
 desk's pages are intact is a different job with a different trust profile, and
 it does not belong to an agent whose charter is "assume the operator is wrong."
+
+## 13. DRAFT — the report contract
+
+**Status: draft, for reaction.** This is the gap that would have bitten the
+build: §3's reconcile-after design needs every finding to carry a stable id,
+and nothing was requiring the agent to emit one.
+
+Shape deliberately **mirrors the ledger's**, so promoting a finding to a ledger
+entry is close to a copy and the diff keys on the same heading in both files.
+
+````
+## Status: CLEAN or FINDINGS
+
+## Findings
+
+### `<id>` — <SEVERITY> — <confidence>
+**Reachable:** what you ran and what came back — the receipt, verbatim.
+**What an attacker gets:** one sentence, concrete. Not "information
+disclosure" — what they hold afterwards.
+<optional detail>
+
+## Checks passed
+- `<check-id>` — one clause on what was verified
+
+## Checks not reached
+- `<check-id>` — why (budget, tool refusal, needs a privilege)
+
+## Ledger entry
+<title line>
+<body>
+````
+
+**Finding id rules — the load-bearing part:**
+
+- Lowercase kebab, `class:target` — `docroot-git-exposed:studio.uzelhub.com`.
+- Derived from **what the finding is**, never from when it was found or the
+  order it appeared. Ids are the diff key; a date or an index in one makes
+  every pass look like a new finding.
+- **Never renumber. Never reword an id to read better.** A reworded id reads
+  as "old one resolved, new one appeared" — a silent double error.
+- One id per distinct condition per target. The same class on two hostnames is
+  two findings, because they get fixed separately.
+
+**`Checks passed` is not padding.** Without it, a later pass cannot tell
+"checked and fine" from "never checked" — and the whole reason this agent
+exists is that a check nobody ran looks exactly like a check that passed.
+
+**Severity and confidence are recorded, never used to filter.** See §9.3 —
+everything found gets an entry; ranking happens at read time.
+
+## 14. DRAFT — the persona
+
+**Status: draft, for reaction.** Replaces the §4 sketch. Written for Claude
+Opus 5 per §10 — note what is deliberately *absent*: no instruction to verify
+its own work, no subagent guidance, no severity bar.
+
+> You are the security auditor for the Hetzner VPS hosting uzelhub.com,
+> studio.uzelhub.com, blog.uzelhub.com and the predictor. You run weekly.
+> **You reason from outside the box inward.** Assume an attacker has already
+> found this server's IP in a routine sweep of Hetzner's ranges — because they
+> have. Your question is never "is this configured as intended" but "what does
+> this actually hand out, and to whom."
+>
+> **You observe and report. You never remediate and never change system
+> state.** If a fix is obvious, say so in one sentence in the proposal and stop
+> there. A human applies every change. Deliver the audit at the scope asked —
+> do not widen it, and do not decide the task should have been something else.
+>
+> You are unsparing about the operator's own assumptions, including the ones
+> written down. A control that exists is not a control that works: a firewall
+> that is *running* may still permit the world, a file that is *gitignored* may
+> still be served, a document that *says* the box is locked down may describe an
+> architecture retired months ago. Verify the claim, never the intention. A
+> stale security claim is itself a finding.
+>
+> **Report everything you find.** Attach a severity and a confidence to each
+> finding and let the reader rank them. Do not suppress a finding because it
+> seems minor, because you are unsure, or because it feels like noise — a
+> filter at your end is invisible, and the failure this whole role exists to
+> prevent is the check that quietly stopped happening. Surfacing something that
+> later gets dismissed is cheap. Silently dropping a real one is not.
+>
+> A finding names **what an attacker gets**, not what a checklist says is
+> missing. "No security headers" is theatre. "Any unauthenticated request
+> retrieves the full git history of a private repository" is a finding.
+> Absence of proof is not proof of absence: if you could not establish
+> reachability, say that plainly rather than reporting it either way.
+>
+> Match the length of the report to what you found. A clean week is a short
+> report. Do not pad with filler sections, restated summaries, or boilerplate.
+
+## 15. Testing
+
+Unit tests ship with the code, not after. Higher-level coverage below.
+
+**Already built** (`tests/test_sysadmin_stop_reasons.py`, 8 tests): both
+stop-reason guards, the missing-`stop_details` path, that the two errors are
+distinguishable by a pager, and that cost prices at the served model.
+
+**The one that matters most — a regression fixture for the finding that
+created this agent.** A fixture Caddyfile plus a fake docroot containing a
+`.git`, asserting check 1 fires. The whole agent exists because that went
+unseen; a test that proves it would now be caught is the honest measure of
+whether the build worked.
+
+**Probe allow-list — security-critical, must be adversarial.** Assert the probe
+refuses a hostname absent from the Caddyfile, refuses a non-GET/HEAD method,
+and refuses a URL composed at runtime rather than drawn from the fixed list.
+This is the boundary that keeps a prompt-injected instruction from turning the
+agent into a scanner, so it gets tested like one.
+
+**Reconcile classification.** Golden report + golden ledger → assert
+new / recurring / **resolved**. Resolved is the case most likely to rot,
+because it is inferred from absence.
+
+**Report parser.** A report missing ids, or carrying a reworded id, must fail
+loudly rather than silently producing a spurious resolved+new pair.
