@@ -288,6 +288,43 @@ def run_pass(config: SysadminConfig, pass_name: str, *, dry_run: bool = False) -
                 _log_to_fallback(pass_name, reply, artifact, status_word, f"spine write failed: {exc}")
         else:
             _log_to_fallback(pass_name, reply, artifact, status_word, spine_error)
+    except BaseException as exc:
+        # A failed pass writes no artifact and no ledger entry, so the day it
+        # cost becomes invisible — and the next pass's rhyme-check reads the
+        # ledger, so a silent gap is a gap it cannot find. That is how the same
+        # failure class took three days (07-29, 08-04, 08-08) before anyone saw
+        # it was one class: each failure erased its own evidence from the only
+        # place the agent looks.
+        #
+        # Leave a marker, then get out of the way. Three rules, in order:
+        #   1. NEVER swallow — the non-zero exit is what fires OnFailure=. The
+        #      bare `raise` is load-bearing; the pager is not the gap and must
+        #      not become one.
+        #   2. NEVER let the marker's own failure mask the original. A broken
+        #      failure-handler that eats the real traceback is strictly worse
+        #      than no handler.
+        #   3. Terse. One dated line naming the error CLASS, which is what a
+        #      rhyme-check matches on — three different literal errors were one
+        #      shape.
+        # BaseException, not Exception: a timeout or SIGTERM mid-pass costs the
+        # same day and should leave the same mark.
+        if not dry_run:
+            try:
+                append_ledger(
+                    config,
+                    f"{pass_name} pass FAILED ({type(exc).__name__}) — no audit performed",
+                    f"`sysadmin-daily.service` exited non-zero before producing a report, so "
+                    f"no proposals artifact exists for this date and no audit of live state "
+                    f"was made.\n\n"
+                    f"- Error class: `{type(exc).__name__}`\n"
+                    f"- Detail: `journalctl -u sysadmin-daily.service --since {_dt.date.today()}`\n\n"
+                    f"Rhyme-check this against other `pass FAILED` entries before treating it "
+                    f"as a one-off — this failure class has recurred with different literal "
+                    f"errors each time.",
+                )
+            except BaseException:
+                pass  # rule 2 — never mask the real failure
+        raise
     finally:
         if conn is not None:
             conn.close()
