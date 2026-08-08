@@ -1050,4 +1050,18 @@ DESCRIPTION:Consolidate the box's operations & maintenance knowledge into
  ows per repo\, and the known gotchas (per-user auth\, repo visibility). A
  udience: the operator\, six months from now\, at 2am.
 END:VTODO
+BEGIN:VEVENT
+UID:apex-agent-receipts-weekly@ai-agent-platform
+DTSTAMP:20260806T013458Z
+DTSTART;VALUE=DATE:20260810
+DTEND;VALUE=DATE:20260811
+RRULE:FREQ=WEEKLY;BYDAY=MO
+SUMMARY:Refresh agent card receipts\, then regenerate apex
+DESCRIPTION:Agent receipts in uzelhub-web/marketing/data/agents.json are h
+ and-authored prose containing real numbers (Director: '130 runs since 27 
+ June'). Regenerating does NOT update these — only editing the JSON does. 
+ Computed figures (stat strip counts\, the 36-item ticker) DO refresh on r
+ egenerate. So: check receipts against reality\, edit agents.json\, then r
+ un generate.js. Deliberately a reminder\, not a timer.
+END:VEVENT
 END:VCALENDAR
