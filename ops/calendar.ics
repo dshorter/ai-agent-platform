@@ -1064,4 +1064,32 @@ DESCRIPTION:Agent receipts in uzelhub-web/marketing/data/agents.json are h
  egenerate. So: check receipts against reality\, edit agents.json\, then r
  un generate.js. Deliberately a reminder\, not a timer.
 END:VEVENT
+BEGIN:VTODO
+UID:docroot-split-dev-prod@ai-agent-platform
+DTSTAMP:20260808T192830Z
+DUE;VALUE=DATE:20260822
+STATUS:NEEDS-ACTION
+SUMMARY:Split docroots: source-controlled dev -> plain-file prod\, deploy 
+ by copy
+DESCRIPTION:Both live docroots are git working trees today: studio.uzelhub
+ .com serves /opt/uzelhub-web (the repo ROOT)\, and the apex serves /opt/u
+ zelhub-web/marketing. That single fact is the structural cause behind fou
+ r separate findings in the 2026-08-06 security audit — docroot-git-expose
+ d (CRITICAL)\, secret-in-docroot\, working-files-served\, doctrine-files-
+ served — all of which are currently mitigated by rules and permission bit
+ s rather than by the files simply not being there. It is also why generat
+ e.js publishes to production the instant it writes: there is no staging s
+ tep\, because the docroot IS the worktree.\n\nTarget shape: dev directori
+ es under source control\, prod directories that are plain files and NOT r
+ epos\, and deployment as an explicit copy from one to the other. Nothing 
+ secret\, nothing draft\, and no VCS metadata can live in a directory that
+  only ever receives copies of things chosen for publication.\n\nScope the
+  actual plan when picking this up — this entry is the intent\, not the de
+ sign. Worth settling as part of it: what gets copied vs generated at depl
+ oy time\, whether the apex sandbox pattern (ops/apex-sandbox already buil
+ ds to a scratch stage) becomes the deploy mechanism\, and whether the Cad
+ dy dotfile rule and the .git chmod can then be retired rather than carrie
+ d forward as belt-and-braces.\n\nSee: docs/uzelhub-crew/security-ledger.m
+ d\, server-maintenance/docs/networking/security-audit-2026-08-06.md
+END:VTODO
 END:VCALENDAR
