@@ -63,7 +63,7 @@ things the crew *tells* the operator, never more things it does.
 | Ledger helper | `ops/ledger-append --author security` (needs a new author value) |
 | Unit | `security-weekly.service` + `.timer` |
 | Cadence | Weekly, Monday, offset from `sysadmin-daily` at 06:20 |
-| Output | Proposals dir + one ledger entry + one `agent_decisions` row |
+| Output | Proposals dir + one ledger entry + **one `agent_decisions` row per finding** (see §16) |
 
 Reusing the sysadmin's shape: charter registry, proposals contract, the
 `_gather_context` clock/identity injection, the Postgres-down fallback to
@@ -649,3 +649,65 @@ because it is inferred from absence.
 
 **Report parser.** A report missing ids, or carrying a reworded id, must fail
 loudly rather than silently producing a spurious resolved+new pair.
+
+## 16. One spine row per finding — and the reconcile moves to SQL
+
+**Corrects §3 and §13.** Earlier drafts specced "one `agent_decisions` row per
+pass." That was wrong, and it was wrong from reading the sysadmin's current
+behaviour as if it were the contract rather than one agent's choice.
+
+**The schema says otherwise, explicitly.** `workflow_sequence_id` is commented
+*"Groups all decisions in one run"* and `parent_decision_id` is a
+self-referencing FK — neither means anything unless a run writes many rows. The
+table is `agent_decisions`, not `agent_runs`.
+
+**And multi-row is already the norm here.** Measured 2026-08-06:
+
+| agent | sequences | rows | rows per run |
+|---|---|---|---|
+| `content_agent` | 6 | 276 | **46** |
+| `marketer_agent.package` | 6 | 276 | **46** |
+| `ghost.create_draft` | 6 | 270 | **45** |
+| `scout_walk` | 29 | 83 | ~3 |
+| `director` | 144 | 144 | 1 |
+
+The Director is 1:1 because a conversational turn genuinely *is* one decision.
+The sysadmin's one-row-per-pass is the outlier, not the pattern, and the
+plumbing already exists — `log_manager.task_sequence` / `tool_sequence`, which
+already carry `workflow_sequence_id`, `parent_decision_id` and `step_number`.
+
+### What this changes
+
+**A finding is a decision.** One row each, sharing the pass's
+`workflow_sequence_id`, with the stable id and severity in the payload. A
+refusal is also a decision — write a row for it rather than raising with no
+trace, or refusals stay countable only by scrolling Telegram.
+
+**The reconcile step becomes a query, not a diff.** §3 specced parsing two
+markdown files and taking a set difference. With findings on the spine:
+
+- **new** — id absent from the previous sequence
+- **recurring** — id present in both
+- **resolved** — id in the previous sequence, absent now
+- **first seen** — `min(decision_timestamp)` for that id, free
+- **age** — how long a finding has been open, free
+
+No parser, nothing to rot, and no risk of a markdown format change silently
+breaking the classification.
+
+**The ledger keeps its own job** and does not become redundant. The spine holds
+the structured facts; the ledger holds the narrative — the receipts, the "what
+an attacker gets" prose, the reasoning a human needs six months later. Same
+split the sysadmin already has between its spine row and its ledger entry. §13's
+report contract stands unchanged: it is what a *human* reads, and the id in the
+heading is what ties the prose to the row.
+
+### Open
+
+- **`decision_type` value.** The schema comments the existing set as
+  `'invoke' | 'route' | 'classify'`. A finding is none of those. Adding
+  `'finding'` and `'refused'` is the honest move; confirm nothing downstream
+  switches exhaustively on that column first.
+- **Parenting.** Findings as children of one pass-level row (`parent_decision_id`)
+  gives a natural "the pass, and what it found" tree, and makes the pass row
+  the place to hang cost and status. Worth doing if the helper makes it cheap.
