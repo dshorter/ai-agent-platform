@@ -35,6 +35,46 @@
 
 ---
 
+## 2026-08-08 — The durable fix landed: dotfile rule on studio
+
+**Author:** operator + session. **Closes the residual on**
+`docroot-git-exposed:studio.uzelhub.com`, which entry zero recorded as
+RESOLVED-but-not-fully-closed: the chmod held, but permissions were the wrong
+layer and a future `chmod -R` would have silently reopened it.
+
+A `path_regexp \/\.` matcher now 404s any dotfile at any depth, placed inside
+the `studio.uzelhub.com` block **above** the catch-all `handle`.
+
+**Verified:** `.git/config`, `.git/HEAD` and `.git/index` all 404. All four
+hostnames still 200, the desk still 200, ordinary studio pages still served.
+
+**This also closes the reachability half of**
+`secret-in-docroot:services/uzella-proxy/.env` — it now 404s rather than
+relying on its 600 bit. **The finding stays OPEN**: the file is still inside a
+public docroot, and the fix is to move it out. Two layers of protection on a
+secret that should not be there is not the same as the secret not being there.
+
+**Three process notes, because each was an invisible-failure near-miss:**
+
+1. **First paste landed in the wrong site block.** It went into `uzelhub.com`
+   rather than `studio.uzelhub.com`. It validated, it reloaded, and it did
+   nothing for the actual exposure — while adding a dotfile 404 to the apex,
+   where it could have caught the ACME challenge path and broken certificate
+   renewal ~60 days later. Removed from apex.
+2. **The matcher type matters, not just the pattern.** `path \/\.` is a
+   literal string match and silently matches nothing; only `path_regexp` reads
+   it as a pattern. It validates either way.
+3. **Config edited, Caddy not reloaded** — file at 15:19, last reload 15:10.
+   The probes returned the *old* config's answers and looked like a broken
+   matcher rather than a stale process.
+
+**The test that caught all three:** `404` means the rule is doing the work;
+`403` means permissions still are. Both look "protected" from outside, and only
+one survives a `chmod -R`. **A readable file is the better probe** —
+`.gitignore` went 200 → 404, which no permission bit could have produced.
+
+---
+
 ## 2026-08-06 — Entry zero: full manual audit, seeding the baseline
 
 **Author:** operator + session (agent not yet built). **Method:** manual audit,
