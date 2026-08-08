@@ -711,3 +711,83 @@ heading is what ties the prose to the row.
 - **Parenting.** Findings as children of one pass-level row (`parent_decision_id`)
   gives a natural "the pass, and what it found" tree, and makes the pass row
   the place to hang cost and status. Worth doing if the helper makes it cheap.
+
+## 17. `decision_type` becomes a lookup table; `parent_decision_id` stays reserved
+
+Two corrections raised by the operator, 2026-08-06. §16 got the multi-row point
+right and then made a fresh mistake with parenting.
+
+### 17.1 The valid-type comment is already fiction
+
+```sql
+decision_type VARCHAR(50) NOT NULL,    -- 'invoke', 'route', 'classify'
+```
+
+`logging_context.py` hardcodes `'invoke'` in the only INSERT. **`'route'` and
+`'classify'` have never been written.** The comment describes an intent from
+design time; the data has one value. Nothing detected the drift because a SQL
+comment cannot be queried, cannot be enforced, and — the thing this section
+exists for — **cannot say how many rows of a type a run produces.**
+
+That is exactly what was bumped into: "one row per pass" was inferred from one
+agent's behaviour because nothing recorded the answer anywhere.
+
+**Proposal — a real lookup table, FK-enforced:**
+
+```sql
+CREATE TABLE decision_types (
+    decision_type VARCHAR(50)  PRIMARY KEY,
+    description   TEXT         NOT NULL,
+    cardinality   VARCHAR(16)  NOT NULL
+                  CHECK (cardinality IN ('one_per_run', 'many_per_run')),
+    added_on      DATE         NOT NULL DEFAULT CURRENT_DATE,
+    retired_on    DATE
+);
+
+ALTER TABLE agent_decisions
+  ADD CONSTRAINT agent_decisions_decision_type_fkey
+  FOREIGN KEY (decision_type) REFERENCES decision_types (decision_type);
+```
+
+Seed:
+
+| `decision_type` | cardinality | description |
+|---|---|---|
+| `invoke` | `many_per_run` | A tool or agent invocation. The only type written to date. |
+| `finding` | `many_per_run` | One distinct condition, keyed by its stable finding id. |
+| `audit_pass` | `one_per_run` | Pass-level summary — status, cost, duration, checks not reached. |
+| `refused` | `one_per_run` | Safety classifiers declined the request; category in the payload. |
+
+**`cardinality` is the column that does the work here.** It is where "a run may
+write many of these" becomes a fact you can look up instead of one you discover
+by reading another agent's source.
+
+**Do not seed `route` or `classify`.** They were never written; adding them now
+would re-import the fiction. If a use appears, the FK forces an explicit row —
+which is the point: **a new session type is a lookup row, never a new string
+literal squeezed into an existing type.**
+
+**Migration order matters** (live table): create the lookup, seed `invoke`,
+*then* add the FK. Every existing row is `'invoke'`, so the constraint validates
+without a backfill. The FK also ends silent typos — `'findng'` currently
+inserts happily.
+
+### 17.2 `parent_decision_id` is for delegation, not composition
+
+§16 suggested parenting findings under a pass-level row. **Withdrawn.** The
+column was conceived for *one agent calling another agent or a sub-agent*, and
+that is a different relationship from *this pass produced these findings*.
+
+- **Composition** is already solved: `workflow_sequence_id` is commented
+  "Groups all decisions in one run". Parenting findings duplicates it.
+- **Overloading costs a query.** With findings parented, "what did this agent
+  delegate" returns findings forever, and no filter distinguishes them without
+  also switching on `decision_type` — the ambiguity a FK-enforced type was
+  supposed to remove.
+- **The column is pristine** — hardcoded `NULL` at the only INSERT, never
+  populated. Squatting on it now would burn the delegation slot at exactly the
+  moment the crew grows a second and third agent that might use it properly.
+
+**So: findings are siblings, not children.** One `audit_pass` row and N
+`finding` rows share a `workflow_sequence_id`; nothing is parented.
+`parent_decision_id` stays NULL and stays reserved.
