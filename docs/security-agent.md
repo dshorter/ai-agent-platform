@@ -732,7 +732,12 @@ exists for — **cannot say how many rows of a type a run produces.**
 That is exactly what was bumped into: "one row per pass" was inferred from one
 agent's behaviour because nothing recorded the answer anywhere.
 
-**Proposal — a real lookup table, FK-enforced:**
+**APPLIED 2026-08-08** as `database/ai_agent_platform/003_decision_types.sql`
+(schema_version 1.2.0). Dry-run first with `COMMIT` swapped for `ROLLBACK` to
+validate the FK against all 1,395 live rows, then applied. Verified after: a
+typo'd `'findng'` is now rejected, `'finding'` accepted.
+
+**The lookup table, FK-enforced:**
 
 ```sql
 CREATE TABLE decision_types (
