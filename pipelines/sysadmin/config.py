@@ -39,7 +39,10 @@ class SysadminConfig:
             ),
             model=os.environ.get("SYSADMIN_MODEL", "claude-sonnet-5"),
             # Ambient agent: a hard default cap even when the env is silent.
-            max_cost_usd=float(max_cost_raw) if max_cost_raw else 5.0,
+            # $3/pass is deliberately generous — the whole Director has spent
+            # ~$3.31 in its life. Sized so Opus 5 at xhigh has room to finish a
+            # pass rather than truncate mid-audit, not as a spend target.
+            max_cost_usd=float(max_cost_raw) if max_cost_raw else 3.0,
             proposals_dir=Path(
                 os.environ.get("SYSADMIN_PROPOSALS_DIR", str(DEFAULT_PROPOSALS_DIR))
             ),

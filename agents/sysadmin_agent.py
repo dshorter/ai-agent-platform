@@ -26,7 +26,11 @@ from pipelines.sysadmin.tools import TOOL_DEFS, ToolBox, default_toolbox
 
 SYSADMIN_MODEL = "claude-sonnet-5"
 SYSADMIN_MAX_ITERATIONS = 24  # reconciliation reads wide; still a hard wall
-SYSADMIN_MAX_TOKENS = 8192
+# A ceiling, not a target — billed on what's produced. Sized for Opus at xhigh
+# effort, where thinking and response share this budget and Anthropic's guidance
+# is 64k minimum; 8192 made every xhigh run a hard TruncatedRunError. The real
+# spend limit is max_cost_usd, not this.
+SYSADMIN_MAX_TOKENS = 64000
 # Ceiling on total tool output fed back across one pass (the Director's
 # grep-bomb budget, sized up for an agent whose job is reading the whole host).
 SYSADMIN_MAX_TOOL_CHARS = 240_000
@@ -199,7 +203,13 @@ class SysadminAgent:
             usage["out"] += u.output_tokens
             usage["cc"] += cc
             usage["cr"] += cr
-            cost += compute_cost(self.model, u.input_tokens, u.output_tokens, cc, cr) or 0.0
+            # Price at the model that ACTUALLY served this turn, not the one we
+            # asked for. With server-side fallbacks a refused Opus 5 turn is
+            # re-run on Opus 4.8 and billed at 4.8's rates — costing it at the
+            # requested model's rates overstates the spend and, worse, makes the
+            # rollback invisible to the cost cap.
+            served = getattr(resp, "model", None) or self.model
+            cost += compute_cost(served, u.input_tokens, u.output_tokens, cc, cr) or 0.0
 
         while iterations < self.max_iterations:
             iterations += 1
@@ -259,7 +269,11 @@ class SysadminAgent:
             output_tokens=usage["out"],
             cache_creation_input_tokens=usage["cc"],
             cache_read_input_tokens=usage["cr"],
-            model=self.model,
+            # The model that served the final turn, not the one configured — this
+            # lands in agent_decisions.llm_model, so a fallback to Opus 4.8 shows
+            # up as its own row rather than masquerading as the requested model.
+            # Makes "how often did we roll back" a one-predicate query.
+            model=getattr(response, "model", None) or self.model,
             iterations=iterations,
             tool_calls=tool_calls,
         )
