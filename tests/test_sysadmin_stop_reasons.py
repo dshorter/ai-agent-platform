@@ -47,17 +47,47 @@ def _response(stop_reason: str, *, model: str = "claude-opus-5", stop_details=No
     )
 
 
+class _Stream:
+    """Context manager standing in for client.messages.stream(...)."""
+
+    def __init__(self, response):
+        self._response = response
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+    def get_final_message(self):
+        return self._response
+
+
 class _StubClient:
-    """Anthropic client stub. Returns queued responses in order."""
+    """Anthropic client stub. Returns queued responses in order.
+
+    `create` is wired to fail on purpose. The agent must use the STREAMING
+    path: a non-streaming request leaves the connection idle for the whole
+    generation and the SDK hard-refuses one above 21,333 max_tokens, which is
+    what broke the 2026-08-08 pass. A silent regression to `.create()` would
+    reintroduce that ceiling, so it fails here rather than at 06:20.
+    """
 
     def __init__(self, *responses):
         self._queue = list(responses)
         self.calls: list[dict] = []
-        self.messages = SimpleNamespace(create=self._create)
+        self.messages = SimpleNamespace(create=self._forbidden, stream=self._stream)
 
-    def _create(self, **kwargs):
+    def _stream(self, **kwargs):
         self.calls.append(kwargs)
-        return self._queue.pop(0)
+        return _Stream(self._queue.pop(0))
+
+    @staticmethod
+    def _forbidden(**kwargs):
+        raise AssertionError(
+            "agent called client.messages.create() — it must stream; see the "
+            "21,333-token non-streaming ceiling that broke the 2026-08-08 pass"
+        )
 
 
 def _agent(client) -> SysadminAgent:
@@ -142,3 +172,29 @@ def test_served_model_falls_back_to_configured_when_absent():
     resp = SimpleNamespace(stop_reason="end_turn", content=[])
     agent = _agent(_StubClient(resp))
     assert (getattr(resp, "model", None) or agent.model) == "claude-opus-5"
+
+
+# --- streaming transport ---------------------------------------------------
+
+
+def test_agent_uses_the_streaming_path():
+    """Pins the transport. Non-streaming carries a 21,333-token SDK ceiling
+    (measured 2026-08-08) that hard-refuses before the request is sent — which
+    is what broke that morning's pass. _StubClient.create raises, so a
+    regression fails here rather than at 06:20."""
+    client = _StubClient(_response("end_turn"))
+    agent = _agent(client)
+    agent._create([{"role": "user", "content": "audit"}])
+    assert len(client.calls) == 1, "no request was made"
+
+
+def test_streamed_response_keeps_the_fields_downstream_depends_on():
+    """get_final_message() must yield the same Message shape create() did —
+    every check in _create and every consumer of SysadminReply reads these."""
+    resp = _response("end_turn", model="claude-opus-5")
+    agent = _agent(_StubClient(resp))
+    out = agent._create([{"role": "user", "content": "audit"}])
+    assert out.stop_reason == "end_turn"
+    assert out.model == "claude-opus-5"
+    assert out.usage.input_tokens == 10
+    assert out.usage.output_tokens == 5

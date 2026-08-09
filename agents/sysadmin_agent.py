@@ -197,7 +197,19 @@ class SysadminAgent:
         )
         if tool_choice is not None:
             kwargs["tool_choice"] = tool_choice
-        response = self.client.messages.create(**kwargs)
+        # Streaming, though nothing watches it. This is transport, not UX: a
+        # non-streaming request leaves the HTTP connection idle for the whole
+        # generation, and the SDK hard-refuses one whose max_tokens implies a
+        # long call (>21,333 — measured 2026-08-08) rather than let it die as a
+        # dropped connection minutes in. Streaming keeps the connection fed, so
+        # the ceiling stops existing and `effort` can be chosen on its merits
+        # instead of on what fits under an SDK limit.
+        #
+        # get_final_message() returns the same Message create() would have —
+        # same stop_reason, content, usage, model — so every check below and
+        # every consumer downstream is untouched.
+        with self.client.messages.stream(**kwargs) as stream:
+            response = stream.get_final_message()
         if response.stop_reason == "max_tokens":
             # Loudly, not quietly: a clipped reply mid-audit poisons everything after.
             raise TruncatedRunError(
