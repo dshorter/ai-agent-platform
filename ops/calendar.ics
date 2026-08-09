@@ -1106,4 +1106,21 @@ DESCRIPTION:Wanted: one command that takes the pipeline up to the Writer a
  exactly this reason. Note: --dry-run already rehearses any lead regardles
  s of status. Scope deliberately not thought through yet.
 END:VTODO
+BEGIN:VTODO
+UID:spine-out-of-blog-pipeline@operator.ai-agent-platform
+DTSTAMP:20260809T185231Z
+DUE;VALUE=DATE:20260829
+STATUS:NEEDS-ACTION
+SUMMARY:Move the decision spine out of blog_pipeline into its own module
+DESCRIPTION:pipelines/blog_pipeline/logging_context.py holds the only INSE
+ RT INTO agent_decisions in the codebase\, and seven callers import it: di
+ rector listener/tick/selftest\, scout\, writer\, blog runner\, retry_fail
+ ed_batches. Every agent therefore depends on the first tenant's package p
+ urely to log. Works fine\; the name is now a lie about what the module is
+ . Two things to fix while in there: decision_type is a hardcoded 'invoke'
+  literal in the INSERT (which is why all 1\,408 rows say invoke and yeste
+ rday's decision_types FK constrains a single-valued column)\, and agent_n
+ ame is populated from context.tool_name\, so it holds step names rather t
+ han agents. Raised 2026-08-09 while building the deep-analytics page.
+END:VTODO
 END:VCALENDAR
