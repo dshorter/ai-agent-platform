@@ -4,6 +4,20 @@ The samples in `samples/` carry the voice; these names are handles, not
 instructions. Per the operator's standing rule — samples carry the voice, name
 the moves sparingly — resist adding to this list.
 
+> **A sample carries everything about itself, not just its voice.**
+> Section count, paragraph rhythm and total length ride along whether or not
+> anyone chose them, and where a sample and a written rule disagree, the model
+> follows the sample. So: **whenever the SHAPE order in `WRITER_NOTE_PROMPT`
+> changes, re-cut every file in `samples/` in the same commit.**
+>
+> *Why this is here (2026-08-08).* The first sample was bottled 14 July. The
+> SHAPE order — three beats, one screen — was written on the 16th and amended
+> on the 17th. The sample was never re-cut, so for three weeks the Writer was
+> told to be brief and shown a four-section, 397-word example. Every draft
+> since inherited the example. Re-cut to three beats on 2026-08-08; the prose
+> is unchanged apart from merges and cuts, because the voice was never the
+> problem.
+
 - **Receipts before rhyme.** Dates, counts, exact error text. The concrete
   fact goes first; the lesson may follow it, never replace it. Receipts that
   enumerate — commits, read histories, fix steps — render as a list carrying
