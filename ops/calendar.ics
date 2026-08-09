@@ -1092,4 +1092,18 @@ DESCRIPTION:Both live docroots are git working trees today: studio.uzelhub
  d forward as belt-and-braces.\n\nSee: docs/uzelhub-crew/security-ledger.m
  d\, server-maintenance/docs/networking/security-audit-2026-08-06.md
 END:VTODO
+BEGIN:VTODO
+UID:writer-ondemand-cli@operator.ai-agent-platform
+DTSTAMP:20260809T031909Z
+DUE;VALUE=DATE:20260822
+STATUS:NEEDS-ACTION
+SUMMARY:Writer: on-demand CLI to run the pipeline through to a draft
+DESCRIPTION:Wanted: one command that takes the pipeline up to the Writer a
+ nd produces a draft on demand. Today a draft needs the 05:45 Scout pass p
+ lus an Editor claim (Writer requires status: claimed)\, so the chain cann
+ ot be exercised deliberately. Raised 2026-08-08 while re-cutting the voic
+ e sample — that fix is committed but unverified against a real draft for 
+ exactly this reason. Note: --dry-run already rehearses any lead regardles
+ s of status. Scope deliberately not thought through yet.
+END:VTODO
 END:VCALENDAR
