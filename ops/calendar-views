@@ -154,24 +154,18 @@ def li(c, names, today, done=False):
         late = ' late' if (delta < 0 and not done) else ''
         parts.append(f'<span class="due{late}">{when} · {rel}</span>')
     parts.append('</div>')
-    rt = next((k for k in c if k.startswith('RELATED-TO')), None)
-    if rt:
-        reltype = (re.search(r'RELTYPE=(\w+)', rt) or [None, 'PARENT'])[1]
-        target = c[rt]
-        label = REL_LABEL.get(reltype, '→')
-        parts.append(f'<div class="rel">{label} {html.escape(unesc(names.get(target, target)))}</div>')
+    label, target = relation_of(c, names)
+    if label:
+        parts.append(f'<div class="rel">{label} {html.escape(target)}</div>')
     desc = unesc(c.get('DESCRIPTION', ''))
     if desc:
         parts.append(f'<details><summary>detail</summary>{html.escape(desc)}</details>')
     parts.append('</li>')
     return ''.join(parts)
 
-def emit_html(comps):
-    now = datetime.datetime.now(TZ)
-    today = now.date()
-    names = {c['UID']: c.get('SUMMARY', c['UID']) for c in comps}
-    todos = [c for c in comps if c['kind'] == 'VTODO']
-    open_ = sorted((c for c in todos if is_open(c)),
+def bucketize(comps, today):
+    """(open todos sorted by due, date buckets) — the split every view shares."""
+    open_ = sorted((c for c in comps if is_open(c)),
                    key=lambda c: (due_of(c)[0] is None,
                                   str(due_of(c)[0] or ''), c['UID']))
     buckets = {'Overdue': [], 'Due today': [], 'Next 7 days': [], 'Later': [], 'No due date': []}
@@ -184,6 +178,23 @@ def emit_html(comps):
         key = ('Overdue' if delta < 0 else 'Due today' if delta == 0
                else 'Next 7 days' if delta <= 7 else 'Later')
         buckets[key].append(c)
+    return open_, buckets
+
+def relation_of(c, names):
+    """('↳ subtask of', 'parent summary') or (None, None)."""
+    rt = next((k for k in c if k.startswith('RELATED-TO')), None)
+    if not rt:
+        return None, None
+    reltype = (re.search(r'RELTYPE=(\w+)', rt) or [None, 'PARENT'])[1]
+    target = c[rt]
+    return REL_LABEL.get(reltype, '→'), unesc(names.get(target, target))
+
+def emit_html(comps):
+    now = datetime.datetime.now(TZ)
+    today = now.date()
+    names = {c['UID']: c.get('SUMMARY', c['UID']) for c in comps}
+    todos = [c for c in comps if c['kind'] == 'VTODO']
+    open_, buckets = bucketize(comps, today)
     recent = []
     for c in todos:
         if c.get('STATUS') == 'COMPLETED' and 'COMPLETED' in c:
@@ -210,6 +221,56 @@ def emit_html(comps):
                f'calendar-mark, never here. Buckets computed at generation: '
                f'{now.strftime("%Y-%m-%d %H:%M %Z")}. Regenerate: ops/calendar-views.</footer>')
     out.append('</body></html>')
+    return '\n'.join(out) + '\n'
+
+DIGEST_DESC_CHARS = 160
+
+def emit_digest(comps, now=None):
+    """Plain-text projection of the same buckets, for injection into an agent turn.
+
+    Not a file output — callers import this (see pipelines/director/project_state.py).
+    It exists because the raw .ics is the wrong shape for a reading agent twice
+    over: the file is past the read tool's byte ceiling, so a whole-file read
+    silently loses the newest todos, and grep is line-oriented while a VTODO is
+    a record, so no single grep returns one whole item. On 2026-08-11 the
+    Director spent eight of its twelve tool calls rebuilding this by hand and
+    still hit its step cap mid-read. Handing it the projection costs zero calls.
+
+    Descriptions ride along for the two buckets a decision comes from; Later and
+    No-due-date are counted only, to keep this a prompt-sized read.
+    """
+    now = now or datetime.datetime.now(TZ)
+    today = now.date()
+    names = {c['UID']: c.get('SUMMARY', c['UID']) for c in comps}
+    open_, buckets = bucketize(comps, today)
+    out = [f'OPS TODOS — {len(open_)} open, projected from ops/calendar.ics at '
+           f'{now.strftime("%Y-%m-%d %H:%M %Z")}. This is the whole open list: it is '
+           f'already complete, so do not read or grep calendar.ics to rebuild it. '
+           f'Write with calendar_add / calendar_mark (uid= below), never by hand.']
+    for name in ('Overdue', 'Due today', 'Next 7 days'):
+        items = buckets[name]
+        if not items:
+            continue
+        out.append(f'\n{name} ({len(items)}):')
+        for c in items:
+            due, timed = due_of(c)
+            d = due.date() if timed else due
+            delta = (d - today).days
+            rel = ('today' if delta == 0 else
+                   f'{-delta}d overdue' if delta < 0 else f'in {delta}d')
+            out.append(f'- {unesc(c.get("SUMMARY", ""))} [{namespace(c["UID"])}] '
+                       f'({d:%b %-d} · {rel}) uid={c["UID"]}')
+            label, target = relation_of(c, names)
+            if label:
+                out.append(f'    {label} {target}')
+            desc = unesc(c.get('DESCRIPTION', '')).replace('\n', ' ').strip()
+            if desc and name != 'Next 7 days':
+                clipped = desc[:DIGEST_DESC_CHARS]
+                out.append(f'    {clipped}' + ('…' if len(desc) > DIGEST_DESC_CHARS else ''))
+    counted = ', '.join(f'{n} {len(buckets[n])}' for n in ('Later', 'No due date')
+                        if buckets[n])
+    if counted:
+        out.append(f'\nNot listed: {counted}. Read ops/views/todos.html if you need them.')
     return '\n'.join(out) + '\n'
 
 def main():
