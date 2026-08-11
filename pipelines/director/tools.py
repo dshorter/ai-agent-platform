@@ -38,8 +38,21 @@ from pipelines.director.registry import load_registry
 # ceiling matters: a single grep over scraped data (predictor_ingest stores raw HTML
 # with 700k-char lines) once produced a 3.77M-token prompt and a 400. Every result is
 # clipped to MAX_TOOL_RESULT_CHARS in dispatch, and grep clips per-line as well.
-MAX_TOOL_RESULT_CHARS = 40_000  # hard ceiling on ANY single tool result (~10k tokens)
-MAX_READ_BYTES = 40_000
+# Raised 40k -> 120k on 2026-08-11. The old pair sat below several docs the agents
+# genuinely read, and a clip is silent: predictor_ingest/docs/project-plan.md (90KB)
+# was 44% visible across 7 reads, and the ops calendar spent five days truncating
+# its newest todos before anyone noticed. 120k covers every doc in play today with
+# headroom; leads.yaml (371KB) still clips, which is accepted — it is raw ore, not
+# a document, and the notice below now states how much was lost so the reader can
+# say so. These two must move together: dispatch clips EVERY result to
+# MAX_TOOL_RESULT_CHARS, so raising the read limit alone changes nothing.
+# MAX_TOOL_RESULT_CHARS must stay strictly ABOVE MAX_READ_BYTES: a truncated read
+# returns the full prefix *plus* the notice below, so equal ceilings put it over the
+# universal clip in dispatch() — which then cuts the notice off and replaces it with
+# a generic one. The informative message would be destroyed in exactly the case it
+# exists for. tests/test_director_tools.py pins the gap.
+MAX_TOOL_RESULT_CHARS = 128_000  # hard ceiling on ANY single tool result (~32k tokens)
+MAX_READ_BYTES = 120_000
 MAX_GREP_LINES = 120
 MAX_GREP_LINE_CHARS = 300  # clip long matched lines (minified/bundled/raw-HTML files)
 MAX_DIR_ENTRIES = 200
@@ -326,7 +339,21 @@ class ToolBox:
             return ("refused: not a UTF-8 text file (binary?).", True)
         text = head.decode("utf-8", errors="ignore")  # ignore avoids splitting a multibyte char
         if len(chunk) > MAX_READ_BYTES:
-            text += "\n…(truncated — file is larger than the read limit)"
+            # Say how much is missing, not just that something is. The old notice
+            # ("file is larger than the read limit") told the reader it was short
+            # without telling it by how much, so a 10%-visible read and a
+            # 99%-visible one looked identical — and on 2026-08-11 the Director
+            # answered from the first tenth of leads.yaml without hedging. The
+            # persona asks it to name a clipped source; this gives it the number.
+            try:
+                total = p.stat().st_size
+                pct = MAX_READ_BYTES * 100 // total
+                text += (f"\n…(TRUNCATED — you are seeing the first {MAX_READ_BYTES:,} of "
+                         f"{total:,} bytes, about {pct}% of this file. The rest is NOT below. "
+                         f"Do not describe this file as though you read all of it; grep it for "
+                         f"what you need, or say which part you did not see.)")
+            except OSError:
+                text += "\n…(TRUNCATED — file is larger than the read limit; the rest is NOT below.)"
         return (text, False)
 
     def _grep(self, pattern: str, raw: str) -> tuple[str, bool]:

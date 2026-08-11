@@ -37,7 +37,12 @@ DIRECTOR_MAX_TOKENS = 8192
 # Hard ceiling on total tool output fed back across one turn. Each result is already
 # clipped in the toolbox; this bounds the *sum* so the growing prompt can't approach
 # the model's context limit (the 3.77M-token grep-bomb that 400'd on 2026-06-29).
-DIRECTOR_MAX_TOOL_CHARS = 200_000
+# Raised 200k -> 400k on 2026-08-11 alongside the per-result ceiling: at 120k per
+# read, two big documents used to end a turn on volume alone. 400k chars is ~100k
+# tokens against Sonnet 5's 1M-token window — still an order of magnitude clear of
+# the limit, and the pipe bound in _bounded_output (600KB / 15s) remains the actual
+# OOM guard, untouched by either raise.
+DIRECTOR_MAX_TOOL_CHARS = 400_000
 
 DIRECTOR_SYSTEM_PROMPT = """You are the Director — Dan's cross-project orchestrator. You hold the one picture no single project has: what's in flight across all of Dan's projects at once, and how the pieces connect.
 
