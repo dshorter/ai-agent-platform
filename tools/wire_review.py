@@ -377,6 +377,9 @@ def build(art: dict, leads: dict[str, dict]) -> tuple[str, dict]:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Lead routing desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>{CSS}{EXTRA_CSS}</style>
 </head><body><div class="shell">
 {rail}

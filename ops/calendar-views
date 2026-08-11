@@ -108,13 +108,14 @@ def emit_ics(todos):
     return '\n'.join(out) + '\n'
 
 CSS = """
+html{font-size:106.25%}  /* 17px base — matches apex; every rem follows */
 :root { --bg:#fff; --fg:#1a1a1a; --dim:#667; --line:#e2e4e8; --accent:#2563eb;
         --over:#b91c1c; --badge:#eef1f5; }
 @media (prefers-color-scheme: dark) {
   :root { --bg:#101216; --fg:#e6e8ec; --dim:#99a; --line:#2a2e36; --accent:#7aa2ff;
           --over:#f87171; --badge:#1d2129; } }
 body { margin:0 auto; max-width:720px; padding:24px 16px 48px;
-       font:16px/1.5 system-ui,sans-serif; background:var(--bg); color:var(--fg); }
+       font:1rem/1.5 Inter,system-ui,sans-serif; background:var(--bg); color:var(--fg); }
 h1 { font-size:20px; } h1 small { color:var(--dim); font-weight:normal; }
 h2 { font-size:13px; text-transform:uppercase; letter-spacing:.08em;
      color:var(--dim); border-bottom:1px solid var(--line); padding-bottom:4px;
@@ -204,7 +205,12 @@ def emit_html(comps):
     out = ['<!doctype html><html lang="en"><head><meta charset="utf-8">',
            '<meta name="viewport" content="width=device-width,initial-scale=1">',
            '<meta name="robots" content="noindex,nofollow">',
-           '<title>ops todos</title>', f'<style>{CSS}</style></head><body>',
+           '<title>ops todos</title>',
+           '<link rel="preconnect" href="https://fonts.googleapis.com">',
+           '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>',
+           '<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700'
+           '&display=swap" rel="stylesheet">',
+           f'<style>{CSS}</style></head><body>',
            f'<h1>ops todos <small>— {len(open_)} open</small></h1>']
     for name, items in buckets.items():
         if not items:

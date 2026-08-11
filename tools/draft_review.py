@@ -191,13 +191,14 @@ def render_card(d: dict, i: int) -> str:
 
 
 CSS = """
+html{font-size:106.25%}  /* 17px base — matches apex; every rem follows */
 /* Two type roles that mean something: serif is the copy under review,
    sans is the desk around it. You can tell at a glance which is which. */
 :root{
   --bg:#f6f6f4;--card:#fff;--fg:#17181c;--dim:#64666e;--line:#e4e4e1;
   --acc:#2f5d8a;--up:#1c7a52;--upbg:#e7f3ec;--down:#a8433c;--downbg:#faebe9;--warnc:#8a6100;
   --serif:Charter,"Iowan Old Style","Source Serif Pro",Georgia,serif;
-  --sans:ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --sans:Inter,ui-sans-serif,-apple-system,"Segoe UI",Roboto,sans-serif;
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,monospace;
 }
 @media(prefers-color-scheme:dark){:root{
@@ -211,7 +212,7 @@ CSS = """
   --acc:#2f5d8a;--up:#1c7a52;--upbg:#e7f3ec;--down:#a8433c;--downbg:#faebe9;--warnc:#8a6100;}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);
-font:16px/1.62 var(--sans);-webkit-text-size-adjust:100%}
+font:1rem/1.62 var(--sans);-webkit-text-size-adjust:100%}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 /* Rail + reading column. The rail filters the stack by register; it never
@@ -609,6 +610,9 @@ def build(drafts: list[dict], notes: list[dict], slots: list[int], today: dt.dat
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Draft review desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>{css}</style>
 </head><body><div class="shell">
 {rail}
@@ -682,6 +686,9 @@ def build_queue(notes: list[dict], slots: list[int], today: dt.date) -> str:
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Publication queue</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>{CSS}{QUEUE_CSS}</style>
 </head><body><div class="qwrap">
 <header class="qhead">
