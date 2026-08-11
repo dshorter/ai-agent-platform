@@ -20,7 +20,7 @@ from datetime import date
 import psycopg
 from anthropic import Anthropic
 
-from agents.director_agent import DirectorAgent
+from agents.director_agent import DIRECTOR_TICK_MAX_ITERATIONS, DirectorAgent
 from pipelines.blog_pipeline.logging_context import (
     DecisionWriter,
     SequenceAwareLogManager,
@@ -63,6 +63,9 @@ def run_tick(config: DirectorConfig, name: str, *, dry_run: bool = False) -> Non
             Anthropic(api_key=config.anthropic_api_key),
             model=config.model,
             max_cost_usd=config.max_cost_usd,
+            # Unattended: no one is waiting on the reply, so this path gets the
+            # larger step budget (see DIRECTOR_TICK_MAX_ITERATIONS).
+            max_iterations=DIRECTOR_TICK_MAX_ITERATIONS,
         )
         log.info("director.tick.start name=%s model=%s", name, config.model)
         # Reuse the spine: run_turn gathers fresh state, runs the agentic loop, and

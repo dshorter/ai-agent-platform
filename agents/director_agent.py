@@ -23,7 +23,16 @@ from pipelines.director.tools import TOOL_DEFS, ToolBox, default_toolbox
 
 
 DIRECTOR_MODEL = "claude-sonnet-5"
-DIRECTOR_MAX_ITERATIONS = 8  # tool round-trips before the loop is forced to close
+# Tool round-trips before the loop is forced to close. Two numbers because the
+# two callers have opposite latency budgets: the listener answers a human waiting
+# on Telegram (8 round-trips is already ~70s), while a tick runs unattended under
+# a 600s systemd timeout with nobody watching. One shared 8 meant the unattended
+# path was sized by a constraint that only applies to the chat path — and on
+# 2026-08-11 that was what capped the morning brief. Neither number is a cost
+# control: an iteration runs ~$0.04 against a $15 cap, so the money is ~400 steps
+# away and the real jobs here are chat latency and loop liveness.
+DIRECTOR_MAX_ITERATIONS = 8
+DIRECTOR_TICK_MAX_ITERATIONS = 20
 DIRECTOR_MAX_TOKENS = 8192
 # Hard ceiling on total tool output fed back across one turn. Each result is already
 # clipped in the toolbox; this bounds the *sum* so the growing prompt can't approach
@@ -47,6 +56,8 @@ You can read the projects yourself. You have read-only tools: read_file (open a 
 
 Reach for the tools whenever reading would sharpen the answer, but stop once you have enough — don't spelunk past the point of usefulness. Give Dan your final answer directly; don't narrate your exploration step by step in the reply.
 
+Your tools clip what they return: a read past the byte ceiling comes back truncated, and grep returns a bounded number of lines. When that happens the notice is in the result — you are never guessing about it. Two rules. Don't answer from a truncated read as though it were the whole file: say what you're missing, or go get it another way. And if a clipped source materially shaped your answer, name the file in one clause — "leads.yaml read truncated, this is from the first tenth." Reading part of a file is fine and often enough; presenting it as the whole file is not. This is the single failure Dan cannot catch from the outside, because a confident answer built on a tenth of a file looks exactly like a confident answer built on all of it.
+
 Voice: a thinking partner, not a ticket queue. Precise, evidence-cited, non-hedging — if you can't answer without more information, say exactly what you'd need. Name the move, not just the label. No blame; a stalled project is a fact to plan around.
 
 This channel may not be confidential. Don't push secrets, credentials, or sensitive detail through it — redact or summarize, and offer the full version only if Dan asks.
@@ -64,6 +75,11 @@ class DirectorReply:
     model: str = DIRECTOR_MODEL
     iterations: int = 0
     tool_calls: list[str] = field(default_factory=list)
+    # Which cap ended the loop ("step" / "cost" / "tool output"), or None if the
+    # Director finished on its own. Lands in the decision log so a forced close is
+    # detectable by query instead of by reading the reply and trusting its account
+    # of itself — the account that was wrong on 2026-08-11.
+    limit_hit: str | None = None
 
 
 def _text_of(response: Any) -> str:
@@ -80,6 +96,32 @@ def _brief(tool_input: dict[str, Any]) -> str:
             val = str(tool_input[key])
             return val if len(val) <= 70 else val[:67] + "…"
     return ""
+
+
+_LIMIT_NOTE = {
+    "step": ("You have used every tool round-trip this run allows — you are out of "
+             "STEPS, not money (the cost cap is nowhere near). "),
+    "cost": ("You have reached the COST cap for this run. "),
+    "tool output": ("You have read the maximum volume of tool output this run allows "
+                    "— you are out of READ VOLUME, not steps or money. "),
+}
+
+
+def _forced_close_note(limit: str | None) -> str:
+    """The close-out instruction, naming the cap that actually fired.
+
+    Which limit stopped the loop determines which fix is right — more steps, a
+    bigger budget, or smaller sources — so the model must not have to guess.
+    It used to be told "Budget or step limit reached" and pick one; on
+    2026-08-11 it picked wrong and reported a budget problem to Dan for what
+    was a step problem at 2% of the cost cap.
+    """
+    return (
+        _LIMIT_NOTE.get(limit, "A run limit was reached. ")
+        + "Stop reading now and give Dan your best answer with what you have. Name "
+        "the gap you couldn't close, and say which limit cut you off using the term "
+        "above — he tunes these, so a wrong cause sends him at the wrong dial."
+    )
 
 
 def _mark_cache_breakpoint(messages: list[dict[str, Any]]) -> None:
@@ -180,6 +222,7 @@ class DirectorAgent:
         tool_chars = 0
         iterations = 0
         response = None
+        limit_hit: str | None = None  # set only when a cap ends the loop
 
         def _tally(resp: Any) -> None:
             nonlocal cost
@@ -221,23 +264,24 @@ class DirectorAgent:
                 )
             messages.append({"role": "user", "content": results})
 
-            over_budget = self.max_cost_usd is not None and cost >= self.max_cost_usd
-            if over_budget or tool_chars >= DIRECTOR_MAX_TOOL_CHARS:
-                break  # budget/output spent — fall through to a forced close
+            if self.max_cost_usd is not None and cost >= self.max_cost_usd:
+                limit_hit = "cost"
+                break
+            if tool_chars >= DIRECTOR_MAX_TOOL_CHARS:
+                limit_hit = "tool output"
+                break
+        else:
+            limit_hit = "step"  # the while condition ran out, not a break
 
         finished = response is not None and response.stop_reason != "tool_use"
         final_text = _text_of(response) if finished else ""
         if not finished:
-            # Ran out of iterations or budget mid-exploration — force a closing answer.
-            messages.append(
-                {
-                    "role": "user",
-                    "content": (
-                        "Budget or step limit reached. Stop reading now and give Dan your "
-                        "best answer with what you have — name any gap you couldn't close."
-                    ),
-                }
-            )
+            # Ran out mid-exploration — force a closing answer, and NAME the limit.
+            # The old wording was the disjunction "Budget or step limit reached",
+            # which the model resolved by guessing: on 2026-08-11 it hit the step
+            # cap at 2% of the cost cap and told Dan "budget's out mid-read". A
+            # wrong cause points at the wrong fix, so the limit is now passed in.
+            messages.append({"role": "user", "content": _forced_close_note(limit_hit)})
             _mark_cache_breakpoint(messages)  # cache the growing transcript
             response = self._create(messages, tool_choice={"type": "none"})
             _tally(response)
@@ -252,4 +296,5 @@ class DirectorAgent:
             model=self.model,
             iterations=iterations,
             tool_calls=tool_calls,
+            limit_hit=limit_hit if not finished else None,
         )

@@ -258,6 +258,78 @@ blog post (`promotion-survey.yaml`: `narrative.director-calendar-saga`).
 
 ---
 
+## 2026-08-11 — the quiet half of the grep-bomb guardrail
+
+The morning brief opened: *"Budget's out mid-read — but I've got the live todo desk plus fresh
+commits, and that's enough to call it."* It had spent **$0.28 of a $15 cap**. Nothing about that
+sentence was true except the feeling behind it. The loop's close-out said "Budget **or** step limit
+reached" and the model resolved the disjunction by guessing.
+
+**What it was actually doing.** Eight of twelve tool calls went at one file — `ops/calendar.ics`,
+two `read_file`, six `grep`. Not a stuck loop: a *join*. The calendar had crossed **51,100 bytes**
+against the toolbox's **40,000-byte** read ceiling, so the whole-file read came back truncated with
+the newest 8 VTODOs missing — three of which it went on to cite in the brief. It could only recover
+them through `grep`, and `grep` is line-oriented while a VTODO is a record, so no single call returns
+one whole todo: one pass for summaries, one for due dates, one for statuses, zip them by hand.
+
+Then the part worth remembering. On call eleven it gave up on the raw file and went looking for
+`ops/desk/todos.html` — the assembled view where the joining is already done. It found it on call
+twelve. **The step cap took the turn away on call thirteen.** It solved the problem one move before
+the wall and never got to use the answer.
+
+**Dating it.** The file crossed the ceiling **2026-08-03**; grinding began **08-06** (the lag is the
+tail growing from ~4 lost todos to 8). Before that, calendar reads cost 0–1 calls per run. After,
+4–10 — and **four of the last six briefs hit the cap**. Six weeks of a working capability, then a
+silent stop, with no code change anywhere near it. The trigger was a to-do list getting longer.
+
+**The striking part, and the reason this entry exists.** The calendar failed *loudly* — grinding,
+cap hits, a cost bump, eventually a bad brief a human noticed. The same defect has a silent form,
+and the decision spine says we've been living with it:
+
+| file | size | visible | `read_file` | `grep` |
+|---|---|---|---|---|
+| `pipelines/scout/state/leads.yaml` | 371 KB | **10%** | 8 | 2 |
+| `predictor_ingest/docs/project-plan.md` | 90 KB | 44% | 7 | 16 |
+| `ops/calendar.ics` | 51 KB | 78% | 23 | 36 |
+| `docs/uzelhub-crew/NEWSROOM.md` | 42.7 KB | 93% | 9 | 2 |
+
+Where `grep` far outruns `read_file`, the agent is *fighting* the ceiling — visible, expensive,
+self-announcing. But `leads.yaml` is the other shape: opened eight times, **a tenth of it seen**, no
+follow-up greps, no cap hit, no cost spike, no hedge in any reply. The Director has been reasoning
+about the Scout's ledger from its first tenth and has never once said so. Nothing in the behavior
+looks wrong, because **a confident answer built on 10% of a file is indistinguishable from a
+confident answer built on all of it.** The truncation notice was in every one of those results. It
+read it and moved on. `NEWSROOM.md` is the same wound with better manners — it carries `read: full`
+in its own front matter, the convention that says never conclude from a partial read, and it has
+been 7% past the ceiling since it crossed.
+
+**The link back.** That 40,000-byte ceiling is layer 2 of the three-layer guardrail built on
+2026-06-29 to stop the grep-bomb. It worked — no OOM, no 3.77M-token prompt, ever again. What went
+unwritten is that a clip protects the *process* and blinds the *agent*, and only the first half was
+designed. Six weeks later the guardrail was the injury.
+
+**Shipped:** the to-do digest is now injected into turn state rather than discovered (`8040a8c` —
+same buckets `calendar-views` computes for `todos.html`; dry run went 8 iterations → 3, zero calendar
+reads, $0.28 → $0.10, and it spent the freed turns noticing that `revamp-agents-pages` had actually
+shipped). Plus: the close-out now **names** the cap that fired and says which one it wasn't;
+`limit_hit` lands in `decision_payload` so a forced close is a fact you can query instead of a claim
+you have to read; and the step cap splits — 8 for the listener (a human waiting on Telegram, ~70s at
+eight round-trips), 20 for ticks (unattended, 600s systemd timeout). One shared 8 had been sizing the
+unattended path by the chat path's constraint.
+
+**The lesson worth keeping:** a cap sized once, against data that grows, becomes a silent capability
+regression with no alarm — and the agent's account of *why* it stopped is testimony, not telemetry.
+The trace can't confabulate: iteration counts, tool paths, and file sizes were sitting in
+`agent_decisions` the whole time and would have flagged 08-06 five days early. Ask the agent what it
+couldn't read; believe the table about why.
+
+**Open:** the read ceiling itself is untouched, so `leads.yaml`, `project-plan.md` and `NEWSROOM.md`
+are still truncating today — pagination or a per-file raise, undecided. No detector is wired yet
+(the sysadmin daily pass is the natural home): flag any run with `limit_hit` set, and any `read_file`
+against a file bigger than the ceiling.
+
+---
+
 ## Map
 
 - **Branch `claude/director-build`** — the code (`agents/director_agent.py`, `pipelines/director/*`,

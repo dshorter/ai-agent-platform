@@ -142,6 +142,10 @@ def run_turn(
                     "history_turns": len(history) // 2,
                     "iterations": reply.iterations,
                     "tool_calls": reply.tool_calls,  # what it read this turn — the trace
+                    # None when it finished on its own; the cap's name when one cut
+                    # it off. Queryable, so a forced close is a fact in the spine
+                    # rather than something you have to read the reply to notice.
+                    "limit_hit": reply.limit_hit,
                 }
         return reply
     except Exception:
