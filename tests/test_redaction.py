@@ -26,7 +26,12 @@ from pipelines.writer.redaction import (
     ("assigned secret", "API_KEY=4f9ab21ce77d0e5510bb"),
     ("assigned secret", 'password: "correct-horse-battery"'),
     ("assigned secret", "Authorization bearer = abcdef1234567890"),
-    ("capability url", "/desk-758f0999c11a2b2e44b808df947db8c7/notes/"),
+    # Shape-only fixture. This was the LIVE desk token until 2026-08-12 — the test
+    # asserting that capability URLs get redacted was itself publishing one, in a
+    # public repo. Rotating fixed the exposure (git history keeps the old string
+    # forever, so editing this line was never sufficient). Never paste a real token
+    # here: a detector fixture only needs the shape.
+    ("capability url", "/desk-0123456789abcdef0123456789abcdef/notes/"),
     ("home path",      "staged under /root/staging/codex-logs"),
     ("home path",      "/home/claude/.claude/projects"),
     ("email",          "write to dan.shorter@example.org"),
