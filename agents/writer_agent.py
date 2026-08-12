@@ -21,6 +21,8 @@ cannot be forgotten or hallucinated.
 """
 from __future__ import annotations
 
+from agents.stop_guards import guard_truncation
+
 import json
 from typing import Any
 
@@ -42,6 +44,21 @@ WRITER_MAX_TOKENS = 8192
 WRITER_MAX_TOOL_CHARS = 120_000
 
 _ROAM_TOOL_NAMES = {"read_file", "grep", "run_git"}
+
+
+def _thinking_of(response: Any) -> str:
+    """The reasoning summary, when `display: summarized` is on.
+
+    Sibling of `_text_of` and the same shape of guard: filter by block type
+    rather than indexing, so a response whose blocks arrive in any order —
+    or with no thinking block at all — returns cleanly instead of raising.
+    Empty string when display is `omitted` (the model's default).
+    """
+    return "\n\n".join(
+        b.thinking
+        for b in (getattr(response, "content", None) or [])
+        if getattr(b, "type", None) == "thinking" and getattr(b, "thinking", "")
+    ).strip()
 
 
 WRITER_NOTE_PROMPT = """You are the Writer — the uzelhub newsroom's rewrite desk. An Editor has claimed a lead and assigned it to you. Your job is the middle of the pipeline: claimed lead in, draft out. Downstream, a deterministic generator renders your draft and the Editor approves it; you never publish, never route, never touch HTML.
@@ -115,6 +132,10 @@ class WriterAgent:
             system=self.system,
             messages=[{"role": "user", "content": user}],
         )
+        # Truncation only — the Writer RECOVERS from refusal by retrying
+        # tool-less on its fallback (see draft()), so guard_refusal here would
+        # break working behaviour. Truncation has no recovery.
+        guard_truncation(resp, max_tokens=WRITER_MAX_TOKENS, agent="writer")
         call = ScoutCall(data=_parse_json(_text_of(resp)), model=model, raw_text=_text_of(resp))
         ScoutAgent._tally(call, resp)
         call.stop_reason = resp.stop_reason
@@ -133,6 +154,12 @@ class WriterAgent:
             kwargs: dict[str, Any] = dict(
                 model=self.model,
                 max_tokens=WRITER_MAX_TOKENS,
+                # Adaptive thinking is already on by default at this seat; the
+                # only thing `display` changes is whether we get to read it.
+                # Thinking is billed identically either way, so the summary is
+                # free — it goes into the draft beside the roam trace so the
+                # Editor can tell a judgment problem from a voice problem.
+                thinking={"type": "adaptive", "display": "summarized"},
                 system=[
                     {
                         "type": "text",
@@ -151,6 +178,7 @@ class WriterAgent:
             _mark_cache_breakpoint(messages)
             response = _create()
             ScoutAgent._tally(call, response)
+            guard_truncation(response, max_tokens=WRITER_MAX_TOKENS, agent="writer")
             if response.stop_reason == "refusal":
                 fb = self._plain(self.fallback_model, user)
                 fb.fallback_used = True
@@ -206,4 +234,5 @@ class WriterAgent:
         call.raw_text = _text_of(response)
         call.data = _parse_json(call.raw_text)
         call.stop_reason = response.stop_reason
+        call.reasoning = _thinking_of(response)
         return call

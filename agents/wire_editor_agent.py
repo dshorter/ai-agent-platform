@@ -19,6 +19,8 @@ flow toward the Editor only — never back to the Scout (pineapple rule).
 """
 from __future__ import annotations
 
+from agents.stop_guards import guard_truncation
+
 from anthropic import Anthropic
 
 from agents.scout_agent import ScoutAgent, ScoutCall, _parse_json, _text_of
@@ -82,6 +84,12 @@ class WireEditorAgent:
             messages=[{"role": "user", "content": user}],
         ) as stream:
             resp = stream.get_final_message()
+        # Guard BEFORE parsing: a truncated triage still contains verdicts and
+        # parses cleanly. One wire_triage run stopped at exactly 8,192 output
+        # tokens and was used as if complete (agent_decisions, queried
+        # 2026-08-12). Raising the ceiling to 64000 did not close that hole —
+        # noticing is a separate mechanism from headroom.
+        guard_truncation(resp, max_tokens=WIRE_MAX_TOKENS, agent="wire_editor")
         call = ScoutCall(data=_parse_json(_text_of(resp)), model=model, raw_text=_text_of(resp))
         ScoutAgent._tally(call, resp)
         call.stop_reason = resp.stop_reason

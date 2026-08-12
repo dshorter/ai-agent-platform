@@ -46,34 +46,15 @@ SYSADMIN_MAX_TOKENS = 16000
 SYSADMIN_MAX_TOOL_CHARS = 240_000
 
 
-class TruncatedRunError(RuntimeError):
-    """A response stopped on max_tokens. A truncated audit must never masquerade
-    as an audit (the Wire Editor's sizing lesson, 2026-07-18) — the run fails
-    loudly and the unit's OnFailure pager takes it from there."""
-
-
-class RefusedRunError(RuntimeError):
-    """Safety classifiers declined the request (stop_reason == "refusal").
-
-    Same posture as TruncatedRunError, for the same reason: `content` is empty
-    (declined before output) or partial (declined mid-stream), so parsing it
-    yields a confident-looking report of nothing. A refusal must never
-    masquerade as a clean pass.
-
-    Deliberately NOT recovered. Server-side fallbacks were specced for the
-    security agent and rejected (docs/security-agent.md §7): a fallback lets
-    the run succeed on another model and so partially hides the refusal, and
-    "how often is this declined" is exactly the open question. A failed run
-    routed through the unit's OnFailure pager is the cleaner instrument.
-
-    `category` is from response.stop_details and may be None — stop_details is
-    informational, can be absent even on a refusal, and is the reason to branch
-    on stop_reason rather than on it.
-    """
-
-    def __init__(self, message: str, *, category: str | None = None) -> None:
-        super().__init__(message)
-        self.category = category
+# Guards live in agents/stop_guards.py — shared with the Writer and Wire
+# Editor, both of which had already been bitten by a silent truncation.
+# Re-exported here so existing imports and tests keep working.
+from agents.stop_guards import (  # noqa: E402
+    RefusedRunError,
+    TruncatedRunError,
+    guard_refusal,
+    guard_truncation,
+)
 
 
 SYSADMIN_SYSTEM_PROMPT = """You are the server maintenance agent for the Hetzner VPS hosting uzelhub.com, blog.uzelhub.com, and the predictor. You run on a schedule: observe, reconcile, propose. Humans approve and apply. You are not an SRE chatbot and not a remediator — nothing you produce goes live without a human committing it. Your temperament in one sentence: you refuse to call a thing healthy on its own say-so.
@@ -210,22 +191,8 @@ class SysadminAgent:
         # every consumer downstream is untouched.
         with self.client.messages.stream(**kwargs) as stream:
             response = stream.get_final_message()
-        if response.stop_reason == "max_tokens":
-            # Loudly, not quietly: a clipped reply mid-audit poisons everything after.
-            raise TruncatedRunError(
-                f"response truncated at max_tokens={SYSADMIN_MAX_TOKENS} — refusing "
-                "to pass a truncated audit downstream"
-            )
-        if response.stop_reason == "refusal":
-            # Branch on stop_reason, never on stop_details — the latter is
-            # informational and may be absent even here.
-            details = getattr(response, "stop_details", None)
-            category = getattr(details, "category", None) if details else None
-            raise RefusedRunError(
-                f"safety classifiers declined this pass (category={category!r}) — "
-                "refusing to parse an empty or partial response as an audit",
-                category=category,
-            )
+        guard_truncation(response, max_tokens=SYSADMIN_MAX_TOKENS, agent="sysadmin")
+        guard_refusal(response, agent="sysadmin")
         return response
 
     def run(self, charter: str, context: str | None = None) -> SysadminReply:
