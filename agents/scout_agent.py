@@ -33,8 +33,24 @@ from agents.director_agent import _brief, _mark_cache_breakpoint
 from pipelines.director.tools import MAX_TOOL_RESULT_CHARS, TOOL_DEFS, ToolBox, default_toolbox
 
 
+# Deliberately NOT raised. Triage emits a short structured verdict per item;
+# if it ever wants more than this, the output shape is wrong and stopping is
+# correct. Here the ceiling is a sanity assertion, not a budget — which is
+# only defensible because the output shape is known. The open-ended
+# generators below get headroom instead.
 SCOUT_TRIAGE_MAX_TOKENS = 4096
-SCOUT_SYNTHESIS_MAX_TOKENS = 8192
+# Ceiling, not budget: billed on tokens produced, so a tight value saves
+# nothing and only converts "expensive" into "truncated". max_cost_usd is the
+# real spend control, in the right units. 8192 was inherited muscle memory —
+# 2^13, an output cap from an earlier model generation — set in mid-2026 when
+# the models already allowed 128,000. Kept clear of the SDK's 21,333
+# non-streaming ceiling; guard_truncation makes a wrong guess loud.
+#
+# Tightest case on the box: synthesis runs on Fable 5, where thinking is
+# ALWAYS on and shares this budget — so 8192 was funding the reasoning and
+# the answer from one pot, on the step NEWSROOM.md calls the creative
+# ceiling of the whole newsroom. Streaming this stage is the real fix.
+SCOUT_SYNTHESIS_MAX_TOKENS = 20000
 # Hard ceiling on total roam tool output across one synthesis (same guard the
 # Director's loop carries against a context blowout).
 SCOUT_MAX_TOOL_CHARS = 120_000
@@ -118,6 +134,9 @@ class ScoutCall:
     iterations: int = 1
     tool_calls: list[str] = field(default_factory=list)  # the foraging trace
     raw_text: str = field(default="", repr=False)
+    # Reasoning summary when the caller asks for `display: summarized`; empty
+    # at every seat that leaves thinking display at the model's default.
+    reasoning: str = field(default="", repr=False)
 
 
 def _parse_json(text: str) -> dict:

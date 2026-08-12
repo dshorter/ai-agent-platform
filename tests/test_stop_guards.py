@@ -127,3 +127,41 @@ def test_writer_keeps_its_own_refusal_recovery():
     # test tripped on its own explanation.
     assert "guard_refusal(" not in src, "writer must not raise on refusal; it recovers"
     assert 'stop_reason == "refusal"' in src, "the recovery path itself is gone"
+
+
+# --- ceilings stay under the non-streaming cap -----------------------------
+
+
+NON_STREAMING_CAP = 21_333  # measured by binary search against the SDK, 2026-08-08
+
+
+def test_non_streaming_agents_stay_under_the_sdk_ceiling():
+    """The SDK hard-refuses a non-streaming request above this — before the
+    request is sent, so it is a startup failure, not a timeout. That is what
+    broke sysadmin-daily on 2026-08-08. Any agent raised past the cap must
+    convert to streaming in the same change."""
+    import agents.director_agent as director
+    import agents.scout_agent as scout
+    import agents.writer_agent as writer
+
+    for name, value in (
+        ("writer", writer.WRITER_MAX_TOKENS),
+        ("director", director.DIRECTOR_MAX_TOKENS),
+        ("scout synthesis", scout.SCOUT_SYNTHESIS_MAX_TOKENS),
+        ("scout triage", scout.SCOUT_TRIAGE_MAX_TOKENS),
+    ):
+        assert value <= NON_STREAMING_CAP, (
+            f"{name} at {value:,} exceeds the non-streaming ceiling — it must "
+            f"stream (client.messages.stream) or drop below {NON_STREAMING_CAP:,}"
+        )
+
+
+def test_streaming_agents_may_exceed_it():
+    """The converse: agents that stream are not bound by the cap, and the wire
+    editor at 64,000 is the proof the exemption is real rather than theoretical."""
+    import agents.wire_editor_agent as wire
+
+    assert wire.WIRE_MAX_TOKENS > NON_STREAMING_CAP
+    assert "messages.stream" in (
+        Path(__file__).resolve().parent.parent / "agents/wire_editor_agent.py"
+    ).read_text(), "wire editor exceeds the cap but no longer streams"

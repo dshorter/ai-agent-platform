@@ -33,7 +33,13 @@ DIRECTOR_MODEL = "claude-sonnet-5"
 # away and the real jobs here are chat latency and loop liveness.
 DIRECTOR_MAX_ITERATIONS = 8
 DIRECTOR_TICK_MAX_ITERATIONS = 20
-DIRECTOR_MAX_TOKENS = 8192
+# Ceiling, not budget: billed on tokens produced, so a tight value saves
+# nothing and only converts "expensive" into "truncated". max_cost_usd is the
+# real spend control, in the right units. 8192 was inherited muscle memory —
+# 2^13, an output cap from an earlier model generation — set in mid-2026 when
+# the models already allowed 128,000. Kept clear of the SDK's 21,333
+# non-streaming ceiling; guard_truncation makes a wrong guess loud.
+DIRECTOR_MAX_TOKENS = 20000
 # Hard ceiling on total tool output fed back across one turn. Each result is already
 # clipped in the toolbox; this bounds the *sum* so the growing prompt can't approach
 # the model's context limit (the 3.77M-token grep-bomb that 400'd on 2026-06-29).
