@@ -16,6 +16,8 @@ from pathlib import Path
 from pipelines.director.registry import Project, load_registry
 
 _OPS = Path(__file__).resolve().parents[2] / "ops"
+_REPO_DOCS = Path(__file__).resolve().parents[2] / "docs" / "director"
+LEDGER_BUDGET = 40_000  # chars of ledger injected per turn before compaction is due
 
 
 def _git(path: str, *args: str) -> str:
@@ -76,6 +78,28 @@ def todos_digest() -> str:
                 f"projected; say so rather than guessing at what is due)")
 
 
+def ledger() -> str:
+    """The Director's own ledger, injected rather than discovered.
+
+    Read every turn for the same reason the to-do digest is: something needed on
+    every turn should not cost a tool call to find. Bounded — if the file outgrows
+    the budget the contract calls for compaction, and this surfaces that rather
+    than silently clipping (the 2026-08-03 calendar lesson, applied to its own
+    memory).
+    """
+    path = _REPO_DOCS / "director-ledger.md"
+    try:
+        text = path.read_text()
+    except OSError:
+        return ""  # no ledger yet is a normal state, not an error
+    if len(text) > LEDGER_BUDGET:
+        text = text[:LEDGER_BUDGET] + (
+            f"\n…(ledger past its {LEDGER_BUDGET:,}-char injection budget — "
+            f"{len(text):,} chars total. Older entries are NOT shown. Propose a "
+            f"compaction per the read contract.)")
+    return text
+
+
 def gather_state() -> str:
     projects = load_registry()
     if not projects:
@@ -85,5 +109,13 @@ def gather_state() -> str:
     # infers one (2026-07-13: it ran a day fast, declared that morning's Scout
     # leads "not run today" and reframed a tomorrow-VTODO as due-today).
     clock = datetime.now().astimezone().strftime("%A %Y-%m-%d %H:%M %Z")
-    return (f"CURRENT PROJECT STATE (read just now; clock: {clock}):\n\n"
-            + todos_digest() + "\n\n" + blocks)
+    parts = [f"CURRENT PROJECT STATE (read just now; clock: {clock}):",
+             todos_digest(), blocks]
+    memory = ledger()
+    if memory:
+        # Last, and labelled: it is the one block here that is NOT current state.
+        parts.append("YOUR LEDGER — your own notes from past runs. Pattern "
+                     "recognition only: check new findings for rhymes against these "
+                     "before calling them novel. NEVER cite it for what is true now; "
+                     "the blocks above and your tools are for that.\n\n" + memory)
+    return "\n\n".join(parts)

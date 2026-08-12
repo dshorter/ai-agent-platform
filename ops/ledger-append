@@ -34,7 +34,12 @@ import sys
 MAX_PER_DAY = 3
 MAX_TITLE = 90
 MAX_BODY = 8000
-HEADER_SENTINEL = "# SysAdmin Agent — Ledger"
+# A ledger identifies itself: first line is a top-level heading ending in "Ledger".
+# This was pinned to the sysadmin ledger's exact title until 2026-08-11, when the
+# Director got one too. Deriving the check from the target file keeps the "is this
+# actually a ledger" guard — a stray markdown file is still refused — without this
+# helper needing to know the roster.
+HEADER_SENTINEL = re.compile(r"^#[ \t]+\S.*\bLedger[ \t]*$")
 
 
 def default_ledger():
@@ -47,7 +52,7 @@ def default_ledger():
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--author", choices=["operator", "sysadmin"], required=True)
+    ap.add_argument("--author", choices=["operator", "sysadmin", "director"], required=True)
     ap.add_argument("--title", required=True)
     ap.add_argument("--date", help="YYYY-MM-DD (default: today)")
     ap.add_argument("--ledger", help="target file (default: the repo ledger)")
@@ -74,8 +79,9 @@ def main():
         text = open(ledger).read()
     except OSError as exc:
         sys.exit(f"REFUSED: cannot read ledger: {exc}")
-    if not text.startswith(HEADER_SENTINEL):
-        sys.exit("REFUSED: target does not look like the sysadmin ledger (header sentinel missing)")
+    if not HEADER_SENTINEL.match(text.split("\n", 1)[0]):
+        sys.exit("REFUSED: target does not look like a ledger "
+                 "(first line must be a '# ... Ledger' heading)")
 
     header = f"## {date} — {title}"
     if header in text:

@@ -255,6 +255,40 @@ TOOL_DEFS: list[dict[str, Any]] = [
             "additionalProperties": False,
         },
     },
+    {
+        "name": "ledger_append",
+        "description": (
+            "Append ONE dated finding to your ledger (docs/director/director-ledger.md) "
+            "— the notes you keep for your future self, which arrive in your state on "
+            "every later turn. Write here when you learn something that will still be "
+            "true next week and that you would otherwise rediscover: a recurrence you "
+            "can now name, a cost a decision carried, a source that turned out to be "
+            "the wrong one to read. Do NOT write current state — what is due, what "
+            "shipped, what is failing right now — that is the calendar's, git's, and "
+            "your tools' job, and a stale note there becomes a lie. Cite receipts "
+            "inline (commits, dates, counts). Entries are permanent: prior text is "
+            "never edited, so a correction is a NEW entry naming what it corrects. "
+            "Rate-capped; if you have nothing that outlives today, write nothing."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "description": "One line, <=90 chars — the finding itself, not a topic label.",
+                },
+                "body": {
+                    "type": "string",
+                    "description": (
+                        "The entry, in plain markdown under its own header. Receipts "
+                        "inline. No top-level '#' headings."
+                    ),
+                },
+            },
+            "required": ["title", "body"],
+            "additionalProperties": False,
+        },
+    },
 ]
 
 
@@ -305,6 +339,8 @@ class ToolBox:
                 content, is_err = self._calendar_add(tool_input)
             elif name == "calendar_mark":
                 content, is_err = self._calendar_mark(tool_input)
+            elif name == "ledger_append":
+                content, is_err = self._ledger_append(tool_input)
             else:
                 return (f"unknown tool: {name}", True)
         except Exception as exc:  # never crash the loop on a bad tool call
@@ -421,6 +457,37 @@ class ToolBox:
         ]).strip()
         note = "" if "calendar:" in commit else f"\n(note: event added but git commit failed: {commit[:200]})"
         return (out + note, False)
+
+    def _ledger_append(self, tool_input: dict[str, Any]) -> tuple[str, bool]:
+        """Write exception 2 (granted 2026-08-11): shell to ops/ledger-append with
+        --author director and the Director's own ledger hardcoded. Same division of
+        labour as the calendar verbs — the helper owns every guardrail (shape,
+        newest-first insertion, pure-insertion invariant, rate cap, duplicate
+        refusal), this owns the author identity and the target file, neither of
+        which the model may choose. Body arrives on stdin because it is prose, and
+        the helper reads it there.
+
+        Not git-committed: docs/ is tracked, but a commit per note would bury real
+        history under the agent's notebook. The ledger rides the next commit that
+        touches the repo, and the file is in the nightly tar either way.
+        """
+        helper = Path(__file__).resolve().parents[2] / "ops" / "ledger-append"
+        ledger = Path(__file__).resolve().parents[2] / "docs" / "director" / "director-ledger.md"
+        if not helper.exists() or not ledger.exists():
+            return ("ledger-append helper or the Director ledger is missing — tell Dan.", True)
+        title = str(tool_input.get("title", "")).strip()
+        body = str(tool_input.get("body", "")).strip()
+        if not title or not body:
+            return ("refused: a ledger entry needs both a title and a body.", True)
+        try:
+            proc = subprocess.run(
+                [str(helper), "--author", "director", "--ledger", str(ledger), "--title", title],
+                input=body, capture_output=True, text=True, timeout=15,
+            )
+        except Exception as exc:
+            return (f"could not run ledger-append: {exc}", True)
+        out = (proc.stdout + proc.stderr).strip() or "(no output)"
+        return (out, proc.returncode != 0)
 
     def _calendar_mark(self, tool_input: dict[str, Any]) -> tuple[str, bool]:
         """The mutation half of the write exception: shell to ops/calendar-mark,
