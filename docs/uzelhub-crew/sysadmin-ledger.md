@@ -28,6 +28,11 @@
 
 
 
+
+## 2026-08-13 — check-anthropic-credit — built 2026-07-21, zero fires as of 2026-08-13
+
+Confirmed via `find /etc/systemd/system -iname '*credit*'`/`-iname '*billing*'` (both empty) and `systemctl list-timers --all` (26 timers, none matching): the billing-exhaustion probe written after the 2026-07-21 -$0.40 outage has never been wired to a timer or service unit. The script is complete, tested-shaped (`--dry-run` flag), and documents its own scheduling assumption ("probe cadence bounds detection latency") without that cadence existing. `/opt/_host/README.md` doesn't mention it, so this isn't even a doc-vs-reality mismatch — it's an absence on both sides. Rhymes with case study #3 (never-loaded deploys): the pattern on this box is that a fix gets written in response to an incident, and the wiring step that makes it fire is the one that doesn't happen. Proposal P1 this pass installs it; if it's not applied, the next occurrence of the 2026-07-21 outage class will again have zero proactive signal.
+
 ## 2026-08-03 — uzelhub-web is back on main and clean — the 07-28 finding is closed
 
 The daily pass flagged this from 2026-07-28 onward and it recurred unclosed for
