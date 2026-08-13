@@ -1,0 +1,476 @@
+<title>The Clip That Told No One</title>
+<style>
+  :root {
+    --bg:      #f1f4f5;
+    --surface: #ffffff;
+    --sunk:    #e7ecee;
+    --ink:     #10171a;
+    --muted:   #55646a;
+    --faint:   #8a999f;
+    --rule:    #d2dbdd;
+    --accent:  #0f6b6b;
+    --clip:    #9a6b12;
+    --clip-bg: #f0e4c8;
+    --loss:    #a1362a;
+    --serif: Charter, "Iowan Old Style", "Source Serif Pro", Georgia, serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --measure: 34rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:      #0c1315;
+      --surface: #121b1e;
+      --sunk:    #172226;
+      --ink:     #e7eeef;
+      --muted:   #93a5aa;
+      --faint:   #64777d;
+      --rule:    #243237;
+      --accent:  #55cec3;
+      --clip:    #d6a340;
+      --clip-bg: #2e2717;
+      --loss:    #e07a66;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:      #0c1315;
+    --surface: #121b1e;
+    --sunk:    #172226;
+    --ink:     #e7eeef;
+    --muted:   #93a5aa;
+    --faint:   #64777d;
+    --rule:    #243237;
+    --accent:  #55cec3;
+    --clip:    #d6a340;
+    --clip-bg: #2e2717;
+    --loss:    #e07a66;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 19px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--measure); margin: 0 auto; padding: 4rem 1.4rem 6rem; }
+  .wide { max-width: 52rem; margin-inline: auto; }
+
+  /* ── the ceiling rule: a measurement gauge, because the piece is about a line ── */
+  .gauge { display: flex; align-items: center; gap: .8rem; margin: 3.4rem 0 1.6rem; }
+  .gauge::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+  .gauge span {
+    font-family: var(--mono); font-size: .68rem; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--faint); white-space: nowrap;
+  }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 1.1rem;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 6vw, 3rem); line-height: 1.08; margin: 0 0 1rem;
+    letter-spacing: -.022em; text-wrap: balance; font-weight: 600;
+  }
+  .standfirst {
+    font-size: 1.16rem; color: var(--muted); margin: 0 0 1rem;
+    text-wrap: pretty; line-height: 1.5;
+  }
+  .byline {
+    font-family: var(--mono); font-size: .72rem; color: var(--faint);
+    letter-spacing: .04em; margin: 0 0 2.6rem;
+    padding-top: 1rem; border-top: 1px solid var(--rule);
+  }
+  h2 {
+    font-size: 1.42rem; line-height: 1.22; letter-spacing: -.014em;
+    margin: 0 0 .9rem; text-wrap: balance; font-weight: 600;
+  }
+  p { margin: 0 0 1.15rem; }
+  strong { font-weight: 640; }
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  code {
+    font-family: var(--mono); font-size: .84em;
+    background: var(--sunk); padding: .1em .34em; border-radius: 3px;
+  }
+
+  /* the one full-saturation moment: where the loss is quantified */
+  .figure-lead {
+    font-family: var(--mono); font-size: 2.6rem; line-height: 1;
+    color: var(--loss); letter-spacing: -.03em; font-variant-numeric: tabular-nums;
+    margin: 0 0 .3rem;
+  }
+  .figure-note { font-size: .92rem; color: var(--muted); margin: 0; }
+  .quantify {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--loss);
+    padding: 1.4rem 1.5rem; margin: 2rem 0; border-radius: 2px;
+  }
+
+  blockquote {
+    margin: 1.6rem 0; padding: 0 0 0 1.2rem;
+    border-left: 2px solid var(--rule); color: var(--muted);
+    font-style: italic;
+  }
+  blockquote p:last-child { margin-bottom: 0; }
+
+  .scroll { overflow-x: auto; margin: 1.9rem 0; }
+  table {
+    border-collapse: collapse; width: 100%; font-size: .88rem;
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+  }
+  th {
+    text-align: left; font-weight: 500; color: var(--faint);
+    font-size: .68rem; letter-spacing: .1em; text-transform: uppercase;
+    padding: 0 .9rem .5rem 0; border-bottom: 1px solid var(--rule); white-space: nowrap;
+  }
+  td { padding: .55rem .9rem .55rem 0; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  td.num { text-align: right; }
+  tr:last-child td { border-bottom: none; }
+
+  /* visible-share bars: the sweep's argument, drawn */
+  .bar { display: block; height: 7px; background: var(--clip-bg); border-radius: 1px; min-width: 88px; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 1px; }
+  .pct { color: var(--clip); font-weight: 600; }
+  .pct.bad { color: var(--loss); }
+
+  figure { margin: 2.4rem 0; }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    font-size: .82rem; color: var(--muted); margin-top: .7rem;
+    font-family: var(--mono); line-height: 1.5;
+  }
+  .svg-label { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .svg-title { font-family: var(--mono); font-size: 11.5px; fill: var(--ink); font-weight: 600;
+               letter-spacing: .08em; text-transform: uppercase; }
+
+  .kicker {
+    font-size: 1.24rem; line-height: 1.42; color: var(--ink);
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    padding: 1.5rem 0; margin: 2.6rem 0; text-wrap: pretty;
+  }
+
+  .draft-note {
+    max-width: 52rem; margin: 0 auto 3rem; padding: .9rem 1.1rem;
+    background: var(--sunk); border-radius: 3px;
+    font-family: var(--mono); font-size: .74rem; line-height: 1.6; color: var(--muted);
+  }
+  .draft-note b { color: var(--ink); font-weight: 600; }
+</style>
+
+<div class="wrap wide">
+  <p class="draft-note"><b>DRAFT — post 2 of 3.</b> Series spine: the agent couldn&rsquo;t say why it
+  stopped; the system couldn&rsquo;t say it had degraded; the agent couldn&rsquo;t keep what it learned.
+  Numbers are live from the 2026-08-11 traces. Diagrams are first-pass.</p>
+</div>
+
+<div class="wrap">
+  <p class="eyebrow">Field note</p>
+  <h1>The clip that told no one</h1>
+  <p class="standfirst">A read limit set once, against a file that grew, quietly cost an agent
+  its best source for five days. Nothing failed. That was the problem.</p>
+  <p class="byline">2026-08-11 &middot; ai-agent-platform &middot; ops</p>
+
+  <p>On the morning of August 11, our Director agent spent eight of its twelve tool calls on a
+  single file.</p>
+
+  <p>Two whole-file reads and six searches, all against the same calendar. Then it hit its step
+  limit and shipped a thin, hedging brief.</p>
+
+  <p>The obvious diagnosis is a stuck loop. It isn&rsquo;t. Every one of those calls succeeded,
+  and every one of them was different.</p>
+
+  <div class="gauge"><span>01 &mdash; what it was doing</span></div>
+  <h2>A join, by hand</h2>
+
+  <p>The calendar had crossed the read tool&rsquo;s byte ceiling. The file was 51,100 bytes; the
+  limit was 40,000. A whole-file read returns the first 40,000 bytes and a truncation notice.</p>
+
+  <div class="quantify">
+    <p class="figure-lead">11,100</p>
+    <p class="figure-note">bytes past the ceiling &mdash; holding the 8 newest to-dos of 58,
+    three of which the brief went on to cite.</p>
+  </div>
+
+  <p>So it went around through search. And search is line-oriented, while a calendar to-do is a
+  <em>record</em>: its title, due date, and status sit on three separate lines, and long
+  descriptions fold across continuation lines.</p>
+
+  <p><strong>No single search can return one whole to-do.</strong> To reconstruct &ldquo;what&rsquo;s
+  overdue and what is it called,&rdquo; you search once per field and zip the results together by
+  position. Six searches is about what that costs.</p>
+</div>
+
+<div class="wrap wide">
+  <figure>
+    <svg viewBox="0 0 700 250" role="img" aria-label="A calendar to-do is one record spanning several lines; a search returns one line type at a time, as disconnected columns.">
+      <text x="0" y="14" class="svg-title">The file</text>
+      <rect x="0" y="26" width="290" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="14" y="48" class="svg-label">BEGIN:VTODO</text>
+      <text x="14" y="68" class="svg-label" fill="var(--accent)">SUMMARY:Restart the proxy</text>
+      <text x="14" y="88" class="svg-label" fill="var(--clip)">DUE:20260803</text>
+      <text x="14" y="108" class="svg-label" fill="var(--loss)">STATUS:NEEDS-ACTION</text>
+      <text x="14" y="128" class="svg-label">DESCRIPTION:Built and verif</text>
+      <text x="14" y="146" class="svg-label"> ied 08-02; the running pro</text>
+      <text x="14" y="164" class="svg-label">END:VTODO</text>
+      <text x="0" y="200" class="svg-label">one record &mdash; eight lines</text>
+
+      <path d="M310 100 L 370 100" stroke="var(--rule)" stroke-width="1"/>
+      <path d="M362 95 L 372 100 L 362 105 Z" fill="var(--rule)"/>
+
+      <text x="390" y="14" class="svg-title">What one search returns</text>
+      <rect x="390" y="26" width="90" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="398" y="48" class="svg-label" fill="var(--accent)">SUMMARY:</text>
+      <text x="398" y="68" class="svg-label" fill="var(--accent)">Restart t…</text>
+      <text x="398" y="88" class="svg-label" fill="var(--accent)">301 /prod…</text>
+      <text x="398" y="108" class="svg-label" fill="var(--accent)">Diagnose …</text>
+      <text x="398" y="128" class="svg-label" fill="var(--accent)">Write the…</text>
+
+      <rect x="495" y="26" width="90" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="503" y="48" class="svg-label" fill="var(--clip)">DUE:</text>
+      <text x="503" y="68" class="svg-label" fill="var(--clip)">20260803</text>
+      <text x="503" y="88" class="svg-label" fill="var(--clip)">20260804</text>
+      <text x="503" y="108" class="svg-label" fill="var(--clip)">20260804</text>
+      <text x="503" y="128" class="svg-label" fill="var(--clip)">20260811</text>
+
+      <rect x="600" y="26" width="90" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="608" y="48" class="svg-label" fill="var(--loss)">STATUS:</text>
+      <text x="608" y="68" class="svg-label" fill="var(--loss)">NEEDS-AC…</text>
+      <text x="608" y="88" class="svg-label" fill="var(--loss)">NEEDS-AC…</text>
+      <text x="608" y="108" class="svg-label" fill="var(--loss)">COMPLETED</text>
+      <text x="608" y="128" class="svg-label" fill="var(--loss)">NEEDS-AC…</text>
+
+      <text x="390" y="200" class="svg-label">three columns, no rows &mdash; zip them by position</text>
+      <text x="390" y="220" class="svg-label">and hope nothing shifted</text>
+    </svg>
+    <figcaption>The file is record-shaped. The tool is line-shaped. That mismatch is the
+    six searches.</figcaption>
+  </figure>
+</div>
+
+<div class="wrap">
+  <div class="gauge"><span>02 &mdash; call twelve</span></div>
+  <h2>It solved the problem one move too late</h2>
+
+  <p>Read the calls in order and you watch it escalate. First the whole-file read, which came back
+  truncated. Then the field-by-field searches, the workaround. Then &mdash; and this is the part I
+  keep returning to &mdash; one more whole-file read, as though the front door might behave
+  differently the second time.</p>
+
+  <p>And then it gave up on the raw file entirely, listed the directory, and opened the assembled
+  view: a page where the joining is already done, generated nightly, sitting right there.</p>
+
+  <p>It found that on call twelve. The step limit ended the turn on call thirteen.</p>
+</div>
+
+<div class="wrap wide">
+  <figure>
+    <svg viewBox="0 0 700 140" role="img" aria-label="Timeline of twelve tool calls in three phases, with the step limit falling immediately after the twelfth.">
+      <line x1="10" y1="70" x2="620" y2="70" stroke="var(--rule)" stroke-width="1"/>
+      <rect x="10" y="52" width="86" height="36" fill="var(--sunk)"/>
+      <rect x="108" y="52" width="330" height="36" fill="var(--clip-bg)"/>
+      <rect x="450" y="52" width="86" height="36" fill="var(--surface)" stroke="var(--accent)"/>
+
+      <text x="10" y="42" class="svg-label">read the source</text>
+      <text x="108" y="42" class="svg-label" fill="var(--clip)">reconstruct by hand</text>
+      <text x="450" y="42" class="svg-label" fill="var(--accent)">find the assembled view</text>
+
+      <g stroke="var(--muted)" stroke-width="1">
+        <line x1="26" y1="64" x2="26" y2="76"/><line x1="72" y1="64" x2="72" y2="76"/>
+        <line x1="122" y1="64" x2="122" y2="76"/><line x1="168" y1="64" x2="168" y2="76"/>
+        <line x1="214" y1="64" x2="214" y2="76"/><line x1="260" y1="64" x2="260" y2="76"/>
+        <line x1="306" y1="64" x2="306" y2="76"/><line x1="352" y1="64" x2="352" y2="76"/>
+        <line x1="398" y1="64" x2="398" y2="76"/><line x1="424" y1="64" x2="424" y2="76"/>
+      </g>
+      <g stroke="var(--accent)" stroke-width="2">
+        <line x1="470" y1="62" x2="470" y2="78"/><line x1="516" y1="62" x2="516" y2="78"/>
+      </g>
+      <text x="440" y="106" class="svg-label" fill="var(--accent)">12 &mdash; the right source, found</text>
+
+      <line x1="560" y1="30" x2="560" y2="110" stroke="var(--loss)" stroke-width="3"/>
+      <text x="572" y="66" class="svg-label" fill="var(--loss)">13 &mdash; step limit</text>
+      <text x="572" y="84" class="svg-label" fill="var(--loss)">turn ends</text>
+    </svg>
+    <figcaption>Three strategies in one turn, each a reasonable answer to the last one&rsquo;s
+    failure. It got nothing for the third.</figcaption>
+  </figure>
+</div>
+
+<div class="wrap">
+  <p>And it does not get to keep the insight. The next morning&rsquo;s run starts cold and walks
+  the same three steps again.</p>
+
+  <div class="gauge"><span>03 &mdash; dating it</span></div>
+  <h2>The degradation has a birthday</h2>
+
+  <p>Has this always been happening, or is it new? Both halves are checkable. The calendar is
+  version-controlled, so its size over time is a matter of record; every morning run is in the
+  decision log with its call count.</p>
+
+  <p>The file crossed 40,000 bytes on <strong>August 3</strong>. The grinding starts on
+  <strong>August 6</strong>.</p>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th></th><th>Before Aug 3</th><th>Aug 6 onward</th></tr></thead>
+      <tbody>
+        <tr><td>Calls on the calendar, per run</td><td>0&ndash;1</td><td>4, 5, 5, 8, 9, 10</td></tr>
+        <tr><td>Runs ending at the step limit</td><td>2 in 22 days</td><td>4 of the last 6</td></tr>
+        <tr><td>Typical cost</td><td>$0.10&ndash;0.15</td><td>$0.22&ndash;0.28</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The three-day lag is the honest detail. Right after crossing, only about four to-dos fell off
+  the end, and it could work without them. As the lost tail grew to eight &mdash; and as those
+  newest items became the ones that mattered &mdash; it had to go get them. The degradation scaled
+  with the size of the loss, which is why it ramped instead of snapping.</p>
+
+  <p>Six weeks of a working capability, then a silent stop, with no code change anywhere near it.
+  The trigger was a to-do list getting longer.</p>
+
+  <div class="gauge"><span>04 &mdash; the turn</span></div>
+  <h2>The loud failure is the lucky one</h2>
+
+  <p>Everything above is the version that announces itself: grinding, limit hits, a cost bump,
+  eventually a brief bad enough that a human notices. We got lucky.</p>
+
+  <p>The same defect has a silent form, and the decision log says we have been living with it.
+  Here is every oversized file our agents actually read, over 45 days.</p>
+</div>
+
+<div class="wrap wide">
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>File</th><th>Size</th><th>Visible</th><th></th>
+        <th class="num">whole reads</th><th class="num">searches</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>leads.yaml</td><td>371 KB</td>
+          <td class="pct bad">10%</td>
+          <td><span class="bar"><i style="width:10%"></i></span></td>
+          <td class="num">8</td><td class="num">2</td>
+        </tr>
+        <tr>
+          <td>project-plan.md</td><td>90 KB</td>
+          <td class="pct">44%</td>
+          <td><span class="bar"><i style="width:44%"></i></span></td>
+          <td class="num">7</td><td class="num">16</td>
+        </tr>
+        <tr>
+          <td>calendar.ics</td><td>51 KB</td>
+          <td class="pct">78%</td>
+          <td><span class="bar"><i style="width:78%"></i></span></td>
+          <td class="num">23</td><td class="num">36</td>
+        </tr>
+        <tr>
+          <td>NEWSROOM.md</td><td>42.7 KB</td>
+          <td class="pct">93%</td>
+          <td><span class="bar"><i style="width:93%"></i></span></td>
+          <td class="num">9</td><td class="num">2</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="wrap">
+  <p>Read the last two columns, not the sizes. Where searches far outrun whole reads, the agent is
+  <em>fighting</em> &mdash; visible, expensive, self-announcing. That is the calendar, and that is
+  the project plan.</p>
+
+  <p>Now look at the first row. That file was opened eight times, a tenth of it seen, with no
+  follow-up searches, no limit hit, no cost spike, and no hedge in a single reply. It did not
+  fight. It took the first ten percent as the answer.</p>
+
+  <p class="kicker">A confident answer built on a tenth of a file is indistinguishable from a
+  confident answer built on all of it.</p>
+
+  <p>The truncation notice was in every one of those eight results. It read the notice and moved
+  on.</p>
+
+  <p>One more, quieter still: our newsroom doc carries a marker on line two of its own front
+  matter, <code>read: full</code> &mdash; a documented convention meaning <em>read this whole,
+  never conclude from a part of it</em>. It has been seven percent past the ceiling since it
+  crossed. The doc says read it all. The substrate has quietly been unable to.</p>
+
+  <div class="gauge"><span>05 &mdash; the irony</span></div>
+  <h2>The guardrail was the injury</h2>
+
+  <p>That 40,000-byte ceiling is layer two of a three-layer guard we built on June 29, after a
+  vague instruction sent a search across scraped HTML with single lines up to 731,000 characters.
+  It exhausted memory, and what came back assembled a 3.77-million-token prompt that the API
+  rejected outright.</p>
+
+  <p>The guard worked. That failure has never recurred.</p>
+
+  <p>What went unwritten is that <strong>a clip protects the process and blinds the agent, and
+  only the first half was designed.</strong> Six weeks later the guardrail was the injury.</p>
+
+  <p>This is not an argument against clipping. It is an argument that a clip is a silent lie by
+  omission unless something checks the size.</p>
+
+  <div class="gauge"><span>06 &mdash; the law</span></div>
+  <h2>Testimony and telemetry</h2>
+
+  <p>Any limit sized once, against data that grows, becomes a silent capability regression with no
+  alarm. And the agent&rsquo;s own account of why it stopped is testimony, not telemetry.</p>
+
+  <p>Everything needed to catch this was already in the decision log: iteration counts, tool paths,
+  timestamps. Two mechanical detectors fall straight out of it, and neither passes through the
+  agent&rsquo;s self-assessment.</p>
+
+  <p>The first: a run that ended at its iteration limit. That would have fired on August 6, five
+  days early. The second, and the one that matters more: <strong>a whole-file read against a file
+  bigger than the ceiling.</strong> Pure arithmetic &mdash; the trace has the path, the filesystem
+  has the size, and severity is one minus the ratio. That one catches the case that produces no
+  symptom at all.</p>
+
+  <div class="gauge"><span>07 &mdash; what changed</span></div>
+  <h2>Four things, and an alarm</h2>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Change</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>To-do digest injected into turn state</td>
+            <td>It found the assembled view on call 12; now it arrives on turn 0</td></tr>
+        <tr><td>Read ceiling 40k &rarr; 120k</td>
+            <td>Covers every document actually read whole</td></tr>
+        <tr><td>Truncation notice states bytes and percentage</td>
+            <td>10%-visible and 99%-visible used to produce the identical sentence</td></tr>
+        <tr><td>Test: documents meant to be read whole must fit</td>
+            <td>The alarm that was missing</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>On the same prompt, the run went from eight iterations to three, twelve calls to six, none of
+  them on the calendar, and $0.28 to $0.10 &mdash; finishing on its own instead of being cut off.
+  It spent the freed turns on the repositories, where it noticed that a task two weeks overdue had
+  actually shipped: a contradiction between the calendar and the commit log that the calendar alone
+  can never surface.</p>
+
+  <div class="gauge"><span>08 &mdash; one more</span></div>
+  <h2>The fix broke the fix</h2>
+
+  <p>Setting both ceilings to the same number destroyed the thing they exist for. A truncated read
+  is the file prefix <em>plus</em> the notice, which pushed the result over the universal clip,
+  which cut the notice off and replaced it with a generic one.</p>
+
+  <p>The informative message would have been destroyed in exactly the case it exists for. A test
+  caught it about a minute after being written &mdash; and taught the lesson twice, because
+  <strong>the failure mode of a clip is always that it removes the evidence of itself.</strong></p>
+
+  <div class="gauge"><span>fin</span></div>
+
+  <p>None of this needed an unusual setup. A read tool with a byte limit and a file that grows is
+  the entire recipe. The only thing that made it visible was a decision log nobody had thought to
+  query that way &mdash; and a bad brief, on a Tuesday, that was wrong about itself in a way that
+  turned out to be worth chasing.</p>
+</div>
