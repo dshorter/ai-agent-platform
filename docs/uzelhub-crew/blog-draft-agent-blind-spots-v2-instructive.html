@@ -1,0 +1,604 @@
+<title>What Your Agent Can't Tell You</title>
+<style>
+  :root {
+    --bg:      #f1f4f5;
+    --surface: #ffffff;
+    --sunk:    #e7ecee;
+    --ink:     #10171a;
+    --muted:   #55646a;
+    --faint:   #8a999f;
+    --rule:    #d2dbdd;
+    --accent:  #0f6b6b;
+    --clip:    #9a6b12;
+    --clip-bg: #f0e4c8;
+    --loss:    #a1362a;
+    --serif: Charter, "Iowan Old Style", "Source Serif Pro", Georgia, serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    --measure: 34rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:      #0c1315;  --surface: #121b1e;  --sunk:    #172226;
+      --ink:     #e7eeef;  --muted:   #93a5aa;  --faint:   #64777d;
+      --rule:    #243237;  --accent:  #55cec3;  --clip:    #d6a340;
+      --clip-bg: #2e2717;  --loss:    #e07a66;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:      #0c1315;  --surface: #121b1e;  --sunk:    #172226;
+    --ink:     #e7eeef;  --muted:   #93a5aa;  --faint:   #64777d;
+    --rule:    #243237;  --accent:  #55cec3;  --clip:    #d6a340;
+    --clip-bg: #2e2717;  --loss:    #e07a66;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--serif); font-size: 19px; line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--measure); margin: 0 auto; padding: 0 1.4rem; }
+  .wrap.top { padding-top: 4rem; }
+  .wrap.end { padding-bottom: 6rem; }
+  .wide { max-width: 52rem; margin-inline: auto; padding: 0 1.4rem; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 1.1rem;
+  }
+  h1 {
+    font-size: clamp(2.1rem, 6vw, 3rem); line-height: 1.08; margin: 0 0 1rem;
+    letter-spacing: -.022em; text-wrap: balance; font-weight: 600;
+  }
+  .standfirst {
+    font-size: 1.16rem; color: var(--muted); margin: 0 0 1rem;
+    text-wrap: pretty; line-height: 1.5;
+  }
+  .byline {
+    font-family: var(--mono); font-size: .72rem; color: var(--faint);
+    letter-spacing: .04em; margin: 0 0 2.4rem;
+    padding-top: 1rem; border-top: 1px solid var(--rule);
+  }
+
+  /* Act openers: the numbering is real — three acts, in the order they happened */
+  .act { margin: 3.6rem 0 1.8rem; padding-top: 1.6rem; border-top: 2px solid var(--ink); }
+  .act .n {
+    font-family: var(--mono); font-size: .7rem; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent); display: block; margin-bottom: .5rem;
+  }
+  .act h2 {
+    font-size: clamp(1.5rem, 4vw, 1.95rem); line-height: 1.14; margin: 0;
+    letter-spacing: -.018em; text-wrap: balance; font-weight: 600;
+  }
+  .act .sub { font-size: .98rem; color: var(--muted); margin: .6rem 0 0; }
+
+  h3 {
+    font-size: 1.16rem; line-height: 1.28; margin: 2.2rem 0 .8rem;
+    letter-spacing: -.01em; font-weight: 640; text-wrap: balance;
+  }
+  p { margin: 0 0 1.15rem; }
+  strong { font-weight: 640; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  code {
+    font-family: var(--mono); font-size: .84em;
+    background: var(--sunk); padding: .1em .34em; border-radius: 3px;
+  }
+
+  .quantify {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--loss);
+    padding: 1.4rem 1.5rem; margin: 2rem 0; border-radius: 2px;
+  }
+  .figure-lead {
+    font-family: var(--mono); font-size: 2.6rem; line-height: 1; color: var(--loss);
+    letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin: 0 0 .3rem;
+  }
+  .figure-note { font-size: .92rem; color: var(--muted); margin: 0; }
+
+  .kicker {
+    font-size: 1.24rem; line-height: 1.42;
+    border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    padding: 1.5rem 0; margin: 2.4rem 0; text-wrap: pretty;
+  }
+
+  /* the takeaway each act hands the reader */
+  .takeaway {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 3px; padding: 1.3rem 1.5rem; margin: 2.2rem 0;
+  }
+  .takeaway .lab {
+    font-family: var(--mono); font-size: .66rem; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--accent); display: block; margin-bottom: .6rem;
+  }
+  .takeaway p { margin: 0 0 .7rem; font-size: .98rem; }
+  .takeaway p:last-child { margin-bottom: 0; }
+
+  .scroll { overflow-x: auto; margin: 1.9rem 0; }
+  table {
+    border-collapse: collapse; width: 100%; font-size: .88rem;
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+  }
+  th {
+    text-align: left; font-weight: 500; color: var(--faint); font-size: .68rem;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: 0 .9rem .5rem 0; border-bottom: 1px solid var(--rule); white-space: nowrap;
+  }
+  td { padding: .55rem .9rem .55rem 0; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  td.num { text-align: right; }
+  tr:last-child td { border-bottom: none; }
+
+  .bar { display: block; height: 7px; background: var(--clip-bg); border-radius: 1px; min-width: 88px; }
+  .bar i { display: block; height: 100%; background: var(--accent); border-radius: 1px; }
+  .pct { color: var(--clip); font-weight: 600; }
+  .pct.bad { color: var(--loss); }
+
+  figure { margin: 2.4rem 0; }
+  figure svg { display: block; width: 100%; height: auto; }
+  figcaption {
+    font-size: .82rem; color: var(--muted); margin-top: .7rem;
+    font-family: var(--mono); line-height: 1.5;
+  }
+  .svg-label { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+  .svg-title {
+    font-family: var(--mono); font-size: 11.5px; fill: var(--ink); font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+  }
+
+  .draft-note {
+    max-width: 52rem; margin: 0 auto 3rem; padding: .9rem 1.1rem; background: var(--sunk);
+    border-radius: 3px; font-family: var(--mono); font-size: .74rem;
+    line-height: 1.6; color: var(--muted);
+  }
+  .draft-note b { color: var(--ink); font-weight: 600; }
+</style>
+
+<div class="wide" style="padding-top:2.5rem">
+  <p class="draft-note"><b>DRAFT v2 — instructive, three acts.</b> Same incident, reframed: the
+  claim leads and the trace follows as evidence. All figures live from the 2026-08-11 run.</p>
+</div>
+
+<div class="wrap top">
+  <p class="eyebrow">Field note</p>
+  <h1>What your agent can&rsquo;t tell you</h1>
+  <p class="standfirst">Three questions an agent will answer confidently and get wrong &mdash;
+  why it stopped, what it stopped seeing, and what it worked out along the way. Each one has a
+  fix, and none of the fixes is a better prompt.</p>
+  <p class="byline">2026-08-11 &middot; one morning brief, chased all the way down</p>
+
+  <p>Our cross-project agent writes a briefing every morning at seven and pushes it to a phone.
+  On August 11 it opened like this:</p>
+
+  <p class="kicker">&ldquo;Budget&rsquo;s out mid-read &mdash; but I&rsquo;ve got the live to-do
+  desk plus fresh commits, and that&rsquo;s enough to call it.&rdquo;</p>
+
+  <p>Reasonable. Candid, even &mdash; a system admitting a constraint and shipping what it had.</p>
+
+  <p>It had spent twenty-eight cents of a fifteen dollar cap.</p>
+
+  <p>Chasing that one wrong sentence turned up two more things the agent couldn&rsquo;t tell us,
+  each worse than the last. What follows is the whole thread pulled, in the order it came apart.</p>
+</div>
+
+<div class="wrap">
+  <div class="act">
+    <span class="n">Act one</span>
+    <h2>Why it stopped</h2>
+    <p class="sub">It will answer. It will not check.</p>
+  </div>
+
+  <p>A system that has spent two percent of its budget will tell you, with some feeling, that the
+  budget is gone.</p>
+
+  <p>What actually stopped it was a step limit: eight tool round-trips, then the loop closes. The
+  trace says so plainly &mdash; <code>iterations: 8</code> against a maximum of 8. It ran out of
+  turns, not money.</p>
+
+  <p>The cause was one line. When the loop breaks, it hands the model a closing instruction, and
+  ours read:</p>
+
+  <blockquote style="margin:1.6rem 0;padding:0 0 0 1.2rem;border-left:2px solid var(--rule);color:var(--muted);font-style:italic">
+    Budget <strong>or</strong> step limit reached. Stop reading now and give Dan your best answer
+    with what you have &mdash; name any gap you couldn&rsquo;t close.
+  </blockquote>
+
+  <p>A disjunction, with no indication which half fired. The model resolved it the only way
+  available to it: by guessing. There was no bug and no bad data. We had asked a question we
+  already knew the answer to, and then believed the guess.</p>
+
+  <h3>Most of that sentence was working correctly</h3>
+
+  <p>Worth separating, because the instinct on reading a wrong error message is to distrust the
+  whole apparatus. The loop noticed it was cut off, stopped cleanly, answered usefully from partial
+  information, and named the gaps it hadn&rsquo;t closed. That is exactly what you want from a
+  bounded agent. <strong>The defect was the label, not the behaviour</strong> &mdash; and those get
+  conflated all the time, usually by removing the half that worked.</p>
+
+  <h3>Three limits wearing one name</h3>
+
+  <p>Our loop can stop for three different reasons, and they point at three different fixes.</p>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Fires when</th><th>What it means</th><th>What you&rsquo;d do</th></tr></thead>
+      <tbody>
+        <tr><td>step limit</td><td>8 tool round-trips used</td><td>more turns, or cheaper reads</td></tr>
+        <tr><td>cost cap</td><td>$15 spent</td><td>genuinely expensive &mdash; investigate</td></tr>
+        <tr><td>output cap</td><td>200k chars of tool output</td><td>it&rsquo;s reading huge files</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>One message covered all three. And here is the part that turns a mislabel into something
+  structural: an iteration costs about three and a half cents. Against a fifteen dollar cap, that
+  is roughly four hundred iterations of headroom. <strong>The step limit binds at about two
+  percent of the cost cap.</strong> The generous budget we had configured was unreachable; the loop
+  always died on steps first, at a fiftieth of the spend we had authorised.</p>
+
+  <p>So &ldquo;budget&rsquo;s out&rdquo; was wrong in a deeper way than a mislabel. That budget had
+  never once been the thing that stopped it, and never could have been.</p>
+
+  <h3>Where the number came from</h3>
+
+  <p>Every constant in a config file is a prediction about the future, made by someone who
+  hadn&rsquo;t met it yet. Ours was set on June 29, in the same commit that first built the loop,
+  and never touched again. That commit&rsquo;s own test run used three iterations &mdash; so eight
+  was &ldquo;about two and a half times what we just saw,&rdquo; a sane opening guess and nothing
+  more.</p>
+
+  <p>Its neighbour in the same file, the output cap, carries a comment naming the exact incident it
+  was written to prevent. The step limit has no such story. One was a response to a failure; the
+  other was a number somebody needed.</p>
+
+  <p>And it governed two paths with nothing in common: a chat where a human waits &mdash; eight
+  round-trips is about seventy seconds, which is the edge of tolerable &mdash; and an unattended
+  job at seven in the morning with a ten-minute allowance and nobody watching. The unattended path
+  was being sized by the chat path&rsquo;s constraint.</p>
+
+  <div class="takeaway">
+    <span class="lab">What to build</span>
+    <p><strong>Name the limit in the close-out.</strong> Tell the model which cap fired and rule
+    out the others, so it never has to infer a cause it was never given.</p>
+    <p><strong>Record it as a field, not prose.</strong> We now write the limit that fired into the
+    decision log, so a forced close is a fact you can query rather than a claim you have to read.</p>
+    <p><strong>Ask an agent to report what it was told, not what it must infer.</strong> It receives
+    a truncation notice &mdash; that&rsquo;s knowledge. It does not receive a reason for the loop
+    ending &mdash; that&rsquo;s a guess about its own machinery. Only ever ask for the first kind.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="act">
+    <span class="n">Act two</span>
+    <h2>What it stopped seeing</h2>
+    <p class="sub">Nothing failed. That is the part worth being nervous about.</p>
+  </div>
+
+  <p>Fixing the label left the better question standing: why did a routine briefing need eight
+  steps at all?</p>
+
+  <p>Because it spent eight of its twelve tool calls on one file. Two whole-file reads and six
+  searches, all against the same calendar. The obvious diagnosis is a stuck loop. It isn&rsquo;t
+  &mdash; every one of those calls succeeded, and every one was different.</p>
+
+  <h3>A join, by hand</h3>
+
+  <p>The calendar had crossed the read tool&rsquo;s byte ceiling. The file was 51,100 bytes; the
+  limit was 40,000. A whole-file read returns the first 40,000 bytes and a note saying it stopped.</p>
+
+  <div class="quantify">
+    <p class="figure-lead">11,100</p>
+    <p class="figure-note">bytes past the ceiling &mdash; holding the 8 newest to-dos of 58, three
+    of which the briefing went on to cite.</p>
+  </div>
+
+  <p>So it went around through search. And search is line-oriented, while a calendar to-do is a
+  <em>record</em>: title, due date and status sit on three separate lines, with long descriptions
+  folded across continuations. <strong>No single search returns one whole item.</strong> To
+  reconstruct &ldquo;what&rsquo;s overdue and what is it called,&rdquo; you search once per field
+  and zip the results by position. Six searches is about what that costs.</p>
+</div>
+
+<div class="wide">
+  <figure>
+    <svg viewBox="0 0 700 250" role="img" aria-label="A calendar to-do is one record spanning several lines; a search returns one line type at a time, as disconnected columns.">
+      <text x="0" y="14" class="svg-title">The file</text>
+      <rect x="0" y="26" width="290" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="14" y="48" class="svg-label">BEGIN:VTODO</text>
+      <text x="14" y="68" class="svg-label" fill="var(--accent)">SUMMARY:Restart the proxy</text>
+      <text x="14" y="88" class="svg-label" fill="var(--clip)">DUE:20260803</text>
+      <text x="14" y="108" class="svg-label" fill="var(--loss)">STATUS:NEEDS-ACTION</text>
+      <text x="14" y="128" class="svg-label">DESCRIPTION:Built and verif</text>
+      <text x="14" y="146" class="svg-label"> ied 08-02; the running pro</text>
+      <text x="14" y="164" class="svg-label">END:VTODO</text>
+      <text x="0" y="200" class="svg-label">one record &mdash; eight lines</text>
+
+      <path d="M310 100 L 370 100" stroke="var(--rule)" stroke-width="1"/>
+      <path d="M362 95 L 372 100 L 362 105 Z" fill="var(--rule)"/>
+
+      <text x="390" y="14" class="svg-title">What one search returns</text>
+      <rect x="390" y="26" width="90" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="398" y="48" class="svg-label" fill="var(--accent)">SUMMARY:</text>
+      <text x="398" y="68" class="svg-label" fill="var(--accent)">Restart t…</text>
+      <text x="398" y="88" class="svg-label" fill="var(--accent)">301 /prod…</text>
+      <text x="398" y="108" class="svg-label" fill="var(--accent)">Diagnose …</text>
+      <text x="398" y="128" class="svg-label" fill="var(--accent)">Write the…</text>
+
+      <rect x="495" y="26" width="90" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="503" y="48" class="svg-label" fill="var(--clip)">DUE:</text>
+      <text x="503" y="68" class="svg-label" fill="var(--clip)">20260803</text>
+      <text x="503" y="88" class="svg-label" fill="var(--clip)">20260804</text>
+      <text x="503" y="108" class="svg-label" fill="var(--clip)">20260804</text>
+      <text x="503" y="128" class="svg-label" fill="var(--clip)">20260811</text>
+
+      <rect x="600" y="26" width="90" height="150" fill="var(--surface)" stroke="var(--rule)"/>
+      <text x="608" y="48" class="svg-label" fill="var(--loss)">STATUS:</text>
+      <text x="608" y="68" class="svg-label" fill="var(--loss)">NEEDS-AC…</text>
+      <text x="608" y="88" class="svg-label" fill="var(--loss)">NEEDS-AC…</text>
+      <text x="608" y="108" class="svg-label" fill="var(--loss)">COMPLETED</text>
+      <text x="608" y="128" class="svg-label" fill="var(--loss)">NEEDS-AC…</text>
+
+      <text x="390" y="200" class="svg-label">three columns, no rows &mdash; zip them by position</text>
+      <text x="390" y="220" class="svg-label">and hope nothing shifted</text>
+    </svg>
+    <figcaption>The file is record-shaped. The tool is line-shaped. That mismatch is the six
+    searches &mdash; and it is a tax you pay on every run, forever, until you hand the agent
+    something already joined.</figcaption>
+  </figure>
+</div>
+
+<div class="wrap">
+  <h3>The degradation has a birthday</h3>
+
+  <p>Had this always been happening, or was it new? Both halves are checkable, which is the whole
+  argument for keeping a decision log. The calendar is version-controlled, so its size over time is
+  a matter of record. Every morning run is logged with its call count.</p>
+
+  <p>The file crossed 40,000 bytes on August 3. The grinding starts August 6.</p>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th></th><th>Before Aug 3</th><th>Aug 6 onward</th></tr></thead>
+      <tbody>
+        <tr><td>Calls on the calendar, per run</td><td>0&ndash;1</td><td>4, 5, 5, 8, 9, 10</td></tr>
+        <tr><td>Runs ending at the step limit</td><td>2 in 22 days</td><td>4 of the last 6</td></tr>
+        <tr><td>Typical cost</td><td>$0.10&ndash;0.15</td><td>$0.22&ndash;0.28</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>The three-day lag is the honest detail. Right after crossing, only about four items fell off
+  the end and it could work without them. As the lost tail grew to eight &mdash; and as those newest
+  items became the ones that mattered &mdash; it had to go get them. The degradation scaled with the
+  size of the loss, which is why it ramped instead of snapping.</p>
+
+  <p>Six weeks of a working capability, then a silent stop, with no code change anywhere near it.
+  The trigger was a to-do list getting longer.</p>
+
+  <h3>The expensive failure is the merciful one</h3>
+
+  <p>Everything above is the version that announces itself: grinding, limit hits, a cost bump,
+  eventually a briefing bad enough that someone notices. That failure turns up on the invoice. We
+  were lucky.</p>
+
+  <p>The same defect has a silent form. Here is every oversized file our agents actually read,
+  across 45 days.</p>
+</div>
+
+<div class="wide">
+  <div class="scroll">
+    <table>
+      <thead>
+        <tr><th>File</th><th>Size</th><th>Visible</th><th></th>
+        <th class="num">whole reads</th><th class="num">searches</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>leads.yaml</td><td>371 KB</td><td class="pct bad">10%</td>
+            <td><span class="bar"><i style="width:10%"></i></span></td>
+            <td class="num">8</td><td class="num">2</td></tr>
+        <tr><td>project-plan.md</td><td>90 KB</td><td class="pct">44%</td>
+            <td><span class="bar"><i style="width:44%"></i></span></td>
+            <td class="num">7</td><td class="num">16</td></tr>
+        <tr><td>calendar.ics</td><td>51 KB</td><td class="pct">78%</td>
+            <td><span class="bar"><i style="width:78%"></i></span></td>
+            <td class="num">23</td><td class="num">36</td></tr>
+        <tr><td>NEWSROOM.md</td><td>42.7 KB</td><td class="pct">93%</td>
+            <td><span class="bar"><i style="width:93%"></i></span></td>
+            <td class="num">9</td><td class="num">2</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="wrap">
+  <p>Read the last two columns, not the sizes. Where searches far outrun whole reads, the agent is
+  <em>fighting</em> &mdash; visible, expensive, self-announcing. That&rsquo;s the calendar and the
+  project plan.</p>
+
+  <p>Now the first row. That file was opened eight times, a tenth of it seen, with no follow-up
+  searches, no limit hit, no cost spike and no hedge in a single reply. It didn&rsquo;t fight. It
+  read a tenth of that file eight times and never once mentioned it.</p>
+
+  <p class="kicker">A confident answer built on a tenth of a file is indistinguishable from a
+  confident answer built on all of it.</p>
+
+  <p>The truncation notice was in every one of those eight results. It read the notice and moved on
+  &mdash; which is exactly what act one predicts, arriving from a different direction.</p>
+
+  <p>One quieter still: a design doc of ours carries a marker on line two of its own front matter,
+  <code>read: full</code>, meaning <em>read this whole, never conclude from a part of it</em>.
+  It has been seven percent past the ceiling since it crossed. The doc says read it all. The
+  substrate has quietly been unable to.</p>
+
+  <h3>The guard worked perfectly</h3>
+
+  <p>That 40,000-byte ceiling is layer two of a three-layer guard we built six weeks earlier, after
+  a vague instruction sent a search across scraped HTML with single lines up to 731,000 characters.
+  It exhausted memory, and what came back assembled a 3.77-million-token prompt the API rejected
+  outright.</p>
+
+  <p>The guard did its job. That failure has never recurred. It had only ever been asked to protect
+  the process, and nobody had told it the agent was in the room.</p>
+
+  <p>This is not an argument against clipping. It is an argument that <strong>a clip is a silent
+  lie by omission unless something checks the size.</strong></p>
+
+  <div class="takeaway">
+    <span class="lab">What to build</span>
+    <p><strong>Two detectors, both computed outside the agent.</strong> First: a run that ended at
+    its iteration limit &mdash; ours would have fired on August 6, five days early. Second, and the
+    one that matters more: a whole-file read against a file bigger than the ceiling. Pure arithmetic
+    &mdash; the trace has the path, the filesystem has the size, severity is one minus the ratio.
+    That second one catches the case that produces no symptom at all.</p>
+    <p><strong>Make the clip state its own size.</strong> Ours now reports bytes shown, bytes total
+    and the percentage. Before, a ten-percent read and a ninety-nine-percent read produced the
+    identical sentence.</p>
+    <p><strong>Test that documents meant to be read whole still fit.</strong> A limit sized once,
+    against data that grows, has an expiry date nobody scheduled. Make the calendar tell you.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="act">
+    <span class="n">Act three</span>
+    <h2>What it figured out</h2>
+    <p class="sub">It solved the problem. Then the turn ended.</p>
+  </div>
+
+  <p>Go back to those twelve calls and read them in order, because they are not the flailing they
+  look like.</p>
+
+  <p>First the whole-file read, which came back truncated. Then the field-by-field searches, the
+  workaround. Then &mdash; and this is the part I keep returning to &mdash; one more whole-file
+  read, as though the front door might behave differently the second time. And then it abandoned
+  the raw file entirely, listed the directory, and opened the assembled view: a page where the
+  joining is already done, generated nightly, sitting right there the whole time.</p>
+
+  <p>It found the right answer on the twelfth call. The wall was at the thirteenth.</p>
+</div>
+
+<div class="wide">
+  <figure>
+    <svg viewBox="0 0 700 140" role="img" aria-label="Timeline of twelve tool calls in three phases, with the step limit falling immediately after the twelfth.">
+      <line x1="10" y1="70" x2="620" y2="70" stroke="var(--rule)" stroke-width="1"/>
+      <rect x="10" y="52" width="86" height="36" fill="var(--sunk)"/>
+      <rect x="108" y="52" width="330" height="36" fill="var(--clip-bg)"/>
+      <rect x="450" y="52" width="86" height="36" fill="var(--surface)" stroke="var(--accent)"/>
+      <text x="10" y="42" class="svg-label">read the source</text>
+      <text x="108" y="42" class="svg-label" fill="var(--clip)">reconstruct by hand</text>
+      <text x="450" y="42" class="svg-label" fill="var(--accent)">find the assembled view</text>
+      <g stroke="var(--muted)" stroke-width="1">
+        <line x1="26" y1="64" x2="26" y2="76"/><line x1="72" y1="64" x2="72" y2="76"/>
+        <line x1="122" y1="64" x2="122" y2="76"/><line x1="168" y1="64" x2="168" y2="76"/>
+        <line x1="214" y1="64" x2="214" y2="76"/><line x1="260" y1="64" x2="260" y2="76"/>
+        <line x1="306" y1="64" x2="306" y2="76"/><line x1="352" y1="64" x2="352" y2="76"/>
+        <line x1="398" y1="64" x2="398" y2="76"/><line x1="424" y1="64" x2="424" y2="76"/>
+      </g>
+      <g stroke="var(--accent)" stroke-width="2">
+        <line x1="470" y1="62" x2="470" y2="78"/><line x1="516" y1="62" x2="516" y2="78"/>
+      </g>
+      <text x="440" y="106" class="svg-label" fill="var(--accent)">12 &mdash; the right source, found</text>
+      <line x1="560" y1="30" x2="560" y2="110" stroke="var(--loss)" stroke-width="3"/>
+      <text x="572" y="66" class="svg-label" fill="var(--loss)">13 &mdash; step limit</text>
+      <text x="572" y="84" class="svg-label" fill="var(--loss)">turn ends</text>
+    </svg>
+    <figcaption>Three strategies in one turn, each a reasonable answer to the last one&rsquo;s
+    failure. It got nothing for the third.</figcaption>
+  </figure>
+</div>
+
+<div class="wrap">
+  <p>And the next morning it started cold and walked the same three steps again. It had done so for
+  six consecutive mornings.</p>
+
+  <p>This is the failure that outlives the other two, because raising a limit doesn&rsquo;t touch
+  it. <strong>What an agent works out inside a turn does not survive the turn</strong>, unless
+  something writes it down.</p>
+
+  <h3>Persistence is not memory</h3>
+
+  <p>We thought we had this covered, and the shape of being wrong is worth showing, because it is a
+  common way to be wrong.</p>
+
+  <p>Every turn our agent takes is persisted &mdash; the reply, the tool trace, the cost, the
+  iteration count. Over a hundred of them. And each new turn replays the last six turns for
+  continuity. That is a real capability and it is not memory:</p>
+
+  <div class="scroll">
+    <table>
+      <thead><tr><th>What replay gives you</th><th>What it doesn&rsquo;t</th></tr></thead>
+      <tbody>
+        <tr><td>The last 6 turns, verbatim</td><td>The 7th. Ours reached back four days.</td></tr>
+        <tr><td>Continuity inside one channel</td>
+            <td>Anything from another. The morning job had never read a word of the chat thread,
+            or the reverse.</td></tr>
+        <tr><td>A transcript</td><td>A conclusion. Nothing is distilled, so nothing compounds.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>An agent with a rolling transcript can recall what it said. It cannot know what it learned.</p>
+
+  <h3>The part we didn&rsquo;t have to build</h3>
+
+  <p>Here the story turns embarrassing in a useful direction. Asked whether we should build a
+  memory, the honest answer looked like yes &mdash; until someone pointed out that another agent on
+  the same box had been keeping one for five weeks.</p>
+
+  <p>A dated, append-only file of findings, written by the agent through a helper that refuses to
+  edit prior entries, read at the start of every run. Its entries have titles like
+  <em>&ldquo;occurrences #2 and #3: it&rsquo;s a law, not an incident&rdquo;</em> &mdash; an agent
+  promoting a recurrence into a rule, which is what memory is actually for.</p>
+
+  <p>Two details from that contract are worth stealing outright.</p>
+
+  <p><strong>Newest entries go at the top</strong>, because the read tool returns a bounded prefix
+  and an append-at-bottom file silently loses its newest entries first. Someone wrote that defence
+  down a month before the same trap ate our calendar &mdash; and nothing propagated it from the one
+  place that knew to the several places that didn&rsquo;t.</p>
+
+  <p>And the rule that makes agent-written memory safe without supervision:</p>
+
+  <p class="kicker">Memory is for pattern recognition &mdash; recurrences, trend lines, what a
+  decision cost last time. Never for current state.</p>
+
+  <p>That single line answers the obvious objection. A store the agent writes itself could drift,
+  go stale, become confidently wrong &mdash; unless it is structurally barred from being cited as
+  current fact. The calendar says what&rsquo;s due. The commit log says what shipped. The memory
+  says what keeps happening. When they disagree about now, the memory loses.</p>
+
+  <div class="takeaway">
+    <span class="lab">What to build</span>
+    <p><strong>Give it somewhere to write, and constrain the write.</strong> Append-only, dated,
+    newest-first, corrections as new entries rather than edits. A memory that can rewrite its own
+    history is worse than none, because nothing downstream can cite it.</p>
+    <p><strong>Inject it; don&rsquo;t make the agent go find it.</strong> Ours arrives in the turn
+    state before the first tool call. Anything needed on every turn should never cost a tool call.</p>
+    <p><strong>Rank it below live observation, explicitly, in the prompt.</strong> Memory for
+    patterns, tools for the present. That precedence is the whole safety story.</p>
+  </div>
+</div>
+
+<div class="wrap end">
+  <div class="act">
+    <span class="n">Closing</span>
+    <h2>The same shape, three times</h2>
+  </div>
+
+  <p>Why it stopped, what it stopped seeing, what it worked out. Three questions, three confident
+  wrong answers, and one shape underneath all of them: <strong>in each case the agent&rsquo;s own
+  account was the unreliable layer, and the fix was something outside it</strong> &mdash; a
+  recorded field, an arithmetic check, a written file.</p>
+
+  <p>None of it needed an exotic setup. A read tool with a byte limit, a file that grows, and a
+  loop with a cap is the entire recipe, and most agent stacks have all three by Tuesday. What made
+  it visible here was a decision log nobody had thought to query that way.</p>
+
+  <p>The fixed run does the same job in three iterations instead of eight, costs ten cents instead
+  of twenty-eight, and finishes on its own. On its first outing with a memory it spent the freed
+  turns tracing a dependency nobody had followed through, and found six finished pieces of work
+  that had been frozen for twenty-five days behind a condition that could never be met.</p>
+
+  <p>Which is the argument, really. None of this was about byte limits. It was about how much an
+  agent can do once it stops spending its turns rediscovering things.</p>
+</div>
