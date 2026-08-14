@@ -42,6 +42,15 @@
 
 ---
 
+
+## 2026-08-13 — Repeating a top recommendation doesn't clear it; unverified guesses compound if restated
+
+`activate-ask-tracing` (restart uzella-proxy) has been this brief's #1 item for 6+ consecutive mornings (overdue count climbing 5d→10d, due 08-03, still open 08-13). Zero risk, one command, no dependency — repetition alone hasn't moved it.
+
+Also corrected this run: I'd speculated (08-09 to 08-11 turns) that predictor_ingest commits `a0cea3a`/`7a6e00c` (both 08-02) touched the files behind the 26 failing tests and might have partially self-resolved them. Checked directly 08-13: neither commit touches any `test_resolve`/`test_extract` file, and `a0cea3a`'s own message records the suite at "pre-existing baseline (642 passed)" after landing — unchanged. Untested speculation, restated across three mornings before being checked.
+
+**Pattern:** a recommendation repeated verbatim without new leverage (escalation, channel change, an explicit "why hasn't this landed") is testimony, not action. And a speculative bridge between an unrelated commit and an open bug needs a grep/diff check the first time it's raised, not the third.
+
 ## 2026-08-11 — A cap sized once, against data that grows, is a silent capability loss
 
 Third instance of one shape, and it is now a law rather than an incident.
