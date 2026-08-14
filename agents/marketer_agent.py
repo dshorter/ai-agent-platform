@@ -13,41 +13,30 @@ from typing import Any
 from anthropic import Anthropic
 
 from agents.content_agent import Draft
+from agents.seo_doctrine import load_doctrine
 
 
 MARKETER_MODEL = "claude-sonnet-4-6"
 EXTRACTION_MODEL = "claude-haiku-4-5-20251001"
 
-MARKETER_SYSTEM_PROMPT = """You are the distribution and optimization layer for the uzelhub.com content operation. Your job begins where the Content agent's job ends. You never rewrite. You never change the prose. You add the scaffolding that makes good writing findable.
+DEFAULT_SINK = "blog"
 
-The canonical publishing model is:
-1. Ghost (uzelhub.com/blog) — the authoritative source, indexed first
-2. Hashnode — developer audience, canonical tag points to Ghost (deferred for v1)
-3. Dev.to — broader developer community, canonical tag points to Ghost (deferred for v1)
+# The ROLE half of the prompt — what this agent is and what it must emit. Stable
+# across sinks, so it stays here. The SEO rules themselves are NOT here: they
+# load from config/seo/<sink>.md at construction time (see agents/seo_doctrine).
+#
+# They used to be a literal in this string, and it drifted — the canonical
+# paragraph named "uzelhub.com/blog" (the blog is blog.uzelhub.com) and called
+# the corpus "indexed first", both wrong and both unnoticed for ~3 months.
+# Doctrine lives in a file so it can be reviewed, diffed and drift-tested.
+MARKETER_ROLE_PROMPT = """You are the distribution and optimization layer for the uzelhub content operation. Your job begins where the Content agent's job ends. You never rewrite. You never change the prose. You add the scaffolding that makes good writing findable.
 
-SEO rules:
+You output a structured JSON object. No prose commentary. The post body is passed through unchanged."""
 
-TITLES:
-- 50-60 characters for search display
-- Lead with the problem or insight, not the technology
-- Avoid clickbait — the uzelhub audience respects directness
-- Include primary keyword naturally
 
-META DESCRIPTIONS:
-- 150-160 characters
-- Summarize the core insight, not just the topic
-- Include a soft call to action or curiosity hook
-
-TAGS:
-- 3-5 tags per post
-- Mix: 1 broad, 1 specific, 1 conceptual, 1 audience tag if applicable
-
-INTERNAL LINKING:
-- Every post includes at least one link back to uzelhub.com when relevant prior posts exist
-- Link anchor text is descriptive, not "click here"
-
-You output a structured JSON object. No prose commentary. The post body is passed through unchanged.
-"""
+def build_system_prompt(sink: str = DEFAULT_SINK) -> str:
+    """Role preamble + the loaded doctrine for one sink."""
+    return f"{MARKETER_ROLE_PROMPT}\n\n{load_doctrine(sink)}"
 
 EXTRACTION_SYSTEM_PROMPT = """You extract structured data from blog posts. Output JSON only, no commentary.
 
@@ -112,10 +101,15 @@ class MarketerAgent:
         client: Anthropic,
         marketer_model: str = MARKETER_MODEL,
         extraction_model: str = EXTRACTION_MODEL,
+        sink: str = DEFAULT_SINK,
     ) -> None:
         self.client = client
         self.marketer_model = marketer_model
         self.extraction_model = extraction_model
+        self.sink = sink
+        # Loaded here, not per-call: a missing doctrine file should fail the run
+        # at construction rather than partway through a batch.
+        self.system_prompt = build_system_prompt(sink)
 
     def extract_descriptor(self, draft: Draft) -> tuple[PostDescriptor, dict[str, int]]:
         """Haiku pass — derives the JSON graph descriptor for cohesion queries."""
@@ -177,16 +171,17 @@ class MarketerAgent:
         )
 
         # cache_control here is forward-compatible (see content_agent.py for
-        # full note). MARKETER_SYSTEM_PROMPT is ~308 tokens as of 2026-05-08,
-        # well below the 1024-token Sonnet cache minimum. Marker activates
-        # automatically when the prompt grows past the threshold.
+        # full note). The composed prompt (role + loaded doctrine) sits near the
+        # 1024-token Sonnet cache minimum; the marker activates automatically
+        # once it crosses. Composed once at construction, so it is byte-stable
+        # across a batch and cacheable.
         response = self.client.messages.create(
             model=self.marketer_model,
             max_tokens=1024,
             system=[
                 {
                     "type": "text",
-                    "text": MARKETER_SYSTEM_PROMPT,
+                    "text": self.system_prompt,
                     "cache_control": {"type": "ephemeral"},
                 }
             ],
