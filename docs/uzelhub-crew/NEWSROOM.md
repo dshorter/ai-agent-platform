@@ -1,6 +1,6 @@
 ---
 read: full
-status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, shipped 2026-07-12 — the build settled four open choices, synced 2026-07-14; open items flagged inline
+status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, shipped 2026-07-12 — the build settled four open choices, synced 2026-07-14; SEO POLICY MOVED OUT 2026-08-13 to /opt/_host/SEO.md (§SEO duties keeps the responsibility model and points there; where they disagree SEO.md wins); open items flagged inline
 ---
 
 # The Newsroom — content architecture (living sketch, ongoing)
@@ -343,12 +343,25 @@ technique, the SEO-metadata shape).**
 
 ## SEO duties — a distributed concern, not a fourth agent
 
-SEO is ~70% already owned; what's unowned is the strategic layer. Four layers,
-only one of which is "descriptions on content":
+> **Source of truth moved 2026-08-13.** SEO *decisions* now live in
+> **`/opt/_host/SEO.md`** (`read: full`) — the two-host rule, indexing tiers,
+> Ghost routing and tag policy, the field-note size contract, syndication
+> canonicals. That doc exists because four surfaces were each deciding these
+> independently and disagreeing. **This section keeps the responsibility model
+> — who owns which layer — and points there for what the policy actually is.**
+> Where the two disagree, SEO.md is right and this section is stale.
+
+SEO is ~70% already owned; what's unowned is the strategic layer. **Five**
+layers *(this line read "four" until 2026-08-13; the list below always had
+five)*, only one of which is "descriptions on content":
 
 1. **Structural / on-page** — canonical, OG, sitemap, robots, breadcrumbs, meta
    rendering. Already the deterministic `generate.js` layer (`d79daf7`).
-   Automatic, decision-free, tested. Solved.
+   Automatic, decision-free, tested. ~~Solved.~~ **Amended 2026-08-13:
+   *mostly* solved, which is a different claim.** An audit found `og:type`
+   hardcoded `website` on notes (should be `article`), no `og:image` path ever
+   exercised, and no RSS feed on the apex at all. The mechanism is sound; the
+   coverage isn't complete. Live list in SEO.md §Fixture checklist.
 2. **Per-item text** — title, meta description, tags. The marketer's job. The
    "same language" every piece normalizes to. Lowest-stakes, but its **uniform
    output contract is exactly what makes SEO factorable as a shared service.**
@@ -356,11 +369,21 @@ only one of which is "descriptions on content":
    NOT descriptions; machine instructions; *highest*-stakes (a broken canonical
    or a 302-that-should-be-301 sinks a page regardless of copy — cf. the www
    defection and the atomic-flip constraint). Ownership: infra + Editor routing.
+   **Policy owned by SEO.md since 2026-08-13** — indexing tiers, Ghost
+   `routes.yaml` collections and the internal-vs-public tag split all landed
+   here and were previously unowned in practice. Note the timing constraint:
+   routes.yaml defines URLs, so the collection prefixes must be decided *before*
+   the corpus publishes or it becomes a 301 migration across ~290 posts.
 4. **Link graph** — internal links, topic clusters, anchor text. Relationships
    between pages (survey `see:` field + marketer `internal_links`). Grows into
    a real asset as the notes corpus accumulates.
 5. **Off-page** — backlinks, Search Console submit/monitor. Currently manual
-   operator aftercare; eventual Editor/Director duty.
+   operator aftercare; eventual Editor/Director duty. **Added 2026-08-13:**
+   crawler access belongs here too and nobody owned it — a zone-level
+   Cloudflare managed `robots.txt` is live on *both* hosts and disallows
+   ClaudeBot, GPTBot, Google-Extended, CCBot and five others, with
+   `Content-Signal: ai-train=no`. Neither generator knows it exists. Both
+   properties are currently invisible to AI answer engines. Status in SEO.md.
 
 **Who holds layer 2, per surface (resolved 2026-08-03; operator delegated
 "whichever is simpler").** "Per-item text — the marketer's job" above is a
@@ -375,7 +398,11 @@ notes. The assignment, per surface:
   reviewed at gate ② with the rest of the copy. Nothing to build.
 - **The "newsroom marketer" seat is real but future.** Its first genuine
   duty is layer 4 — internal links / topic clusters over the notes corpus —
-  which at two live notes has nothing to select from. Build it from the
+  which at two live notes has nothing to select from. *(Amended 2026-08-13:
+  **that reason no longer holds.** The field-note contract makes `deepDive`
+  mandatory, so a link graph now forms by construction rather than waiting on
+  corpus volume. The seat may still be premature — but if it stays parked it
+  should be parked for a current reason, not an outgrown one.)* Build it from the
   shared-lib mechanics (§Reuse vs fork) once the corpus is big enough that
   link selection matters, not before (the batch-arc-finder rule: don't
   build it on spec). Pointing the blog marketer at both surfaces was
@@ -387,6 +414,23 @@ because link-vs-copy routing *is* canonical placement. A content flywheel is a
 cannibalization machine if unguarded, so: **every story has exactly one
 canonical home** (notes apex-canonical and self-contained; a blog piece is
 either distinct-intent or carries `rel=canonical` back to the note).
+
+**Amended 2026-08-13 — say which branch, because the fork was a trap.** That
+sentence and the field-note standing order below (§Content types) are each
+correct and combine into a wrong outcome: one offers the fork, the other calls
+the blog leg "a retelling," so anyone building the first long-form piece
+canonicals it back to the note — and it never ranks, leaving the indexed tier
+empty by construction. They are two different content types and must stop
+sharing a word:
+
+- **Deep dive** — the substance a field note is too small to hold.
+  **Distinct-intent, self-canonical, indexed.** This is what a note's
+  `deepDive` field points at, and it is the normal case.
+- **Retelling** — the same story on a second surface. Carries `rel=canonical`
+  back to the note, not indexed on its own. Rare, and mostly not wanted.
+
+The note links *out*; the deep dive does **not** point its canonical back.
+Full statement in SEO.md §Indexing policy.
 
 ## Writer, in detail — and the voice bottle
 
@@ -499,6 +543,17 @@ Two guardrails:
   Kodiak-diary measure — riveting *because* every detail is true).
   Receipts stay; play-by-play goes. Long-form depth is the blog leg's job
   (a retelling that links back to the note), so detail is banked, not lost.
+  **Amended 2026-08-13 — the blog leg is a DEEP DIVE, not a retelling**
+  (self-canonical and indexed; see §SEO duties for why the word mattered), and
+  the standing order now carries a number: **a note's body caps at ~840
+  characters** — three tweets, a captain's log — with the `deepDive` link
+  **mandatory**, not optional. The cap *quantifies this 2026-07-16 order*
+  rather than replacing it: "one screen" and "long-form is the blog leg's job"
+  already said it, and the drafts had drifted to 3-4× anyway. A note that wants
+  a table is not a note — the schema escapes all values, so furniture cannot
+  render, which is a feature that keeps the generator decision-free. The two
+  live notes predate the cap and are grandfathered until trimmed. Contract in
+  SEO.md §The field-note contract.
   **Amended 2026-07-17** (from reviewing an external rewrite of the first
   published note — its scannability was right, its stripped receipts were
   not): a note may open with a **Quick-context block** — a `context` field
@@ -637,9 +692,20 @@ Scout shipping answered four of these before anyone re-opened this doc):
 
 Still open:
 
-- Link-vs-copy SEO shape for the blog leg (notes are apex-canonical and
-  self-contained — no duplication question; blog gets narrative *retellings*,
-  linked not copied).
+- ~~Link-vs-copy SEO shape for the blog leg~~ — **closed 2026-08-13**: the blog
+  leg is a distinct-intent, self-canonical **deep dive**, not a retelling (see
+  §SEO duties). Notes stay apex-canonical and link out to it.
+- **No internal-tag producer exists** (added 2026-08-13). SEO.md tiers content
+  with Ghost *internal* tags — no archive page, absent from the sitemap, usable
+  as a `routes.yaml` filter. But `ghost_publisher.py` emits `{"name": tag}` and
+  nothing else, so the thing that publishes cannot create the tier the policy
+  depends on. A build, not an edit; blocks the routing plan, not the corpus.
+- **The Marketer's link instruction and its data disagree** (added 2026-08-13).
+  Its doctrine asks for a link back to the apex, but `internal_links` may only
+  be chosen from `LinkCandidate`, which carries a blog `post_id`. Moot today —
+  candidates are hardcoded `[]` because Phase 2.1 was never built, which is why
+  0 of 270 corpus posts carry a single internal link. Fixing the ranker without
+  fixing the corpus mismatch would produce confidently wrong links.
 - Whether the "assess" muscle is literally shared code with the marketer or a
   parallel implementation.
 - Where the white-paper / case-study type lives (apex `/papers/` via
