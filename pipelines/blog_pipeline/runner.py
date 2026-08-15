@@ -462,9 +462,11 @@ def main(argv: list[str] | None = None) -> int:
     run(config, dry_run=args.dry_run, max_batches=args.max_batches)
     if not args.dry_run:
         # New drafts carry script-dependent mermaid cards (the fence hook
-        # above); email and RSS strip scripts, so sweep fresh cards into
-        # PNGs now. Idempotent — already-swept drafts are untouched. A
+        # above); RSS and reader mode strip scripts, so sweep fresh cards
+        # into PNGs now. Idempotent — already-swept drafts are untouched. A
         # render failure leaves that card as-is and is non-fatal here.
+        # (Email would strip them too, but no send has ever happened —
+        #  0 members, 0 emails as of 2026-08-14. RSS is the live reason.)
         from .mermaid_sweep import main as mermaid_sweep_main
         if mermaid_sweep_main(["--apply"]) != 0:
             logging.warning(

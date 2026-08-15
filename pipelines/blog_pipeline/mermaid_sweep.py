@@ -3,9 +3,16 @@ One-time (idempotent, re-runnable) sweep of Ghost drafts: render every
 <pre class="mermaid"> HTML card to a PNG and swap the card for an image.
 
 Why: mermaid renders client-side via a Ghost code-injection script. That
-works in a normal browser and nowhere else — email clients strip scripts
-(every newsletter send would show raw diagram source), and so do RSS
-readers and reader mode. A PNG renders everywhere. Token-free: the
+works in a normal browser and nowhere else — RSS readers and reader mode
+strip scripts today, and email clients would too. A PNG renders everywhere.
+
+  Corrected 2026-08-14: this used to read "every newsletter send would show
+  raw diagram source," which implied sends were happening. They were not and
+  still are not — Ghost has 0 members and has sent 0 emails, ever. RSS and
+  reader mode were always the live reasons; email is the anticipated one.
+  The sweep was right either way, for reasons that did not depend on email.
+
+Token-free: the
 diagram source is already written; rendering is mechanical (mermaid-cli,
 local chromium — draft content never leaves the box).
 
