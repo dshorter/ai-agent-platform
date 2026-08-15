@@ -29,6 +29,27 @@
 
 
 
+
+## 2026-08-15 — ledger-append silently refused an entry on 2026-08-14 (title cap)
+
+`sysadmin-daily.service`'s 2026-08-14 run generated a full receipt-bearing
+"Ledger entry" section (the monitor.sh bare-compose finding) and the
+pipeline's own `ledger-append` call rejected it: `ledger-append refused:
+REFUSED: title exceeds 90 chars` (`journalctl -u sysadmin-daily.service
+--since 2026-08-14`). The refusal is visible only in the unit journal — it
+never surfaced in that day's proposals artifact summary line, and nothing
+paged it. Net effect: a durable finding that should have entered the
+ledger instead existed for one day in a per-day proposals file and had to
+be independently re-derived by this pass before the prior attempt was even
+discovered. Rhymes with case study #4 (the blocked reminder) — a valid
+write blocked by validation, invisible until someone goes looking — and is
+the specific failure mode the 2026-07-31 ledger entry's own proposed
+remediation ("give ledger-append a 'still open' bump") anticipated but
+which was never built or applied. Until `ledger-append`'s length validation
+either truncates-and-warns or the caller enforces a title budget before
+calling it, any finding whose natural title exceeds 90 chars is a
+finding that silently fails to outlive its run.
+
 ## 2026-08-13 — check-anthropic-credit — built 2026-07-21, zero fires as of 2026-08-13
 
 Confirmed via `find /etc/systemd/system -iname '*credit*'`/`-iname '*billing*'` (both empty) and `systemctl list-timers --all` (26 timers, none matching): the billing-exhaustion probe written after the 2026-07-21 -$0.40 outage has never been wired to a timer or service unit. The script is complete, tested-shaped (`--dry-run` flag), and documents its own scheduling assumption ("probe cadence bounds detection latency") without that cadence existing. `/opt/_host/README.md` doesn't mention it, so this isn't even a doc-vs-reality mismatch — it's an absence on both sides. Rhymes with case study #3 (never-loaded deploys): the pattern on this box is that a fix gets written in response to an incident, and the wiring step that makes it fire is the one that doesn't happen. Proposal P1 this pass installs it; if it's not applied, the next occurrence of the 2026-07-21 outage class will again have zero proactive signal.
