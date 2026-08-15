@@ -1,0 +1,97 @@
+<style>
+  :root {
+    --uz-rule:   #d8dee2;
+    --uz-muted:  #5c6a72;
+    --uz-sunk:   #f2f5f6;
+    --uz-loss:   #a3352a;
+  }
+
+  /* Act opener — a hard rule, an eyebrow, a heading. The eyebrow is real
+     information (which act this is), not decoration. */
+  .uz-act {
+    margin: 3.2rem 0 1.6rem;
+    padding-top: 1.4rem;
+    border-top: 2px solid currentColor;
+  }
+  .uz-act-n {
+    display: block;
+    margin-bottom: .4rem;
+    font-family: var(--font-mono);
+    font-size: .7rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ghost-accent-color);
+  }
+  .uz-act-sub {
+    margin: .5rem 0 0;
+    font-family: var(--font-sans);
+    color: var(--uz-muted);
+  }
+
+  /* Single-figure callout. The number is repeated in the caption prose, so a
+     stripped view still carries it. */
+  .uz-stat {
+    margin: 2rem 0;
+    padding: 1.3rem 1.4rem;
+    border: 1px solid var(--uz-rule);
+    border-left: 3px solid var(--uz-loss);
+    background: #fff;
+  }
+  .uz-stat-fig {
+    margin: 0 0 .25rem;
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    line-height: 1;
+    letter-spacing: -.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--uz-loss);
+  }
+  .uz-stat-note {
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--uz-muted);
+  }
+
+  /* What-to-build box. The label is text, not an icon — it survives stripping. */
+  .uz-takeaway {
+    margin: 2rem 0;
+    padding: 1.2rem 1.4rem;
+    border: 1px solid var(--uz-rule);
+    background: var(--uz-sunk);
+  }
+  .uz-takeaway-lab {
+    display: block;
+    margin-bottom: .55rem;
+    font-family: var(--font-mono);
+    font-size: .68rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--ghost-accent-color);
+  }
+  .uz-takeaway p { margin: 0 0 .6rem; }
+  .uz-takeaway p:last-child { margin-bottom: 0; }
+
+  /* Pull-quote. Rules above and below rather than a giant glyph, so it stays
+     a paragraph when the styling goes. */
+  .uz-pull {
+    margin: 2.2rem 0;
+    padding: 1.4rem 0;
+    border-top: 1px solid var(--uz-rule);
+    border-bottom: 1px solid var(--uz-rule);
+    font-family: var(--font-serif);
+    text-wrap: pretty;
+  }
+
+  /* Figures. SVG is fine on web but does not survive RSS/reader mode — ship
+     diagrams as PNG (see pipelines/blog_pipeline/mermaid_sweep.py, which
+     already uploads and swaps cards) and keep the caption load-bearing. */
+  .uz-fig { margin: 2.2rem 0; }
+  .uz-fig img, .uz-fig svg { display: block; width: 100%; height: auto; }
+  .uz-fig figcaption {
+    margin-top: .6rem;
+    font-family: var(--font-mono);
+    font-size: .82rem;
+    line-height: 1.5;
+    color: var(--uz-muted);
+  }
+</style>
