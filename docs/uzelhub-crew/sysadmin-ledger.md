@@ -30,6 +30,16 @@
 
 
 
+
+## 2026-08-16 — daily pass FAILED (BadRequestError) — no audit performed
+
+`sysadmin-daily.service` exited non-zero before producing a report, so no proposals artifact exists for this date and no audit of live state was made.
+
+- Error class: `BadRequestError`
+- Detail: `journalctl -u sysadmin-daily.service --since 2026-08-16`
+
+Rhyme-check this against other `pass FAILED` entries before treating it as a one-off — this failure class has recurred with different literal errors each time.
+
 ## 2026-08-15 — ledger-append silently refused an entry on 2026-08-14 (title cap)
 
 `sysadmin-daily.service`'s 2026-08-14 run generated a full receipt-bearing
