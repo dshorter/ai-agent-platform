@@ -1,0 +1,38 @@
+{
+  "slug": "agent-self-report-unreliable",
+  "surveyId": "agent-platform.director.morning-brief",
+  "kicker": "Field note",
+  "date": "August 2026",
+  "title": "The agent said its budget was gone. It had spent 2%.",
+  "metaDescription": "A morning brief blamed a spent budget for stopping early. It had used 2% of it — and the same shape of wrong self-report turned up twice more.",
+  "tagline": "An agent will answer a question about its own machinery confidently, and get it wrong, because answering is not the same as checking.",
+  "bullets": [
+    "The morning Telegram briefing reported a spent budget after $0.28 of a $15 cap — what stopped it was an eight-iteration limit, not the money",
+    "All the agent got was ‘budget or step limit reached’ — never which of the two fired",
+    "A calendar crossed the 40,000-byte read ceiling on Aug 3; the grinding started Aug 6",
+    "It found the right answer on tool call twelve. The eighth iteration was its last."
+  ],
+  "image": {
+    "label": "Twelve calls in three phases — read, reconstruct by hand, find the assembled view"
+  },
+  "sections": [
+    {
+      "h": "What happened",
+      "body": [
+        "‘Budget or step limit reached’ was the whole message: two causes, no way to tell which. So it guessed. No bug and no bad data — we asked a question we already knew the answer to, then believed the answer."
+      ]
+    },
+    {
+      "h": "The same shape, twice more",
+      "body": [
+        "A 51,100-byte calendar met a 40,000-byte ceiling and the clip went unmentioned. A solution found on tool call twelve died with the turn, six mornings running."
+      ]
+    },
+    {
+      "h": "What shipped",
+      "body": [
+        "Every fix sits outside the agent: name the limit that fired, check file size from the trace, give it somewhere to write."
+      ]
+    }
+  ]
+}

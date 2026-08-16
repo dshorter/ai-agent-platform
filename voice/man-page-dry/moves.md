@@ -17,6 +17,23 @@ the moves sparingly — resist adding to this list.
 > since inherited the example. Re-cut to three beats on 2026-08-08; the prose
 > is unchanged apart from merges and cuts, because the voice was never the
 > problem.
+>
+> *It happened again (2026-08-16), and faster.* The captain's-log contract set
+> a hard body cap of 840 characters ±5% on 08-14. The sample was 2,128 — the
+> Writer was told 840 and shown two and a half times that, exactly the earlier
+> failure with a new number. Re-cut to 858. **Shape is no longer taught here:**
+> `release.js` refuses to stamp a note outside the range, so the guard is the
+> authority and this bottle is not. That is the durable fix — an exemplar
+> outranks a written rule, but it cannot outrank a gate.
+>
+> *Two exemplars now, deliberately (2026-08-16).* One sample is a stencil:
+> with nothing to generalise across, everything transfers, including how much
+> wit there was and where it landed — which turns opportunistic wit into a slot
+> to fill, and commissioned wit is snark. These two **agree on structure**
+> (three beats, four bullets, ~860 chars) so the shape reinforces, and
+> **differ in wit**: `silent-backup-failure` closes on a landed aphorism, and
+> `agent-self-report-unreliable` carries none at all. The absence is the point.
+> A third sample should keep varying the wit, not add more of it.
 
 - **Receipts before rhyme.** Dates, counts, exact error text. The concrete
   fact goes first; the lesson may follow it, never replace it. Receipts that
