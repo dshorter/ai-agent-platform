@@ -21,6 +21,12 @@ STAMP=$(date +%Y%m%d-%H%M%S)
 [[ $EUID -eq 0 ]] || { echo "needs root: sudo $0" >&2; exit 1; }
 [[ -x $PY ]] || { echo "missing venv at $PY" >&2; exit 1; }
 
+# Move out of wherever root invoked this from. `runuser -u claude` inherits the
+# caller's working directory, and if that is /root the child cannot even stat
+# it — the smoke test then fails with nothing useful to say. Observed
+# 2026-08-16 running the installer from root's home.
+cd "$REPO" || { echo "cannot enter $REPO" >&2; exit 1; }
+
 # Verify the collector runs before installing anything that depends on it.
 # stderr is NOT redirected: a hidden prompt or a swallowed traceback is how a
 # script appears to hang with no cursor. Bounded, because the first run does
@@ -29,8 +35,9 @@ STAMP=$(date +%Y%m%d-%H%M%S)
 echo "→ smoke test (dry run, writes nothing; up to 120s on a cold DNS cache)"
 SMOKE=$(mktemp)
 if ! timeout 120 runuser -u claude -- "$PY" -m tools.caddy_rollup --dry-run >"$SMOKE"; then
-  echo "collector failed or timed out — not installing. Last output:" >&2
-  tail -5 "$SMOKE" >&2
+  echo "collector failed or timed out — not installing." >&2
+  echo "  cwd was: $PWD (should be $REPO)" >&2
+  [[ -s $SMOKE ]] && { echo "  last stdout:" >&2; tail -5 "$SMOKE" >&2; }
   rm -f "$SMOKE"; exit 1
 fi
 rm -f "$SMOKE"

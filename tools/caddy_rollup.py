@@ -41,6 +41,7 @@ import json
 import re
 import socket
 import sys
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeout
 from collections import Counter, defaultdict
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -50,7 +51,8 @@ ROOT = Path(__file__).resolve().parents[1]
 STATE = ROOT / "pipelines" / "sysadmin" / "state" / "caddy"
 CACHE = STATE / "verified-ips.json"
 RETAIN_DAYS = 90
-DNS_TIMEOUT = 3.0
+DNS_TIMEOUT = 2.0
+DNS_BUDGET = 400          # hard ceiling on lookups per run
 
 # Suffix → label. Forward-confirmed: PTR must end with the suffix AND the
 # forward lookup of that hostname must return the original IP.
@@ -113,45 +115,65 @@ def load_cache() -> dict:
         return {}
 
 
-def ptr(ip: str) -> str | None:
-    socket.setdefaulttimeout(DNS_TIMEOUT)
+# socket.setdefaulttimeout() does NOT bound gethostbyaddr — that call goes to
+# the system resolver, which never sees Python's socket timeout. Measured
+# 2026-08-16: individual lookups took 5.01s against a 3.0s "timeout", and a
+# single run made 246 of them. On a cold resolver cache that is twenty minutes
+# of a script appearing to hang. So the bound is enforced out here, by running
+# the lookup in a thread we are willing to abandon.
+_POOL = ThreadPoolExecutor(max_workers=4)
+
+
+def _ptr(ip: str) -> str | None:
     try:
         return socket.gethostbyaddr(ip)[0].lower().rstrip(".")
     except (OSError, socket.herror):
         return None
 
 
-def disconfirmed(ip: str) -> bool:
-    """True when the PTR proves the claim false — a rented VM wearing a name."""
-    h = ptr(ip)
-    return bool(h and h.endswith(CLOUD_HOSTS))
+def _forward(host: str) -> list[str]:
+    try:
+        return socket.gethostbyname_ex(host)[2]
+    except OSError:
+        return []
 
 
-def verify(ip: str, cache: dict) -> str | None:
-    """Forward-confirmed reverse DNS. Returns a crawler label, or None.
+def _bounded(fn, arg, default):
+    """Run fn(arg) with a wall-clock bound. An abandoned thread finishes on its
+    own time; the run does not wait for it."""
+    try:
+        return _POOL.submit(fn, arg).result(timeout=DNS_TIMEOUT)
+    except (FutureTimeout, OSError):
+        return default
 
-    Cached across runs — crawler ranges are stable and this keeps steady-state
-    lookups near zero. Only IPs that resolve to a crawler are cached; a failed
-    lookup is not stored, so a transient DNS failure never becomes permanent.
+
+def classify(ip: str, cache: dict, budget: list[int]) -> str:
+    """One verdict per IP, cached forever: a crawler label, "cloud", or "".
+
+    Every verdict is cached, not just the successes — the previous version
+    stored only confirmed crawlers, so a run that looked up 246 addresses
+    persisted 5 and re-did the other 241 the next morning. Caching negatives is
+    what makes the steady state nearly free.
     """
     if ip in cache:
-        return cache[ip] or None
-    socket.setdefaulttimeout(DNS_TIMEOUT)
-    try:
-        host = socket.gethostbyaddr(ip)[0].lower().rstrip(".")
-    except (OSError, socket.herror):
-        return None
+        return cache[ip]
+    if budget[0] <= 0:
+        return ""                      # over budget: unchecked, not disproved
+    budget[0] -= 1
+
+    host = _bounded(_ptr, ip, None)
+    if not host:
+        cache[ip] = ""
+        return ""
+    if host.endswith(CLOUD_HOSTS):
+        cache[ip] = "cloud"
+        return "cloud"
     label = next((v for k, v in CRAWLER_DOMAINS.items() if host.endswith(k)), None)
-    if not label:
-        return None
-    try:
-        _, _, forward = socket.gethostbyname_ex(host)
-    except OSError:
-        return None
-    if ip not in forward:          # PTR claims a crawler the forward record denies
-        return None
-    cache[ip] = label
-    return label
+    if label and ip in _bounded(_forward, host, []):
+        cache[ip] = label
+        return label
+    cache[ip] = ""
+    return ""
 
 
 def read_log(path: Path, start: datetime, end: datetime):
@@ -191,6 +213,7 @@ def rollup(day: datetime, cache: dict) -> dict:
     end = start + timedelta(days=1)
     out = {"date": start.date().isoformat(), "hosts": {}, "totals": {}}
     grand = Counter()
+    budget = [DNS_BUDGET]
     seen_ips: dict[str, Counter] = defaultdict(Counter)
 
     for path in sorted(LOG_DIR.glob("*.log")):
@@ -217,13 +240,11 @@ def rollup(day: datetime, cache: dict) -> dict:
             if m:
                 claim = m.group(1)
                 claimed[claim] += 1
+                verdict = classify(ip, cache, budget) if ip else ""
                 if claim not in RDNS_VERIFIABLE:
-                    if ip and disconfirmed(ip):
-                        disconf[claim] += 1
-                    else:
-                        unverifiable[claim] += 1
-                elif ip and (label := verify(ip, cache)):
-                    verified[label] += 1
+                    (disconf if verdict == "cloud" else unverifiable)[claim] += 1
+                elif verdict and verdict != "cloud":
+                    verified[verdict] += 1
             elif ip:
                 seen_ips[host][ip] += 1      # non-bot traffic, for repeat visitors
 
