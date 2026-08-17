@@ -345,3 +345,52 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+
+
+def digest(days: int = 14, state: Path | None = None) -> str:
+    """A compact web-traffic block for injection into an agent's turn state.
+
+    INJECTED, not read: the sysadmin's loop is iteration-capped, and anything
+    needed every pass should never cost a tool call to discover and open (the
+    2026-08-11 morning brief spent 8 of 12 calls reconstructing one file it
+    could have been handed). Bounded by construction — one day in full, the
+    rest as a single trend line — because an injected block that grows with
+    retention is a clip waiting to happen.
+
+    The trend is the point. A single day cannot show whether crawling is
+    recovering, and "three instances of one shape is a law" needs more than
+    one instance to work with.
+    """
+    root = state or STATE
+    files = sorted(root.glob("20*.json"))[-days:]
+    if not files:
+        return "WEB TRAFFIC: no rollups yet (tools.caddy_rollup has not run)."
+
+    rows = []
+    for f in files:
+        try:
+            rows.append(json.loads(f.read_text()))
+        except (OSError, json.JSONDecodeError):
+            continue
+    if not rows:
+        return "WEB TRAFFIC: rollups present but unreadable — itself a finding."
+
+    latest = rows[-1]
+    out = [f"WEB TRAFFIC — from tools.caddy_rollup, {len(rows)} day(s) retained",
+           f"  latest: {latest['date']}  {json.dumps(latest['totals'])}"]
+    for host, v in sorted(latest["hosts"].items(), key=lambda x: -x[1]["requests"]):
+        out.append(
+            f"    {host}: {v['requests']:,} req, {v['unique_ips']} IPs; "
+            f"verified {v['crawlers_verified'] or '{}'}; "
+            f"disconfirmed {sum(v['crawlers_disconfirmed'].values())}; "
+            f"404 scanner/suspect {v['scanner_404s']}/{sum(v['suspect_404s'].values())}")
+
+    # One line per day: the shape a single rollup cannot show.
+    out.append("  trend (date verified/claimed requests):")
+    out.append("    " + "  ".join(
+        f"{r['date'][5:]} {r['totals']['crawler_verified']}/"
+        f"{r['totals']['crawler_claimed']} {r['totals']['requests']}" for r in rows))
+    out.append("  NOTE: 'verified' is forward-confirmed reverse DNS. 'claimed' is a "
+               "self-reported user-agent and is routinely forged — do not read it as "
+               "crawler activity. 'disconfirmed' is a claim the PTR proves false.")
+    return "\n".join(out)

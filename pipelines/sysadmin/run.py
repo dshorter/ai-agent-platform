@@ -78,6 +78,16 @@ def _gather_context(config: SysadminConfig, spine_up: bool) -> str:
     except Exception as exc:
         ledger = f"(ledger unreadable: {exc} — that is itself worth a finding)"
 
+    # Injected rather than made readable: this is wanted every pass, and the
+    # loop is iteration-capped — anything needed every turn should not cost a
+    # tool call to find and open. Bounded by construction (~1KB), and a
+    # collector that has never run says so rather than injecting silence.
+    try:
+        from tools.caddy_rollup import digest as _caddy_digest
+        web = _caddy_digest()
+    except Exception as exc:
+        web = f"WEB TRAFFIC: rollup digest unavailable ({exc}) — worth a finding."
+
     spine_note = "" if spine_up else (
         "\nNOTE: the agent_decisions spine (Postgres) is UNREACHABLE right now — "
         "this run's trace goes to the local fallback log. Treat the dead spine "
@@ -87,6 +97,7 @@ def _gather_context(config: SysadminConfig, spine_up: bool) -> str:
         f"Clock: {clock}\n"
         f"Running as: {user} (supplementary groups: {groups})\n"
         f"{spine_note}\n\n"
+        f"{web}\n\n"
         f"YOUR LEDGER (bounded prefix, newest first — rhyme-check against this):\n\n"
         f"{ledger}"
     )
