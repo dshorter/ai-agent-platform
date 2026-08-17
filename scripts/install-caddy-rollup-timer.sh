@@ -22,9 +22,18 @@ STAMP=$(date +%Y%m%d-%H%M%S)
 [[ -x $PY ]] || { echo "missing venv at $PY" >&2; exit 1; }
 
 # Verify the collector runs before installing anything that depends on it.
-echo "→ smoke test (dry run, writes nothing)"
-sudo -u claude "$PY" -m tools.caddy_rollup --dry-run >/dev/null 2>&1 \
-  || { echo "collector failed its dry run — not installing" >&2; exit 1; }
+# stderr is NOT redirected: a hidden prompt or a swallowed traceback is how a
+# script appears to hang with no cursor. Bounded, because the first run does
+# uncached reverse-DNS lookups and a slow resolver should fail loudly rather
+# than sit there. Output goes to a file so a clean run stays quiet.
+echo "→ smoke test (dry run, writes nothing; up to 120s on a cold DNS cache)"
+SMOKE=$(mktemp)
+if ! timeout 120 runuser -u claude -- "$PY" -m tools.caddy_rollup --dry-run >"$SMOKE"; then
+  echo "collector failed or timed out — not installing. Last output:" >&2
+  tail -5 "$SMOKE" >&2
+  rm -f "$SMOKE"; exit 1
+fi
+rm -f "$SMOKE"
 
 for u in caddy-rollup.service caddy-rollup.timer; do
   [[ -f $UNIT_DIR/$u ]] && cp -a "$UNIT_DIR/$u" "$UNIT_DIR/.$u.backup.$STAMP"
@@ -74,10 +83,14 @@ systemd-analyze verify "$UNIT_DIR/caddy-rollup.service" "$UNIT_DIR/caddy-rollup.
 systemctl daemon-reload
 systemctl enable --now caddy-rollup.timer
 
+# One real run to prove the write path. Type=oneshot means `start` blocks until
+# it finishes, so this is bounded too — and it reports rather than hangs.
 echo "→ one real run, to prove the write path"
-systemctl start caddy-rollup.service
-sleep 2
-systemctl is-active --quiet caddy-rollup.service || journalctl -u caddy-rollup.service -n 20 --no-pager
+if ! timeout 180 systemctl start caddy-rollup.service; then
+  echo "the service did not complete cleanly:" >&2
+  journalctl -u caddy-rollup.service -n 20 --no-pager >&2
+  exit 1
+fi
 
 echo
 systemctl list-timers caddy-rollup.timer --no-pager
