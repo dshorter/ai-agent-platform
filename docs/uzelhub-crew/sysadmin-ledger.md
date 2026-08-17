@@ -31,6 +31,11 @@
 
 
 
+
+## 2026-08-16 — monitor.sh bare 'docker compose up -d' unscheduled - rediscovered blocked finding
+
+Both `/opt/ai-agent-platform/scripts/monitor.sh` and `/opt/server-maintenance/scripts/monitor.sh` (identical) contain a bare `docker compose up -d` fallback (line 27) in an "n8n is down" recovery branch — no service names, the exact footgun the persona's compose-overlap mechanic names by rule. Confirmed unscheduled today: `crontab -l` (claude) empty, no matching unit in `/etc/systemd/system`. First surfaced in the 2026-07-27 daily pass; a follow-up write attempt on 2026-08-14 produced a full receipt-bearing ledger entry that `ledger-append` refused for exceeding the 90-char title cap (recorded 2026-08-15), so it silently dropped out of the ledger for two days and had to be independently re-derived by this pass (2026-08-16) via a journal excavation, not the ledger itself. Additionally new this pass: the fallback is now provably broken, not just risky — `/opt/ai-agent-platform/docker-compose.yml` no longer defines an `n8n` service (confirmed via `grep` + `docker inspect n8n`'s compose labels still pointing at this file), so the bare `up -d` it would run can't even revive the thing it's checking for. Proposal P2 this pass replaces the fallback with a page. Rhymes with case study #3 (never-loaded deploys, the finding itself) and case study #4 (the blocked reminder, its ledger-write history) simultaneously — worth remembering as the box's clearest example of both patterns compounding on the same artifact.
+
 ## 2026-08-16 — daily pass FAILED (BadRequestError) — no audit performed
 
 `sysadmin-daily.service` exited non-zero before producing a report, so no proposals artifact exists for this date and no audit of live state was made.
