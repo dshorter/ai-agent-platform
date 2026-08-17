@@ -11,6 +11,8 @@ from typing import Any, Iterator
 
 import httpx
 
+from agents.telegram_format import to_telegram_html
+
 
 @dataclass
 class Update:
@@ -49,11 +51,26 @@ class TelegramClient:
         return out
 
     def send_message(self, chat_id: int, text: str) -> None:
-        for chunk in _chunk(text or "(no reply)", 4000):  # Telegram caps at 4096
+        # Chunk the RAW markdown, not the converted HTML: splitting HTML mid-tag
+        # produces markup Telegram rejects outright. 3000 leaves headroom for the
+        # tags the conversion adds, against Telegram's 4096 ceiling. A fence that
+        # straddles a chunk boundary simply fails to match and stays literal —
+        # ugly, delivered, and rare.
+        for chunk in _chunk(text or "(no reply)", 3000):
             resp = self._http.post(
                 f"{self._base}/sendMessage",
-                json={"chat_id": chat_id, "text": chunk},
+                json={"chat_id": chat_id, "text": to_telegram_html(chunk),
+                      "parse_mode": "HTML"},
             )
+            # Formatting must never cost delivery. Telegram answers a malformed
+            # entity with 400 and sends nothing, so a rejected render retries
+            # once as plain text — a pager that arrives plain beats one that
+            # does not arrive.
+            if resp.status_code == 400:
+                resp = self._http.post(
+                    f"{self._base}/sendMessage",
+                    json={"chat_id": chat_id, "text": chunk},
+                )
             resp.raise_for_status()
 
     def send_typing(self, chat_id: int) -> None:
