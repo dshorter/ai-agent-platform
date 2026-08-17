@@ -98,6 +98,17 @@ _LEDGER_SECTION = re.compile(
 _STATUS_LINE = re.compile(r"^## Status:\s*(\S+)", re.MULTILINE)
 _PROPOSAL_RE = re.compile(r"^### P\d+\b", re.MULTILINE)
 _FINDINGS_SECTION = re.compile(r"^## Findings\s*(.*?)(?=^## |\Z)", re.DOTALL | re.MULTILINE)
+_PROPOSALS_SECTION = re.compile(r"^## Proposals\s*(.*?)(?=^## |\Z)", re.DOTALL | re.MULTILINE)
+
+# The helper hard-truncates at 4000 chars (Telegram's own ceiling is 4096), and
+# a silently cut proposal is worse than none — you would apply half a diff. So
+# the push is all-or-nothing against a budget that leaves room for the
+# "[SYSADMIN] " prefix and a header line.
+#
+# Why proposals and not the whole report: measured across 2026-08-13..16 the
+# proposals section ran 2,514-2,995 chars while the full artifact ran 9.1-11.5k.
+# Proposals are the part you act on, and they are the part that fits.
+PROPOSALS_BUDGET = 3800
 
 
 def parse_ledger_entry(report: str) -> tuple[str, str] | None:
@@ -237,6 +248,26 @@ def _pass_summary(reply_text: str, status_word: str,
     return f"daily pass — FINDINGS: {headline}{suffix}. See proposals dir."
 
 
+def _proposals_push(reply_text: str, artifact: Path | None) -> str | None:
+    """The day's proposals, verbatim, when they fit in one page message.
+
+    Returns None when there is nothing worth paging. Never truncates: over
+    budget, it says so and points at the artifact rather than sending a diff
+    that stops mid-hunk.
+    """
+    m = _PROPOSALS_SECTION.search(reply_text)
+    if not m:
+        return None
+    body = m.group(1).strip()
+    if not body or body.lower().startswith("none this pass"):
+        return None
+    where = f" — {artifact}" if artifact else ""
+    if len(body) > PROPOSALS_BUDGET:
+        return (f"proposals for today are {len(body):,} chars, over the "
+                f"{PROPOSALS_BUDGET:,} page budget — not truncating{where}")
+    return f"today's proposals{where}\n\n{body}"
+
+
 def run_pass(config: SysadminConfig, pass_name: str, *, dry_run: bool = False) -> None:
     if config.paused:
         # Exit 0 keeps OnFailure quiet — pausing is an operator choice, not a failure.
@@ -350,3 +381,9 @@ def run_pass(config: SysadminConfig, pass_name: str, *, dry_run: bool = False) -
     # path is the unit's OnFailure= pager.
     if not dry_run:
         _notify(_pass_summary(reply.text, status_word, entry, ledger_note))
+        # Second message: the applyable half, so a proposal can be read and run
+        # from a phone without opening the artifact. Opt out with
+        # SYSADMIN_PUSH_PROPOSALS=0.
+        if os.environ.get("SYSADMIN_PUSH_PROPOSALS", "1") != "0":
+            if (push := _proposals_push(reply.text, artifact)):
+                _notify(push)
