@@ -37,3 +37,7 @@ pipelines/wire_editor/state/
 pipelines/sysadmin/state/
 # Ops desk — assembled served root (symlinks + generated entry point)
 ops/desk/
+
+# dev.to article-id map (tools/devto_syndicate) — ids, not secrets, but
+# machine state rather than source; regenerated on demand.
+state/
