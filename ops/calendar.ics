@@ -831,9 +831,12 @@ DESCRIPTION:Deferred 2026-08-02 (explicitly not-today). Token costs are tr
 END:VTODO
 BEGIN:VTODO
 UID:activate-ask-tracing@ai-agent-platform
-DTSTAMP:20260803T003301Z
+DTSTAMP:20260819T022324Z
 DUE;VALUE=DATE:20260803
-STATUS:NEEDS-ACTION
+STATUS:COMPLETED
+COMPLETED:20260819T022324Z
+PERCENT-COMPLETE:100
+SEQUENCE:1
 SUMMARY:Restart uzella-proxy to activate ask decision-tracing
 DESCRIPTION:Built + verified 2026-08-02: lib/ask-trace.js\, db/002_ask_dec
  isions.sql (ask_writer role\, INSERT-only)\, 18 unit tests green. The run
