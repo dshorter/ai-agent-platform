@@ -41,6 +41,12 @@ ENTRIES = [
     ("notes", "../../pipelines/writer/state/review", "Draft review desk",
      "Field-note and newsletter drafts awaiting a verdict. Thumb up to queue; "
      "the drip schedule is computed as you go."),
+    ("routing", "../../pipelines/wire_editor/state/review", "Lead routing desk",
+     "Gate \u2460. The Wire Editor's shortlist \u2014 claim it, spike it, or leave it "
+     "alone. Thumbed verdicts come back as a lead_mark block to paste."),
+    ("leads", "../../pipelines/scout/state/archive", "Leads archive",
+     "Every lead the Scout ever filed, searchable: what the wire recommended, "
+     "what the ledger records, and where the two disagree."),
 ]
 
 # Pages reachable inside a linked directory, listed on the entry point so the
