@@ -108,8 +108,10 @@ color:var(--fg);font-size:1rem}
 .lead>summary:hover{background:var(--bg)}
 .lead[open]>summary{background:var(--bg);border-bottom:1px solid var(--line)}
 .lead .when{font-variant-numeric:tabular-nums;font-size:.78rem;color:var(--dim);white-space:nowrap}
-.lead .slug{font-family:var(--mono);font-size:.79rem;line-height:1.45;overflow-wrap:anywhere;
-min-width:0}
+.lead .line{min-width:0;display:flex;flex-direction:column;gap:.15rem}
+.lead .gist{font-family:var(--serif);font-size:.94rem;line-height:1.4;color:var(--fg)}
+.lead .slug{font-family:var(--mono);font-size:.7rem;line-height:1.4;overflow-wrap:anywhere;
+color:var(--dim)}
 .lead .marks{display:flex;gap:.35rem;align-items:center;flex:none;flex-wrap:wrap;
 justify-content:flex-end}
 /* Two verdict columns, deliberately styled apart: the wire's is a filled
@@ -169,7 +171,9 @@ border-radius:5px;padding:.1rem .35rem}
 @media(max-width:860px){
   .lead>summary{grid-template-columns:1fr auto;gap:.3rem .6rem;padding:.65rem .75rem}
   .lead .when{grid-row:2;font-size:.72rem}
-  .lead .slug{grid-column:1;font-size:.76rem}
+  .lead .line{grid-column:1}
+  .lead .gist{font-size:.9rem}
+  .lead .slug{font-size:.67rem}
   .lead .marks{grid-row:1/3;grid-column:2;flex-direction:column;align-items:flex-end;
     justify-content:center}
   .vrow{grid-template-columns:3.2rem auto;gap:.35rem}
@@ -342,12 +346,28 @@ def render_row(lead: dict, prop: dict | None, cluster: str | None) -> str:
     srcs = "".join(f"<li>{esc(s)}</li>" for s in lead.get("sources", []))
     why = lead.get("why_now", "")
 
+    # The row leads with the PITCH, not the slug. Measured 2026-08-19
+    # (tools/leads_assay.py, framing assay): the slug layer reads 64 win /
+    # 57 problem while the pitch layer under it reads 134 / 59 — 50 leads
+    # carry a problem-shaped slug over a pitch that is nothing of the kind.
+    # Triage happens by scanning this column, so scanning the skewed layer
+    # biased the operator against a corpus that is mostly wins. The slug
+    # stays visible because it is the handle lead_mark takes, but it is no
+    # longer the thing the eye lands on.
+    gist = " ".join(lead.get("pitch", "").split())
+    if len(gist) > 150:
+        cut = gist.rfind(" ", 0, 150)
+        gist = gist[: cut if cut > 90 else 150].rstrip(" ,;:—-") + "…"
+
     return f"""
 <details class="lead" data-wire="{html.escape(wire)}" data-status="{html.escape(status)}"
          data-slug="{html.escape(lid)}">
   <summary>
     <span class="when">{html.escape(lead.get('filed', ''))}</span>
-    <span class="slug">{html.escape(lid)}</span>
+    <span class="line">
+      <span class="gist">{esc(gist)}</span>
+      <span class="slug">{html.escape(lid)}</span>
+    </span>
     <span class="marks">{marks}</span>
   </summary>
   <div class="detail">
