@@ -23,6 +23,7 @@ from pipelines.blog_pipeline.logging_context import (
 )
 from pipelines.blog_pipeline.pricing import compute_cost
 from pipelines.director.store import complete_run, create_run
+from pipelines.scout import jewels as jewels_mod
 from pipelines.scout import leads as leads_mod
 from pipelines.scout import walk
 from pipelines.scout.config import ScoutConfig
@@ -66,7 +67,10 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
 
     run_id = create_run(conn, "scout")
     status = "success"
-    summary: dict = {"pages": 0, "rows": 0, "jewels": 0, "leads": [], "cost_usd": 0.0}
+    summary: dict = {
+        "pages": 0, "rows": 0, "jewels": 0, "jewels_persisted": 0,
+        "leads": [], "cost_usd": 0.0,
+    }
     try:
         with log_manager.task_sequence(
             task_id=str(run_id), description="scout: prospecting pass"
@@ -103,6 +107,13 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
                 summary["rows"] += len(rows)
                 cursor = rows[-1]["seq"]
                 if not dry_run:
+                    # Persist the mining before anything downstream consumes it.
+                    # Synthesis is still fed the in-memory list this pass — the
+                    # verb split is what teaches it to read from the table — but
+                    # from here the jewels survive the process either way.
+                    summary["jewels_persisted"] += jewels_mod.persist(
+                        conn, page_jewels, rows, run_id, config.walk_model
+                    )
                     walk.apply_scratchpad(conn, pad_notes, {r["seq"] for r in rows})
                     walk.append_map_notes(
                         config.state_dir, map_notes, date.today().isoformat()
