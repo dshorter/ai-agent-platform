@@ -94,7 +94,7 @@ def _walk_stage(
     log_manager,
     run_id,
     cursor: int,
-    max_pages: int,
+    row_budget: int | None,
     summary: dict,
     dry_run: bool,
     advance_cursor: bool,
@@ -108,12 +108,19 @@ def _walk_stage(
     """
     found: list[dict] = []
     cost = 0.0
-    for page_no in range(max_pages):
-        rows = walk.fetch_page(conn, cursor, config.page_rows)
+    page_no = 0
+    remaining = row_budget
+    while remaining is None or remaining > 0:
+        # Trim the last page to the budget rather than overshooting it. The
+        # budget protects synthesis conversion, and a plate 149 rows over is
+        # still a bigger plate.
+        take = config.page_rows if remaining is None else min(config.page_rows, remaining)
+        rows = walk.fetch_page(conn, cursor, take)
         if not rows:
             break
+        page_no += 1
         with log_manager.tool_sequence(
-            "scout_walk", reason=f"page {page_no + 1}, seq > {cursor}"
+            "scout_walk", reason=f"page {page_no}, seq > {cursor}"
         ) as ctx:
             call = agent.triage(walk.page_as_prompt(rows))
             page_jewels = call.data.get("jewels", []) or []
@@ -133,6 +140,8 @@ def _walk_stage(
         found.extend(page_jewels)
         summary["pages"] += 1
         summary["rows"] += len(rows)
+        if remaining is not None:
+            remaining -= len(rows)
         cursor = rows[-1]["seq"]
         if not dry_run:
             # Persist the mining before anything downstream consumes it, so a
@@ -229,7 +238,7 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
             found, cost, _ = _walk_stage(
                 conn, agent, config, log_manager, run_id,
                 cursor=walk.load_cursor(config.state_dir),
-                max_pages=config.walk_pages,
+                row_budget=config.pass_row_budget,
                 summary=summary,
                 dry_run=dry_run,
                 advance_cursor=True,
@@ -276,7 +285,9 @@ def run_walk(
             found, cost, last = _walk_stage(
                 conn, agent, config, log_manager, run_id,
                 cursor=from_seq,
-                max_pages=max_pages if max_pages is not None else 10**6,
+                # Unbounded by default: the pass budget exists to protect
+                # synthesis conversion, and there is no synthesis here.
+                row_budget=(max_pages * config.page_rows) if max_pages else None,
                 summary=summary,
                 dry_run=dry_run,
                 advance_cursor=False,

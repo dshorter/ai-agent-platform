@@ -6,12 +6,36 @@ Fable, let lead quality decide"). Fable 5 is the plan; the A/B is the check.
 """
 from __future__ import annotations
 
+import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
 
 
 _HERE = Path(__file__).resolve().parent
+
+_DEFAULT_ROW_BUDGET = 150
+
+
+def _legacy_budget() -> int:
+    """Honour a hand-set SCOUT_WALK_PAGES rather than silently ignoring it.
+
+    The knob was renamed when it turned out to be sizing the plate, not the
+    call. Anyone who had tuned the old one deliberately should get what they
+    asked for and a line saying it moved — a silently ignored env var is the
+    kind of thing that gets diagnosed months later.
+    """
+    pages = os.environ.get("SCOUT_WALK_PAGES")
+    if not pages:
+        return _DEFAULT_ROW_BUDGET
+    rows = int(os.environ.get("SCOUT_PAGE_ROWS", "150")) * int(pages)
+    logging.getLogger("uzelhub_crew.scout.config").warning(
+        "SCOUT_WALK_PAGES=%s is retired — using SCOUT_PASS_ROW_BUDGET=%d. "
+        "Set the new var directly; note that a bigger plate mines THINNER "
+        "(docs/uzelhub-crew/scout-mining-economics.md).",
+        pages, rows,
+    )
+    return rows
 
 
 @dataclass
@@ -22,7 +46,7 @@ class ScoutConfig:
     synthesis_model: str       # the "link 16 things" leap — premium by design
     synthesis_fallback: str    # used once if synthesis stops with stop_reason=refusal
     page_rows: int             # log rows per triage page (bounded chunk per NEWSROOM cursor rules)
-    walk_pages: int            # max triage pages per pass
+    pass_row_budget: int       # TOTAL rows one --pass may walk (see below)
     roam_iterations: int       # synthesis tool round-trips before the pitch is forced
     max_cost_usd: float        # soft cap across one pass
     logs_dir: Path             # Claude Code session logs root (needs root to read)
@@ -42,7 +66,17 @@ class ScoutConfig:
             synthesis_model=os.environ.get("SCOUT_SYNTHESIS_MODEL", "claude-fable-5"),
             synthesis_fallback=os.environ.get("SCOUT_SYNTHESIS_FALLBACK", "claude-opus-4-8"),
             page_rows=int(os.environ.get("SCOUT_PAGE_ROWS", "150")),
-            walk_pages=int(os.environ.get("SCOUT_WALK_PAGES", "3")),
+            # 150 rows, not the 450 that walk_pages=3 x page_rows=150 gave.
+            # Output is homeostatic at ~13 leads a pass no matter what goes in
+            # (scout-mining-economics.md), so conversion runs 0.18 leads per
+            # jewel on a 450-row plate and ~1.0 on a small one: MORE ore per
+            # pass mines THINNER. The plate is sized so the machine's natural
+            # output consumes what the walk finds. page_rows stays a separate
+            # concern — how big one Haiku call is — instead of doing double
+            # duty as the pass cap.
+            pass_row_budget=int(
+                os.environ.get("SCOUT_PASS_ROW_BUDGET", str(_legacy_budget()))
+            ),
             roam_iterations=int(os.environ.get("SCOUT_ROAM_ITERATIONS", "6")),
             max_cost_usd=float(os.environ.get("SCOUT_MAX_COST_USD", "2.0")),
             # Sessions moved to the claude user on 2026-07-16 (root→claude
