@@ -25,6 +25,7 @@ status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, shipped 2
 - [Scout, in detail](#scout-in-detail)
 - [The Scout learns navigation, not taste (the pineapple rule)](#the-scout-learns-navigation-not-taste-the-pineapple-rule)
 - [The Scout's sources — session logs first, read by cursor](#the-scouts-sources--session-logs-first-read-by-cursor)
+- [Measured behaviour — moved to a leaf](#measured-behaviour--moved-to-a-leaf)
 - [Model tiers — cheap walk, premium synthesis (Fable 5 on the leap)](#model-tiers--cheap-walk-premium-synthesis-fable-5-on-the-leap)
 - [Reuse vs fork — the ghost crew stays on ghost](#reuse-vs-fork--the-ghost-crew-stays-on-ghost)
 - [SEO duties — moved to a leaf](#seo-duties--moved-to-a-leaf)
@@ -262,6 +263,21 @@ scratchpads and assemble/rank complete arcs across sessions. But that's a
 speculative later consumer, not a first-pass build — the scratchpad-on-walk is
 v1, and the batch arc-finder earns its existence only if the inline notes fall
 short. Don't build it on spec.
+
+## Measured behaviour — moved to a leaf
+
+**[scout-mining-economics.md](scout-mining-economics.md)** (`read: full`) — what
+the Scout measurably *does* with ore, as opposed to what this doc specifies it is
+for. Measured against the live corpus 2026-08-19..21. Read it before tuning any
+Scout knob, because three of its findings are counterintuitive:
+
+- output is homeostatic at ~13 leads a pass regardless of input, so **more ore
+  per pass means thinner mining, not more leads** (conversion runs 0.18 leads
+  per jewel on a full plate, 1.00 on a small one);
+- **jewels are never persisted** — ~1,645 were extracted and discarded, and
+  73.3% of the corpus is cited by no lead;
+- cost is no longer a function of ore at all; it is dominated by the
+  already-pitched dedup payload, which scales with the ledger.
 
 ## Model tiers — cheap walk, premium synthesis (Fable 5 on the leap)
 
