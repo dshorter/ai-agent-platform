@@ -87,3 +87,48 @@ def persist(
         # instead of silent.
         log.info("scout.jewels %d jewel(s) skipped (bad or off-page seq)", skipped)
     return inserted
+
+
+def select(
+    conn,
+    since: str | None = None,
+    until: str | None = None,
+    kinds: list[str] | None = None,
+    run_id=None,
+    limit: int | None = None,
+) -> list[dict]:
+    """Read jewels back for a synthesis that did not mine them.
+
+    Returns exactly the shape the walk hands over in-process — {seq, kind,
+    note} and nothing more. That sameness is the point: `--pass` and a
+    standalone `--synthesize` must put identical context in front of the
+    model, or the two paths quietly diverge and the pass stops being the
+    thing this was tested against. Anything extra a consumer wants (dates,
+    provenance, the turn text itself) is one join away on `seq`.
+
+    Ordered by seq so a selection is deterministic and re-runnable.
+    """
+    where: list[str] = []
+    params: list = []
+    if since:
+        where.append("session_date >= %s")
+        params.append(since)
+    if until:
+        where.append("session_date <= %s")
+        params.append(until)
+    if kinds:
+        where.append("kind = ANY(%s)")
+        params.append(list(kinds))
+    if run_id:
+        where.append("run_id = %s")
+        params.append(run_id)
+    sql = "SELECT seq, kind, note FROM scout_jewel"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY seq"
+    if limit:
+        sql += " LIMIT %s"
+        params.append(limit)
+    with conn.cursor() as cur:
+        cur.execute(sql, params)
+        return [{"seq": s, "kind": k, "note": n} for s, k, n in cur.fetchall()]

@@ -215,3 +215,44 @@ def test_table_carries_no_disposition_column(live):
     forbidden = {"lead_id", "became_lead", "status", "score", "verdict",
                  "published", "claimed", "spiked", "disposition"}
     assert not (cols & forbidden), f"disposition column(s) on scout_jewel: {cols & forbidden}"
+
+
+def test_select_returns_the_same_shape_the_walk_hands_over(live):
+    """`--pass` feeds synthesis its in-memory jewels; `--synthesize` feeds it
+    rows from this table. If the two shapes drift, the standalone verb stops
+    being the thing the daily pass was tested against — so select() returns
+    {seq, kind, note} and nothing else, on purpose."""
+    from pipelines.scout.jewels import select
+
+    with live.cursor() as cur:
+        cur.execute(
+            "INSERT INTO pipeline_runs (pipeline_name, status) "
+            "VALUES (%s, 'running') RETURNING run_id",
+            (_TEST_RUN,),
+        )
+        run_id = cur.fetchone()[0]
+        cur.execute("SELECT seq, session_date FROM scout_session_log ORDER BY seq LIMIT 2")
+        ore = [{"seq": s, "date": d} for s, d in cur.fetchall()]
+    live.commit()
+
+    persist(
+        live,
+        [
+            {"seq": ore[0]["seq"], "kind": "principle", "note": "first"},
+            {"seq": ore[1]["seq"], "kind": "aha", "note": "second"},
+        ],
+        ore,
+        run_id,
+        "m1",
+    )
+
+    got = select(live, run_id=run_id)
+    assert [set(j) for j in got] == [{"seq", "kind", "note"}] * 2
+    assert [j["seq"] for j in got] == sorted(j["seq"] for j in got), "must be seq-ordered"
+
+    # Facets narrow, and an empty selection is empty rather than everything —
+    # a filter that silently falls back to the whole table would hand a
+    # monthly digest the entire corpus.
+    assert len(select(live, run_id=run_id, kinds=["aha"])) == 1
+    assert select(live, run_id=run_id, since="2099-01-01") == []
+    assert len(select(live, run_id=run_id, limit=1)) == 1

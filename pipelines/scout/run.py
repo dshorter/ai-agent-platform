@@ -1,12 +1,32 @@
-"""One prospecting pass: walk N pages -> synthesize -> file leads.
+"""The Scout's stages, and the three ways to run them.
 
 Same stateless shape as the rest of the crew: connect, read fresh, reason,
 persist to agent_decisions, exit. Every LLM call logs model/tokens/cost to the
 spine, so the Sonnet-vs-Fable synthesis A/B (NEWSROOM §Model tiers) prices
 itself automatically.
 
-Dry-run is fully read-only: no cursor advance, no scratchpad writes, no map
-appends, no leads filed — coverage is not consumed by a rehearsal.
+**The walk and the synthesis are separable** (scout-retool.md §2). They used to
+be one indivisible act, which meant mining could not happen without also
+storytelling — and since the walk is the cheap tier (~$0.0105 a page) while
+synthesis is the premium one, re-mining the corpus cost ~$200 instead of ~$1.
+Now:
+
+    run_pass       walk, then synthesize over what that walk found — unchanged
+                   in meaning, and still what the daily timer invokes.
+    run_walk       mine an explicit range and persist the jewels. No synthesis,
+                   no leads, no cursor movement. This is what makes a reclaim
+                   sweep affordable.
+    run_synthesis  read a jewel selection back out and surface leads from it.
+                   The verb both future consumers of the jewel table grow from.
+
+`run_pass` deliberately hands synthesis the jewels it holds **in memory** rather
+than re-reading them from the table. The two are equivalent when the write
+succeeded, and going through the database would make a storage hiccup silently
+cost a pass its leads. Composition is at the function boundary, not the storage
+one.
+
+Dry-run is fully read-only: no cursor advance, no jewels, no scratchpad writes,
+no map appends, no leads filed — coverage is not consumed by a rehearsal.
 """
 from __future__ import annotations
 
@@ -54,10 +74,8 @@ def _record(ctx, call: ScoutCall, payload: dict) -> float:
     return cost
 
 
-def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
-    conn = psycopg.connect(config.postgres_dsn)
-    log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
-    agent = ScoutAgent(
+def _agent(config: ScoutConfig) -> ScoutAgent:
+    return ScoutAgent(
         Anthropic(api_key=config.anthropic_api_key),
         walk_model=config.walk_model,
         synthesis_model=config.synthesis_model,
@@ -65,102 +83,250 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
         roam_iterations=config.roam_iterations,
     )
 
+
+# --- stage 1: the walk ---------------------------------------------------------
+
+
+def _walk_stage(
+    conn,
+    agent: ScoutAgent,
+    config: ScoutConfig,
+    log_manager,
+    run_id,
+    cursor: int,
+    max_pages: int,
+    summary: dict,
+    dry_run: bool,
+    advance_cursor: bool,
+    cost_cap: float | None,
+) -> tuple[list[dict], float, int]:
+    """Mine pages forward from `cursor`. Returns (jewels, cost, new cursor).
+
+    `advance_cursor` is what separates a pass from a reclaim sweep: a pass owns
+    the forward position and moves it, a reclaim re-reads ore that position has
+    already passed and must leave it exactly where it was.
+    """
+    found: list[dict] = []
+    cost = 0.0
+    for page_no in range(max_pages):
+        rows = walk.fetch_page(conn, cursor, config.page_rows)
+        if not rows:
+            break
+        with log_manager.tool_sequence(
+            "scout_walk", reason=f"page {page_no + 1}, seq > {cursor}"
+        ) as ctx:
+            call = agent.triage(walk.page_as_prompt(rows))
+            page_jewels = call.data.get("jewels", []) or []
+            pad_notes = call.data.get("scratchpad", []) or []
+            map_notes = call.data.get("map_notes", []) or []
+            cost += _record(
+                ctx,
+                call,
+                {
+                    "rows": len(rows),
+                    "seq_range": [rows[0]["seq"], rows[-1]["seq"]],
+                    "jewels": len(page_jewels),
+                    "scratchpad_notes": len(pad_notes),
+                    "dry_run": dry_run,
+                },
+            )
+        found.extend(page_jewels)
+        summary["pages"] += 1
+        summary["rows"] += len(rows)
+        cursor = rows[-1]["seq"]
+        if not dry_run:
+            # Persist the mining before anything downstream consumes it, so a
+            # crash between here and the leap costs nothing already paid for.
+            summary["jewels_persisted"] += jewels_mod.persist(
+                conn, page_jewels, rows, run_id, config.walk_model
+            )
+            walk.apply_scratchpad(conn, pad_notes, {r["seq"] for r in rows})
+            walk.append_map_notes(config.state_dir, map_notes, date.today().isoformat())
+            if advance_cursor:
+                walk.save_cursor(config.state_dir, cursor)
+        if cost_cap is not None and cost >= cost_cap:
+            log.warning("scout.walk cost cap hit (%.4f)", cost)
+            break
+    return found, cost, cursor
+
+
+# --- stage 2: the leap ---------------------------------------------------------
+
+
+def _synthesis_stage(
+    conn,
+    agent: ScoutAgent,
+    config: ScoutConfig,
+    log_manager,
+    found: list[dict],
+    summary: dict,
+    dry_run: bool,
+) -> float:
+    sequences = cross_agent_sequences(conn)
+    pitched = leads_mod.load_pitched(config.leads_path)
+    with log_manager.tool_sequence(
+        "scout_synthesis", reason=f"{len(found)} jewels, {len(sequences)} sequences"
+    ) as ctx:
+        call = agent.synthesize(
+            {
+                "jewels": found,
+                "sequences": sequences,
+                "map": walk.read_map(config.state_dir),
+                "pitched": pitched,
+            },
+            conn=conn,
+        )
+        new_leads = call.data.get("leads", []) or []
+        cost = _record(
+            ctx,
+            call,
+            {
+                "leads": len(new_leads),
+                "fallback_used": call.fallback_used,
+                "stop_reason": call.stop_reason,
+                "iterations": call.iterations,
+                "tool_calls": call.tool_calls,  # the foraging trace — the A/B's second axis
+                "dry_run": dry_run,
+            },
+        )
+
+    summary["jewels"] = len(found)
+    summary["leads"] = new_leads
+    summary["synthesis_model"] = call.model
+    summary["roam"] = call.tool_calls
+
+    if not dry_run and new_leads:
+        summary["filed"] = leads_mod.append_leads(config.leads_path, new_leads, call.model)
+    return cost
+
+
+def _blank_summary() -> dict:
+    return {
+        "pages": 0,
+        "rows": 0,
+        "jewels": 0,
+        "jewels_persisted": 0,
+        "leads": [],
+        "cost_usd": 0.0,
+    }
+
+
+# --- the three verbs -----------------------------------------------------------
+
+
+def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
+    """Walk, then synthesize over what this walk found. The timer's entry point."""
+    conn = psycopg.connect(config.postgres_dsn)
+    log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
+    agent = _agent(config)
     run_id = create_run(conn, "scout")
     status = "success"
-    summary: dict = {
-        "pages": 0, "rows": 0, "jewels": 0, "jewels_persisted": 0,
-        "leads": [], "cost_usd": 0.0,
-    }
+    summary = _blank_summary()
     try:
         with log_manager.task_sequence(
             task_id=str(run_id), description="scout: prospecting pass"
         ):
-            cursor = walk.load_cursor(config.state_dir)
-            jewels: list[dict] = []
-            cost = 0.0
-
-            # --- the walk: bounded pages, forward-only, logs-cursor only ---
-            for page_no in range(config.walk_pages):
-                rows = walk.fetch_page(conn, cursor, config.page_rows)
-                if not rows:
-                    break
-                with log_manager.tool_sequence(
-                    "scout_walk", reason=f"page {page_no + 1}, seq > {cursor}"
-                ) as ctx:
-                    call = agent.triage(walk.page_as_prompt(rows))
-                    page_jewels = call.data.get("jewels", []) or []
-                    pad_notes = call.data.get("scratchpad", []) or []
-                    map_notes = call.data.get("map_notes", []) or []
-                    cost += _record(
-                        ctx,
-                        call,
-                        {
-                            "rows": len(rows),
-                            "seq_range": [rows[0]["seq"], rows[-1]["seq"]],
-                            "jewels": len(page_jewels),
-                            "scratchpad_notes": len(pad_notes),
-                            "dry_run": dry_run,
-                        },
-                    )
-                jewels.extend(page_jewels)
-                summary["pages"] += 1
-                summary["rows"] += len(rows)
-                cursor = rows[-1]["seq"]
-                if not dry_run:
-                    # Persist the mining before anything downstream consumes it.
-                    # Synthesis is still fed the in-memory list this pass — the
-                    # verb split is what teaches it to read from the table — but
-                    # from here the jewels survive the process either way.
-                    summary["jewels_persisted"] += jewels_mod.persist(
-                        conn, page_jewels, rows, run_id, config.walk_model
-                    )
-                    walk.apply_scratchpad(conn, pad_notes, {r["seq"] for r in rows})
-                    walk.append_map_notes(
-                        config.state_dir, map_notes, date.today().isoformat()
-                    )
-                    walk.save_cursor(config.state_dir, cursor)
-                if cost >= config.max_cost_usd:
-                    log.warning("scout.pass cost cap hit during walk (%.4f)", cost)
-                    break
-
-            # --- the free-roam side + the leap ---
-            sequences = cross_agent_sequences(conn)
-            pitched = leads_mod.load_pitched(config.leads_path)
-            with log_manager.tool_sequence(
-                "scout_synthesis", reason=f"{len(jewels)} jewels, {len(sequences)} sequences"
-            ) as ctx:
-                call = agent.synthesize(
-                    {
-                        "jewels": jewels,
-                        "sequences": sequences,
-                        "map": walk.read_map(config.state_dir),
-                        "pitched": pitched,
-                    },
-                    conn=conn,
-                )
-                new_leads = call.data.get("leads", []) or []
-                cost += _record(
-                    ctx,
-                    call,
-                    {
-                        "leads": len(new_leads),
-                        "fallback_used": call.fallback_used,
-                        "stop_reason": call.stop_reason,
-                        "iterations": call.iterations,
-                        "tool_calls": call.tool_calls,  # the foraging trace — the A/B's second axis
-                        "dry_run": dry_run,
-                    },
-                )
-
-            summary["jewels"] = len(jewels)
-            summary["leads"] = new_leads
+            found, cost, _ = _walk_stage(
+                conn, agent, config, log_manager, run_id,
+                cursor=walk.load_cursor(config.state_dir),
+                max_pages=config.walk_pages,
+                summary=summary,
+                dry_run=dry_run,
+                advance_cursor=True,
+                cost_cap=config.max_cost_usd,
+            )
+            cost += _synthesis_stage(
+                conn, agent, config, log_manager, found, summary, dry_run
+            )
             summary["cost_usd"] = round(cost, 4)
-            summary["synthesis_model"] = call.model
-            summary["roam"] = call.tool_calls
+        return summary
+    except Exception:
+        status = "error"
+        raise
+    finally:
+        complete_run(conn, run_id, status)
+        conn.close()
 
-            if not dry_run and new_leads:
-                filed = leads_mod.append_leads(config.leads_path, new_leads, call.model)
-                summary["filed"] = filed
+
+def run_walk(
+    config: ScoutConfig,
+    from_seq: int = 0,
+    max_pages: int | None = None,
+    dry_run: bool = False,
+) -> dict:
+    """Mine an explicit range and persist the jewels. No synthesis, no leads.
+
+    Neither cursor moves: a reclaim sweep re-reads ore the forward position has
+    already covered, and letting it write that position would rewind the Scout.
+    Bounded by `max_pages` alone — the pass row budget exists to protect
+    synthesis conversion, and there is no synthesis here to protect.
+    """
+    conn = psycopg.connect(config.postgres_dsn)
+    log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
+    agent = _agent(config)
+    run_id = create_run(conn, "scout")
+    status = "success"
+    summary = _blank_summary()
+    summary["run_id"] = str(run_id)
+    summary["from_seq"] = from_seq
+    try:
+        with log_manager.task_sequence(
+            task_id=str(run_id), description="scout: walk (mine only)"
+        ):
+            found, cost, last = _walk_stage(
+                conn, agent, config, log_manager, run_id,
+                cursor=from_seq,
+                max_pages=max_pages if max_pages is not None else 10**6,
+                summary=summary,
+                dry_run=dry_run,
+                advance_cursor=False,
+                cost_cap=None,
+            )
+            summary["jewels"] = len(found)
+            summary["last_seq"] = last
+            summary["cost_usd"] = round(cost, 4)
+        return summary
+    except Exception:
+        status = "error"
+        raise
+    finally:
+        complete_run(conn, run_id, status)
+        conn.close()
+
+
+def run_synthesis(
+    config: ScoutConfig,
+    since: str | None = None,
+    until: str | None = None,
+    kinds: list[str] | None = None,
+    of_run=None,
+    limit: int | None = None,
+    dry_run: bool = False,
+) -> dict:
+    """Surface leads from jewels already on disk — no transcript is re-read."""
+    conn = psycopg.connect(config.postgres_dsn)
+    log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
+    agent = _agent(config)
+    run_id = create_run(conn, "scout")
+    status = "success"
+    summary = _blank_summary()
+    try:
+        with log_manager.task_sequence(
+            task_id=str(run_id), description="scout: synthesis over stored jewels"
+        ):
+            found = jewels_mod.select(
+                conn, since=since, until=until, kinds=kinds, run_id=of_run, limit=limit
+            )
+            summary["selected"] = len(found)
+            if not found:
+                log.warning("scout.synthesis selection is empty — nothing to leap from")
+                return summary
+            summary["cost_usd"] = round(
+                _synthesis_stage(
+                    conn, agent, config, log_manager, found, summary, dry_run
+                ),
+                4,
+            )
         return summary
     except Exception:
         status = "error"
