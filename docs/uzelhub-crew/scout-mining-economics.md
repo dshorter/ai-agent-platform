@@ -1,6 +1,6 @@
 ---
 read: full
-status: measured 2026-08-19..21 against the live corpus (14,198 turns / 477 leads / 35 passes). Findings settled and reproducible; the three tuning changes they imply are NOT built — see §What follows. Supersedes nothing in NEWSROOM.md; it explains behaviour that doc specifies.
+status: measured 2026-08-19..21 against the live corpus (14,198 turns / 477 leads / 35 passes). Findings settled and reproducible; the changes they imply are specced in scout-retool.md and NOT built — see §What follows. Supersedes nothing in NEWSROOM.md; it explains behaviour that doc specifies.
 ---
 
 # Scout mining economics — what the machine actually does with ore
@@ -197,7 +197,8 @@ the eventual published URL.
 
 ## What follows
 
-Three coupled changes, none of which adds an agent:
+Specced in **[scout-retool.md](scout-retool.md)** (`read: full`) — four changes,
+none of which adds an agent:
 
 1. **Persist the jewel layer**, as a published interface rather than Scout-private
    state — enough carried context that a reader months later need not re-open the

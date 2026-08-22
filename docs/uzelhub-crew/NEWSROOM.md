@@ -279,6 +279,10 @@ Scout knob, because three of its findings are counterintuitive:
 - cost is no longer a function of ore at all; it is dominated by the
   already-pitched dedup payload, which scales with the ledger.
 
+What is being done about it: **[scout-retool.md](scout-retool.md)** (`read: full`,
+spec, not built) — persist the jewel layer, unweld walk from synthesis, size the
+plate by row budget, add a backfill cursor. A retool, not a fifth agent.
+
 ## Model tiers — cheap walk, premium synthesis (Fable 5 on the leap)
 
 The Scout is **not one model call** — it's two stages with opposite needs, so
