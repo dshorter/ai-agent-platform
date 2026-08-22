@@ -97,14 +97,20 @@ def _walk_stage(
     row_budget: int | None,
     summary: dict,
     dry_run: bool,
-    advance_cursor: bool,
+    cursor_key: str | None,
     cost_cap: float | None,
+    stop_at: int | None = None,
 ) -> tuple[list[dict], float, int]:
     """Mine pages forward from `cursor`. Returns (jewels, cost, new cursor).
 
-    `advance_cursor` is what separates a pass from a reclaim sweep: a pass owns
-    the forward position and moves it, a reclaim re-reads ore that position has
-    already passed and must leave it exactly where it was.
+    `cursor_key` is what separates the three callers: "forward" for a pass
+    reading new ore, "backfill" for the same pass topping up from history, and
+    None for a reclaim sweep, which re-reads ore the forward position already
+    covered and must leave every position exactly where it was.
+
+    `stop_at` bounds the backfill so it halts on catching up with forward
+    rather than looping the corpus forever — a second sweep is an explicit
+    operator act (reset the position to 0), not something that happens quietly.
     """
     found: list[dict] = []
     cost = 0.0
@@ -116,6 +122,8 @@ def _walk_stage(
         # still a bigger plate.
         take = config.page_rows if remaining is None else min(config.page_rows, remaining)
         rows = walk.fetch_page(conn, cursor, take)
+        if stop_at is not None:
+            rows = [r for r in rows if r["seq"] <= stop_at]
         if not rows:
             break
         page_no += 1
@@ -151,8 +159,8 @@ def _walk_stage(
             )
             walk.apply_scratchpad(conn, pad_notes, {r["seq"] for r in rows})
             walk.append_map_notes(config.state_dir, map_notes, date.today().isoformat())
-            if advance_cursor:
-                walk.save_cursor(config.state_dir, cursor)
+            if cursor_key:
+                walk.save_cursors(config.state_dir, **{cursor_key: cursor})
         if cost_cap is not None and cost >= cost_cap:
             log.warning("scout.walk cost cap hit (%.4f)", cost)
             break
@@ -235,15 +243,37 @@ def run_pass(config: ScoutConfig, dry_run: bool = False) -> dict:
         with log_manager.task_sequence(
             task_id=str(run_id), description="scout: prospecting pass"
         ):
+            cursors = walk.load_cursors(config.state_dir)
             found, cost, _ = _walk_stage(
                 conn, agent, config, log_manager, run_id,
-                cursor=walk.load_cursor(config.state_dir),
+                cursor=cursors["forward"],
                 row_budget=config.pass_row_budget,
                 summary=summary,
                 dry_run=dry_run,
-                advance_cursor=True,
+                cursor_key="forward",
                 cost_cap=config.max_cost_usd,
             )
+            # Fresh ore has first claim on the plate; backfill only gets what
+            # is left. On a busy day it gets nothing, on a quiet one it gets
+            # most of the budget — self-balancing, and no scheduling logic.
+            # It stops at the forward position it started behind: catching up
+            # means the corpus has been re-mined once, and a second sweep is
+            # the operator's call.
+            spare = config.pass_row_budget - summary["rows"]
+            if spare > 0 and cursors["backfill"] < cursors["forward"]:
+                back, back_cost, _ = _walk_stage(
+                    conn, agent, config, log_manager, run_id,
+                    cursor=cursors["backfill"],
+                    row_budget=spare,
+                    summary=summary,
+                    dry_run=dry_run,
+                    cursor_key="backfill",
+                    cost_cap=config.max_cost_usd - cost,
+                    stop_at=cursors["forward"],
+                )
+                found.extend(back)
+                cost += back_cost
+                summary["backfill_rows"] = summary["rows"] - (config.pass_row_budget - spare)
             cost += _synthesis_stage(
                 conn, agent, config, log_manager, found, summary, dry_run
             )
@@ -290,7 +320,7 @@ def run_walk(
                 row_budget=(max_pages * config.page_rows) if max_pages else None,
                 summary=summary,
                 dry_run=dry_run,
-                advance_cursor=False,
+                cursor_key=None,
                 cost_cap=None,
             )
             summary["jewels"] = len(found)

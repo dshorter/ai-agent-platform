@@ -1,6 +1,6 @@
 ---
 read: full
-status: spec, not built (opened 2026-08-21). Decisions below are made, not proposed — where something is genuinely open it says so. Rests entirely on scout-mining-economics.md; read that first or the tuning here looks backwards. Scout is PAUSED (SCOUT_PAUSED=1) for the duration.
+status: opened 2026-08-21. §§1-4 BUILT and committed 2026-08-22 (3dc8894, 48ba6e1, 5950527, + the cursor commit); rollout steps 4 (reclaim sweep) and resume are NOT done and are operator calls. Decisions below are made, not proposed — where something is genuinely open it says so. Rests entirely on scout-mining-economics.md; read that first or the tuning here looks backwards. Scout is PAUSED (SCOUT_PAUSED=1) for the duration.
 ---
 
 # Scout retool — from pipeline to substrate
@@ -181,10 +181,12 @@ prioritize "under-mined" ore, but the walk was uniform — annotation runs 6.7% 
 downstream, and re-walking at the corrected plate size fixes it everywhere at
 once.
 
-**This is the piece to cut if anything gets cut.** Once a one-shot `--walk`
-reclaim has re-mined the corpus, the backfill cursor's remaining job is small.
-It is worth having for continuous re-mining, but the reclaim does not depend on
-it.
+**This was flagged as the piece to cut if anything got cut**, on the grounds
+that a one-shot `--walk` reclaim leaves it little to do. Built anyway, because
+it turned out to be ~40 lines once `_walk_stage` already took a cursor key, and
+because it is the mechanism that keeps re-mining going after the one-shot sweep
+rather than a second thing to remember to run. The reclaim still does not
+depend on it.
 
 ## Rollout order
 
@@ -197,8 +199,14 @@ it.
 4. **Reclaim.** One `--walk` sweep over the full corpus. ~95 pages, ~$1.
 5. **Second cursor.** Ongoing top-up, if still wanted after 4.
 
-Resume the Scout (delete `SCOUT_PAUSED=1`) after step 3, not before — a paused
-Scout is why the corpus is a fixed target for the reclaim in step 4.
+Resume the Scout (delete `SCOUT_PAUSED=1`) once the conversion measurement in
+§How we will know it worked has something to measure — that check needs five
+passes to have run, so the Scout has to be going. **Corrected 2026-08-22:** the
+first draft justified the same instruction by saying a paused Scout keeps the
+corpus fixed for the reclaim. That reasoning is wrong. `--walk` takes an
+explicit range and moves no cursor, and new ore lands at seq above anything a
+reclaim is reading, so a running Scout cannot disturb a reclaim sweep. The two
+are independent; only the measurement depends on resuming.
 
 ## Invariants — must not change
 

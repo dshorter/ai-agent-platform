@@ -71,7 +71,7 @@ def harness(monkeypatch, tmp_path):
     monkeypatch.setattr(run_mod.walk, "apply_scratchpad", lambda *a, **k: 0)
     monkeypatch.setattr(run_mod.walk, "append_map_notes", lambda *a, **k: None)
     saved: list[int] = []
-    monkeypatch.setattr(run_mod.walk, "save_cursor", lambda _d, seq: saved.append(seq))
+    monkeypatch.setattr(run_mod.walk, "save_cursors", lambda _d, **kw: saved.append(kw))
     return served, saved
 
 
@@ -86,12 +86,12 @@ def _config(**over) -> ScoutConfig:
     return ScoutConfig(**base)
 
 
-def _walk(config, budget, harness, advance=True):
+def _walk(config, budget, harness, cursor_key="forward", stop_at=None):
     summary = run_mod._blank_summary()
     found, cost, cursor = run_mod._walk_stage(
         conn=None, agent=_Agent(), config=config, log_manager=_LogManager(),
         run_id="r", cursor=0, row_budget=budget, summary=summary,
-        dry_run=False, advance_cursor=advance, cost_cap=None,
+        dry_run=False, cursor_key=cursor_key, cost_cap=None, stop_at=stop_at,
     )
     return summary, cursor
 
@@ -146,10 +146,25 @@ def test_reclaim_never_writes_the_forward_cursor(harness):
     """The invariant that makes re-mining safe: --walk re-reads ore the forward
     position has already covered, so writing that position would rewind the
     Scout past material it has walked."""
-    _, saved = harness  # one list, shared by both walks below
+    _, saved = harness  # one list, shared by all three walks below
 
-    _walk(_config(), 300, harness, advance=False)
-    assert saved == [], "a reclaim walk must not touch the forward cursor"
+    _walk(_config(), 300, harness, cursor_key=None)
+    assert saved == [], "a reclaim walk must touch no position at all"
 
-    _walk(_config(), 300, harness, advance=True)
-    assert saved, "a pass, by contrast, must advance it"
+    _walk(_config(), 300, harness, cursor_key="forward")
+    assert saved and all("forward" in w for w in saved), "a pass advances forward"
+
+    saved.clear()
+    _walk(_config(), 300, harness, cursor_key="backfill")
+    assert saved and all("backfill" in w for w in saved), (
+        "a top-up writes the backfill position and must never write forward — "
+        "that would rewind coverage of new ore to somewhere in the archive"
+    )
+
+
+def test_backfill_stops_at_the_forward_position(harness):
+    """Catching up means the corpus has been re-mined once. Looping would
+    silently re-bill the whole archive every time it came around."""
+    served, _ = harness
+    summary, _ = _walk(_config(), 300, harness, cursor_key="backfill", stop_at=200)
+    assert summary["rows"] == 200, "must not read past where forward stood"

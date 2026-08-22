@@ -1,9 +1,12 @@
 """The coverage walk — forward-only, cursor-keyed, logs ONLY.
 
-The cursor guarantees the append-only log import gets fully read at least
-once. It encodes read position, never taste; it lives in the state dir as
-plain JSON — external, inspectable, warm-bootable. Reset (delete the file) to
-re-scan. Keyset on `seq` (WHERE seq > cursor), never OFFSET.
+TWO cursors, both in the state dir as plain JSON — external, inspectable,
+warm-bootable. `forward` guarantees the append-only log import gets fully read
+at least once and only ever moves ahead. `backfill` re-walks from the start so
+ore skimmed under the old oversized plate can be mined properly; it is a
+separate position precisely so re-mining can never rewind coverage of what is
+new. Both encode read position, never taste. Keyset on `seq` (WHERE seq >
+cursor), never OFFSET.
 
 Scratchpad writes append — the raw text column is never touched, and nothing
 downstream parses the scratchpad (it's the Scout's own opaque space).
@@ -18,16 +21,45 @@ from pathlib import Path
 ROW_CLIP_CHARS = 1200
 
 
-def load_cursor(state_dir: Path) -> int:
+def load_cursors(state_dir: Path) -> dict:
+    """Both read positions: {"forward": int, "backfill": int}.
+
+    `forward` is the original guarantee — the append-only log gets read at
+    least once — and only ever moves ahead. `backfill` is the re-mining
+    position, walking from 0 back up toward wherever forward stood, so ore
+    that was skimmed under the old 450-row plate can be worked properly
+    without disturbing coverage of what is new.
+
+    Reads the pre-2026-08 single-cursor shape ({"seq": N}) as forward, so an
+    existing state file keeps working and stays hand-inspectable — the whole
+    point of the cursor living outside the database.
+    """
     path = state_dir / "cursor.json"
-    if path.exists():
-        return int(json.loads(path.read_text()).get("seq", 0))
-    return 0
+    if not path.exists():
+        return {"forward": 0, "backfill": 0}
+    raw = json.loads(path.read_text())
+    if "seq" in raw and "forward" not in raw:
+        return {"forward": int(raw["seq"]), "backfill": 0}
+    return {
+        "forward": int(raw.get("forward", 0)),
+        "backfill": int(raw.get("backfill", 0)),
+    }
 
 
-def save_cursor(state_dir: Path, seq: int) -> None:
+def save_cursors(state_dir: Path, forward: int | None = None, backfill: int | None = None) -> None:
+    """Write one or both positions, preserving the other.
+
+    Never blind-writes the whole file: a pass that only advanced forward must
+    not reset backfill to whatever it happened to read at start, and vice
+    versa.
+    """
     state_dir.mkdir(parents=True, exist_ok=True)
-    (state_dir / "cursor.json").write_text(json.dumps({"seq": seq}) + "\n")
+    cur = load_cursors(state_dir)
+    if forward is not None:
+        cur["forward"] = forward
+    if backfill is not None:
+        cur["backfill"] = backfill
+    (state_dir / "cursor.json").write_text(json.dumps(cur) + "\n")
 
 
 def fetch_page(conn, after_seq: int, limit: int) -> list[dict]:
