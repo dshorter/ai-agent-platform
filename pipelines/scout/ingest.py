@@ -139,10 +139,23 @@ def parse_codex_session_file(path: Path) -> list[tuple]:
 def ingest(conn, logs_dir: Path, codex_dir: Path | None = None) -> dict[str, int]:
     """Ingest every session JSONL under logs_dir (all project subdirs)."""
     files = [(p, parse_session_file) for p in sorted(logs_dir.glob("*/*.jsonl"))]
-    if codex_dir is not None and codex_dir.is_dir():
-        files += [(p, parse_codex_session_file) for p in sorted(codex_dir.rglob("*.jsonl"))]
+    # A secondary source must never take down the primary. `is_dir()` looks
+    # like a guard but propagates PermissionError on 3.12 (only ENOENT/ENOTDIR/
+    # EBADF/ELOOP are swallowed), so an unreadable codex dir — the ordinary
+    # case when ingest runs as anyone but root — aborted the whole run before
+    # a single Claude Code session was read. On the one step in this system
+    # whose gap is UNRECOVERABLE, that is the wrong failure: session files
+    # rotate away, and a permissions problem on the work-machine corpus is no
+    # reason to lose the box's own transcripts.
+    if codex_dir is not None:
+        try:
+            if codex_dir.is_dir():
+                files += [(p, parse_codex_session_file) for p in sorted(codex_dir.rglob("*.jsonl"))]
+        except OSError as exc:
+            log.warning("scout.ingest codex dir unreadable (%s) — continuing with session logs only", exc)
     now = time.time()
-    stats = {"files": 0, "skipped_active": 0, "rows_seen": 0, "rows_inserted": 0}
+    stats = {"files": 0, "skipped_active": 0, "rows_seen": 0, "rows_inserted": 0,
+             "codex_available": codex_dir is None or any(f[1] is parse_codex_session_file for f in files)}
     for path, parse in files:
         if now - path.stat().st_mtime < ACTIVE_SESSION_GRACE_SECS:
             stats["skipped_active"] += 1

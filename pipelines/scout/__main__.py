@@ -1,6 +1,9 @@
 """Scout entrypoints.
 
-    python -m pipelines.scout --ingest             # session JSONL -> scout_session_log (run as root)
+    python -m pipelines.scout --ingest             # session JSONL -> scout_session_log
+                                                  # (runs even when paused; needs root ONLY for the
+                                                  #  codex staging dir under /root — session logs are
+                                                  #  readable as claude and are captured either way)
     python -m pipelines.scout --pass               # walk + synthesize + file leads
     python -m pipelines.scout --pass --dry-run     # rehearse: print leads, consume no coverage
 
@@ -29,9 +32,17 @@ from pipelines.scout.config import ScoutConfig
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
-    # Operator pause switch: SCOUT_PAUSED=1 in .env idles the whole pass
-    # (ingest included — the cursor catches ingest up on resume). Exit 0 so
+    # Operator pause switch: SCOUT_PAUSED=1 in .env idles the PASS. Exit 0 so
     # the timer's OnFailure page stays quiet; this is a pause, not a failure.
+    #
+    # Ingest is NOT gated (changed 2026-08-22). It used to be, justified by
+    # "the cursor catches ingest up on resume" — which is wrong on its own
+    # terms: the cursor catches up on the ore, not on the disk, and the disk
+    # deletes itself. 30 ingested sessions no longer exist as files at all,
+    # spanning 2026-06-03..08-02. Ingest is the only step in the whole system
+    # whose gap is UNRECOVERABLE, it costs nothing (file reads and INSERTs, no
+    # model call), and it files no leads — so it has no business being stopped
+    # by a switch whose purpose is to stop the lead queue growing.
     #
     # It gates the AMBIENT verbs only. --walk and --synthesize are operator
     # actions, deliberately typed one at a time, and the reason to pause is
@@ -64,10 +75,13 @@ def main() -> None:
         parser.print_help()
         sys.exit(1)
 
-    if paused and (args.ingest or args.do_pass):
+    if paused and args.do_pass:
         print("scout: paused (SCOUT_PAUSED set in .env) — remove the line to resume")
-        print("       --walk and --synthesize still run; they are operator verbs.")
-        return
+        print("       --ingest still runs: capture is unrecoverable if a session")
+        print("       log rotates away. --walk and --synthesize are operator verbs.")
+        if not args.ingest:
+            return
+        args.do_pass = False
 
     config = ScoutConfig.from_env()
 
