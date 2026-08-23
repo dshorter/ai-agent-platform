@@ -16,6 +16,7 @@ status: measured 2026-08-19..21 against the live corpus (14,198 turns / 477 lead
 - [What no stage ranks on](#what-no-stage-ranks-on)
 - [A display finding that is not about mining](#a-display-finding-that-is-not-about-mining)
 - [What follows](#what-follows)
+- [Pinned: a paper drawn from this](#pinned-a-paper-drawn-from-this)
 - [How these numbers were produced](#how-these-numbers-were-produced)
 <!-- MAP:END -->
 
@@ -212,6 +213,14 @@ Together they turn the Scout from a pipeline into a substrate: once jewels are a
 table, synthesis is a *consumer* of that table rather than a stage inside the
 pass, and any later agent — a directed hunt on a named topic, a monthly arc
 digest — is another consumer that never re-reads a transcript.
+
+## Pinned: a paper drawn from this
+
+**[white-paper-outline-mining-layer.md](white-paper-outline-mining-layer.md)**
+(`read: full`, STUB) — partial abstract plus the resume hooks, so picking it up
+later is lookup rather than re-analysis. Blocked deliberately on one
+measurement: five passes at the corrected plate, so the paper can report what
+happened rather than what was predicted.
 
 ## How these numbers were produced
 
