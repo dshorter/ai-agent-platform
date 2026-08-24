@@ -33,6 +33,25 @@
 
 
 
+
+## 2026-08-24 — Same 3 proposals reissued unapplied across ≥5 daily cycles, 08-13→08-24
+
+Three findings — check-anthropic-credit unwired (ledger 2026-08-13), monitor.sh's
+dead bare-compose fallback (ledger 2026-08-16), server-maintenance.service missing
+OnFailure= (ledger 2026-07-31 item b) — have now been independently re-derived and
+re-proposed, with near-identical diffs, in at least the 08-13, 08-16, 08-19, 08-21,
+and 08-24 daily passes (08-19/08-21 payloads recovered via `journalctl -g
+run_blog_pipeline`, which incidentally matched their `tool.end` records — the same
+excavation method the 08-16 and 08-17 entries used, because the ledger itself has
+no record of any of these five runs' proposals between 08-17 and today). None of
+the three has been applied. This is the 07-31 ledger entry's predicted failure mode
+("daily-pass proposals outliving 3 cycles unapplied") now confirmed at 5 cycles
+minimum, for the same three items, 11 days running — not new drift, but the
+clearest evidence yet that re-proposing identical diffs daily does not substitute
+for either (a) an operator apply pass or (b) the weekly compaction this ledger's
+own write contract calls for. Until one of those happens, expect this entry's own
+three items in the 09-24 rhyme-check too.
+
 ## 2026-08-17 — n8n orphaned from compose since Apr; 08-16 23:35 pass invisible to ledger
 
 Two receipts worth keeping past this run:
