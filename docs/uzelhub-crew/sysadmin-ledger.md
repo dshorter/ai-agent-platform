@@ -34,6 +34,16 @@
 
 
 
+
+## 2026-08-29 — daily pass FAILED (APIStatusError) — no audit performed
+
+`sysadmin-daily.service` exited non-zero before producing a report, so no proposals artifact exists for this date and no audit of live state was made.
+
+- Error class: `APIStatusError`
+- Detail: `journalctl -u sysadmin-daily.service --since 2026-08-29`
+
+Rhyme-check this against other `pass FAILED` entries before treating it as a one-off — this failure class has recurred with different literal errors each time.
+
 ## 2026-08-24 — Same 3 proposals reissued unapplied across ≥5 daily cycles, 08-13→08-24
 
 Three findings — check-anthropic-credit unwired (ledger 2026-08-13), monitor.sh's
