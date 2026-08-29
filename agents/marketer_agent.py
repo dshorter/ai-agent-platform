@@ -16,7 +16,7 @@ from agents.content_agent import Draft
 from agents.seo_doctrine import load_doctrine
 
 
-MARKETER_MODEL = "claude-sonnet-4-6"
+MARKETER_MODEL = "claude-sonnet-5"
 EXTRACTION_MODEL = "claude-haiku-4-5-20251001"
 
 DEFAULT_SINK = "blog"

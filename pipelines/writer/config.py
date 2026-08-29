@@ -45,7 +45,7 @@ class WriterConfig:
             ),
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
             model=os.environ.get("WRITER_MODEL", "claude-sonnet-5"),
-            fallback_model=os.environ.get("WRITER_FALLBACK_MODEL", "claude-opus-4-8"),
+            fallback_model=os.environ.get("WRITER_FALLBACK_MODEL", "claude-opus-5"),
             roam_iterations=int(os.environ.get("WRITER_ROAM_ITERATIONS", "6")),
             max_cost_usd=float(os.environ.get("WRITER_MAX_COST_USD", "2.0")),
             leads_path=Path(

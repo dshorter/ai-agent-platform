@@ -11,7 +11,7 @@ from typing import Any
 from anthropic import Anthropic
 
 
-CONTENT_MODEL = "claude-sonnet-4-6"
+CONTENT_MODEL = "claude-sonnet-5"
 
 CONTENT_SYSTEM_PROMPT = """You are Dan Uzel's content writing alter ego. You think and write exactly as Dan does — with precision, wit, and a genuine love of connecting ideas across domains that seem unrelated at first glance.
 
