@@ -673,9 +673,10 @@ DESCRIPTION:The link pass shipped 2026-07-19 (uzelhub-web 3373af9). Banked
 END:VTODO
 BEGIN:VTODO
 UID:predictor-revert-2x-budget-2026@ai-agent-platform
-DTSTAMP:20260720T194843Z
+DTSTAMP:20260830T175048Z
 DUE;VALUE=DATE:20260815
-STATUS:NEEDS-ACTION
+STATUS:CANCELLED
+SEQUENCE:1
 SUMMARY:Revert predictor_ingest 2x doc budgets (Anthropic rate reduction e
  nds)
 DESCRIPTION:Restore doc_selection.budget/stretch_max in domains/{film\,sem
@@ -693,9 +694,10 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:predictor-apply-2x-budget-film-semis-2026@ai-agent-platform
-DTSTAMP:20260720T195533Z
+DTSTAMP:20260830T175048Z
 DUE;VALUE=DATE:20260802
-STATUS:NEEDS-ACTION
+STATUS:CANCELLED
+SEQUENCE:1
 RELATED-TO;RELTYPE=SIBLING:predictor-revert-2x-budget-2026@ai-agent-platform
 SUMMARY:Apply 2x doc budget to predictor_ingest film + semiconductors (dam
  pening window closed)
@@ -1155,5 +1157,187 @@ DESCRIPTION:Blocks committing pipelines/scout/config.py (currently holding
  only and do (b) for 88. Two prose hits of the same class in sysadmin-agen
  t-design.md were FIXED rather than dismissed on 2026-08-29 (commit 3d8cc3
  6) because the prose lost nothing -- that option is not available here.
+END:VTODO
+BEGIN:VTODO
+UID:predictor-score-all-set-based@ai-agent-platform
+DTSTAMP:20260830T175217Z
+DUE;VALUE=DATE:20260907
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor: make score_all set-based (film's trending has been dead
+  since 08-06)
+DESCRIPTION:TOP ENGINEERING ITEM. Tracked in detail as TREND-0 in /opt/pre
+ dictor_ingest/docs/backlog.md\; this is the scheduling half. score_all() 
+ in src/trend issues one query per entity (27846 film / 14594 semis) and f
+ ilm crossed the 600s stage timeout as its graph grew. run_movers.py then 
+ reads trend_history with run_date <= ? and silently re-serves the last go
+ od snapshot exiting 0 -- so film's Movers output has been FROZEN SINCE 20
+ 26-08-06 while every downstream page looks alive. ADR-011 names this a pr
+ erequisite not a cleanup: it blocks D2's shadow-run observability\, D5's 
+ evidence accumulation\, and film's contribution to D6. Fix shape: batch t
+ he per-entity reads into set-based queries grouped by entity\, NOT a bigg
+ er timeout -- raising the timeout just schedules the next freeze at a lar
+ ger graph. Verify by confirming trend_history gets fresh film rows on the
+  next daily run.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: make score_all set-based (film's trending has been 
+ dead since 08-06)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-ceiling-inflight-batch@ai-agent-platform
+DTSTAMP:20260830T175223Z
+DUE;VALUE=DATE:20260914
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor: the cost ceiling cannot stop an already-submitted batch
+DESCRIPTION:Gap in the governance shipped 2026-08-29 (ADR-011 D4). PREDICT
+ OR_MAX_COST_USD is enforced in log_token_usage\, which for batch extracti
+ on only runs at COLLECT time -- after the batch has been submitted and bi
+ lled. A 2026-07-23-style runaway (film's 40-doc batch ran nine times\, 31
+ .28 USD in a day against a ~5 USD norm) would still bill in full\; the ce
+ iling would halt the run only afterwards. Roughly 94 percent of extractio
+ n goes through the Batch API\, so this is the majority path\, not an edge
+  case. Fix shape: a submit-time estimate check in scripts/submit_batch.py
+  and submit_backlog.py -- estimate docs x expected tokens against the rem
+ aining ceiling for the run_date\, refuse to submit if it would breach. Th
+ e post-hoc check stays as the backstop. Related: predictor-batch-aware-co
+ st-logging.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: the cost ceiling cannot stop an already-submitted b
+ atch
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:public-repo-push-decision-aug30@ai-agent-platform
+DTSTAMP:20260830T175232Z
+DUE;VALUE=DATE:20260902
+STATUS:NEEDS-ACTION
+SUMMARY:Decide: push the two public repos\, or keep holding (14 + 28 commi
+ ts unpushed)
+DESCRIPTION:A push is a publish -- both repos answer anonymously as PUBLIC
+  (predictor_ingest verified 2026-08-30\, ai-agent-platform long known). A
+ s of 2026-08-30: predictor_ingest is 14 ahead of origin/main\, ai-agent-p
+ latform 28 ahead. The unpushed ranges include ADR-011 with measured inter
+ nal cost figures (spend per domain\, per-document costs\, the 31.28 USD r
+ unaway day) and the silent-instruments essay. Earlier pushes have include
+ d operational cost notes\, so this may be fine by precedent -- but it is 
+ a publishing decision\, not a chore\, which is why it accumulated. Decide
+  once and either push both or write down the rule that keeps them local. 
+ Note the two repos have opposite hazard profiles: ai-agent-platform's exp
+ osure is the tracked tree\, uzelhub-web's (private) is its live docroot.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Decide: push the two public repos\, or keep holding (14 + 28 c
+ ommits unpushed)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-weapons-budget-to-normal@ai-agent-platform
+DTSTAMP:20260830T175241Z
+DUE;VALUE=DATE:20260915
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor: weapons_detection sits at 20/30\, documented normal is 
+ 10/15
+DESCRIPTION:REPLACES the cancelled predictor-revert-2x-budget-2026\, whose
+  premise died: the film/semis 2x bump was never actioned (only weapons_de
+ tection ever ran at 2x)\, and the Anthropic rate reduction it was timed t
+ o is now PERMANENT -- the Sept 1 Sonnet 5 rise was cancelled 2026-08-30\,
+  so 2/10 USD per MTok is the standard price. The temporary-intro-pricing 
+ rationale is therefore gone in both directions. weapons_detection billed 
+ 1.89 USD across five weeks (0.09 USD/day)\, so this is immaterial to cost
+  either way -- decide it as a CAPACITY question (is 20/30 the right intak
+ e for a tripwire domain?)\, not a cost one. Execution: domains/weapons_de
+ tection/domain.yaml doc_selection budget/stretch_max\, plus the matching 
+ assertion in tests/test_select.py\; scripts/sept1_cost_boundary.py can ap
+ ply it with an explicit --mode. Film's budget does NOT move (ADR-011 D1).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: weapons_detection sits at 20/30\, documented normal
+  is 10/15
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-batch-aware-cost-logging@ai-agent-platform
+DTSTAMP:20260830T175251Z
+DUE;VALUE=DATE:20260921
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor: logged dollars run ~2x actual for batch calls (or just 
+ document it)
+DESCRIPTION:_TOKEN_PRICES in src/db logs every call at SYNC rates\, but ro
+ ughly 94 percent of extraction bills through the Batch API at HALF rate. 
+ So logged cost is a consistent internal index at about 2x actual for batc
+ h calls. Everything the decisions rest on is unaffected -- ratios between
+  domains\, per-document comparisons\, and the PREDICTOR_MAX_COST_USD ceil
+ ing are all internally consistent -- only ABSOLUTE dollar figures mislead
+ \, including those quoted in ADR-011's Context section. Two options: (a) 
+ cheap -- one paragraph in docs/backend/operational-state.md stating the c
+ onvention\, so nobody reconciles logged spend against an invoice and conc
+ ludes the meter is broken\; (b) real -- a batch flag on log_token_usage t
+ hat halves the rate\, which also makes the ceiling reflect true spend rat
+ her than a 2x-conservative proxy. Note (b) makes the ceiling effectively 
+ looser\, so re-pick the default if you take it. Related: predictor-ceilin
+ g-inflight-batch.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: logged dollars run ~2x actual for batch calls (or j
+ ust document it)
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:sysadmin-design-redaction-gate-call@ai-agent-platform
+DTSTAMP:20260830T175257Z
+DUE;VALUE=DATE:20260905
+STATUS:NEEDS-ACTION
+RELATED-TO;RELTYPE=SIBLING:scout-config-redaction-gate-call@ai-agent-platform
+SUMMARY:Decide: the same redaction-gate call on docs/uzelhub-crew/sysadmin
+ -agent-design.md
+DESCRIPTION:The SECOND file waiting on the redaction-gate decision already
+  tracked in scout-config-redaction-gate-call (due 09-05) -- same gate\, s
+ ame reason\, so it is one decision rather than two\, which is why this is
+  a SIBLING. The gate flags /root/.config at lines 176 and 305\, both PRE-
+ EXISTING from commit ad2d7a3 and neither added by the blocked change (a r
+ ewritten Notifications-constraint section\, written after the notificatio
+ n cap caused an outage). Same trade as its sibling: allow.txt entries are
+  value-level with no file scoping\, so dismissing silences that literal i
+ n every file permanently -- a standing detection capability traded for on
+ e commit. Decide both files together\; whatever the call\, apply it to th
+ is one and to pipelines/scout/config.py in the same sitting.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Decide: the same redaction-gate call on docs/uzelhub-crew/sysa
+ dmin-agent-design.md
+TRIGGER:-P1D
+END:VALARM
+END:VTODO
+BEGIN:VTODO
+UID:predictor-housekeeping-strays@ai-agent-platform
+DTSTAMP:20260830T175307Z
+DUE;VALUE=DATE:20260907
+STATUS:NEEDS-ACTION
+SUMMARY:Predictor: clear the strays (make-claude\, three idle .claude work
+ trees)
+DESCRIPTION:Small cleanup\, surfaced by the 2026-08-30 churn audit. (1) /o
+ pt/predictor_ingest/make-claude is an untracked 5-line bootstrap script f
+ rom 2026-08-02 that writes an empty permissions block into ai-agent-platf
+ orm's .claude/settings.json and chowns the tree -- almost certainly spent
+ . Delete it\, or gitignore it if it is still wanted. (2) Three worktrees 
+ sit under /opt/predictor_ingest/.claude/worktrees (gallant-wright-8b58aa\
+ , lucid-newton-1f6797\, stoic-easley-24f9b2)\, each on its own claude/ br
+ anch and each carrying a full copy of docs/. Check whether their branches
+  are merged or dead\, then git worktree remove the finished ones -- they 
+ are why an ADR filename search returns four copies of every hit. Neither 
+ item is urgent\; both make the tree easier to read.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Predictor: clear the strays (make-claude\, three idle .claude 
+ worktrees)
+TRIGGER:-P1D
+END:VALARM
 END:VTODO
 END:VCALENDAR
