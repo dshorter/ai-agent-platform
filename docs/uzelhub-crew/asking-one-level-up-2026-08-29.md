@@ -235,10 +235,28 @@ Here, a decision was recorded faithfully and the artifact that acts on it went
 unchanged. In both cases the written record was accurate and the running system
 did not consult it.
 
-The rule that follows: **a decision is not recorded until it changes something
-executable.** Prose is where you explain a decision; a default, a config key, or
-a test is where you *store* it. If a decision cannot be expressed in one of
-those, it is a preference and will not survive contact with a busy day.
+My first read of this was that prose is too weak to hold a decision — that only
+something executable counts. **That was wrong, and wrong specifically here.**
+This project's decisions have lived in prose for months and governed everything:
+ADR-008 made batch the default, ADR-010's D1–D11 shape the restart, and D3 is
+cited in `domain.yaml` comments, in operational-state, in the backlog, and in
+the script that contradicted it. Those are paragraphs, and they hold.
+
+The failure was **genre**, not medium. I put a decision in a retrospective essay
+about how we were thinking, when the project has a decision record and the
+decision belonged in it. Nobody consults a method document before changing a
+budget; they consult the ADR — and would have found this one, since per-domain
+budgets are literally ADR-010 D3.
+
+The rule that actually follows: **write a decision into the register the project
+already keeps for decisions, and make the executable default cite it.** Both
+halves matter. The register is where a reader looks; the citation is what stops
+a default drifting away from it. ADR-011 now records the film-budget decision,
+and `sept1_cost_boundary.py` names it in the `MODES` table.
+
+The operator's instinct on seeing this was immediately "we should have drafted
+an ADR," which was right at the moment the decision was made and would have cost
+about twenty minutes.
 
 Corollary, learned the same morning: check a claim about the record **against
 the record**. Both write-ups here were composed from working context rather than
@@ -289,9 +307,11 @@ observation that was never checked against a second.
    If it's landing anywhere else, the design is telling you something.
 8. **Look for the concept already in the vocabulary.** `base_relation` had been
    sitting there the whole time.
-9. **A decision is not recorded until it changes something executable.** Prose
-   explains a decision; a default, a config key or a test stores it. The
-   machinery outranks the paragraph, because the machinery is what runs.
+9. **Put a decision in the register the project keeps for decisions, and make
+   the default cite it.** Not "prose is too weak" — ADR-010 is prose and has
+   governed this system for months. The mistake was genre: a decision filed in
+   a retrospective instead of the decision record, where nobody would look for
+   it. Register plus citation; either alone drifts.
 10. **Check claims about the record against the record.** Both of these
     documents were written from working context, and both were wrong about
     their own dates until the session log was read.
