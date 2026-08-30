@@ -1,0 +1,55 @@
+# Re-base plan — 2026-08-30. Apply with:
+#   ops/calendar-mark --author operator --plan ops/rebases/rebase-2026-08-30.txt --dry-run
+#   ops/calendar-mark --author operator --plan ops/rebases/rebase-2026-08-30.txt
+#
+# Rationale and the kill list this does NOT act on: ops/rebases/rebase-2026-08-30.md
+# Format: <uid> <YYYYMMDD> <reason, recorded as X-DEFER-REASON>
+# Original due dates are preserved automatically as X-ORIGINAL-DUE.
+
+# ── This week: the two that unblock other things ─────────────────────────────
+identity-profiles-setup@ai-agent-platform 20260902 30 minutes and it is the only real gate left on publishing
+redirect-retired-agent-crew@ai-agent-platform 20260903 a live 404 on a retired page; one redirect
+
+# ── Week of Sep 8: publishing resumes, and the cheap infra sweep ─────────────
+resume-release-drip-post-sonnet@ai-agent-platform 20260908 re-gated on identity-profiles alone once the A/B is settled
+define-why-now-in-scout-schema@ai-agent-platform 20260908 already decided; only the dead A/B was holding it
+unified-token-cost-report@ops.ai-agent-platform 20260909 tomorrow was never realistic; rides the cost work just done
+cleanup-opt-stray-dirs@ai-agent-platform 20260909 four typo dirs at /opt root, still there
+cleanup-old-predictor-data@ai-agent-platform 20260909 same sweep
+remove-web-server-from-compose@ai-agent-platform 20260910 same sweep
+
+# ── Mid Sept: decisions that should not rot, and verified-real work ──────────
+ask-question-text-logging-decision@ai-agent-platform 20260916 a privacy-policy question; rotting is the wrong outcome
+diagnose-predictor-failing-tests@ai-agent-platform 20260916 re-verified today, still 26 failed 676 passed
+restore-verification-checksum-check@ai-agent-platform 20260917 the backup drill gap
+route-first-scout-queue@ai-agent-platform 20260915 needs the Writer leg standing up first
+seed-voice-bottle-sample@ai-agent-platform 20260915 one file drop; pairs with the Writer leg
+writer-ondemand-cli@operator.ai-agent-platform 20260922 the Writer leg itself
+spine-out-of-blog-pipeline@operator.ai-agent-platform 20260922 refactor, pairs with the Writer CLI
+smooth-apex-studio-transition@ai-agent-platform 20260923 oldest item on the list at 47 days
+marketing-visual-identity-signoff@ai-agent-platform 20260923 blocks the other marketing items
+decide-status-taxonomy@ai-agent-platform 20260923 same sitting as the identity sign-off
+studio-terminal-disposition@ai-agent-platform 20260924 a retired persona still answering
+proxy-loadpack-test-coverage@ai-agent-platform 20260930 untested validators
+docroot-split-dev-prod@ai-agent-platform 20260930 real but not urgent
+
+# ── October: the build-and-design queue ─────────────────────────────────────
+agent-highlight-cards@ai-agent-platform 20261006 downstream of the visual identity sign-off
+revamp-agents-pages@ai-agent-platform 20261006 same dependency
+editor-note-hyperlinks@ai-agent-platform 20261007 Writer feature, after the CLI
+writer-tuning-batch@ai-agent-platform 20261007 Phase 3, after the CLI
+predictor-card-thumbnail@ai-agent-platform 20261013 one sitting for all three predictor visuals
+predictor-explorer-screenshot@ai-agent-platform 20261013 same sitting
+predictor-ingest-diagram@ai-agent-platform 20261013 same sitting
+export-anonymize-beforeafter-grid@ai-agent-platform 20261013 Codex epic material
+server-om-manual@ai-agent-platform 20261014 a real write, needs a clear day
+codex-corpus-grazed-check@ai-agent-platform 20261020 revisit once the Writer leg is proven
+scout-sources-deep-dive@ai-agent-platform 20261020 raw material already gathered
+curated-survey-subset@ai-agent-platform 20261021 downstream of the marketing decisions
+pipeline-artifact-viewer@ai-agent-platform 20261027 wanted, not blocking anything
+chyron-content-mix-v2@operator.ai-agent-platform 20261027 polish
+ask-assistant-reshoot@ai-agent-platform 20261028 a knowing placeholder can stay one a while longer
+
+# ── November: parked deliberately, not forgotten ────────────────────────────
+persona-doc-naming-convention@ai-agent-platform 20261103 a convention, no pressure behind it
+explore-agent-decisions-queries@ai-agent-platform 20261103 exploration, genuinely optional

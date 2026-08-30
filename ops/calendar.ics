@@ -109,8 +109,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:remove-web-server-from-compose@ai-agent-platform
-DTSTAMP:20260711T185655Z
-DUE;VALUE=DATE:20260718
+SEQUENCE:1
+X-ORIGINAL-DUE:20260718
+X-DEFER-COUNT:1
+X-DEFER-REASON:same sweep
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260910
 STATUS:NEEDS-ACTION
 SUMMARY:Remove web-server from docker-compose.yml
 DESCRIPTION:Conflicts with caddy on :80\, stays in Created state\, unused.
@@ -123,8 +127,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:cleanup-old-predictor-data@ai-agent-platform
-DTSTAMP:20260711T185659Z
-DUE;VALUE=DATE:20260718
+SEQUENCE:1
+X-ORIGINAL-DUE:20260718
+X-DEFER-COUNT:1
+X-DEFER-REASON:same sweep
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260909
 STATUS:NEEDS-ACTION
 SUMMARY:Clean up old predictor_ingest data dirs
 DESCRIPTION:/opt/predictor_ingest/data/: 62 metrics_snapshot_* dirs (keep 
@@ -138,8 +146,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:cleanup-opt-stray-dirs@ai-agent-platform
-DTSTAMP:20260711T185704Z
-DUE;VALUE=DATE:20260718
+SEQUENCE:1
+X-ORIGINAL-DUE:20260718
+X-DEFER-COUNT:1
+X-DEFER-REASON:four typo dirs at /opt root\, still there
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260909
 STATUS:NEEDS-ACTION
 SUMMARY:Clean up typo'd stray dirs at /opt root
 DESCRIPTION:Clone/\, repo/\, your/ (confirmed empty) and ai=agent-platform
@@ -153,8 +165,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:restore-verification-checksum-check@ai-agent-platform
-DTSTAMP:20260711T185717Z
-DUE;VALUE=DATE:20260803
+SEQUENCE:1
+X-ORIGINAL-DUE:20260803
+X-DEFER-COUNT:1
+X-DEFER-REASON:the backup drill gap
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260917
 STATUS:NEEDS-ACTION
 RELATED-TO;RELTYPE=PARENT:backup-restore-drill-monthly@ai-agent-platform
 SUMMARY:Restore-verification checksum check during backup drill
@@ -170,8 +186,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:predictor-card-thumbnail@ai-agent-platform
-DTSTAMP:20260711T190102Z
-DUE;VALUE=DATE:20260725
+SEQUENCE:1
+X-ORIGINAL-DUE:20260725
+X-DEFER-COUNT:1
+X-DEFER-REASON:one sitting for all three predictor visuals
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261013
 STATUS:NEEDS-ACTION
 SUMMARY:Predictor suite card thumbnail
 DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
@@ -179,8 +199,12 @@ DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
 END:VTODO
 BEGIN:VTODO
 UID:predictor-explorer-screenshot@ai-agent-platform
-DTSTAMP:20260711T190102Z
-DUE;VALUE=DATE:20260725
+SEQUENCE:1
+X-ORIGINAL-DUE:20260725
+X-DEFER-COUNT:1
+X-DEFER-REASON:same sitting
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261013
 STATUS:NEEDS-ACTION
 SUMMARY:Predictor Explorer -- screenshot of the live graph
 DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
@@ -188,8 +212,12 @@ DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
 END:VTODO
 BEGIN:VTODO
 UID:predictor-ingest-diagram@ai-agent-platform
-DTSTAMP:20260711T190102Z
-DUE;VALUE=DATE:20260725
+SEQUENCE:1
+X-ORIGINAL-DUE:20260725
+X-DEFER-COUNT:1
+X-DEFER-REASON:same sitting
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261013
 STATUS:NEEDS-ACTION
 SUMMARY:Predictor Ingest -- pipeline diagram (ingest to extract to rank)
 DESCRIPTION:Real graphic to replace the labeled placeholder box in data/pr
@@ -208,8 +236,12 @@ DESCRIPTION:First notes-pipeline entry (the June backup silence postmortem
 END:VTODO
 BEGIN:VTODO
 UID:decide-status-taxonomy@ai-agent-platform
-DTSTAMP:20260711T190120Z
-DUE;VALUE=DATE:20260801
+SEQUENCE:1
+X-ORIGINAL-DUE:20260801
+X-DEFER-COUNT:1
+X-DEFER-REASON:same sitting as the identity sign-off
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260923
 STATUS:NEEDS-ACTION
 SUMMARY:Decide marketing status taxonomy
 DESCRIPTION:Keep Paused / Coming soon labels on product cards\, or only sh
@@ -217,8 +249,12 @@ DESCRIPTION:Keep Paused / Coming soon labels on product cards\, or only sh
 END:VTODO
 BEGIN:VTODO
 UID:marketing-visual-identity-signoff@ai-agent-platform
-DTSTAMP:20260711T190120Z
-DUE;VALUE=DATE:20260801
+SEQUENCE:1
+X-ORIGINAL-DUE:20260801
+X-DEFER-COUNT:1
+X-DEFER-REASON:blocks the other marketing items
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260923
 STATUS:NEEDS-ACTION
 SUMMARY:Marketing visual identity sign-off
 DESCRIPTION:Current treatment (light theme\, Inter typeface\, blue accent)
@@ -241,8 +277,12 @@ DESCRIPTION:Crawl-to-publish roadmap (docs/uzelhub-crew/crawl-to-publish-p
 END:VEVENT
 BEGIN:VTODO
 UID:persona-doc-naming-convention@ai-agent-platform
-DTSTAMP:20260712T185347Z
-DUE;VALUE=DATE:20260725
+SEQUENCE:1
+X-ORIGINAL-DUE:20260725
+X-DEFER-COUNT:1
+X-DEFER-REASON:a convention\, no pressure behind it
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261103
 STATUS:NEEDS-ACTION
 SUMMARY:Adopt a -persona filename suffix for persona docs (lighter than a 
  personas/ subfolder)
@@ -298,8 +338,12 @@ DESCRIPTION:Compare Fable week vs Sonnet week from agent_decisions (agent_
 END:VTODO
 BEGIN:VTODO
 UID:route-first-scout-queue@ai-agent-platform
-DTSTAMP:20260713T011734Z
-DUE;VALUE=DATE:20260717
+SEQUENCE:1
+X-ORIGINAL-DUE:20260717
+X-DEFER-COUNT:1
+X-DEFER-REASON:needs the Writer leg standing up first
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260915
 STATUS:NEEDS-ACTION
 SUMMARY:Find homes for the articles from the Scout's first queue (apex vs 
  studio)
@@ -312,8 +356,12 @@ DESCRIPTION:The first filed queue (24 leads\, pipelines/scout/state/leads.
 END:VTODO
 BEGIN:VTODO
 UID:smooth-apex-studio-transition@ai-agent-platform
-DTSTAMP:20260713T011734Z
-DUE;VALUE=DATE:20260714
+SEQUENCE:1
+X-ORIGINAL-DUE:20260714
+X-DEFER-COUNT:1
+X-DEFER-REASON:oldest item on the list at 47 days
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260923
 STATUS:NEEDS-ACTION
 SUMMARY:Smooth the apex<->studio transition (studio links open new tabs\, 
  no way back to apex)
@@ -325,8 +373,12 @@ DESCRIPTION:Currently studio links open a new browser tab and there is no
 END:VTODO
 BEGIN:VTODO
 UID:curated-survey-subset@ai-agent-platform
-DTSTAMP:20260713T144618Z
-DUE;VALUE=DATE:20260718
+SEQUENCE:1
+X-ORIGINAL-DUE:20260718
+X-DEFER-COUNT:1
+X-DEFER-REASON:downstream of the marketing decisions
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261021
 STATUS:NEEDS-ACTION
 SUMMARY:Curate a subset of the promotion-survey list (featured view\, not 
  the full 55)
@@ -339,8 +391,12 @@ DESCRIPTION:The survey (uzelhub-web/marketing/promotion-survey.yaml) rende
 END:VTODO
 BEGIN:VTODO
 UID:agent-highlight-cards@ai-agent-platform
-DTSTAMP:20260713T144618Z
-DUE;VALUE=DATE:20260718
+SEQUENCE:1
+X-ORIGINAL-DUE:20260718
+X-DEFER-COUNT:1
+X-DEFER-REASON:downstream of the visual identity sign-off
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261006
 STATUS:NEEDS-ACTION
 SUMMARY:Page of highlight cards: each agent's mission + skills (the crew r
  oster)
@@ -353,8 +409,12 @@ DESCRIPTION:One card per agent (Director\, Scout\, Writer/content\, Market
 END:VTODO
 BEGIN:VTODO
 UID:pipeline-artifact-viewer@ai-agent-platform
-DTSTAMP:20260716T173543Z
-DUE;VALUE=DATE:20260724
+SEQUENCE:1
+X-ORIGINAL-DUE:20260724
+X-DEFER-COUNT:1
+X-DEFER-REASON:wanted\, not blocking anything
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261027
 STATUS:NEEDS-ACTION
 SUMMARY:Build hardened read-only web viewer for pipeline artifacts (leads.
  yaml\, writer drafts)
@@ -385,8 +445,12 @@ DESCRIPTION:CALENDAR.md spec section 'The subscription route' was never ap
 END:VTODO
 BEGIN:VTODO
 UID:editor-note-hyperlinks@ai-agent-platform
-DTSTAMP:20260716T214427Z
-DUE;VALUE=DATE:20260725
+SEQUENCE:1
+X-ORIGINAL-DUE:20260725
+X-DEFER-COUNT:1
+X-DEFER-REASON:Writer feature\, after the CLI
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261007
 STATUS:NEEDS-ACTION
 SUMMARY:Notes: let the Editor hyperlink terms in field-note copy
 DESCRIPTION:Field-note prose (notes.json JSON-prose sections) currently re
@@ -401,8 +465,12 @@ DESCRIPTION:Field-note prose (notes.json JSON-prose sections) currently re
 END:VTODO
 BEGIN:VTODO
 UID:revamp-agents-pages@ai-agent-platform
-DTSTAMP:20260716T214714Z
-DUE;VALUE=DATE:20260728
+SEQUENCE:1
+X-ORIGINAL-DUE:20260728
+X-DEFER-COUNT:1
+X-DEFER-REASON:same dependency
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261006
 STATUS:NEEDS-ACTION
 SUMMARY:Marketing: revamp the agents presence — an agents home + a cut she
  et per agent
@@ -477,8 +545,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:define-why-now-in-scout-schema@ai-agent-platform
-DTSTAMP:20260718T091216Z
-DUE;VALUE=DATE:20260727
+SEQUENCE:1
+X-ORIGINAL-DUE:20260727
+X-DEFER-COUNT:1
+X-DEFER-REASON:already decided\; only the dead A/B was holding it
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260908
 STATUS:NEEDS-ACTION
 RELATED-TO;RELTYPE=SIBLING:scout-ab-week3-readout-r2@ai-agent-platform
 SUMMARY:Define why_now in the Scout synthesis schema (post-A/B — decided\,
@@ -502,8 +574,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:explore-agent-decisions-queries@ai-agent-platform
-DTSTAMP:20260718T211049Z
-DUE;VALUE=DATE:20260723
+SEQUENCE:1
+X-ORIGINAL-DUE:20260723
+X-DEFER-COUNT:1
+X-DEFER-REASON:exploration\, genuinely optional
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261103
 STATUS:NEEDS-ACTION
 SUMMARY:Play with queries over the agent_decisions table
 DESCRIPTION:Exploratory query session over the cost/decision spine: per-ag
@@ -543,8 +619,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:writer-tuning-batch@ai-agent-platform
-DTSTAMP:20260718T212213Z
-DUE;VALUE=DATE:20260722
+SEQUENCE:1
+X-ORIGINAL-DUE:20260722
+X-DEFER-COUNT:1
+X-DEFER-REASON:Phase 3\, after the CLI
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261007
 STATUS:NEEDS-ACTION
 SUMMARY:Writer tuning batch (plan Phase 3 — parallel-safe\, publish-indepe
  ndent)
@@ -563,8 +643,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:identity-profiles-setup@ai-agent-platform
-DTSTAMP:20260718T212213Z
-DUE;VALUE=DATE:20260725
+SEQUENCE:1
+X-ORIGINAL-DUE:20260725
+X-DEFER-COUNT:1
+X-DEFER-REASON:30 minutes and it is the only real gate left on publishing
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260902
 STATUS:NEEDS-ACTION
 SUMMARY:Online-self setup: identity.profiles URLs\, LinkedIn refresh\, bio
  s point at apex
@@ -582,8 +666,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:resume-release-drip-post-sonnet@ai-agent-platform
-DTSTAMP:20260718T212213Z
-DUE;VALUE=DATE:20260727
+SEQUENCE:1
+X-ORIGINAL-DUE:20260727
+X-DEFER-COUNT:1
+X-DEFER-REASON:re-gated on identity-profiles alone once the A/B is settled
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260908
 STATUS:NEEDS-ACTION
 SUMMARY:Lift the publishing hold after the Sonnet-week review
 DESCRIPTION:Hold set 2026-07-18: no final drafts publish until Sonnet's Sc
@@ -599,8 +687,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:export-anonymize-beforeafter-grid@ai-agent-platform
-DTSTAMP:20260718T212213Z
-DUE;VALUE=DATE:20260801
+SEQUENCE:1
+X-ORIGINAL-DUE:20260801
+X-DEFER-COUNT:1
+X-DEFER-REASON:Codex epic material
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261013
 STATUS:NEEDS-ACTION
 SUMMARY:Export + app-anonymize the human-vs-AI before/after grid (Codex ep
  ic receipt)
@@ -619,8 +711,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:codex-corpus-grazed-check@ai-agent-platform
-DTSTAMP:20260718T212213Z
-DUE;VALUE=DATE:20260804
+SEQUENCE:1
+X-ORIGINAL-DUE:20260804
+X-DEFER-COUNT:1
+X-DEFER-REASON:revisit once the Writer leg is proven
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261020
 STATUS:NEEDS-ACTION
 SUMMARY:Codex corpus fully grazed? Revisit epic assembly + the batch-arc-f
  inder question
@@ -660,8 +756,12 @@ DESCRIPTION:Yesterday's goal was just getting the strip on the page\; it n
 END:VTODO
 BEGIN:VTODO
 UID:chyron-content-mix-v2@operator.ai-agent-platform
-DTSTAMP:20260719T170846Z
-DUE;VALUE=DATE:20260802
+SEQUENCE:1
+X-ORIGINAL-DUE:20260802
+X-DEFER-COUNT:1
+X-DEFER-REASON:polish
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261027
 STATUS:NEEDS-ACTION
 SUMMARY:Chyron v2: content mix beyond the systems list
 DESCRIPTION:The link pass shipped 2026-07-19 (uzelhub-web 3373af9). Banked
@@ -717,8 +817,12 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:diagnose-predictor-failing-tests@ai-agent-platform
-DTSTAMP:20260728T230406Z
-DUE;VALUE=DATE:20260804
+SEQUENCE:1
+X-ORIGINAL-DUE:20260804
+X-DEFER-COUNT:1
+X-DEFER-REASON:re-verified today\, still 26 failed 676 passed
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260916
 STATUS:NEEDS-ACTION
 SUMMARY:Diagnose 26 failing predictor unit tests
 DESCRIPTION:Pre-existing on clean main\, confirmed 2026-07-28 via git stas
@@ -821,8 +925,13 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:unified-token-cost-report@ops.ai-agent-platform
-DTSTAMP:20260802T224317Z
-DUE;VALUE=DATE:20260901
+SEQUENCE:1
+X-ORIGINAL-DUE:20260901
+X-DEFER-COUNT:1
+X-DEFER-REASON:tomorrow was never realistic\; rides the cost work just don
+ e
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260909
 STATUS:NEEDS-ACTION
 SUMMARY:Build unified token-cost report shortcut across all projects
 DESCRIPTION:Deferred 2026-08-02 (explicitly not-today). Token costs are tr
@@ -867,8 +976,12 @@ DESCRIPTION:Operator has an image per agent. Convention path: marketing/im
 END:VTODO
 BEGIN:VTODO
 UID:studio-terminal-disposition@ai-agent-platform
-DTSTAMP:20260803T003301Z
-DUE;VALUE=DATE:20260807
+SEQUENCE:1
+X-ORIGINAL-DUE:20260807
+X-DEFER-COUNT:1
+X-DEFER-REASON:a retired persona still answering
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260924
 STATUS:NEEDS-ACTION
 RELATED-TO;RELTYPE=PARENT:revamp-agents-pages@ai-agent-platform
 SUMMARY:Decide the Studio terminal's fate (the retired persona still answe
@@ -884,8 +997,12 @@ DESCRIPTION:Found 2026-08-02: the persona retirement is apex-only. studio.
 END:VTODO
 BEGIN:VTODO
 UID:ask-question-text-logging-decision@ai-agent-platform
-DTSTAMP:20260803T003301Z
-DUE;VALUE=DATE:20260810
+SEQUENCE:1
+X-ORIGINAL-DUE:20260810
+X-DEFER-COUNT:1
+X-DEFER-REASON:a privacy-policy question\; rotting is the wrong outcome
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260916
 STATUS:NEEDS-ACTION
 SUMMARY:Decide whether ask questions get logged as text (privacy-policy ch
  ange first)
@@ -899,8 +1016,12 @@ DESCRIPTION:The ask trace deliberately records metrics only: model\, token
 END:VTODO
 BEGIN:VTODO
 UID:proxy-loadpack-test-coverage@ai-agent-platform
-DTSTAMP:20260803T003301Z
-DUE;VALUE=DATE:20260808
+SEQUENCE:1
+X-ORIGINAL-DUE:20260808
+X-DEFER-COUNT:1
+X-DEFER-REASON:untested validators
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260930
 STATUS:NEEDS-ACTION
 SUMMARY:Test the proxy's untested validators (loadPack path-traversal guar
  d\, sanitizeMessages)
@@ -931,8 +1052,12 @@ DESCRIPTION:The apex docroot IS the working tree\, and it sits on content/
 END:VTODO
 BEGIN:VTODO
 UID:seed-voice-bottle-sample@ai-agent-platform
-DTSTAMP:20260803T004746Z
-DUE;VALUE=DATE:20260806
+SEQUENCE:1
+X-ORIGINAL-DUE:20260806
+X-DEFER-COUNT:1
+X-DEFER-REASON:one file drop\; pairs with the Writer leg
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260915
 STATUS:NEEDS-ACTION
 RELATED-TO;RELTYPE=PARENT:land-voice-rework-branch@ai-agent-platform
 SUMMARY:Drop the operator writing sample into the Writer's voice bottle
@@ -972,8 +1097,12 @@ DESCRIPTION:marketing/img/agents/ holds 8 of 9 as of 2026-08-02: director\
 END:VTODO
 BEGIN:VTODO
 UID:ask-assistant-reshoot@ai-agent-platform
-DTSTAMP:20260803T031605Z
-DUE;VALUE=DATE:20260808
+SEQUENCE:1
+X-ORIGINAL-DUE:20260808
+X-DEFER-COUNT:1
+X-DEFER-REASON:a knowing placeholder can stay one a while longer
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261028
 STATUS:NEEDS-ACTION
 RELATED-TO;RELTYPE=PARENT:revamp-agents-pages@ai-agent-platform
 SUMMARY:Reshoot the ask-assistant icon (current file is a knowing placehol
@@ -994,8 +1123,12 @@ DESCRIPTION:marketing/img/agents/ask-assistant.png is in place but flawed\
 END:VTODO
 BEGIN:VTODO
 UID:redirect-retired-agent-crew@ai-agent-platform
-DTSTAMP:20260803T035505Z
-DUE;VALUE=DATE:20260804
+SEQUENCE:1
+X-ORIGINAL-DUE:20260804
+X-DEFER-COUNT:1
+X-DEFER-REASON:a live 404 on a retired page\; one redirect
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260903
 STATUS:NEEDS-ACTION
 SUMMARY:301 /products/agent-crew.html -> /agents/ (retired page now 404s)
 DESCRIPTION:The Agent Crew product page was retired 2026-08-02 when /agent
@@ -1012,8 +1145,12 @@ DESCRIPTION:The Agent Crew product page was retired 2026-08-02 when /agent
 END:VTODO
 BEGIN:VTODO
 UID:scout-sources-deep-dive@ai-agent-platform
-DTSTAMP:20260803T101203Z
-DUE;VALUE=DATE:20260817
+SEQUENCE:1
+X-ORIGINAL-DUE:20260817
+X-DEFER-COUNT:1
+X-DEFER-REASON:raw material already gathered
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261020
 STATUS:NEEDS-ACTION
 SUMMARY:Deep dive: the Scout's full source list (raw material already gath
  ered)
@@ -1045,8 +1182,12 @@ DESCRIPTION:The agents page names sources in one clause on purpose\; the f
 END:VTODO
 BEGIN:VTODO
 UID:server-om-manual@ai-agent-platform
-DTSTAMP:20260804T180526Z
-DUE;VALUE=DATE:20260811
+SEQUENCE:1
+X-ORIGINAL-DUE:20260811
+X-DEFER-COUNT:1
+X-DEFER-REASON:a real write\, needs a clear day
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20261014
 STATUS:NEEDS-ACTION
 SUMMARY:Write the server O&M manual
 DESCRIPTION:Consolidate the box's operations & maintenance knowledge into 
@@ -1072,8 +1213,12 @@ DESCRIPTION:Agent receipts in uzelhub-web/marketing/data/agents.json are h
 END:VEVENT
 BEGIN:VTODO
 UID:docroot-split-dev-prod@ai-agent-platform
-DTSTAMP:20260808T192830Z
-DUE;VALUE=DATE:20260822
+SEQUENCE:1
+X-ORIGINAL-DUE:20260822
+X-DEFER-COUNT:1
+X-DEFER-REASON:real but not urgent
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260930
 STATUS:NEEDS-ACTION
 SUMMARY:Split docroots: source-controlled dev -> plain-file prod\, deploy 
  by copy
@@ -1100,8 +1245,12 @@ DESCRIPTION:Both live docroots are git working trees today: studio.uzelhub
 END:VTODO
 BEGIN:VTODO
 UID:writer-ondemand-cli@operator.ai-agent-platform
-DTSTAMP:20260809T031909Z
-DUE;VALUE=DATE:20260822
+SEQUENCE:1
+X-ORIGINAL-DUE:20260822
+X-DEFER-COUNT:1
+X-DEFER-REASON:the Writer leg itself
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260922
 STATUS:NEEDS-ACTION
 SUMMARY:Writer: on-demand CLI to run the pipeline through to a draft
 DESCRIPTION:Wanted: one command that takes the pipeline up to the Writer a
@@ -1114,8 +1263,12 @@ DESCRIPTION:Wanted: one command that takes the pipeline up to the Writer a
 END:VTODO
 BEGIN:VTODO
 UID:spine-out-of-blog-pipeline@operator.ai-agent-platform
-DTSTAMP:20260809T185231Z
-DUE;VALUE=DATE:20260829
+SEQUENCE:1
+X-ORIGINAL-DUE:20260829
+X-DEFER-COUNT:1
+X-DEFER-REASON:refactor\, pairs with the Writer CLI
+DTSTAMP:20260830T182617Z
+DUE;VALUE=DATE:20260922
 STATUS:NEEDS-ACTION
 SUMMARY:Move the decision spine out of blog_pipeline into its own module
 DESCRIPTION:pipelines/blog_pipeline/logging_context.py holds the only INSE
