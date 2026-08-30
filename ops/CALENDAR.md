@@ -52,6 +52,31 @@ one item, matched by UID, within the author's namespace:
 - **Every mark also:** increments `SEQUENCE` (creates it at 1 if absent) and
   refreshes `DTSTAMP` — this is how subscribed clients learn an item changed.
 
+- **On a `VTODO`, `--action defer`:** set a new `DUE` (BUILT 2026-08-30). The
+  third transform, added because there was previously **no way to change a due
+  date** through sanctioned tooling — add only appends, mark only did
+  lifecycle — so a slipped date could be fixed only by cancel-and-recreate
+  (re-keying the UID and dropping `RELATED-TO`) or by an operator editing the
+  file freehand. That gap is why the list reached 2026-08-30 with 42 of 44
+  todos overdue: moving a date was harder than ignoring it.
+
+  A reschedule verb can make a rotten list look healthy, so every defer keeps
+  a receipt in-band: `X-ORIGINAL-DUE` (the first due date the item ever had,
+  written once and never rewritten), `X-DEFER-COUNT`, and `X-DEFER-REASON`.
+  Lateness is promoted rather than erased — "due 09-14, deferred 3x, originally
+  07-19" is better signal than a six-week-stale date, and a high defer count
+  marks an item to kill rather than move again. Refuses on a `VEVENT`, on a
+  CANCELLED/COMPLETED item (reopening is a decision, not a reschedule), and on
+  a no-op date.
+
+  **`--plan <file>` (operator only)** applies a reviewed batch — lines of
+  `<uid> <YYYYMMDD> [reason]`, `#` comments ignored. All-or-nothing: every line
+  must validate or nothing is written, so a typo cannot half-rebase the file.
+  It needs one free write to start rather than one per move, but still stamps
+  each moved component, so a large re-base deliberately spends the rest of the
+  day's budget. Operator-only because a bulk defer carries the same authority
+  as the freehand edit it replaces.
+
 Hard limits, in code: never delete a component; never touch `UID`, `DTSTART`,
 or `SUMMARY` (that's a re-key/rewrite — make a new item instead); never edit
 anything outside the matched component; own rate cap; git commit with

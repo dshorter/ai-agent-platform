@@ -7,6 +7,7 @@ UID, within the author's namespace:
   --action cancel    VEVENT or VTODO -> STATUS:CANCELLED
   --action complete  VTODO only      -> STATUS:COMPLETED + COMPLETED:<utc>
                      (RFC 5545: VEVENTs have no COMPLETED status)
+  --action defer     VTODO only      -> new DUE date (--due), audit-trailed
 
 Every mark also bumps SEQUENCE (created at 1 if absent) and refreshes DTSTAMP
 so subscribed clients learn the item changed.
@@ -23,6 +24,53 @@ Hard limits, enforced here and not by prompt discipline:
 Usage:
   calendar-mark --author director --action cancel \
       --uid some-event@director.ai-agent-platform
+
+DEFER, AND WHY IT KEEPS A RECEIPT (added 2026-08-30)
+----------------------------------------------------
+Until now nothing could change a DUE date: add only appends and mark only
+did lifecycle, so a slipped date could be fixed *only* by cancel-and-recreate
+(which re-keys the UID and drops RELATED-TO links) or by an operator editing
+the .ics freehand. That gap is why the list reached 2026-08-30 with 42 of 44
+todos overdue — the dates stopped tracking intent because moving one was
+harder than ignoring it.
+
+A reschedule verb is dangerous in the obvious way: it can make a rotten list
+look healthy. So every defer records, in-band:
+
+  X-ORIGINAL-DUE   the FIRST due date this item ever had; written once, on
+                   the first defer, and never rewritten after
+  X-DEFER-COUNT    how many times it has been pushed
+  X-DEFER-REASON   the most recent --reason, if given
+
+The lateness is therefore not erased, it is promoted: "due 09-14, deferred
+3x, originally 07-19" is strictly better signal than a date six weeks stale,
+and an item with a high defer count is visibly something to kill rather than
+move again. Dates mean intent; the X- fields keep the history honest.
+
+  calendar-mark --author operator --action defer \
+      --uid some-todo@ai-agent-platform --due 20260914 --reason "blocked on X"
+
+BATCH (--plan, operator only)
+-----------------------------
+A re-base is one deliberate reviewed act, not N impulses, so it applies from
+a plan file: it needs only ONE write free to start, rather than one per move.
+Freehand .ics editing is operator-only (spec §The file); a bulk defer is the
+closest thing to it, so it carries the same authority and no other author may
+call it.
+
+Note it still refreshes DTSTAMP on every component it moves, so a large
+re-base leaves the day's budget spent and further writes refused until
+tomorrow. That is deliberate: having just re-dated the list wholesale, the
+right next action is to look at it, not to write to it again.
+
+Plan format — one item per line, blank lines and #-comments ignored:
+
+  <uid> <YYYYMMDD> [reason text...]
+
+Nothing is written unless EVERY line validates, so a typo in line 30 cannot
+leave the calendar half-rebased.
+
+  calendar-mark --author operator --plan /path/to/rebase.txt [--dry-run]
 """
 import argparse, datetime, re, sys, os
 
@@ -34,69 +82,204 @@ SUFFIX = {
 MAX_PER_DAY = 15
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument('--author', choices=['operator', 'director', 'sysadmin'], required=True)
-    ap.add_argument('--uid', required=True)
-    ap.add_argument('--action', choices=['cancel', 'complete'], required=True)
-    a = ap.parse_args()
+def esc(s):
+    """ICS text escaping — same rules calendar-add uses."""
+    return s.replace('\\', '\\\\').replace(';', '\\;').replace(',', '\\,').replace('\n', '\\n')
 
-    if a.author != 'operator' and not a.uid.endswith(SUFFIX[a.author]):
-        sys.exit(f'REFUSED: {a.author}-authored marks are limited to UIDs ending {SUFFIX[a.author]}')
 
-    text = open(CAL).read()
+def fold(line, limit=74):
+    """RFC 5545 line folding — same as calendar-add."""
+    out = []
+    while len(line.encode()) > limit:
+        out.append(line[:limit])
+        line = ' ' + line[limit:]
+    out.append(line)
+    return '\n'.join(out)
 
-    # Locate the one component holding this UID.
-    blocks = list(re.finditer(r'BEGIN:(VEVENT|VTODO)\n.*?END:\1\n', text, re.S))
-    target = None
-    for m in blocks:
-        if f'\nUID:{a.uid}\n' in '\n' + m.group(0):
-            target = m
-            break
-    if target is None:
-        sys.exit(f'REFUSED: no VEVENT/VTODO with UID {a.uid}')
-    kind, block = target.group(1), target.group(0)
 
-    if a.action == 'complete' and kind != 'VTODO':
-        sys.exit('REFUSED: complete is only legal on a VTODO (RFC 5545 — VEVENTs can only be CANCELLED)')
+def find_block(text, uid):
+    """Return the re.Match for the one component carrying this UID, or None."""
+    for m in re.finditer(r'BEGIN:(VEVENT|VTODO)\n.*?END:\1\n', text, re.S):
+        if f'\nUID:{uid}\n' in '\n' + m.group(0):
+            return m
+    return None
 
-    new_status = 'CANCELLED' if a.action == 'cancel' else 'COMPLETED'
-    if f'STATUS:{new_status}' in block:
-        sys.exit(f'REFUSED: item is already {new_status}')
 
-    # Shared daily write budget (same scan calendar-add uses).
-    now = datetime.datetime.now(datetime.timezone.utc)
-    today = now.strftime('%Y%m%d')
-    if sum(1 for s in re.findall(r'DTSTAMP:(\d{8})T', text) if s == today) >= MAX_PER_DAY:
-        sys.exit(f'REFUSED: rate cap — {MAX_PER_DAY} writes already stamped today; talk to the operator')
+def transform(block, kind, uid, action, stamp, due=None, reason=None):
+    """Return the rewritten component, or exit with a refusal.
 
-    stamp = now.strftime('%Y%m%dT%H%M%SZ')
+    Pure string work on ONE component — the caller owns file IO, so a batch
+    can validate every line before anything is written.
+    """
+    if action in ('complete', 'defer') and kind != 'VTODO':
+        sys.exit(f'REFUSED: {action} is only legal on a VTODO '
+                 f'(RFC 5545 — VEVENTs have no completion or DUE)')
+
     nb = block
 
-    # STATUS: replace if present, else insert directly after the UID line.
-    if re.search(r'^STATUS:.*$', nb, re.M):
-        nb = re.sub(r'^STATUS:.*$', f'STATUS:{new_status}', nb, count=1, flags=re.M)
+    if action == 'defer':
+        # Never move something already closed: reopening is a decision, and
+        # this verb is not where a decision gets made.
+        closed = re.search(r'^STATUS:(CANCELLED|COMPLETED)$', nb, re.M)
+        if closed:
+            sys.exit(f'REFUSED: {uid} is {closed.group(1)} — a closed item is not '
+                     f'rescheduled; make a new todo instead')
+        cur = re.search(r'^DUE([^:]*):(\S+)$', nb, re.M)
+        if not cur:
+            sys.exit(f'REFUSED: {uid} has no DUE line to move')
+        cur_val = cur.group(2)
+        new_val = due if len(due) == 8 else due  # date or date-time, validated by caller
+        if cur_val == new_val:
+            sys.exit(f'REFUSED: {uid} is already due {new_val} — nothing to move')
+        prop = 'DUE;VALUE=DATE:' if len(new_val) == 8 else 'DUE:'
+        nb = re.sub(r'^DUE[^:]*:\S+$', prop + new_val, nb, count=1, flags=re.M)
+
+        # X-ORIGINAL-DUE is written ONCE, on the first defer, and never
+        # rewritten — it is the whole point of the receipt.
+        if not re.search(r'^X-ORIGINAL-DUE:', nb, re.M):
+            nb = nb.replace(f'UID:{uid}\n', f'UID:{uid}\nX-ORIGINAL-DUE:{cur_val}\n', 1)
+        n = re.search(r'^X-DEFER-COUNT:(\d+)$', nb, re.M)
+        if n:
+            nb = re.sub(r'^X-DEFER-COUNT:\d+$', f'X-DEFER-COUNT:{int(n.group(1)) + 1}',
+                        nb, count=1, flags=re.M)
+        else:
+            nb = nb.replace(f'X-ORIGINAL-DUE:{cur_val}\n',
+                            f'X-ORIGINAL-DUE:{cur_val}\nX-DEFER-COUNT:1\n', 1)
+        nb = re.sub(r'^X-DEFER-REASON:.*(?:\n [^\n]*)*\n', '', nb, flags=re.M)
+        if reason:
+            nb = re.sub(r'^(X-DEFER-COUNT:\d+)$', r'\1\n' + fold('X-DEFER-REASON:' + esc(reason)),
+                        nb, count=1, flags=re.M)
     else:
-        nb = nb.replace(f'UID:{a.uid}\n', f'UID:{a.uid}\nSTATUS:{new_status}\n', 1)
+        new_status = 'CANCELLED' if action == 'cancel' else 'COMPLETED'
+        if f'STATUS:{new_status}' in nb:
+            sys.exit(f'REFUSED: {uid} is already {new_status}')
+        # STATUS: replace if present, else insert directly after the UID line.
+        if re.search(r'^STATUS:.*$', nb, re.M):
+            nb = re.sub(r'^STATUS:.*$', f'STATUS:{new_status}', nb, count=1, flags=re.M)
+        else:
+            nb = nb.replace(f'UID:{uid}\n', f'UID:{uid}\nSTATUS:{new_status}\n', 1)
 
     # SEQUENCE: bump, or create at 1.
     seq = re.search(r'^SEQUENCE:(\d+)$', nb, re.M)
     if seq:
         nb = re.sub(r'^SEQUENCE:\d+$', f'SEQUENCE:{int(seq.group(1)) + 1}', nb, count=1, flags=re.M)
     else:
-        nb = nb.replace(f'STATUS:{new_status}\n', f'STATUS:{new_status}\nSEQUENCE:1\n', 1)
+        nb = nb.replace(f'UID:{uid}\n', f'UID:{uid}\nSEQUENCE:1\n', 1)
 
     # DTSTAMP: refresh (exactly one exists in components we write).
     nb = re.sub(r'^DTSTAMP:.*$', f'DTSTAMP:{stamp}', nb, count=1, flags=re.M)
 
     # Completion timestamps for VTODO.
-    if a.action == 'complete':
+    if action == 'complete':
         nb = re.sub(r'^COMPLETED:.*\n', '', nb, flags=re.M)
         nb = re.sub(r'^PERCENT-COMPLETE:.*\n', '', nb, flags=re.M)
-        nb = nb.replace('STATUS:COMPLETED\n', f'STATUS:COMPLETED\nCOMPLETED:{stamp}\nPERCENT-COMPLETE:100\n', 1)
+        nb = nb.replace('STATUS:COMPLETED\n',
+                        f'STATUS:COMPLETED\nCOMPLETED:{stamp}\nPERCENT-COMPLETE:100\n', 1)
+    return nb
 
+
+def check_due(v, where):
+    if not re.fullmatch(r'\d{8}(T\d{6})?', v):
+        sys.exit(f'REFUSED: {where}: --due must be YYYYMMDD or YYYYMMDDTHHMMSS, got {v!r}')
+    try:
+        datetime.datetime.strptime(v[:8], '%Y%m%d')
+    except ValueError:
+        sys.exit(f'REFUSED: {where}: {v!r} is not a real date')
+    return v
+
+
+def budget_left(text, today):
+    return MAX_PER_DAY - sum(1 for s in re.findall(r'DTSTAMP:(\d{8})T', text) if s == today)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--author', choices=['operator', 'director', 'sysadmin'], required=True)
+    ap.add_argument('--uid')
+    ap.add_argument('--action', choices=['cancel', 'complete', 'defer'])
+    ap.add_argument('--due', help='defer only: new DUE (YYYYMMDD or YYYYMMDDTHHMMSS)')
+    ap.add_argument('--reason', help='defer only: why it moved (recorded as X-DEFER-REASON)')
+    ap.add_argument('--plan', help='operator only: batch-defer from a plan file '
+                                   '(lines of "<uid> <YYYYMMDD> [reason]")')
+    ap.add_argument('--dry-run', action='store_true', help='--plan only: validate, write nothing')
+    a = ap.parse_args()
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    today = now.strftime('%Y%m%d')
+    stamp = now.strftime('%Y%m%dT%H%M%SZ')
+    text = open(CAL).read()
+
+    if a.plan:
+        if a.author != 'operator':
+            sys.exit('REFUSED: --plan is operator-only — a bulk re-base carries the same '
+                     'authority as a freehand edit (spec §The file)')
+        if a.uid or a.action:
+            sys.exit('REFUSED: --plan applies its own defers; do not combine it with '
+                     '--uid/--action')
+        moves = []
+        for n, raw in enumerate(open(a.plan), 1):
+            line = raw.split('#', 1)[0].strip()
+            if not line:
+                continue
+            parts = line.split(None, 2)
+            if len(parts) < 2:
+                sys.exit(f'REFUSED: {a.plan}:{n}: expected "<uid> <YYYYMMDD> [reason]"')
+            uid, due = parts[0], check_due(parts[1], f'{a.plan}:{n}')
+            moves.append((uid, due, parts[2] if len(parts) > 2 else None))
+        if not moves:
+            sys.exit(f'REFUSED: {a.plan} holds no moves')
+        # A batch is ONE reviewed act, so it costs one write — but it still
+        # needs that one to be available.
+        if budget_left(text, today) < 1:
+            sys.exit(f'REFUSED: rate cap — {MAX_PER_DAY} writes already stamped today')
+
+        # Validate and apply every move in memory first: nothing is written
+        # unless the whole plan is good, so a bad line 30 cannot half-rebase.
+        for uid, due, reason in moves:
+            m = find_block(text, uid)
+            if m is None:
+                sys.exit(f'REFUSED: no VEVENT/VTODO with UID {uid} (plan aborted, nothing written)')
+            nb = transform(m.group(0), m.group(1), uid, 'defer', stamp, due, reason)
+            text = text[:m.start()] + nb + text[m.end():]
+
+        for uid, due, _ in moves:
+            print(f'  {"[dry-run] " if a.dry_run else ""}deferred {uid} -> {due}')
+        if a.dry_run:
+            print(f'*** DRY RUN — {len(moves)} move(s) validated, nothing written ***')
+            return
+        open(CAL, 'w').write(text)
+        print(f're-based {len(moves)} todo(s) (operator, one batch write; '
+              f'SEQUENCE bumped, X-ORIGINAL-DUE preserved)')
+        refresh_views()
+        return
+
+    if not a.uid or not a.action:
+        sys.exit('REFUSED: --uid and --action are required (or use --plan)')
+    if a.action == 'defer' and not a.due:
+        sys.exit('REFUSED: --action defer requires --due')
+    if a.action != 'defer' and (a.due or a.reason):
+        sys.exit('REFUSED: --due/--reason are defer-only')
+    if a.due:
+        check_due(a.due, '--due')
+
+    if a.author != 'operator' and not a.uid.endswith(SUFFIX[a.author]):
+        sys.exit(f'REFUSED: {a.author}-authored marks are limited to UIDs ending {SUFFIX[a.author]}')
+
+    target = find_block(text, a.uid)
+    if target is None:
+        sys.exit(f'REFUSED: no VEVENT/VTODO with UID {a.uid}')
+
+    # Shared daily write budget (same scan calendar-add uses).
+    if budget_left(text, today) < 1:
+        sys.exit(f'REFUSED: rate cap — {MAX_PER_DAY} writes already stamped today; talk to the operator')
+
+    nb = transform(target.group(0), target.group(1), a.uid, a.action, stamp, a.due, a.reason)
     open(CAL, 'w').write(text[:target.start()] + nb + text[target.end():])
-    print(f'marked {new_status}: {a.uid} ({a.author}; SEQUENCE bumped)')
+    if a.action == 'defer':
+        print(f'deferred: {a.uid} -> {a.due} ({a.author}; SEQUENCE bumped, receipt kept)')
+    else:
+        new_status = 'CANCELLED' if a.action == 'cancel' else 'COMPLETED'
+        print(f'marked {new_status}: {a.uid} ({a.author}; SEQUENCE bumped)')
     refresh_views()
 
 
