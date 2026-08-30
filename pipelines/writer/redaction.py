@@ -78,7 +78,16 @@ PATTERNS: list[tuple[str, str, str]] = [
      "An unlisted capability token — the URL IS the access control."),
     ("home path", r"/(?:home|root|Users)/[A-Za-z0-9._-]+",
      "An absolute home path leaks an account name and the machine's shape."),
-    ("email", r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b",
+    # The trailing boundary is (?![\w-]), not \b, so a match cannot stop
+    # mid-token. `\b` sits happily between a letter and a hyphen, so a calendar
+    # UID like some-event@director.ai-agent-platform reported as just the part
+    # through the `.ai` -- a PREFIX of the token, and a false positive on every
+    # ops-calendar UID appearing in prose or code. A gate that cries wolf gets
+    # clicked past; see the config README's own argument for precision over
+    # recall. Same idiom the gate's term_pattern already uses. The only shape
+    # no longer flagged is an address written flush against a trailing hyphen,
+    # which is not a shape a real address appears in.
+    ("email", r"\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}(?![\w-])",
      "An address that is not the published contact one."),
     ("public ip", r"\b(?:\d{1,3}\.){3}\d{1,3}\b",
      "A routable address. Loopback and private ranges are allowed."),
