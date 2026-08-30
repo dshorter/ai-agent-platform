@@ -1126,4 +1126,33 @@ DESCRIPTION:pipelines/blog_pipeline/logging_context.py holds the only INSE
  ame is populated from context.tool_name\, so it holds step names rather t
  han agents. Raised 2026-08-09 while building the deep-analytics page.
 END:VTODO
+BEGIN:VTODO
+UID:scout-config-redaction-gate-call@ai-agent-platform
+DTSTAMP:20260830T013911Z
+DUE;VALUE=DATE:20260905
+STATUS:NEEDS-ACTION
+SUMMARY:Decide: dismiss or refactor the two home paths in pipelines/scout/
+ config.py
+DESCRIPTION:Blocks committing pipelines/scout/config.py (currently holding
+  an opus-4-8 -> opus-5 fallback switch\, 2026-08-29). The redaction gate 
+ flags two PRE-EXISTING literals\, both from 20381ee\, neither added by th
+ e blocked change: line 86 /home/claude/.claude/projects and line 88 /root
+ /staging/codex-logs/logs. THE EXPOSURE IS NEAR-ZERO and already published
+  in history\; the real question is the dismissal's scope. allow.txt entri
+ es are value-level with NO file scoping\, so a 'home path' dismissal sile
+ nces that exact string in every file permanently -- a standing detection 
+ capability traded for one commit. LINE 86 SHOULD PROBABLY STAY AS-IS: the
+  literal is load-bearing. scout-pass.service has no User= directive so it
+  runs as root\, and Path.home() would resolve to root's home -- exactly t
+ he 2026-08-03 bug the comment above it describes (stale pre-switchover co
+ pies\, same session ids\, 27 of 41 sessions silently unread). Explicitnes
+ s there is a bug fix\, not an oversight. LINE 88 is the genuinely open on
+ e: another user's directory\, so Path.home() cannot express it. Options: 
+ (a) dismiss both with a dated justification\, matching the convention the
+  existing allow.txt entries follow\; (b) make SCOUT_CODEX_LOGS_DIR env-on
+ ly with no literal fallback\, failing loudly when unset\; (c) dismiss 86 
+ only and do (b) for 88. Two prose hits of the same class in sysadmin-agen
+ t-design.md were FIXED rather than dismissed on 2026-08-29 (commit 3d8cc3
+ 6) because the prose lost nothing -- that option is not available here.
+END:VTODO
 END:VCALENDAR
