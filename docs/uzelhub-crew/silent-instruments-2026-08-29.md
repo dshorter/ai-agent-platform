@@ -17,6 +17,10 @@ status: findings from a single session, 2026-08-29. Every number here was measur
 - [What generalises](#what-generalises)
 <!-- MAP:END -->
 
+**Companion:** [asking-one-level-up-2026-08-29.md](asking-one-level-up-2026-08-29.md)
+records the reasoning arc — the eight turns where the question in play was one
+level too low. This doc is what was found; that one is how the thinking moved.
+
 The session opened by reading the Director's morning brief and asking what the
 oldest items on it actually were. It ended somewhere else entirely. The findings
 below are unrelated on the surface — a disk alert, a dead pipeline stage, five
