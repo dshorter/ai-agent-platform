@@ -1,6 +1,6 @@
 ---
 read: full
-status: findings from a single session, 2026-08-29. Every number here was measured, not estimated; where a claim was made and later falsified in the same session, the correction is kept rather than the claim. Fixes landed are named by commit; what remains open is listed as open.
+status: findings from one continuous session spanning 2026-08-26 to 2026-08-30 (four working days, one context). The 08-29 in the filename is the writing date, kept stable because three documents link here. Corrected 2026-08-30 by reading the session log rather than trusting recall -- the first draft said "a single session, 2026-08-29", which was wrong by four days. Every number here was measured, not estimated; where a claim was made and later falsified in the same session, the correction is kept rather than the claim. Fixes landed are named by commit; what remains open is listed as open.
 ---
 
 # Silent instruments — what a housekeeping session found

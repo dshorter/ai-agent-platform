@@ -1,6 +1,6 @@
 ---
 read: full
-status: method companion to silent-instruments-2026-08-29.md, written the same day. That doc records what was found; this one records how the thinking moved, because the reversals are the part commits cannot reconstruct. Attribution is deliberate — most of the reframes below came from the operator, and the record is more useful if it says so.
+status: method companion to silent-instruments-2026-08-29.md, written the same day. The arc itself spans 2026-08-26 to 2026-08-30; the filename date is when this was written. Turn 9 was added 2026-08-30 after checking this document against the session log -- it is about that check. That doc records what was found; this one records how the thinking moved, because the reversals are the part commits cannot reconstruct. Attribution is deliberate — most of the reframes below came from the operator, and the record is more useful if it says so.
 ---
 
 # Asking one level up — how a housekeeping session moved
@@ -15,6 +15,7 @@ status: method companion to silent-instruments-2026-08-29.md, written the same d
 - [Turn 6: is the cheap model bad, or bad at something we're dropping](#turn-6-is-the-cheap-model-bad-or-bad-at-something-were-dropping)
 - [Turn 7: why is this uncovered -> what should the boundary be](#turn-7-why-is-this-uncovered---what-should-the-boundary-be)
 - [Turn 8: a fix -> a configuration](#turn-8-a-fix---a-configuration)
+- [Turn 9: documented is not operative](#turn-9-documented-is-not-operative)
 - [Right answer, wrong reason](#right-answer-wrong-reason)
 - [What to steal from this](#what-to-steal-from-this)
 <!-- MAP:END -->
@@ -23,8 +24,9 @@ The session was scoped as housekeeping: read the Director's morning brief, look
 at the oldest items. It ended with a per-domain model resolver and a rewritten
 alerting policy. The findings are in
 [silent-instruments-2026-08-29.md](silent-instruments-2026-08-29.md). This is
-the other half — the sequence of questions, and specifically the eight times the
-question in play turned out to be one level too low.
+the other half — the sequence of questions, and specifically the nine times the
+question in play turned out to be one level too low. The ninth arrived a day
+after this document was written, and is about this document.
 
 ## The pattern
 
@@ -42,8 +44,9 @@ a better question sat directly above it.
 | Did the cheap model fail? | Fail at *what*, and is it the part we're keeping? |
 | Why does the predictor lack a cost cap? | What property should governance be scoped to? |
 | Where do we put film's model override? | Why is there an override rather than a configuration? |
+| Was the decision written down? | Was it written anywhere that *executes*? |
 
-Five of those eight reframes came from the operator, not from me. That ratio is
+Six of those nine reframes came from the operator, not from me. That ratio is
 the most useful thing in this document.
 
 ## Turn 1: overdue → dead premise
@@ -198,6 +201,50 @@ quick fix would have buried that.
 The clean version also paid a debt: five readers of `PRIMARY_MODEL` had drifted
 into two behaviours. The sidecar would have made it six.
 
+## Turn 9: documented is not operative
+
+Added a day later, because the arc produced one more turn after this document
+was written — and it is about this document.
+
+On 08-29 the operator ruled that film's document budget must not be cut: the
+volume is the Movers signal, so cutting it corrupts the measurement. That is
+recorded above, in [Turn 4](#turn-4-cut-cost---cut-which-dimension), in plain
+prose.
+
+On 08-30 I proposed cutting film's budget anyway — and when challenged, checked
+whether the decision had been recorded, grepped for "budget unchanged", did not
+find the phrase "don't cull the volume", and reported that it had never been
+written down. Both the proposal and the diagnosis were wrong.
+
+What had actually happened is narrower and worse than "we forgot to write it
+down":
+
+- The decision **was** in the narrative.
+- It was **not** in `scripts/sept1_cost_boundary.py`, whose `MODES` table
+  defaulted to `film-weighted` — the exact cut the decision withdrew.
+- It was **not** in `operational-state.md`, the file that opens by declaring
+  itself the single source of truth for how each domain runs.
+
+So the machinery and the prose disagreed, and **the machinery won** — with me,
+a day later, arguing its side. A default in a script outranks a paragraph in a
+companion document, because the default is what executes.
+
+This is the same failure as the Director's brief ranking a dead task first, one
+layer up. There, state was read faithfully and the premise went unchecked.
+Here, a decision was recorded faithfully and the artifact that acts on it went
+unchanged. In both cases the written record was accurate and the running system
+did not consult it.
+
+The rule that follows: **a decision is not recorded until it changes something
+executable.** Prose is where you explain a decision; a default, a config key, or
+a test is where you *store* it. If a decision cannot be expressed in one of
+those, it is a preference and will not survive contact with a busy day.
+
+Corollary, learned the same morning: check a claim about the record **against
+the record**. Both write-ups here were composed from working context rather than
+from the session log, which is exactly how the log came to disagree with them —
+and reading the log turned up a four-day dating error in both.
+
 ## Right answer, wrong reason
 
 Twice I reached a defensible conclusion by a route the evidence didn't support.
@@ -242,3 +289,9 @@ observation that was never checked against a second.
    If it's landing anywhere else, the design is telling you something.
 8. **Look for the concept already in the vocabulary.** `base_relation` had been
    sitting there the whole time.
+9. **A decision is not recorded until it changes something executable.** Prose
+   explains a decision; a default, a config key or a test stores it. The
+   machinery outranks the paragraph, because the machinery is what runs.
+10. **Check claims about the record against the record.** Both of these
+    documents were written from working context, and both were wrong about
+    their own dates until the session log was read.
