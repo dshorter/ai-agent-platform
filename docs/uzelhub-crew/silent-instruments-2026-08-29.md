@@ -21,6 +21,12 @@ status: findings from one continuous session spanning 2026-08-26 to 2026-08-30 (
 records the reasoning arc — the eight turns where the question in play was one
 level too low. This doc is what was found; that one is how the thinking moved.
 
+**Decisions:** every decision this arc produced lives in **ADR-011**
+(`predictor_ingest/docs/architecture/adr-011-movers-only-film-and-cost-governance.md`),
+not here. This document is findings; the register is where decisions are
+stored — reading a decision out of this prose is how one of them got
+contradicted by a script default within a day.
+
 The session opened by reading the Director's morning brief and asking what the
 oldest items on it actually were. It ended somewhere else entirely. The findings
 below are unrelated on the surface — a disk alert, a dead pipeline stage, five
@@ -148,6 +154,14 @@ August on the strength of its due date.
 | Disk: audit script, journal bound at 2G, root Claude prune | server-maintenance |
 
 Disk went 94% → 88% across the session.
+
+> **Update 2026-08-30 (after this was written):** the Sept 1 boundary is stood
+> down. Anthropic cancelled the scheduled Sonnet 5 rise — $2/$10 is now the
+> standard price (pricing page, note id `claude-sonnet-5-introductory-pricing`)
+> — so flat spend holds at current volumes with no cut. The script survives as
+> a no-op without an explicit `--mode`, its rates half is verify-only, and the
+> `predictor-sept1-hold-net-cost` todo is cancelled. Details: ADR-011,
+> Addendum 2026-08-30.
 
 ## Open
 

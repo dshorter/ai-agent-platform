@@ -788,9 +788,10 @@ END:VALARM
 END:VTODO
 BEGIN:VTODO
 UID:predictor-sept1-hold-net-cost@ops.ai-agent-platform
-DTSTAMP:20260802T183114Z
+DTSTAMP:20260830T173300Z
 DUE;VALUE=DATE:20260831
-STATUS:NEEDS-ACTION
+STATUS:CANCELLED
+SEQUENCE:1
 SUMMARY:Predictor: cut film + semis 2x -> ~0.75x on Sept 1 to hold net cos
  t flat (do NOT do early)
 DESCRIPTION:GOAL (Dan\, 2026-08-02): the 2x intake bump exists to exploit 
