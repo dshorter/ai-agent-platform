@@ -173,7 +173,7 @@ audits backup coverage today. **Build it that way, or not at all.**
 | Read-only shell with `docker`, `systemctl`, `journalctl`, `find`, `git log`, `cat` | Inspection |
 | Read access to all `/opt/**` | Diffing docs vs state |
 | Read access to `/etc/systemd/system/`, `/etc/caddy/`, `/usr/local/sbin/` | Same |
-| Read access to `/root/.config/rclone/rclone.conf` (or just the file's existence + structure) | Capability audit; *not* the application key itself |
+| Read access to root's rclone config (or just the file's existence + structure) | Capability audit; *not* the application key itself |
 | B2 API read access via a separate "audit" key (listKeys, listBuckets, listFiles) | Credential scope audits; restore drills |
 | Write access to `/var/lib/sysadmin-agent/proposals/` only | Patch proposals — no direct writes to live config |
 | Postgres write to `agent_decisions` table | Decision trace, shared with Content/Marketer |
@@ -213,7 +213,17 @@ Everything else — drift deltas, clean audits, new proposals — stays in the p
 
 **Constraints.**
 
-- Hard cap on pushes per day (default 10); overflow collapses into a single "notification storm — see journal" message. Same runaway-loop spirit as the `agent_decisions` rate limit.
+- **Revised 2026-08-29 after the cap caused an outage of its own.** A single shared daily ceiling makes the noisiest sender the censor of every other one: disk crossed 90% on 08-22, the health check began paging hourly (24/day against a cap of 10), and the estate's whole allowance was gone by mid-morning every morning. The predictor reported `film daily — PARTIAL: failed: trending` faithfully for **23 days** and not one of those pages was delivered. The failure was never silent — it was drowned. Full account: [silent-instruments-2026-08-29.md](silent-instruments-2026-08-29.md).
+
+  Three changes, in order of importance:
+
+  1. **Repeat backoff.** Each message is fingerprinted with digits stripped — so "disk at 91%" and "disk at 94%" are one recurring condition — and only occurrences 1, 2, 4, 8, 16 … are sent, each labelled with its repeat number. A stuck condition costs five pages a day instead of twenty-four, and the operator still learns it is ongoing. This is the fix; the other two are belt and braces.
+  2. **Per-agent quota** (`NOTIFY_MAX_PER_AGENT`, default 8 → **15**), so one sender cannot exhaust the budget even when its messages are genuinely distinct.
+  3. **Shared ceiling raised 10 → 100** (`NOTIFY_MAX_PER_DAY`). With dedup at the source the ceiling only has to be a runaway backstop, and for that job 10 was far too tight — normal estate traffic is 10–15 messages a day. Telegram is nowhere near a limit at this volume; its bot ceilings are per-second and it is free.
+
+  Overflow still collapses into a single "notification storm — see journal" message, and every suppressed message stays visible in syslog. **The lesson worth carrying: alert fatigue is not solved by sending fewer alerts, it is solved by not repeating.** A volume cap attempts both jobs and is only good at one.
+
+  Deploy with `scripts/install-notify-telegram.sh` in `server-maintenance` — it backs up, syntax-checks, installs, smoke-tests the installed file against a scratch state dir with a stubbed curl, and rolls back on failure. This script is the pager for everything on the box; a broken copy fails with no alerts *and* no error.
 - Message bodies carry unit names, timestamps, and a one-line error class — never secrets, tokens, dump contents, or anything from `incidents/`. Telegram is an external service; treat every message as published.
 - Send failures are logged and non-fatal. A Telegram outage must never block the caller — in particular it cannot abort `safe-reboot` or a backup run.
 - Outbound-only: HTTPS to `api.telegram.org`, `sendMessage`, nothing else. No polling, no inbound commands. The bot is a pager, not a control channel — accepting commands from Telegram would be a new attack surface on a box that already had a cryptominer incident.
@@ -292,7 +302,7 @@ sources:
   (operator sudo, one line).
 - **gh unauthenticated:** GitHub run history (provider-API precedence rank 2)
   404s anonymously. Device-flow login for the agent's user at build time.
-- **rclone config is root-only** (`/root/.config/rclone/rclone.conf`): B2
+- **rclone config is root-only** (under root's XDG config dir): B2
   audits and the restore drill can't run as claude. Mint the read-only audit
   key at build and store it under the agent's own identity — don't share
   root's config.
