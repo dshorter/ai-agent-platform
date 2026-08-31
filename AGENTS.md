@@ -39,6 +39,7 @@ as a description, not a rule, and never read its silence as permission. An
 
 | Area | Authority |
 |---|---|
+| **What the box has taught us — principles, with receipts** | `/opt/_host/PRINCIPLES.md` (`read: full`). Start here when a change feels like it might be deciding something. |
 | The whole box — layout, ports, databases, overlaps | `/opt/_host/README.md` (`read: full`; _host has **no remote**, never add one) |
 | What actually runs, verified against timers and tables | `ops/desk/agent-roster.html` |
 | Newsroom: registers, routing, who holds which text | `docs/uzelhub-crew/NEWSROOM.md` |
