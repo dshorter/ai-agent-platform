@@ -8,8 +8,10 @@ turn, matching the persona's "rank from what you read just now."
 from __future__ import annotations
 
 import importlib.util
+import os
+import sqlite3
 import subprocess
-from datetime import datetime
+from datetime import datetime, timedelta
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 
@@ -18,6 +20,12 @@ from pipelines.director.registry import Project, load_registry
 _OPS = Path(__file__).resolve().parents[2] / "ops"
 _REPO_DOCS = Path(__file__).resolve().parents[2] / "docs" / "director"
 LEDGER_BUDGET = 40_000  # chars of ledger injected per turn before compaction is due
+
+# The predictor is the largest paid-API spender on the box -- more than the rest
+# of the crew combined -- and its databases are the only place its cost lives.
+_PREDICTOR_DB_DIR = Path(
+    os.environ.get("DIRECTOR_PREDICTOR_DB_DIR", "/opt/predictor_ingest/data/db")
+)
 
 
 def _git(path: str, *args: str) -> str:
@@ -78,6 +86,76 @@ def todos_digest() -> str:
                 f"projected; say so rather than guessing at what is due)")
 
 
+def predictor_spend(days: int = 7) -> str:
+    """What the predictor has actually cost, per domain, injected every turn.
+
+    Injected rather than discovered, for the same reason the to-do digest is:
+    the numbers live in per-domain SQLite files under another repo, and a
+    reading agent asked "what are we spending" would burn its step budget
+    rediscovering that every morning.
+
+    Dollars here are what was CHARGED, not list price. Extraction runs through
+    the Batch API at half rate, and `billing_mode` (predictor, 2026-08-31) is
+    what makes that distinction; before it, every extraction dollar was recorded
+    at roughly 2x. Unpriced calls are surfaced rather than dropped -- a total
+    that silently omits them is how five weeks of Sonnet 5 spend went unnoticed.
+
+    Opened read-only: the Director reports on the predictor, it never writes to
+    it, and the URI mode makes that a property of the connection rather than a
+    promise in a docstring.
+    """
+    if not _PREDICTOR_DB_DIR.is_dir():
+        return ""
+    today = datetime.now().date()
+    since = (today - timedelta(days=days - 1)).isoformat()
+    month_start = today.replace(day=1).isoformat()
+
+    lines, total_window, total_month, unpriced = [], 0.0, 0.0, 0
+    for db in sorted(_PREDICTOR_DB_DIR.glob("*.db")):
+        try:
+            conn = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+        except sqlite3.Error:
+            continue
+        try:
+            window = conn.execute(
+                """SELECT COALESCE(SUM(cost_usd), 0),
+                          SUM(CASE WHEN cost_usd IS NULL THEN 1 ELSE 0 END)
+                     FROM token_usage WHERE run_date >= ?""",
+                (since,),
+            ).fetchone()
+            month = conn.execute(
+                "SELECT COALESCE(SUM(cost_usd), 0) FROM token_usage WHERE run_date >= ?",
+                (month_start,),
+            ).fetchone()
+            last = conn.execute(
+                """SELECT run_date, COALESCE(SUM(cost_usd), 0)
+                     FROM token_usage GROUP BY run_date ORDER BY run_date DESC LIMIT 1"""
+            ).fetchone()
+        except sqlite3.Error:
+            continue  # a domain without the table is simply not reporting yet
+        finally:
+            conn.close()
+        w, u, m = float(window[0]), int(window[1] or 0), float(month[0])
+        if not (w or m):
+            continue
+        total_window += w
+        total_month += m
+        unpriced += u
+        tail = f", last billed {last[0]} ${float(last[1]):.2f}" if last else ""
+        lines.append(f"  {db.stem}: ${w:.2f} in {days}d, ${m:.2f} MTD{tail}")
+
+    if not lines:
+        return ""
+    ceiling = os.environ.get("PREDICTOR_MAX_COST_USD", "15")
+    head = (f"PREDICTOR SPEND (actual dollars charged, batch-aware; "
+            f"per-run_date ceiling ${ceiling}):")
+    foot = f"  TOTAL: ${total_window:.2f} in {days}d, ${total_month:.2f} month-to-date"
+    if unpriced:
+        foot += (f"\n  ⚠ {unpriced} call(s) in the window have NO price on file — "
+                 f"the totals above are incomplete, say so if you cite them")
+    return "\n".join([head, *lines, foot])
+
+
 def ledger() -> str:
     """The Director's own ledger, injected rather than discovered.
 
@@ -111,6 +189,9 @@ def gather_state() -> str:
     clock = datetime.now().astimezone().strftime("%A %Y-%m-%d %H:%M %Z")
     parts = [f"CURRENT PROJECT STATE (read just now; clock: {clock}):",
              todos_digest(), blocks]
+    spend = predictor_spend()
+    if spend:
+        parts.append(spend)
     memory = ledger()
     if memory:
         # Last, and labelled: it is the one block here that is NOT current state.
