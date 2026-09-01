@@ -36,6 +36,29 @@
 
 
 
+
+## 2026-09-01 — ledger-append title-cap refusal recurs (2nd instance, 08-31 entry lost)
+
+2026-08-31's daily pass (`sysadmin-daily.service`, run visible only via
+`journalctl -u sysadmin-daily.service --since 2026-08-31`) completed
+successfully (exit path reached final report, status FINDINGS) and drafted a
+full receipt-bearing "Ledger entry" for root-droppings occurrence #5
+(scout-pass.service dropping root-owned `__pycache__/*.pyc` into the
+claude-owned ai-agent-platform tree). `ledger-append` refused it:
+`ledger-append refused: REFUSED: title exceeds 90 chars`. The refusal is
+visible only in the unit journal, not in this ledger file, and not in the
+day's own report summary line. This is the second confirmed instance of this
+exact failure mode — the first was 2026-08-14/15 (recorded in the ledger's
+2026-08-15 entry) — 16 days apart, same validation, same silent drop. The
+2026-08-15 entry's own remediation ask ("length validation either
+truncates-and-warns, or the caller enforces a title budget before calling
+it") was not built or applied in the interim; this occurrence is the direct,
+predicted consequence. Until one of those two fixes lands, any daily-pass
+finding whose natural title exceeds 90 chars will keep failing to outlive its
+run — and will keep needing to be re-excavated from the unit journal by the
+next session that happens to grep for it, as this pass and the 2026-08-16/17
+entries before it all had to do.
+
 ## 2026-08-30 — daily pass FAILED (BadRequestError) — no audit performed
 
 `sysadmin-daily.service` exited non-zero before producing a report, so no proposals artifact exists for this date and no audit of live state was made.
