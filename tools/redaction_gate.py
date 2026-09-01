@@ -26,6 +26,16 @@ redaction.Finding was given so a verdict survives a rebuild. Dismissing is a
 human act with a reason, never an auto-scrub: a scrubber that silently rewrites
 buys false confidence, misses something, and is trusted anyway.
 
+**The hook path is diff-aware (2026-09-01).** A staged finding is suppressed
+when the same `kind:text` key already appears in HEAD's version of that same
+file: content already in a public tree is not a leak this commit introduces,
+and blocking on it froze five finished changes for weeks (the detector's own
+test fixtures re-blocked the file every time a rule was added). A NEW finding
+anywhere — including a new fixture, including in a new file — still blocks and
+still wants one deliberate look. Suppressed counts are reported, never silent.
+`--all` and explicit paths stay full-strength: an audit answers "what is in
+the tree", the hook answers "what is this commit adding".
+
     tools/redaction_gate.py                 # scan what is staged (the hook path)
     tools/redaction_gate.py --all           # scan every tracked file
     tools/redaction_gate.py FILE [FILE...]  # scan specific paths
@@ -115,23 +125,51 @@ def staged_content(path: str) -> str | None:
         return None  # binary; nothing a text detector can say about it
 
 
+def head_content(path: str) -> str | None:
+    """The blob as it sits in HEAD — the baseline for "already public".
+    None for a file HEAD does not have (or before the first commit), which
+    makes every finding in it new, which is the conservative answer."""
+    out = subprocess.run(["git", "show", f"HEAD:{path}"], cwd=_REPO,
+                         capture_output=True, check=False)
+    if out.returncode != 0:
+        return None
+    try:
+        return out.stdout.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+
+
 def line_of(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
-def check(paths: list[str], read, terms, allow: set[str]) -> list[tuple]:
-    hits = []
+def check(paths: list[str], read, terms, allow: set[str],
+          baseline=None) -> tuple[list[tuple], int]:
+    """Returns (blocking hits, count suppressed as already-in-baseline).
+
+    `baseline` is a read-alike returning the prior version of a path, or None
+    for no diff-awareness. Suppression is per-file: a key in HEAD's copy of
+    a DIFFERENT file does not excuse this one."""
+    hits, suppressed = [], 0
     for path in paths:
         if Path(path).suffix.lower() in SKIP_SUFFIXES:
             continue
         text = read(path)
         if text is None or len(text) > MAX_BYTES:
             continue
+        prior: set[str] = set()
+        if baseline is not None:
+            prior_text = baseline(path)
+            if prior_text is not None and len(prior_text) <= MAX_BYTES:
+                prior = {f.key for f in scan_text(prior_text, terms)}
         for f in scan_text(text, terms):
             if f.key in allow:
                 continue
+            if f.key in prior:
+                suppressed += 1
+                continue
             hits.append((path, line_of(text, f.start), f))
-    return hits
+    return hits, suppressed
 
 
 HOOK = """#!/bin/sh
@@ -180,6 +218,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"redaction-gate: no terms.txt under {CONFIG_DIR} — "
               "employer-gate checking is OFF", file=sys.stderr)
 
+    baseline = None
     if args.paths:
         paths, read = args.paths, lambda p: Path(p).read_text(encoding="utf-8", errors="replace")
     elif args.all:
@@ -188,15 +227,17 @@ def main(argv: list[str] | None = None) -> int:
         paths = out.stdout.splitlines()
         read = lambda p: (_REPO / p).read_text(encoding="utf-8", errors="replace")  # noqa: E731
     else:
-        paths, read = staged_files(), staged_content
+        paths, read, baseline = staged_files(), staged_content, head_content
 
-    hits = check(paths, read, terms, allow)
+    hits, suppressed = check(paths, read, terms, allow, baseline=baseline)
+    already = (f"; {suppressed} finding(s) already in HEAD — not this commit's leak"
+               if suppressed else "")
     if not hits:
-        print(f"redaction-gate: clean ({len(paths)} file(s))")
+        print(f"redaction-gate: clean ({len(paths)} file(s){already})")
         return 0
 
-    print(f"\nredaction-gate: {len(hits)} unresolved finding(s) — commit BLOCKED\n",
-          file=sys.stderr)
+    print(f"\nredaction-gate: {len(hits)} unresolved finding(s) — commit BLOCKED"
+          f"{already}\n", file=sys.stderr)
     for path, line, f in hits:
         print(f"  {path}:{line}", file=sys.stderr)
         print(f"    [{f.kind}] {f.text[:80]}", file=sys.stderr)
