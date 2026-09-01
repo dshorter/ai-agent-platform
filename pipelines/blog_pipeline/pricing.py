@@ -21,9 +21,11 @@ CACHE_READ_MULTIPLIER = 0.10
 
 # Rates supplied by Blog Director on 2026-04-26. Update when Anthropic prices change.
 MODEL_RATES_USD_PER_MTOK: dict[str, tuple[float, float]] = {
-    # Sonnet 5 (launched 2026-06-30) is on INTRODUCTORY pricing ($2/$10 per MTok) through
-    # 2026-08-31; it reverts to standard $3/$15 on 2026-09-01. BUMP the rate below to
-    # (3.00, 15.00) then — reminder is on the ops calendar (ops/calendar.ics).
+    # Sonnet 5 (launched 2026-06-30) shipped at an "introductory" $2/$10 per MTok with a
+    # rise to $3/$15 announced for 2026-09-01. Anthropic made the promotional rate
+    # permanent instead (operator, 2026-09-01; the Sept-1 predictor boundary script was
+    # stood down 2026-08-30 on the same grounds). $2/$10 IS the standard rate — do not
+    # "restore" $3/$15 here, whatever an older reminder says.
     "claude-sonnet-5": (2.00, 10.00),
     "claude-fable-5": (10.00, 50.00),
     "claude-opus-5": (5.00, 25.00),
