@@ -79,8 +79,14 @@ casts a vote without anyone noticing. These are open:
   layer instead. (That argument is reasoning from 2026-08-31, not a decision.)
 - **Should the visitor-facing agents be in the trace?** `agent-roster.html`
   records the finding and the fix ("what's missing is an INSERT and a grant").
-- **Should redaction dismissals be path-scoped?** They are global today, which
-  is why two commits sit blocked rather than dismissed.
+- ~~**Should redaction dismissals be path-scoped?**~~ **Settled 2026-09-01, and
+  not by scoping them.** The blocked commits were never introducing the
+  findings — the content was already in HEAD, so the gate was re-litigating
+  published material every time a rule was added. The hook path now compares
+  against HEAD's copy of the same file and suppresses only what is already
+  there (`9a5ce31`). Dismissals stay global and rare, which keeps a dismissal
+  the deliberate act it was designed to be; the per-file judgment lives in the
+  baseline instead. New findings still block everywhere, new files included.
 
 ## Conventions
 
