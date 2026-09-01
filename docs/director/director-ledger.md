@@ -43,6 +43,13 @@
 ---
 
 
+
+## 2026-08-21 — FRAME stalls cost real time too — Scout hold has frozen all drip 34 days
+
+`resume-release-drip-post-sonnet` hold was set 2026-07-18, gated on the Sonnet-week A/B readout (`scout-ab-flip-to-sonnet-r2`, still unflipped as of 2026-08-21, 33d overdue). That means `release.js` drip has been fully stopped for **34 days** — not "an item is late," but a month of zero publishing — purely because the underlying decision (flip-and-rerun vs. accept-fable-5-and-lift) hasn't been made.
+
+Rhymes with 2026-08-13 ("repeating a recommendation doesn't clear it") but is a distinct case: that entry was about an OWN/mechanical item (restart a proxy) where repetition is inert because anyone can execute it. This is a FRAME item — repetition is inert for a different reason: only Dan's judgment call clears it, and restating the two options across ~10 consecutive mornings hasn't supplied new information that would move that call. Second instance of the shape, not the same instance: mechanical stalls need an executor; judgment stalls need a decision, and neither is fixed by another retelling.
+
 ## 2026-08-13 — Repeating a top recommendation doesn't clear it; unverified guesses compound if restated
 
 `activate-ask-tracing` (restart uzella-proxy) has been this brief's #1 item for 6+ consecutive mornings (overdue count climbing 5d→10d, due 08-03, still open 08-13). Zero risk, one command, no dependency — repetition alone hasn't moved it.
