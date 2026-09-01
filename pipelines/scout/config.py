@@ -64,7 +64,7 @@ class ScoutConfig:
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
             walk_model=os.environ.get("SCOUT_WALK_MODEL", "claude-haiku-4-5-20251001"),
             synthesis_model=os.environ.get("SCOUT_SYNTHESIS_MODEL", "claude-fable-5"),
-            synthesis_fallback=os.environ.get("SCOUT_SYNTHESIS_FALLBACK", "claude-opus-4-8"),
+            synthesis_fallback=os.environ.get("SCOUT_SYNTHESIS_FALLBACK", "claude-opus-5"),
             page_rows=int(os.environ.get("SCOUT_PAGE_ROWS", "150")),
             # 150 rows, not the 450 that walk_pages=3 x page_rows=150 gave.
             # Output is homeostatic at ~13 leads a pass no matter what goes in
