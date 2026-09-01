@@ -6,16 +6,10 @@
     --uz-loss:   #a3352a;
   }
 
-  /* Spacing is TOP-ONLY on purpose. Source's content container is display:grid,
-     where adjacent-sibling margins do not collapse — they add. The theme spaces
-     the article with `.gh-content > * + * { margin-bottom:0; margin-top:28px }`,
-     so any margin-bottom here is added to that 28px rather than absorbed by it.
-     Set 2026-08-15 after callouts rendered with ~55-63px beneath them. */
-
   /* Act opener — a hard rule, an eyebrow, a heading. The eyebrow is real
      information (which act this is), not decoration. */
   .uz-act {
-    margin: 3.2rem 0 0;
+    margin: 3.2rem 0 1.6rem;
     padding-top: 1.4rem;
     border-top: 2px solid currentColor;
   }
@@ -37,7 +31,7 @@
   /* Single-figure callout. The number is repeated in the caption prose, so a
      stripped view still carries it. */
   .uz-stat {
-    margin: 2rem 0 0;
+    margin: 2rem 0;
     padding: 1.3rem 1.4rem;
     border: 1px solid var(--uz-rule);
     border-left: 3px solid var(--uz-loss);
@@ -60,7 +54,7 @@
 
   /* What-to-build box. The label is text, not an icon — it survives stripping. */
   .uz-takeaway {
-    margin: 2rem 0 0;
+    margin: 2rem 0;
     padding: 1.2rem 1.4rem;
     border: 1px solid var(--uz-rule);
     background: var(--uz-sunk);
@@ -80,7 +74,7 @@
   /* Pull-quote. Rules above and below rather than a giant glyph, so it stays
      a paragraph when the styling goes. */
   .uz-pull {
-    margin: 2.2rem 0 0;
+    margin: 2.2rem 0;
     padding: 1.4rem 0;
     border-top: 1px solid var(--uz-rule);
     border-bottom: 1px solid var(--uz-rule);
@@ -91,7 +85,7 @@
   /* Figures. SVG is fine on web but does not survive RSS/reader mode — ship
      diagrams as PNG (see pipelines/blog_pipeline/mermaid_sweep.py, which
      already uploads and swaps cards) and keep the caption load-bearing. */
-  .uz-fig { margin: 2.2rem 0 0; }
+  .uz-fig { margin: 2.2rem 0; }
   .uz-fig img, .uz-fig svg { display: block; width: 100%; height: auto; }
   .uz-fig figcaption {
     margin-top: .6rem;
