@@ -142,6 +142,10 @@ def run_draft(config: WriterConfig, lead_id: str, dry_run: bool = False) -> dict
                     "lead": lead,           # the assignment, for the Editor's desk
                     "sources_cited": sources_cited,  # stays behind at approval time
                     "roam": call.tool_calls,
+                    # The desk's reasoning, when the seat asked for it. Sits
+                    # beside the roam trace: roam says where it looked,
+                    # reasoning says what it concluded. Never crosses over.
+                    **({"reasoning": call.reasoning} if call.reasoning else {}),
                     "note": note,           # what crosses over after scrub + approval
                 },
                 indent=2,
