@@ -61,6 +61,13 @@ def test_finding_carries_exact_span():
     # A systemd template unit is not an email address.
     "notify-telegram@sysadmin-daily.service fired",
     "notify-telegram@agent-platform-health.service.service",
+    # Nor is a calendar UID. `\b` used to sit between `i` and `-` and report
+    # these as `...@director.ai`, matching a PREFIX of the token -- which made
+    # every ops-calendar UID in prose or code a false finding.
+    "calendar-mark --uid some-event@director.ai-agent-platform",
+    "UID:predictor-score-all-set-based@ai-agent-platform",
+    "github-ssh-key-refresh-20260704@director.ai-agent-platform was cancelled",
+    "todo-view.predictor-sept1-hold-net-cost@ops.ai-agent-platform",
     # The published contact address is published on purpose.
     "reach me at contact@uzelhub.com",
     # Loopback, bind-all, and private ranges are in every config on the box.
