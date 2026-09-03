@@ -334,6 +334,57 @@ settling the synthesis model *with data* — one ambient pass each on Sonnet and
 Fable, side-by-side readout, the Editor judging. That A/B was due 2026-07-26 and
 has never been flipped. **We planned the better method and executed it worse.**
 
+### Not two pathways — three. And we built the one nobody else has.
+
+Added 2026-09-03, after the operator read the survey as *"all three are handling
+discovery manually at the very least."* Directionally right, and the precise
+version is more useful: **the three systems differ on who SELECTS, but all three
+require a human to supply the SCOPE.** Separating those two verbs turns the
+estate's two pathways into three.
+
+| | Who sets the boundary | Who generates candidates | Who selects |
+|---|---|---|---|
+| **Bouchard** | human — picks the topic outright | (no candidate stage) | human |
+| **HLER** | human — domain constraints at entry ("labor economics", "rural women in China") | machine — the Questioning stage | **human** — gate ① equivalent |
+| **Denario** | human — supplies the input text / dataset | machine — `idea_maker` | **machine** — `idea_maker` selects the best after two critique rounds |
+| **The Scout** | **nobody** — walks the whole box unprompted | machine | human (Editor, gate ①) |
+
+Read down the first column: **not one surveyed system has an ambient mode.**
+Every one of them starts from a human-supplied boundary. The Scout is alone in
+having no entry scope at all — it walks the box on a 05:45 timer and surfaces
+things nobody asked about.
+
+So the estate's map is:
+
+1. **Manual** — operator picks the subject; the machine writes. This ADR.
+   *Most prior art in the survey (Bouchard, in production).*
+2. **Scoped / commissioned** — operator sets a boundary, the machine generates
+   within it, the operator selects. Parked in NEWSROOM.md §Open choices as "pull
+   as well as push". **This is HLER's exact shape**, including the human sitting
+   at the selection gate rather than the generation step.
+3. **Ambient** — nobody sets a boundary. The Scout. **No prior art found.**
+
+**The uncomfortable observation: we shipped pathway 3 first, parked pathway 2,
+and have not built pathway 1.** That is the reverse of the risk order. Pathway 3
+is the one with no external precedent to learn from, no de-risking done by
+anyone else, and — per `scout-mining-economics.md` — the measured behaviour that
+surprised us most. Pathways 1 and 2 both have working systems to compare against.
+
+This is not an argument to stop the Scout. Ambient prospecting is the estate's
+genuine bet, the thing the flywheel thesis rests on, and the absence of prior art
+is what makes it interesting rather than what makes it wrong. It *is* an argument
+that the two cheaper, better-precedented pathways should not keep waiting behind
+it, and that the Scout's unusual position deserves to be stated in NEWSROOM.md
+rather than assumed.
+
+One further note on Denario, because it is the one place a peer system removes a
+gate we keep: `idea_maker` selects the winning idea itself, so Denario has **no
+human gate at idea selection at all** — closest to a fully autonomous
+discovery-to-draft path, and the only surveyed system without a human between
+generation and work. It also has no ambient mode, so its autonomy is bounded by
+the human-supplied dataset. Autonomy at the selection step and autonomy at the
+scoping step are separable, and everyone in this survey took at most one of them.
+
 ### What was NOT verified
 
 Denario's full architecture came from the HTML rendering; the 272-page PDF
