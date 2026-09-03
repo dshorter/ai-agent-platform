@@ -342,16 +342,35 @@ version is more useful: **the three systems differ on who SELECTS, but all three
 require a human to supply the SCOPE.** Separating those two verbs turns the
 estate's two pathways into three.
 
-| | Who sets the boundary | Who generates candidates | Who selects |
-|---|---|---|---|
-| **Bouchard** | human — picks the topic outright | (no candidate stage) | human |
-| **HLER** | human — domain constraints at entry ("labor economics", "rural women in China") | machine — the Questioning stage | **human** — gate ① equivalent |
-| **Denario** | human — supplies the input text / dataset | machine — `idea_maker` | **machine** — `idea_maker` selects the best after two critique rounds |
-| **The Scout** | **nobody** — walks the whole box unprompted | machine | human (Editor, gate ①) |
+**First, the distinction that "human supplies the scope" hides.** Saying all
+three take human scope is true and useless, because *scope* covers two very
+different granularities. The question that separates them is: **after the human
+stops talking, is there anything left to find?**
 
-Read down the first column: **not one surveyed system has an ambient mode.**
-Every one of them starts from a human-supplied boundary. The Scout is alone in
-having no entry scope at all — it walks the box on a 05:45 timer and surfaces
+| | What the human supplies | Left to find? | Who generates candidates | Who selects |
+|---|---|---|---|---|
+| **Bouchard** | **the topic itself** — the actual subject of the article | **no** | (no candidate stage) | human, by having already decided |
+| **HLER** | a domain **plus a dataset** — "labor economics", "rural women in China", CHNS | **yes** — the specific hypothesis | machine — the Questioning stage | **human** — gate ① equivalent |
+| **Denario** | input text / dataset | **yes** — the idea | machine — `idea_maker` | **machine** — `idea_maker` picks after two critique rounds |
+| **The Scout** | **nothing** | **yes** — everything, including where to look | machine | human (Editor, gate ①) |
+
+The evidence for that middle column is structural rather than interpretive.
+**HLER has a human gate for selecting among generated candidates — a gate that
+can only exist if the machine produced candidates the human did not supply.**
+Bouchard has no such gate because there is nothing to choose between. The same
+point falls out of HLER's headline number: dataset-aware generation cutting
+infeasible questions from 59% to 13% is only a meaningful measurement if the
+machine is proposing questions nobody specified.
+
+Worth being exact about HLER, because "topic plus data" nearly captures it and
+misses the direction: the dataset is not an *addition* to a topic, it is what
+the topic gets *derived from*. The pipeline runs data audit → profiling →
+questioning, so hypotheses are generated out of what the data can actually
+support. The human bounds the field; the data proposes the question.
+
+Read down the "what the human supplies" column: **not one surveyed system has an
+ambient mode.** Every one starts from a human-drawn boundary. The Scout is alone
+in supplying nothing at all — it walks the box on a 05:45 timer and surfaces
 things nobody asked about.
 
 So the estate's map is:
@@ -363,6 +382,15 @@ So the estate's map is:
    as well as push". **This is HLER's exact shape**, including the human sitting
    at the selection gate rather than the generation step.
 3. **Ambient** — nobody sets a boundary. The Scout. **No prior art found.**
+
+**The crisp test between 1 and 2, in our own terms: does the Scout run at all?**
+Pathway 1 never invokes it — the operator supplies the subject, the Writer
+drafts, and `load_pitched` is never called (which is why the pineapple rule is
+structurally out of reach on that path, per §Pineapple above). Pathway 2 does
+invoke it, scoped, and therefore needs a topical filter that **does not exist**:
+`--synthesize` selects jewels by `--since`/`--until`/`--kind`/`--of-run`/
+`--limit` — by *when*, *what kind*, *which run* and *how many*, never by *what
+about*. Two genuinely different builds, not two settings of one build.
 
 **The uncomfortable observation: we shipped pathway 3 first, parked pathway 2,
 and have not built pathway 1.** That is the reverse of the risk order. Pathway 3
