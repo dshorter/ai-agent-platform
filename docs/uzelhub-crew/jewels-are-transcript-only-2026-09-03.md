@@ -98,11 +98,27 @@ better than that:
 |---|---|
 | Turns ingested (`scout_session_log`) | **14,852** (2026-01-21 → 2026-09-02) |
 | Jewels persisted (`scout_jewel`) | **58**, from a single date (2026-07-12) |
-| Forward cursor | seq 418,876 of max 567,889 |
+| Walks that produced them | **2** |
+| Ore those walks covered | **seq 3–144 — 142 turns** |
+| Share of the corpus ever mined into the layer | **0.96%** |
+| Distinct `source_type` values present | **1** |
 
-The jewel layer was never filled. `004` landed 2026-08-22 and `SCOUT_PAUSED=1`
-has been set since 2026-08-19, so the full re-mine the retool made affordable
-(~95 pages, ~$1) has never been run.
+**Read that ratio correctly — 58 against 14,852 is a coverage number, not a
+yield number.** Only 142 turns have ever been mined into this layer, across two
+walks: roughly one 150-row page. Against the measured historical rate (~1,645
+jewels across 35 passes, ≈47 per pass) 58 jewels from about one page is normal,
+if anything slightly rich. The layer is not sparse because jewels are rare; it
+is sparse because **99% of the corpus has never been walked into it.** `004`
+landed 2026-08-22 and `SCOUT_PAUSED=1` has been set since 2026-08-19, so the
+full re-mine the retool made affordable (~95 pages, ~$1) has never been run.
+
+**And the single `source_type` value proves nothing about the other five.** All
+58 rows are transcript-anchored — necessarily, because until 1.4.0 the table
+could not store anything else. The absence of git, doc, ledger, calendar,
+survey and `agent_decisions` jewels is a **selection effect, not a measurement**:
+an instrument that can only record one value tells you nothing when it records
+that value. Whether those sources are rich or barren is still an open empirical
+question, and it stays open until a reader exists to ask it.
 
 **So this was caught in the cheap window.** There is almost nothing to migrate
 and no legacy of transcript-only jewels to live with. Had the finding arrived
