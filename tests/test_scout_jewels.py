@@ -38,10 +38,25 @@ ROWS = [
 class FakeCursor:
     def __init__(self) -> None:
         self.calls: list[tuple] = []
+        self.sql: str = ""
         self.rowcount = 1
 
     def execute(self, sql, params):
+        self.sql = sql
         self.calls.append(params)
+
+    def field(self, call_index: int, column: str):
+        """The value written to a NAMED column.
+
+        Positional assertions on these params were fragile, and it bit on
+        2026-09-03: adding `source_ref` as the second column shifted everything
+        after it, so one test failed loudly and the rest kept passing while
+        checking a different value than their name claimed. Read by column name
+        off the statement itself instead — then a column added anywhere is
+        invisible to every test that does not care about it."""
+        cols = [c.strip() for c in
+                self.sql.split("(", 1)[1].split(")", 1)[0].split(",")]
+        return self.calls[call_index][cols.index(column)]
 
     def __enter__(self):
         return self
@@ -89,7 +104,7 @@ def test_offpage_and_malformed_seqs_are_dropped_not_raised():
         walk_model="claude-haiku-4-5-20251001",
     )
     assert written == 2
-    assert [c[0] for c in conn.cur.calls] == [100, 102]
+    assert [conn.cur.field(i, "seq") for i in (0, 1)] == [100, 102]
 
 
 def test_session_date_comes_from_the_page_not_the_model():
@@ -102,7 +117,24 @@ def test_session_date_comes_from_the_page_not_the_model():
         walk_model="m",
     )
     # The ore row is the authority on when a turn happened.
-    assert conn.cur.calls[0][3] == "2026-06-02"
+    assert conn.cur.field(0, "session_date") == "2026-06-02"
+
+
+def test_transcript_jewels_anchor_on_seq_and_leave_source_ref_null():
+    """The jewel_anchor_matches_type CHECK rejects a transcript row that
+    carries a source_ref, so the write path has to get this right before the
+    database sees it — a violation here would abort a whole page."""
+    conn = FakeConn()
+    persist(
+        conn,
+        [{"seq": 100, "kind": "aha", "note": "n"}],
+        ROWS,
+        run_id="11111111-1111-1111-1111-111111111111",
+        walk_model="m",
+    )
+    assert conn.cur.field(0, "source_type") == "transcript"
+    assert conn.cur.field(0, "source_ref") is None
+    assert conn.cur.field(0, "seq") == 100
 
 
 def test_empty_input_touches_nothing():
