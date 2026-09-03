@@ -263,6 +263,57 @@ untouched and still unmeasured, so the burden is **inverted rather than
 abandoned** — default cheap, and spend 5× on Fable per run where it is shown to
 pay.
 
+### 6b. Two variables are moving at once — isolate them or lose the experiment
+
+The operator's hypothesis (2026-09-03): *"the lead list is gonna look better just
+by having a balance of sources now that we have fixed the jewel situation"* —
+i.e. the source mix, independent of the model.
+
+It is plausible on two mechanisms, both concrete:
+
+- **Register.** Session logs record problems *while they are being fought*, which
+  is why leads read thin and problem-shaped. Commit messages record what was
+  decided and why, *after* — 1,527 commits averaging 106 words in
+  `ai-agent-platform`. That register is entirely absent from the jewel layer
+  today.
+- **`agent_decisions` becomes first-class.** The story-worthiness heuristic ranks
+  a lead by how many agents its sequence spans, but `agent_decisions` is a
+  free-roam source that cannot currently produce a jewel. Once it can, the
+  cross-agent seams the whole "stories live at the seams" thesis rests on become
+  *mineable material* rather than a SQL hint applied after the fact.
+
+And `scout-mining-economics.md` predicts the *shape* of the effect: output is
+homeostatic at ~13 leads per pass regardless of input, so **expect differently
+sourced leads, not more of them** — which is exactly the balance being asked for,
+not a shortfall.
+
+**The methodological problem.** Synthesis just moved Fable → Sonnet (§6), and the
+source mix is about to change. If both move together, a better lead list is
+uninterpretable: the source mix may have done the work while Sonnet coasted, or
+Sonnet may have cost us depth that the richer sources masked. That destroys the
+A/B `NEWSROOM.md` has been waiting on since 2026-07-26 rather than finally
+settling it.
+
+**The fix is free, because the retool already unwelded walk from leap.** Both
+arms can leap over jewels *already on disk*, mining nothing:
+
+> **Add `--source-type` to `--synthesize`**, mirroring the existing repeatable
+> `--kind`. `jewels.select()` already filters on `since`/`until`/`kinds`/
+> `run_id`/`limit`; `source_type` is a column as of 1.4.0, so this is one
+> parameter and one `WHERE` clause.
+
+That turns both questions into controlled comparisons over identical ore:
+
+| Question | Arm A | Arm B | Held constant |
+|---|---|---|---|
+| Does the source mix help? | `--source-type transcript` | all sources | model, period, jewels on disk |
+| Is Fable worth 5×? | `SCOUT_SYNTHESIS_MODEL=claude-sonnet-5` | `=claude-fable-5` | source mix, period, jewels on disk |
+
+Run them in that order — source mix first, since it is the larger expected
+effect and the operator's actual hypothesis — and each result means something on
+its own. `NEWSROOM.md`'s rule still governs the reading: *the Editor judges, not
+the contestant.*
+
 **Recommendation: do not settle the QUALITY half on price. Settle it with these
 runs.**
 `NEWSROOM.md` already specifies the experiment and it has never been run — one
