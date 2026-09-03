@@ -297,6 +297,43 @@ most of the craft. We keep thin moves and rich samples.
   rounds, three editor passes, three title rounds. The estate's equivalent
   discipline is bounded pages per walk and an explicit row budget.
 
+### All three are LLM systems on deterministic skeletons
+
+None is a deterministic pipeline, and none lets a model decide its own topology.
+The division is consistent across all three, and it is the same division this
+estate already makes.
+
+| | HLER | Denario | Bouchard |
+|---|---|---|---|
+| Real system? | working prototype, 14 runs on real datasets | released: GitHub + `pip install denario` | production, ships articles |
+| Models | Claude Sonnet 4.6 for **every** stage | multi-provider; picks "based on trial and error rather than systematic evaluation" | not stated |
+| Orchestration | custom Python, `BaseAgent` interface | AG2 + LangGraph | LangGraph + SQLite checkpointing |
+| Hard-coded | 8-stage fixed sequence; schema objects (`ResearchQuestion`, `DataProfile`, `AnalysisResult`); stats delegated to statsmodels/linearmodels; method set limited to four named specifications | iteration counts (3 idea rounds, `n_reviews`=1, `n_steps` 3–8), `n_rounds`=500 message cap, figure batches of 7, failure threshold | three research rounds, three editor passes, three title rounds |
+| Left to the model | hypothesis generation, manuscript text, review scoring, revision triggers | planning, control transitions | drafting, review, titles |
+
+**The one number worth stealing.** HLER constrains ideation with programmatic
+audit results *before* the generative call — dataset-aware generation, so the
+model cannot propose questions the data cannot answer. Measured effect:
+**infeasible questions fell from 59% to 13%.**
+
+That is the same *technique* as pineapple enforcement by omission — constrain
+what reaches the model rather than instruct the model — and it is the only
+quantified evidence in this survey that the technique works. Ours is an
+argument; theirs is an effect size. Worth citing whenever the estate's
+"enforce in code, not prose" preference needs defending.
+
+**Where the estate is ahead, and where it is behind.** HLER runs a single model
+for all eight stages with no differentiation; the Scout deliberately tiers a
+cheap walk against a premium leap, with a written rationale that false negatives
+are invisible and therefore set the ceiling on what stories can exist. That is a
+more considered position than the prior art holds.
+
+But Denario picking models "by trial and error rather than systematic
+evaluation" should not be read smugly: NEWSROOM.md §Model tiers commits to
+settling the synthesis model *with data* — one ambient pass each on Sonnet and
+Fable, side-by-side readout, the Editor judging. That A/B was due 2026-07-26 and
+has never been flipped. **We planned the better method and executed it worse.**
+
 ### What was NOT verified
 
 Denario's full architecture came from the HTML rendering; the 272-page PDF
