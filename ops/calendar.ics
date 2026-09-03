@@ -1532,4 +1532,46 @@ DESCRIPTION:Two parts\, one question: are the Writer's caps quietly costin
  acing the lead-to-Writer handoff (the lead supplies citations\; the Write
  r follows them via convergent roam — it is not confined to the lead).
 END:VTODO
+BEGIN:VTODO
+UID:jewel-source-readers@operator.ai-agent-platform
+DTSTAMP:20260903T191153Z
+DUE;VALUE=DATE:20260910
+STATUS:NEEDS-ACTION
+SUMMARY:Open the other five Scout sources for mining\, then run the full c
+ orpus mine once
+DESCRIPTION:Schema 1.4.0 (005_jewel_source.sql\, applied 2026-09-03) now p
+ ermits a jewel anchored to git\, a doc\, the ledger\, the calendar\, the 
+ survey or agent_decisions. The PIPELINE cannot yet produce one — the sche
+ ma is deliberately ahead of the code. Full finding: docs/uzelhub-crew/jew
+ els-are-transcript-only-2026-09-03.md.\n\nPER SOURCE\, four things to def
+ ine: the mineable unit\, the source_ref that addresses it\, the date it c
+ arries\, and the bounded candidate set the walker is held to.\n  git     
+         — a commit          — sha                  — commit date\n  doc  
+            — a section         — path#Lstart-Lend     — mtime or the doc'
+ s dated status line\n  ledger          — a dated entry     — path#anchor 
+          — the entry's date\n  calendar        — a VTODO/VEVENT    — UID 
+                  — DUE / DTSTART\n  survey          — a node            —
+  node id              — walk date\n  agent_decisions — a sequence        
+ — workflow_sequence_id — MAX(decision_timestamp)\n\nTHREE CONSTRAINTS THA
+ T MUST SURVIVE:\n1. The allowlist. A git sha has no table to reference\, 
+ so non-transcript rows get NO foreign key — the DB-level anti-hallucinati
+ on guarantee covers transcripts only now. Each reader must hand the walke
+ r a bounded candidate set and validate source_ref against it\, exactly as
+  the seq allowlist does. Without that\, this schema is a downgrade\, not 
+ an upgrade.\n2. No new cursors. Coverage stays linear ONLY for the sessio
+ n logs. NEWSROOM is explicit that one cursor across all sources is 'both 
+ clumsy and aperture-closing' — the other five stay free-roam and temporal
+ ly bidirectional.\n3. Mine once\, AFTERWARDS. scout_jewel holds 58 rows a
+ gainst 14\,852 ingested turns\; the ~95-page\, ~$1 full mine has never be
+ en run. Run it after the readers land so the layer fills from everything\
+ , rather than filling from transcripts alone and needing a redo.\n\nWHY T
+ HIS MATTERS BEYOND TIDINESS: 004 called scout_jewel a published interface
+  whose consumers are 'a directed hunt on a named topic\, a monthly arc di
+ gest'. A directed hunt is the commissioned-prospecting pathway (ADR-001 §
+ Prior art\, pathway 2). Against a transcript-only jewel layer it would be
+  blind to five of six sources while believing it had searched the box.\n\
+ nRaised 2026-09-03 by the operator asking whether the Scout was accidenta
+ lly weighted toward session logs. It was — not in the prompt\, in the DDL
+ .
+END:VTODO
 END:VCALENDAR
