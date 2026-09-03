@@ -1,9 +1,67 @@
 # ADR-001: Manual Writer Assignments Bypass the Leads Ledger
 
-**Status:** Proposed
+**Status:** **Deferred — not built** (2026-09-03). Proposed and argued the same
+day; the operator declined the build, correctly. See §Why this was deferred.
 **Date:** 2026-09-03
 **Deciders:** dshorter, Claude (Fable 5)
 **Supersedes:** nothing. First ADR in this repo — see §Conventions at the foot.
+
+## Why this was deferred
+
+The operator's counter, which lands: *"instead of spending time making a
+parallel command line path… start a new session, paste the prompt from the
+writer along with the lead, and just do it right there… that keeps us from
+complicating the system that is ultimately meant to just run with two human
+checkpoints."*
+
+Two goals were hiding inside "walk a lead through the process," and separating
+them removes the need for this build entirely:
+
+**Goal A — verify the desk and the bottle actually work.** This has needed no
+code since before the ADR was written. `run.py:78` gates the claim requirement
+on `not dry_run`:
+
+```python
+if not dry_run and lead.get("status") not in ("claimed", "drafted"):
+```
+
+So `python -m pipelines.writer --lead <any-id> --dry-run` rehearses **any lead
+at any status** through the real bottle, the real roam and the real model,
+persisting nothing and moving no lifecycle. That is precisely the exercise
+`writer-ondemand-cli@operator` was filed for on 2026-08-08, and it was available
+the whole time. A pasted session would *not* have served this goal — it tests
+whether the session model can write in the voice, not whether the desk can.
+
+**Goal B — produce a piece on a subject the operator chose.** The session
+approach wins on cost and on architecture. It adds no third pathway to a system
+whose virtue is two checkpoints, and the roam is genuinely *better* ad hoc,
+since a session has the whole box rather than the desk's bounded tool calls.
+
+**What the session path gives up, recorded so it is chosen rather than
+discovered:**
+
+1. **The exemplars.** Pasting "the Writer's prompt" does not carry the voice.
+   `bottle.py` assembles samples at runtime and renders each as
+   `EXEMPLAR n (filename) — study how it moves:`. Prompt-without-samples is the
+   deadened version — the exact failure the bottle doctrine exists to prevent.
+   A faithful paste needs the persona **and every sample file**.
+2. **The in-path scrub.** `run.py` scrubs before the note crosses over. A
+   session has none, and Scout leads are mostly session-log-derived — the
+   material NEWSROOM calls an absolute guardrail. Not unprotected: the commit
+   gate still fires and gate ② is still the operator's. But the in-path control
+   degrades to careful reading, which is the "hand-typed greps… They were clean.
+   That is not a control" situation `redaction_gate.py` was built to end.
+
+**When to revisit.** This ADR's decision stands as the right answer *if manual
+drafting becomes routine* — that is when banking, provenance and repeatability
+start paying for themselves. It is not routine today. Build it when someone is
+pasting for the third or fourth time, not before.
+
+**The small thing that would help instead:** a flag that prints exactly what the
+desk would send — persona plus assembled exemplars — so a paste is faithful
+rather than approximate. It reads the bottle and dumps; it adds no execution
+path and no state, and it serves the session route directly. Not built either;
+noted as the cheap option if pasting recurs.
 
 ## Context
 
