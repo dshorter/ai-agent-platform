@@ -35,24 +35,64 @@ def _clean_kind(raw: object) -> str:
     return kind[:_KIND_MAX]
 
 
+def candidate_index(rows: list[dict], source_type: str) -> dict:
+    """The allowlist: every anchor the walker was actually shown, → its date.
+
+    Transcript pages key on `seq`; every other source keys on `ref`. Both come
+    from the candidate set the reader handed the model, which is the whole point
+    — see `resolve_anchor`."""
+    if source_type == "transcript":
+        return {int(r["seq"]): r["date"] for r in rows}
+    return {str(r["ref"]): r["date"] for r in rows}
+
+
+def resolve_anchor(jewel: dict, source_type: str, index: dict):
+    """(anchor, date) if this jewel cites something it was shown, else None.
+
+    **This function is the anti-hallucination control for non-transcript
+    sources.** Transcript jewels have a second line of defence — `seq` is a
+    foreign key, so a fabricated one would be rejected by Postgres even if this
+    check were removed. A git sha or a file path has no table to reference, so
+    for those sources this is the ONLY thing standing between a model's
+    invention and a persisted row. Schema 1.4.0 gave up the FK for five of six
+    sources deliberately; this is what it was traded for.
+    """
+    if source_type == "transcript":
+        try:
+            anchor = int(jewel.get("seq"))
+        except (TypeError, ValueError):
+            return None
+    else:
+        anchor = str(jewel.get("ref", "")).strip()
+        if not anchor:
+            return None
+    if anchor not in index:
+        return None
+    return anchor, index[anchor]
+
+
 def persist(
     conn,
     jewels: list[dict],
     rows: list[dict],
     run_id,
     walk_model: str,
+    source_type: str = "transcript",
 ) -> int:
     """Write one page's jewels. Returns the number of rows actually inserted.
 
-    `rows` is the page the jewels came from — it supplies both the seq
-    allowlist and the session_date, so a hallucinated seq is dropped here
+    `rows` is the candidate set the jewels came from — it supplies both the
+    anchor allowlist and the date, so a hallucinated citation is dropped here
     rather than raising a foreign-key error that would abort the whole pass.
     The walk's other persistence verb (apply_scratchpad) guards the same way
     for the same reason.
 
-    `source_type` is written explicitly rather than left to the column DEFAULT:
-    this function mines transcripts, and a reader for another source will pass
-    its own type, so the value belongs at the call site where it is true.
+    `source_type` defaults to `transcript` so existing callers are unchanged.
+    A reader for another source passes its own type and puts `ref` on each
+    candidate row instead of `seq`; the anchor then lands in `source_ref` and
+    `seq` stays NULL, which is what the `jewel_anchor_matches_type` CHECK
+    requires. The value is written explicitly rather than left to the column
+    DEFAULT, because it belongs at the call site where it is true.
 
     The ON CONFLICT target is deliberately bare. Schema 1.4.0 replaced
     UNIQUE (seq, kind, note) with a unique index over
@@ -68,28 +108,36 @@ def persist(
     """
     if not jewels:
         return 0
-    date_of = {r["seq"]: r["date"] for r in rows}
+    index = candidate_index(rows, source_type)
+    is_transcript = source_type == "transcript"
     inserted = 0
     skipped = 0
     with conn.cursor() as cur:
         for jewel in jewels:
-            try:
-                seq = int(jewel.get("seq"))
-            except (TypeError, ValueError):
-                skipped += 1
-                continue
             note = str(jewel.get("note", "")).strip()
-            if not note or seq not in date_of:
+            resolved = resolve_anchor(jewel, source_type, index)
+            if not note or resolved is None:
                 skipped += 1
                 continue
+            anchor, when = resolved
             cur.execute(
                 """
                 INSERT INTO scout_jewel
-                    (seq, kind, note, session_date, run_id, walk_model, source_type)
-                VALUES (%s, %s, %s, %s, %s, %s, 'transcript')
+                    (seq, source_ref, kind, note, session_date, run_id,
+                     walk_model, source_type)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT DO NOTHING
                 """,
-                (seq, _clean_kind(jewel.get("kind")), note, date_of[seq], run_id, walk_model),
+                (
+                    anchor if is_transcript else None,
+                    None if is_transcript else anchor,
+                    _clean_kind(jewel.get("kind")),
+                    note,
+                    when,
+                    run_id,
+                    walk_model,
+                    source_type,
+                ),
             )
             inserted += cur.rowcount or 0
     conn.commit()
