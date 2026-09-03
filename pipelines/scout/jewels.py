@@ -50,7 +50,19 @@ def persist(
     The walk's other persistence verb (apply_scratchpad) guards the same way
     for the same reason.
 
-    Idempotent by UNIQUE (seq, kind, note): re-walking ore that yields an
+    `source_type` is written explicitly rather than left to the column DEFAULT:
+    this function mines transcripts, and a reader for another source will pass
+    its own type, so the value belongs at the call site where it is true.
+
+    The ON CONFLICT target is deliberately bare. Schema 1.4.0 replaced
+    UNIQUE (seq, kind, note) with a unique index over
+    (source_type, COALESCE(seq::text, source_ref), kind, note), because a
+    nullable seq under the old constraint would have made every non-transcript
+    jewel trivially unique. Naming that expression as an inference target here
+    would couple this INSERT to the index's exact expression text; the bare form
+    resolves against whatever unique constraint the row actually violates.
+
+    Idempotent by that index: re-walking ore that yields an
     identical finding writes nothing, while a differently-worded finding from
     a later run lands as a new row. Re-mining is meant to accumulate.
     """
@@ -73,9 +85,9 @@ def persist(
             cur.execute(
                 """
                 INSERT INTO scout_jewel
-                    (seq, kind, note, session_date, run_id, walk_model)
-                VALUES (%s, %s, %s, %s, %s, %s)
-                ON CONFLICT (seq, kind, note) DO NOTHING
+                    (seq, kind, note, session_date, run_id, walk_model, source_type)
+                VALUES (%s, %s, %s, %s, %s, %s, 'transcript')
+                ON CONFLICT DO NOTHING
                 """,
                 (seq, _clean_kind(jewel.get("kind")), note, date_of[seq], run_id, walk_model),
             )
