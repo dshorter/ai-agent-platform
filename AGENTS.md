@@ -31,6 +31,7 @@ as a description, not a rule, and never read its silence as permission. An
 | `agent_decisions` (Postgres) | The crew's decision trace. **One row per invocation.** Its vocabulary is curated behind a foreign key (`decision_types`, which carries its own descriptions and cardinality) — adding a type is a decision, not a detail. | vocabulary `spec` (enforced in schema); one-row-per-invocation `observed` | `ops/desk/agent-roster.html` (a survey of what runs — **not** an authority on what belongs in the table), and the OPEN question below |
 | `hvac-postgres` cluster | Two databases (`ai_agent_platform`, `hvac_demo`) in one container. Backups are `pg_dumpall` only — **no per-table or per-database restore point.** Rolling back to undo a small mistake destroys everything written since. | `spec` | `/opt/_host/README.md` §Databases, §Backups |
 | `ops/calendar.ics` | The to-do/calendar SSOT. Agents write **only** through `calendar-add` / `calendar-mark`; freehand edits are operator-only. Namespaces are the security model. | `spec` | `ops/CALENDAR.md` |
+| `scout_jewel` (Postgres) | The Scout's mining output, and **a published interface** — later readers query it instead of re-reading transcripts. Carries **no disposition column** by design (the pineapple rule, structural not disciplinary). Since 1.4.0 a jewel may anchor to a non-transcript source; **`source_ref` is publishable text** that reaches a note via the lead's `sources` field, so a gated path name leaks there even when content was scrubbed. | `spec` (both the ban and the provenance model are in the DDL) | `database/ai_agent_platform/004_scout_jewel.sql` and `005_jewel_source.sql`, then `docs/uzelhub-crew/jewels-are-transcript-only-2026-09-03.md` |
 | Redaction gate | Blocks secrets reaching this public repo. `allow.txt` keys are value-level with **no path scoping**, so a dismissal silences that string everywhere, permanently. Dismissals are the operator's call, not an agent's. | key format `spec`; the global-silencing consequence `observed` | `/opt/_host/redaction-gate/README.md` |
 | This repo | **Public. A push is a publish.** Transcript-derived material stays in gitignored state, never the tracked tree. `ops/desk/` is gitignored (assembled/served). | `observed` — repo visibility is recorded in no document; verify with an anonymous fetch, per repo | — |
 | Apex docroot | `/opt/uzelhub-web` working tree **is** the live site. A file dropped in is published instantly, before any commit. | `observed` | `/opt/_host/README.md` §Public entrypoints (adjacent — describes the route, not the publish-on-save behaviour) |
@@ -48,7 +49,9 @@ as a description, not a rule, and never read its silence as permission. An
 | Director's own memory across runs | `docs/director/director-ledger.md` |
 | Predictor: charter, domains, pipeline, deployment | `/opt/predictor_ingest/AGENTS.md` |
 | Predictor cost governance and the film decisions | `/opt/predictor_ingest/docs/architecture/adr-011-*.md` |
-| How silent failures happen here, with worked examples | `docs/uzelhub-crew/silent-instruments-2026-08-29.md` |
+| **This repo's own architecture decisions** | `docs/architecture/adr-NNN-*.md`. ADR-001 manual Writer assignments (**Deferred**, with the reasoning for not building it, plus a survey of three external systems). ADR-002 the coverage ledger, the recovery runs, and the synthesis model swap. |
+| How silent failures happen here, with worked examples | `docs/uzelhub-crew/silent-instruments-2026-08-29.md`, and `docs/uzelhub-crew/jewels-are-transcript-only-2026-09-03.md` — a constraint that answered a question it was never asked |
+| Why a design decision was made, when the artifact alone won't say | The dated reasoning-arc docs: `asking-one-level-up-2026-08-29.md`, `loose-words-hide-decisions-2026-09-03.md`. Findings live in their own docs; these carry how the thinking moved. |
 
 ## Neighbours
 
@@ -79,6 +82,25 @@ casts a vote without anyone noticing. These are open:
   layer instead. (That argument is reasoning from 2026-08-31, not a decision.)
 - **Should the visitor-facing agents be in the trace?** `agent-roster.html`
   records the finding and the fix ("what's missing is an INSERT and a grant").
+- **Opened 2026-09-03, all from ADR-002 — none of these is settled:**
+  - **What is a `source_ref` for gated material?** It must be opaque, because the
+    reference travels outward on a lead even when the content was scrubbed. The
+    redaction gate guards *tracked prose* and cannot see the Postgres path this
+    runs through. **Settle before the gated import**, not after — once written,
+    those refs are in every jewel mined from that material.
+  - **Does `scout_coverage` get a second writer?** The proposed coverage ledger
+    should be Scout-owned and Scout-written. That boundary wants stating when it
+    is built, not inferred later. Same shape as the `agent_decisions` question
+    below.
+  - **Is Fable worth 5× on synthesis?** The cost half is settled (187× the walk
+    per call, and rising); the quality half has never been measured, and the A/B
+    `NEWSROOM.md` specifies has been open since 2026-07-26. The default moved to
+    Sonnet 5 to invert the burden, **not** because the quality argument was
+    refuted.
+  - **Do a cursor and free roam conflict?** ADR-002 argues no — a cursor is a
+    return address, not a leash — and `NEWSROOM.md` §The Scout's sources still
+    says otherwise. **The two documents disagree today**; the amendment is owed.
+
 - ~~**Should redaction dismissals be path-scoped?**~~ **Settled 2026-09-01, and
   not by scoping them.** The blocked commits were never introducing the
   findings — the content was already in HEAD, so the gate was re-litigating
