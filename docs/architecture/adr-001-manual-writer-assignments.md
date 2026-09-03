@@ -182,6 +182,133 @@ newsletter register is a data row to add, not code, but it does not exist yet.
 **Reversible?** Yes, cheaply. Nothing is written to shared state, so abandoning
 this leaves no residue to migrate.
 
+## Prior Art
+
+Surveyed 2026-09-03 by fetching page content (not search snippets) for three
+systems in this shape. Two academic pipelines and one production content
+operation. What follows is what they actually do, and where it agrees or
+disagrees with the estate's own findings.
+
+### The manual path is the production answer, not a compromise
+
+Louis-François Bouchard's content pipeline — the only genuinely *shipping*
+content operation in the set — **has no automated discovery at all**: *"I still
+choose the topic. I still look at the current work that already exists. I still
+write the brain dump."* Topics come from papers, conversations and interest,
+never from algorithmic prospecting. Agents cover research, drafting, media and
+translation; the human keeps topic selection, direction, taste and final
+validation.
+
+That is a direct external match for what this ADR proposes, and it reframes the
+estate's design: **the Scout's ambient prospecting is the unusual, ambitious
+half — the manual desk is what production practice actually converges on.**
+Building the manual path is not a retreat from the automated one.
+
+### Two human gates, in the same two places, arrived at independently
+
+HLER (human-in-the-loop economic research) runs eight stages — data audit,
+profiling, questioning, collection, analysis, writing, self-critique, review —
+with **exactly two human gates**: selecting the research question among
+generated candidates, and approving the finished paper for publication. Those
+are structurally our gate ① (the Editor disposing the Wire Editor's shortlist)
+and gate ② (scrub and approve to publish). Independent convergence on gate
+*placement* is reasonable evidence the topology is right.
+
+### Nobody else guards the backward edge
+
+This is the finding worth having.
+
+- **HLER has backward flow and does not examine it.** *"If none of the
+  candidates are satisfactory, the researcher can request a new generation round
+  with modified constraints, making this a genuine iterative loop."* The paper
+  discusses multiple-testing and p-hacking risks but contains no analysis of
+  whether repeated human selection narrows the hypothesis space.
+- **Denario has a critique loop and does not examine it either.** Its
+  `idea_maker` generates *"based on input text and feedback from the
+  `idea_hater` agent"*; `idea_hater` reviews for feasibility, value and
+  relevance. No discussion of diversity, novelty loss or convergence appears.
+
+So the pineapple rule is **not** a solved problem we re-derived. It addresses a
+gap that peer systems in this exact shape leave open, which means there is no
+standard answer to copy and enforcement-by-omission stands on its own merits.
+
+### The distinction that keeps Denario from being a counterexample
+
+Denario's loop is **bounded and within-run**: three iterations in the fast
+implementation, and a structured `5 ideas → critique → improve 2 → critique →
+select` sequence in the planned one. Nothing accumulates across runs.
+
+The pineapple rule prohibits **across-run taste accumulation** — the Editor's
+verdicts biasing the *next* pass. A bounded within-run critic is a different
+mechanism and does not violate it.
+
+**This opens a design option the estate has not considered:** the Scout's
+synthesis stage could run an internal critic — generate wide, critique, revise,
+select — entirely within one pass, and stay pineapple-compatible so long as no
+critique survives the process boundary. Worth its own ADR if pursued; noted here
+so the option is on record rather than lost.
+
+Bouchard reaches the same instinct from the other end: his reviewer evaluates
+against the guideline *"using fresh context (avoiding inherited bias)."*
+Deliberately withholding context is an established technique, not local paranoia.
+
+### Where prior art conflicts with house doctrine — doctrine wins
+
+Two places, both worth recording so nobody "improves" the design toward them
+later without knowing they were considered.
+
+**1. Word budgets as a drafting input.** Bouchard's stage 2 is a human-written
+*"article guideline"* defining *"the sections, the hook, a word budget for each
+part, the key definitions, the transitions, the examples, and every place where
+the article needs a diagram"* — about an hour of work he rates as the
+highest-value human input in the pipeline. Richer than this ADR's assignment
+(register, pitch, why_now, sources), and superficially attractive given the
+840-character field-note cap.
+
+**Rejected on standing doctrine.** The operator's rule is that length caps are a
+gate checked once *after* drafting, never a per-clause input — measuring
+mid-stride makes the walk awkward. `release.js` enforces the cap by refusing to
+stamp an out-of-range note, which is exactly a post-hoc gate. Adopting per-section
+budgets would invert a decision already made from experience. The *non-length*
+parts of the guideline (key definitions, examples, where a diagram earns its
+place) carry no such conflict and are reasonable future assignment fields.
+
+**2. Decomposed voice profiles.** Bouchard runs **six** modular voice profiles —
+structure, mechanics, terminology, tonality, article format, character — against
+our one-profile-one-directory bottle.
+
+**Partly rejected, and his own text argues our side.** The same piece says
+few-shot examples beat rules: *"Two or three strong pieces that actually sound
+right teach rhythm and editorial judgment better than abstract rules."* That is
+the voice bottle's central claim in someone else's words — independent
+confirmation that samples carry the voice. Six *named rule categories* pulls the
+other way, and the estate has a specific finding about that direction:
+describing a move deadens it, because the model then aims at the description and
+satisfies it every time, and a description cannot express the absence that is
+most of the craft. We keep thin moves and rich samples.
+
+### Convergences worth noting in passing
+
+- **Plain files between stages.** Bouchard: *"Plain Markdown files connect
+  stages, allowing inspection and correction mid-pipeline without full
+  restarts."* Same doctrine as the estate's external, inspectable,
+  warm-bootable state — and the same shape as this ADR's assignment file.
+- **Fixed iteration counts** rather than loop-until-satisfied: three research
+  rounds, three editor passes, three title rounds. The estate's equivalent
+  discipline is bounded pages per walk and an explicit row budget.
+
+### What was NOT verified
+
+Denario's full architecture came from the HTML rendering; the 272-page PDF
+exceeded the fetch limit. No production newsroom-shaped system with *ambient*
+prospecting plus human gates was found — the closest matches either prospect
+without publishing (research pipelines) or publish without prospecting
+(Bouchard). If such a system exists it was not surfaced by this survey.
+
+**Sources:** [HLER](https://arxiv.org/html/2603.07444v1) ·
+[Denario](https://arxiv.org/html/2510.26887v1) ·
+[Bouchard's content pipeline](https://www.louisbouchard.ai/ai-agent-content-pipeline/)
+
 ## Related Documents
 
 - `docs/uzelhub-crew/NEWSROOM.md` (`read: full`) — §Writer and the voice bottle,
