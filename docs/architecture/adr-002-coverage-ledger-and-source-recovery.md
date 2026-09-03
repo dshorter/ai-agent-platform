@@ -12,10 +12,22 @@ Schema 1.4.0 made a jewel able to cite a non-transcript source. Nothing yet
 mines one. This ADR covers how the other five sources get walked, and how the
 first runs are conducted so we learn what they cost and what they drop.
 
-Two new bodies of ore arrive with it: **documentation imported from an employer-gated external
-testing platform**, and **additional session logs**. The session logs ride the
-existing ingest. The imported docs are a new source and carry a gate question
-(§Gated references).
+**This is a re-walk, not a new capability — the distinction matters.** Git, the
+docs, the ledger, the calendar, the survey and `agent_decisions` have been in the
+Scout's source catalog since v1 and have always been readable via free roam.
+Nothing is being added to what the Scout can *see*. What is being added is
+**retention**: until 1.4.0 it could read those sources and could not keep what it
+found there. So the exercise is recovering value from ground already walked,
+which is also why the yield may be better than a first pass over cold material —
+this is material the Scout has had reason to roam into.
+
+*(Framing corrected by the operator 2026-09-03: an earlier draft of this section
+called these "new bodies of ore", which conflated two different things.)*
+
+Genuinely new, by contrast: **documentation imported from an employer-gated
+external testing platform**, and **additional session logs**. The session logs
+ride the existing ingest. The imported docs are a new source and carry a gate
+question (§Gated references).
 
 ### The doctrine this appears to contradict, and why it does not
 
@@ -157,6 +169,37 @@ keep.
 
 Further, the ceiling that does exist is checked **between pages**, so a single
 expensive page overshoots it. It is a brake, not a fuse.
+
+**The operator's position (2026-09-03), on learning the walk tier is Haiku:**
+mining is cheap enough that the walk needs no usage cap at all. The arithmetic
+backs the premise — Haiku 4.5 is **$1/$5 per MTok**, a 150-row page measured at
+**~$0.0105**, and the whole 95-page transcript corpus at about **a dollar**. Cost
+is genuinely not the constraint, and I am not arguing it is.
+
+**I would still keep a ceiling, for a reason that is not about the expected
+cost.** Three arguments, in increasing order of how much they matter:
+
+1. **A ceiling set well above the expected spend constrains nothing.** At
+   ~$0.01 a page, a $10 ceiling is a thousand pages of headroom. It cannot
+   interfere with an experiment it is two orders of magnitude away from.
+2. **The unknowns here are on the input side, not the price side.** A commit can
+   carry an enormous diff; the imported corpus is an unmeasured quantity the
+   operator describes as "quite a bit of stuff"; and `SCOUT_WALK_MODEL` is an env
+   var. A walk left on an experimental model over an unmeasured corpus is the
+   scenario, and it costs 5–10× per token without anything looking wrong.
+3. **The ceiling is an instrument, not just a limit — and removing it removes a
+   signal.** If a walk expected to cost $0.15 trips a $10 ceiling, that is
+   information: the ore is bigger than believed, the loop is not terminating, or
+   the model is not the one intended. Without it the same three failures produce
+   a large bill and no notification. This estate has written that lesson down
+   twice, in `silent-instruments-2026-08-29.md` and in ADR-011's governance test,
+   which landed on **"calls a paid API unattended"** rather than "is an agent"
+   precisely because the category error left the biggest spender on the box
+   uncapped.
+
+So the disagreement is small in practice and worth being explicit about: **set it
+generously, do not remove it.** A ceiling's job here is to catch the case nobody
+predicted, and its cost when nothing goes wrong is zero.
 
 **Therefore, before Phase 1 runs: give `--walk` a cost ceiling.** Supervision is
 not a control — this estate's own lesson from the redaction gate is "they were
