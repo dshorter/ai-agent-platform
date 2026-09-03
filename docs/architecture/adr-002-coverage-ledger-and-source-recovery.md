@@ -239,7 +239,32 @@ Two things temper how much this decision matters here:
   but nothing filters *missing* ones — false negatives are invisible and
   uncounted. That argument survives a price change unchanged.
 
-**Recommendation: do not settle this on price. Settle it with these runs.**
+**MEASURED 2026-09-03, and the cost half is now settled — the operator's
+estimate was low.** From `agent_decisions`:
+
+| | calls | avg/call | total | max |
+|---|---|---|---|---|
+| `scout_synthesis` (Fable 5) | 39 | **$1.3274** | **$51.77** | $2.1367 |
+| `scout_walk` (Haiku 4.5) | 106 | $0.0071 | $0.75 | $0.0105 |
+
+**187× per call. 69× in total.** And rising: $0.448/call the week of 07-06 →
+$1.847 by 08-10, 4× in six weeks, because the dedup payload rides in the
+synthesis prompt and scales with the ledger. Synthesis gets dearer with every
+lead ever filed.
+
+This does not just favour the swap — it **falsifies the reasoning that put Fable
+there.** §Model tiers justified the spend as "pennies per pass" on two premises:
+*ambient (weekly-ish)*, which a scheduling change to daily on 2026-07-22 quietly
+overtook, and *low-token*, which $1.33 a call on a $10/$50 model plainly is not.
+`NEWSROOM.md` now carries a dated correction.
+
+**Done: `SCOUT_SYNTHESIS_MODEL` defaults to Sonnet 5.** The quality argument is
+untouched and still unmeasured, so the burden is **inverted rather than
+abandoned** — default cheap, and spend 5× on Fable per run where it is shown to
+pay.
+
+**Recommendation: do not settle the QUALITY half on price. Settle it with these
+runs.**
 `NEWSROOM.md` already specifies the experiment and it has never been run — one
 pass each through Sonnet and Fable over the same ore, lead lists read side by
 side, *"the Editor judges, not the contestant."* It was due 2026-07-26 and is 39

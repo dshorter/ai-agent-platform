@@ -63,7 +63,20 @@ class ScoutConfig:
             ),
             anthropic_api_key=os.environ.get("ANTHROPIC_API_KEY", ""),
             walk_model=os.environ.get("SCOUT_WALK_MODEL", "claude-haiku-4-5-20251001"),
-            synthesis_model=os.environ.get("SCOUT_SYNTHESIS_MODEL", "claude-fable-5"),
+            # Fable → Sonnet 5, 2026-09-03, on measured cost rather than the
+            # price list. 39 Fable synthesis calls averaged $1.3274 and totalled
+            # $51.77, against $0.75 for all 106 walk calls put together — 187x
+            # per call. Worse, it grew: $0.448/call the week of 07-06 to
+            # $1.847 by 08-10, because the dedup payload rides in this prompt
+            # and scales with the leads ledger (scout-mining-economics.md).
+            # NEWSROOM §Model tiers called this "pennies per pass"; it was not,
+            # and both premises behind that ("ambient, weekly-ish" — it went
+            # daily; "low-token" — $1.33 on a $10/$50 model is not low-token)
+            # were false. The QUALITY argument for Fable is untouched and still
+            # unmeasured: spend on it where it demonstrably pays, per run, with
+            # SCOUT_SYNTHESIS_MODEL — do not pay 5x by default on an untested
+            # assumption.
+            synthesis_model=os.environ.get("SCOUT_SYNTHESIS_MODEL", "claude-sonnet-5"),
             synthesis_fallback=os.environ.get("SCOUT_SYNTHESIS_FALLBACK", "claude-opus-5"),
             page_rows=int(os.environ.get("SCOUT_PAGE_ROWS", "150")),
             # 150 rows, not the 450 that walk_pages=3 x page_rows=150 gave.

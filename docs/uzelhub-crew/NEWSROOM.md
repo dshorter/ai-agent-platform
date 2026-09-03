@@ -313,6 +313,35 @@ over already-triaged candidates, not the raw box). At that volume the ladder is
 pennies per pass — Sonnet $3/$15 → Opus $5/$25 → Fable $10/$50 — and the whole
 Director has spent ~$3.31 in its life. Cost is not the binding constraint.
 
+> **CORRECTED 2026-09-03 — the paragraph above is wrong, and both of its
+> premises are false.** Measured from `agent_decisions`: 39 `scout_synthesis`
+> calls on Fable 5 averaged **$1.3274** and totalled **$51.77**, against
+> **$0.75** for all 106 `scout_walk` calls combined. That is **187× per call**,
+> and 69× in total — not "pennies per pass".
+>
+> It also grew steadily, from **$0.448** per call the week of 2026-07-06 to
+> **$1.847** by 2026-08-10 — 4× in six weeks. The mechanism is known and is in
+> `scout-mining-economics.md`: the already-pitched dedup payload rides in this
+> prompt and scales with the leads ledger, so synthesis gets more expensive
+> every time a lead is filed, forever.
+>
+> Why the premises failed: **"ambient, weekly-ish"** — the pass went *daily* at
+> 05:45 on 2026-07-22, so the volume assumption was overtaken by a scheduling
+> decision made elsewhere. **"low-token"** — $1.33 a call on a $10/$50 model is
+> not a low-token workload by any reading.
+>
+> **The QUALITY argument above is untouched.** False negatives really are
+> invisible, and synthesis really does set the ceiling on what stories can
+> exist. That argument was never about cost and survives this correction
+> unchanged — it has simply never been *tested*, because the A/B this section
+> specifies (due 2026-07-26) has never been run.
+>
+> **What changed:** `SCOUT_SYNTHESIS_MODEL` now defaults to **Sonnet 5**. The
+> burden is inverted rather than the argument abandoned — default to the cheap
+> model, and spend 5× on Fable per run, deliberately, where it is shown to pay.
+> Sonnet 5's $2/$10 promotional rate is permanent as of 2026-09-01, which makes
+> the gap 5× rather than the 3.3× this section assumed.
+
 **Why Fable, not Opus:** by this operation's own benchmark logic (the devlog's
 reason for Director→Sonnet 5: it matches Opus 4.8 on knowledge-work and
 reasoning-with-tools, trailing only on pure coding), **Opus 4.8 is the
