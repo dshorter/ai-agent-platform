@@ -1495,4 +1495,41 @@ DESCRIPTION:Predictor: clear the strays (make-claude\, three idle .claude
 TRIGGER:-P1D
 END:VALARM
 END:VTODO
+BEGIN:VTODO
+UID:writer-roam-budget-headroom@operator.ai-agent-platform
+DTSTAMP:20260903T185216Z
+DUE;VALUE=DATE:20260904
+STATUS:NEEDS-ACTION
+SUMMARY:Writer roam budget: what does a draft cost\, and what is it silent
+ ly leaving out?
+DESCRIPTION:Two parts\, one question: are the Writer's caps quietly costin
+ g us material?\n\nCONSTRAINTS TODAY (agents/writer_agent.py): roam_iterat
+ ions = 6\, and WRITER_MAX_TOOL_CHARS = 120\,000 — whichever trips first b
+ reaks the loop and forces the draft. Roam tools are read_file\, grep\, ru
+ n_git\, read_transcript. The prompt tells it 'your tool budget is small: 
+ when you can write from receipts\, stop investigating and write.'\n\nPART
+  1 — MEASURE. Average cost per story\, and how close drafts actually run 
+ to either cap. Cost rows are in agent_decisions (the Writer records via D
+ ecisionWriter/pricing.compute_cost)\; the roam trace is banked per draft 
+ in the gitignored writer/state as 'roam' (tool_calls). So per draft we ca
+ n get: cost_usd\, iterations used of 6\, and tool chars consumed of 120k.
+  Question to answer: is either cap actually binding\, or are drafts finis
+ hing well under? If nothing is near the cap\, there is no headroom proble
+ m and part 2 can be dropped.\n\nPART 2 — INSTRUMENT (only if a cap is bin
+ ding). Have the Writer record\, at the moment it truncates\, that it had 
+ more to investigate — which thread it was pulling when the budget ran out
+ . Today the loop just breaks (on iterations\, or on tool_chars >= WRITER_
+ MAX_TOOL_CHARS) and the draft proceeds with no signal that anything was c
+ ut. Note the asymmetry that makes this worth building: a bad draft is vis
+ ible and gets rejected\; an under-researched draft looks fine and nobody 
+ can tell what was missed.\n\nWHY THIS SHAPE IS FAMILIAR: NEWSROOM §Model 
+ tiers already argues that the Editor filters the Scout's bad leads while 
+ nothing filters its MISSING ones — false negatives are invisible and unco
+ unted\, so the synthesis model sets the ceiling on what stories can exist
+ . This is the same argument one seat downstream: the Writer's un-pulled t
+ hreads are equally invisible. Companion reading: docs/uzelhub-crew/silent
+ -instruments-2026-08-29.md.\n\nRaised by the operator 2026-09-03 while tr
+ acing the lead-to-Writer handoff (the lead supplies citations\; the Write
+ r follows them via convergent roam — it is not confined to the lead).
+END:VTODO
 END:VCALENDAR
