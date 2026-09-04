@@ -279,8 +279,14 @@ def test_select_returns_the_same_shape_the_walk_hands_over(live):
     )
 
     got = select(live, run_id=run_id)
-    assert [set(j) for j in got] == [{"seq", "kind", "note"}] * 2
-    assert [j["seq"] for j in got] == sorted(j["seq"] for j in got), "must be seq-ordered"
+    # The shape must match what the walk hands synthesis in-process. Since 1.4.0
+    # that includes the provenance pair, because a non-transcript jewel has no
+    # seq and would otherwise arrive with nothing the model could cite.
+    assert [set(j) for j in got] == [
+        {"seq", "source_type", "source_ref", "kind", "note"}] * 2
+    assert [j["seq"] for j in got] == sorted(j["seq"] for j in got), "must be ore-ordered"
+    assert all(j["source_type"] == "transcript" and j["source_ref"] is None
+               for j in got), "a transcript jewel anchors on seq alone"
 
     # Facets narrow, and an empty selection is empty rather than everything —
     # a filter that silently falls back to the whole table would hand a

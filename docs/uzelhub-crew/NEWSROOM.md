@@ -26,7 +26,7 @@ status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, shipped 2
 - [The Scout learns navigation, not taste (the pineapple rule)](#the-scout-learns-navigation-not-taste-the-pineapple-rule)
 - [The Scout's sources — session logs first, read by cursor](#the-scouts-sources--session-logs-first-read-by-cursor)
 - [Measured behaviour — moved to a leaf](#measured-behaviour--moved-to-a-leaf)
-- [Model tiers — cheap walk, premium synthesis (Fable 5 on the leap)](#model-tiers--cheap-walk-premium-synthesis-fable-5-on-the-leap)
+- [Model tiers — cheap walk, premium synthesis (Sonnet 5 on the leap since 2026-09-03)](#model-tiers--cheap-walk-premium-synthesis-sonnet-5-on-the-leap-since-2026-09-03)
 - [Reuse vs fork — the ghost crew stays on ghost](#reuse-vs-fork--the-ghost-crew-stays-on-ghost)
 - [SEO duties — moved to a leaf](#seo-duties--moved-to-a-leaf)
 - [Writer, in detail — and the voice bottle](#writer-in-detail--and-the-voice-bottle)
@@ -283,7 +283,7 @@ What is being done about it: **[scout-retool.md](scout-retool.md)** (`read: full
 spec, not built) — persist the jewel layer, unweld walk from synthesis, size the
 plate by row budget, add a backfill cursor. A retool, not a fifth agent.
 
-## Model tiers — cheap walk, premium synthesis (Fable 5 on the leap)
+## Model tiers — cheap walk, premium synthesis (Sonnet 5 on the leap since 2026-09-03)
 
 The Scout is **not one model call** — it's two stages with opposite needs, so
 "Opus vs Sonnet for the Scout" is the wrong granularity. Tier it (this is the
@@ -353,6 +353,13 @@ here)**; Opus is the mushy middle to skip. This is the one seat in the whole
 operation where raw IQ converts *directly* into stories-that-would-otherwise-
 never-exist — so **Fable 5 on the synthesis call is the plan**, the one place we
 break from the house Sonnet default.
+
+> **SUPERSEDED 2026-09-03 — see the correction above.** The reasoning in this
+> subsection stands on its own terms and is left intact; what changed is that
+> its cost premise was measured and found wrong by two orders of magnitude. The
+> default is now Sonnet 5. Fable remains one env var away for any run where the
+> depth is worth 5x, which is the question the never-run A/B still owes an
+> answer to.
 
 **Settle it with data, not this argument:** make the synthesis model an env var
 (like `DIRECTOR_MODEL`), run one ambient pass each through Sonnet and Fable,

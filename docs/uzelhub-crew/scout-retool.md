@@ -57,6 +57,15 @@ which mining run produced it.
 
 ### Schema
 
+> **AMENDED 2026-09-03 by schema 1.4.0** (`005_jewel_source.sql`). The DDL
+> quoted below is 004 as written and is left verbatim as the historical
+> record. Two lines of it no longer hold: `seq` is **no longer NOT NULL**, and
+> `UNIQUE (seq, kind, note)` was replaced by a unique index over
+> `(source_type, COALESCE(seq::text, source_ref), kind, note)`. The reason is
+> that the NOT NULL foreign key made it impossible for five of the Scout's six
+> sources to produce a jewel at all — see
+> `jewels-are-transcript-only-2026-09-03.md`.
+
 New migration, `database/ai_agent_platform/004_scout_jewel.sql`:
 
 ```sql

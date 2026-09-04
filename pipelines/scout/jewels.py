@@ -159,14 +159,27 @@ def select(
 ) -> list[dict]:
     """Read jewels back for a synthesis that did not mine them.
 
-    Returns exactly the shape the walk hands over in-process — {seq, kind,
-    note} and nothing more. That sameness is the point: `--pass` and a
-    standalone `--synthesize` must put identical context in front of the
-    model, or the two paths quietly diverge and the pass stops being the
-    thing this was tested against. Anything extra a consumer wants (dates,
-    provenance, the turn text itself) is one join away on `seq`.
+    Returns the shape the walk hands over in-process. That sameness is the
+    point: `--pass` and a standalone `--synthesize` must put identical context
+    in front of the model, or the two paths quietly diverge and the pass stops
+    being the thing this was tested against. Anything extra a consumer wants
+    (dates, run provenance, the turn text itself) is one join away.
 
-    Ordered by seq so a selection is deterministic and re-runnable.
+    **`source_type` and `source_ref` are carried, added 2026-09-04.** Schema
+    1.4.0 let a jewel anchor to a non-transcript source, and this function was
+    left behind — it selected `seq` alone, so a git- or doc-anchored jewel would
+    have reached synthesis with `seq` NULL and *no citable anchor at all*, while
+    the prompt still told the model its jewels cite seqs. Not a live fault yet
+    (no reader produces one), but it would have become one the moment the first
+    reader landed, which is exactly how the `ON CONFLICT` break happened: one
+    side of the change migrated, the other not.
+
+    Ordering is chronological and total. Plain `ORDER BY seq` degrades once seq
+    is nullable — Postgres sorts NULLs last, so every non-transcript jewel would
+    pile up at the end of an otherwise time-ordered selection regardless of when
+    its material dates from. `session_date` first restores the ore's own
+    chronology across all sources; `id` last keeps it deterministic and
+    re-runnable when two rows tie.
     """
     where: list[str] = []
     params: list = []
@@ -182,13 +195,16 @@ def select(
     if run_id:
         where.append("run_id = %s")
         params.append(run_id)
-    sql = "SELECT seq, kind, note FROM scout_jewel"
+    sql = "SELECT seq, source_type, source_ref, kind, note FROM scout_jewel"
     if where:
         sql += " WHERE " + " AND ".join(where)
-    sql += " ORDER BY seq"
+    sql += " ORDER BY session_date, seq NULLS LAST, source_ref, id"
     if limit:
         sql += " LIMIT %s"
         params.append(limit)
     with conn.cursor() as cur:
         cur.execute(sql, params)
-        return [{"seq": s, "kind": k, "note": n} for s, k, n in cur.fetchall()]
+        return [
+            {"seq": s, "source_type": st, "source_ref": sr, "kind": k, "note": n}
+            for s, st, sr, k, n in cur.fetchall()
+        ]
