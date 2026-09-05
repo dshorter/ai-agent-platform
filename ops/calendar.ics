@@ -1574,4 +1574,29 @@ DESCRIPTION:Schema 1.4.0 (005_jewel_source.sql\, applied 2026-09-03) now p
  lly weighted toward session logs. It was — not in the prompt\, in the DDL
  .
 END:VTODO
+BEGIN:VTODO
+UID:scout-backpressure-on-queue-depth@ai-agent-platform
+DTSTAMP:20260905T010357Z
+DUE;VALUE=DATE:20260918
+STATUS:NEEDS-ACTION
+SUMMARY:Scout back-pressure: throttle the leap\, not the walk\, on queue d
+ epth
+DESCRIPTION:Design review #3. The pineapple rule blocks TASTE flowing back
+ ward\; it has also blocked RATE\, and the two were never separated. A cou
+ nt of unworked leads carries no information about which leads were liked\
+ , so it cannot narrow the aperture. Cost of the gap: the drip was held 20
+ 26-07-18 and the Scout kept filing daily until SCOUT_PAUSED went in 08-19
+  — about four weeks of ~$1.33 synthesis calls into a closed valve\, each 
+ one making every future call permanently dearer. Build: if unworked leads
+  exceed N\, the ambient pass WALKS and MINES but does not synthesise — th
+ e retool already unwelded them\, walking is $0.0105/page and jewels never
+  expire\, while synthesis is both the expensive stage and the one that gr
+ ows the ledger forever. Put the check in the pass entry point beside SCOU
+ T_PAUSED\, never in the Scout\, so the Scout process never sees the numbe
+ r and the pineapple guarantee stays structural. The throttle is the cheap
+  half: the POINT is the notification — the box spent a month doing expens
+ ive work into a closed valve and nothing said so (silent-instruments-2026
+ -08-29). Agreed 2026-09-04\; deliberately queued behind design-review cri
+ tiques 4\, 5 and 6.
+END:VTODO
 END:VCALENDAR
