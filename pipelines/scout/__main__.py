@@ -66,6 +66,11 @@ def main() -> None:
     syn_group.add_argument("--since", help="earliest session_date (YYYY-MM-DD)")
     syn_group.add_argument("--until", help="latest session_date (YYYY-MM-DD)")
     syn_group.add_argument("--kind", action="append", help="jewel kind; repeatable")
+    syn_group.add_argument("--source-type", action="append", dest="source_type",
+                           help="jewel provenance (transcript|git|doc|ledger|calendar|"
+                                "survey|agent_decisions); repeatable. Holds the source "
+                                "mix constant so a model A/B means something — and vice "
+                                "versa. Run both arms with --dry-run (ADR-002 6b).")
     syn_group.add_argument("--of-run", help="only jewels from this mining run_id")
     syn_group.add_argument("--limit", type=int, help="cap the selection")
     args = parser.parse_args()
@@ -118,7 +123,8 @@ def main() -> None:
 
         print(json.dumps(
             run_synthesis(config, since=args.since, until=args.until, kinds=args.kind,
-                          of_run=args.of_run, limit=args.limit, dry_run=args.dry_run),
+                          of_run=args.of_run, limit=args.limit, dry_run=args.dry_run,
+                          source_types=args.source_type),
             indent=2,
         ))
 

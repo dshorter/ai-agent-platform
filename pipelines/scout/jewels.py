@@ -156,6 +156,7 @@ def select(
     kinds: list[str] | None = None,
     run_id=None,
     limit: int | None = None,
+    source_types: list[str] | None = None,
 ) -> list[dict]:
     """Read jewels back for a synthesis that did not mine them.
 
@@ -173,6 +174,29 @@ def select(
     (no reader produces one), but it would have become one the moment the first
     reader landed, which is exactly how the `ON CONFLICT` break happened: one
     side of the change migrated, the other not.
+
+    **`source_types` filters on provenance, added 2026-09-04.** It is what makes
+    the two experiments the estate owes itself separable, and it costs one
+    `WHERE` clause because 1.4.0 already made `source_type` a column.
+
+    Two variables were about to move together: synthesis dropped Fable → Sonnet
+    on 2026-09-03, and the source mix is about to change from transcript-only to
+    six sources. If both move at once a better lead list is uninterpretable —
+    the mix may have done the work while the cheap model coasted, or the cheap
+    model may have cost depth the richer sources masked. That would burn the A/B
+    open since 2026-07-26 rather than settle it (ADR-002 §6b).
+
+    With this filter both questions become controlled comparisons over jewels
+    already on disk, mining nothing and costing one synthesis call per arm:
+
+        --source-type transcript   vs   (no filter)      # does the mix help?
+        SCOUT_SYNTHESIS_MODEL=A     vs   =B              # is Fable worth 5x?
+
+    Run BOTH ARMS WITH `--dry-run`. Synthesis reads the already-pitched payload
+    from the ledger at run time, so a live first arm files leads that the second
+    arm is then instructed not to duplicate — which makes the second arm
+    structurally unable to surface the first arm's best material, and the
+    deficit reads as a quality difference. Dry runs file nothing.
 
     Ordering is chronological and total. Plain `ORDER BY seq` degrades once seq
     is nullable — Postgres sorts NULLs last, so every non-transcript jewel would
@@ -195,6 +219,9 @@ def select(
     if run_id:
         where.append("run_id = %s")
         params.append(run_id)
+    if source_types:
+        where.append("source_type = ANY(%s)")
+        params.append(list(source_types))
     sql = "SELECT seq, source_type, source_ref, kind, note FROM scout_jewel"
     if where:
         sql += " WHERE " + " AND ".join(where)

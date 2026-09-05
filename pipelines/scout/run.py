@@ -345,6 +345,7 @@ def run_synthesis(
     of_run=None,
     limit: int | None = None,
     dry_run: bool = False,
+    source_types: list[str] | None = None,
 ) -> dict:
     """Surface leads from jewels already on disk — no transcript is re-read."""
     conn = psycopg.connect(config.postgres_dsn)
@@ -358,9 +359,11 @@ def run_synthesis(
             task_id=str(run_id), description="scout: synthesis over stored jewels"
         ):
             found = jewels_mod.select(
-                conn, since=since, until=until, kinds=kinds, run_id=of_run, limit=limit
+                conn, since=since, until=until, kinds=kinds, run_id=of_run,
+                limit=limit, source_types=source_types,
             )
             summary["selected"] = len(found)
+            summary["source_types"] = source_types or "all"
             if not found:
                 log.warning("scout.synthesis selection is empty — nothing to leap from")
                 return summary

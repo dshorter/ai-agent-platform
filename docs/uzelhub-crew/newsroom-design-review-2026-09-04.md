@@ -187,3 +187,128 @@ without it, finding 1 above cannot be controlled either.
   findings filed under a rejected proposal go unread.
 - **Honest corrections accumulate into an unreadable document** unless something
   collects them. The discipline is right and needs an index.
+
+---
+
+# Addendum — the arc, measured (2026-09-04, same day)
+
+Worked out in conversation after the review above. Kept because the *order* of
+it is the part that evaporates: two wrong assumptions were held in turn, and
+each was corrected by a measurement rather than an argument.
+
+## The operator's distinction, which is the load-bearing one
+
+An **arc** is a story that develops over time and may span more than one
+source — Monday, Wednesday, Friday, then the closing piece two weeks later.
+That is a different object from **multiple angles on one discrete event**,
+where several leads narrate the same thing that happened at one point.
+
+Folding angles into the strongest telling is ordinary editing. Folding an
+arc's episodes into its first episode destroys the thing worth telling. The
+Wire Editor does the same operation for both, because nothing distinguishes
+them.
+
+## Wrong assumption #1 (mine): the desk is only folding angles
+
+`scout-mining-economics.md` says 124 of 127 spikes are cluster-internal. I read
+the Wire Editor's prompt expecting a misplaced constraint and found the capacity
+number stated **three times** — lines 35, 48 and 62 of `wire_editor_agent.py` —
+with the clustering instruction sitting under it at line 45.
+
+Two corrections to the review's account of that:
+
+- `hold` **is** offered ("spiking **or holding** the rest INTO it"), and the
+  output schema has a `clusters` array which `run.py` writes into the desk
+  artifact. Arcs are detected and named. The desk is not blind.
+- It spikes anyway, because everything around line 45 pushes that way: spikes
+  are "cheap", the desk must "be decisive", capacity is "the scarcest resource".
+  `hold` is present and outgunned by its own context.
+
+**The fair diagnosis is altitude, not error.** Capacity constrains *publishing
+order*; it was applied to *record-keeping*. "The apex never tells the same story
+twice" is a publishing rule read as a filing rule. Being decisive about what to
+publish next never required destroying the record of what else was there.
+
+**And this bug has been fixed here once already.** On 2026-08-03 `rejected` was
+split out of `spiked` because one verdict was carrying two meanings. `spiked` is
+*still* carrying two: "not a story" and "folded into a better telling of the
+same story". Same class, one level over, uncaught.
+
+## Wrong assumption #2 (the operator's): four filing dates ≈ four sources
+
+The cluster themes are overtly temporal — *saga*, *rise and fall*, *ladder*,
+*staircase*, *evolution*, *genesis*, *arc coda* — and span up to five distinct
+filing dates. The operator reasoned that filing dates must therefore stand in
+for distinct sources, since the Scout does not read one source a little at a
+time over several days.
+
+It does. **44% of all turns live in sessions larger than the old 450-row pass**,
+so long sessions are walked across several passes. Measured against the citation
+graph:
+
+| Cluster | Leads | Filing dates | Distinct sessions | Source-dates |
+|---|---|---|---|---|
+| the 19-lead saga | 19 | 4 | **1** | 4 |
+| "rise and fall" | 10 | 2 | **7** | **8** |
+| stale-artifact ladder | 5 | 5 | 2 | 3 |
+| registry/ledger doctrine | 7 | 4 | 2 | 3 |
+| a launch cluster | 5 | 2 | **1** | **1** |
+
+Filing dates over-count sources, sometimes by four to one.
+
+## What the measurement produced: a discriminator
+
+The intuition was right; the proxy was wrong. The right column is the **date of
+the source material** — and the last row above is the operator's other case
+sitting in the same pile: one session, one day, five angles.
+
+So arc and angle-cluster are mechanically separable:
+
+- **one source-date** → angles on an event. Fold; the strongest telling is the
+  story.
+- **many source-dates** → a developing arc. Folding destroys it.
+
+This is better than a `folded` verdict alone. A verdict stops the record being
+destroyed; it does not tell the desk *when* folding is right. The discriminator
+is computable from data the jewel layer already carries.
+
+## And a second dimension, forced by one question
+
+The operator then asked whether the machinery is source-agnostic. The concept
+is, and 1.4.0 already did the work — `session_date` is documented as "the DATE
+OF THE SOURCE MATERIAL, whatever the source" (misnamed; read it as
+`source_date`), and `COALESCE(seq::text, source_ref)` is already the normalized
+anchor. The Wire Editor clusters on pitch text and knows nothing about
+transcripts.
+
+**The measurement above was not normalized** — it joined through
+`scout_session_log`, a transcript-only table with no path for a git jewel. The
+normalized form reads the jewel layer: distinct `session_date`, distinct
+`COALESCE(seq::text, source_ref)`.
+
+Asking the question exposed a flaw in the one-dimension rule. A cluster holding
+a transcript jewel and a git jewel from the **same day** is not redundancy — it
+is the problem being fought and the decision being recorded, the two registers,
+on one event. That pairing is precisely what the recovery mine exists to
+produce, and the rule as first stated would fold it. So:
+
+| source-dates | source-types | verdict |
+|---|---|---|
+| one | one | angles on an event — fold |
+| one | **many** | cross-register corroboration — **keep both** |
+| many | any | an arc — do not touch it |
+
+The third dimension only becomes measurable once the readers land, which is a
+further reason the register experiment comes before any of this reaches the desk.
+
+## Open, and where source-specificity still leaks
+
+- A lead's `sources` field is free text shaped like transcripts ("jewels seq
+  41-49"). It is publishable, it reaches a note, and it is exactly ADR-002 §4's
+  concern. It needs a normalized rendering **before** the first non-transcript
+  reader, not after.
+- One cluster's cited seqs resolve to **zero** rows in the log — some leads cite
+  something that is not there. Small, separate, and worth a look.
+- The plate went 450 → 150 in the retool, so sessions spanning a pass went from
+  7% to 30%. Filing dates will diverge from sources further from here. Nothing
+  downstream should read them as a proxy for anything.
