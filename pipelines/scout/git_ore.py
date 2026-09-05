@@ -56,10 +56,24 @@ ABBREV = 10
 # of them stays a cheap call. The full message is one `git show` away.
 COMMIT_CLIP_CHARS = 1200
 
-# A commit message here averages 106 words, so 150 commits lands in the same
-# size range as a 150-row transcript page — which keeps the walk's measured
-# economics applicable instead of guessed.
-DEFAULT_PAGE = 150
+# MEASURED 2026-09-05, and smaller than the transcript page on purpose. Sizing
+# this by input length was the wrong axis: 150 commits is comparable to a
+# 150-row transcript page in CHARACTERS, and it blew the 4096-token OUTPUT
+# ceiling less than halfway through, so the JSON came back truncated and the
+# whole page parsed to nothing.
+#
+# Density of JEWELS, not density of text, is what the page has to be sized
+# against. Measured at 50 commits: 13 jewels, 1,005 output tokens, `end_turn`.
+# Extrapolated, 150 commits wants roughly 4,000 — which is what blew the
+# ceiling. So the ratio is about one jewel per four commits, and 50 leaves
+# real headroom rather than sitting on the edge.
+#
+# (An earlier version of this comment guessed "roughly one jewel per commit"
+# on the reasoning that a commit message is a decision-with-reason by
+# construction. The reasoning is sound and the number was wrong by 4x; the
+# walker is selective about what counts as durable even here. Corrected from
+# measurement 2026-09-05 rather than left to look like it had been known.)
+DEFAULT_PAGE = 50
 
 
 def read_commits(
@@ -114,11 +128,18 @@ def page_as_prompt(rows: list[dict]) -> str:
     The `[ref=...]` tag mirrors the transcript page's `[seq=...]`, for the same
     reason: the walker cites back what it was shown, and anything else is
     dropped by `resolve_anchor` rather than reaching the table.
+
+    **The date sits OUTSIDE the bracket, and that is not cosmetic.** The first
+    live run had it as `[ref=X 2025-10-01]`, and the model copied the whole tag
+    body — every jewel came back as `"ref": "repo@sha 2025-10-01"`. The guard
+    worked exactly as designed and dropped all of them, which is the failure
+    mode this shape exists to prevent: a page that costs full price and
+    persists nothing. The bracket now contains the ref and nothing else.
     """
     out = []
     for r in rows:
         text = f"{r['subject']}\n{r['body']}".strip()
         if len(text) > COMMIT_CLIP_CHARS:
             text = text[:COMMIT_CLIP_CHARS] + " …(clipped)"
-        out.append(f"[ref={r['ref']} {r['date']}]\n{text}")
+        out.append(f"[ref={r['ref']}] committed {r['date']}\n{text}")
     return "\n\n".join(out)

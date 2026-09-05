@@ -383,9 +383,14 @@ def run_git_walk(
             everything = git_ore.read_commits(
                 list(config.git_repos), since=since, until=until, limit=10**6
             )
+            # git_ore.DEFAULT_PAGE, NOT config.page_rows. The transcript
+            # plate is sized in rows of text; a git page has to be sized by how
+            # many jewels it will yield, because a commit message is a
+            # decision-with-reason by construction and the walker emits roughly
+            # one per commit. See git_ore.DEFAULT_PAGE for the measurement.
+            page = git_ore.DEFAULT_PAGE
             pages = [
-                everything[i : i + config.page_rows]
-                for i in range(0, len(everything), config.page_rows)
+                everything[i : i + page] for i in range(0, len(everything), page)
             ]
             if max_pages:
                 pages = pages[:max_pages]

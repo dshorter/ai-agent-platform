@@ -110,7 +110,7 @@ Output STRICT JSON, nothing else:
 {"jewels": [{"ref": "<repo@sha>", "kind": "principle|correction|reframe|decision|aha", "note": "<one tight sentence>"}],
  "map_notes": ["<navigation observation: where rich material lives, which repos run rich — never story verdicts>"]}
 
-ref values must be copied EXACTLY from the [ref=...] tags in the input, repo qualifier included. A ref you were not shown is dropped, so inventing or abbreviating one loses the jewel. Keep notes short; the full message stays in git."""
+Copy the value INSIDE the brackets exactly — `[ref=repo@sha]` means the ref is `repo@sha`, with the repo qualifier and nothing else. Do NOT append the commit date; it is outside the bracket because it is not part of the ref. A ref you were not shown, or one carrying anything extra, is dropped and the jewel is lost. Keep notes short; the full message stays in git."""
 
 
 SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged transcript jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
@@ -154,6 +154,35 @@ class ScoutCall:
     # Reasoning summary when the caller asks for `display: summarized`; empty
     # at every seat that leaves thinking display at the model's default.
     reasoning: str = field(default="", repr=False)
+
+
+class TriageTruncated(RuntimeError):
+    """A triage page hit the output ceiling, so its JSON is incomplete."""
+
+
+def _guard_truncation(call: "ScoutCall", source: str) -> None:
+    """Make a truncated page LOUD. It was silent, and that is the whole bug.
+
+    `_parse_json` returns `{}` for an incomplete object, so a page that blew the
+    output ceiling was indistinguishable from a page with nothing in it: the
+    walk logged "0 jewels", persisted nothing, paid full price, and moved on.
+    Found 2026-09-05 on the first live git walk — 150 commits, `max_tokens`,
+    13,508 characters of perfectly good JSON thrown away without a word.
+
+    Truncation is always total here, never partial: an unterminated object
+    parses to nothing at all, so there is no salvageable half-page to continue
+    with. Raising is therefore right — a walk persists per page, so everything
+    already mined is safe, and stopping beats burning the rest of the corpus
+    producing zeroes.
+    """
+    if call.stop_reason == "max_tokens" and not call.data:
+        raise TriageTruncated(
+            f"{source} triage hit the {SCOUT_TRIAGE_MAX_TOKENS}-token output "
+            f"ceiling and its JSON is unparseable ({len(call.raw_text):,} chars "
+            f"discarded). The PAGE is too big for this ore, not the ceiling too "
+            f"small — size the page by how many jewels it will yield, not by "
+            f"how much text it holds."
+        )
 
 
 def _parse_json(text: str) -> dict:
@@ -229,20 +258,25 @@ class ScoutAgent:
         validates now that the foreign key is gone for five of six sources.
         """
         if source == "transcript":
-            return self._call(
+            call = self._call(
                 self.walk_model,
                 SCOUT_TRIAGE_PROMPT,
                 f"Transcript page:\n\n{page_text}",
                 SCOUT_TRIAGE_MAX_TOKENS,
             )
+            _guard_truncation(call, source)
+            return call
         if source == "git":
-            return self._call(
+            call = self._call(
                 self.walk_model,
                 SCOUT_GIT_TRIAGE_PROMPT,
                 f"Commit page:\n\n{page_text}",
                 SCOUT_TRIAGE_MAX_TOKENS,
             )
-        raise ValueError(f"no triage prompt for source_type {source!r}")
+        else:
+            raise ValueError(f"no triage prompt for source_type {source!r}")
+        _guard_truncation(call, source)
+        return call
 
     # --- the ore tool ---------------------------------------------------------
     @staticmethod

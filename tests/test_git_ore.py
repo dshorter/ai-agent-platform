@@ -138,7 +138,7 @@ def test_the_prompt_tags_every_commit_with_its_ref(tmp_path):
     rows = read_commits([_repo(tmp_path, "alpha", ["a", "b"])])
     prompt = page_as_prompt(rows)
     for r in rows:
-        assert f"[ref={r['ref']} {r['date']}]" in prompt
+        assert f"[ref={r['ref']}] committed {r['date']}" in prompt
         assert "the body explains why." in prompt
 
 
@@ -148,3 +148,57 @@ def test_no_author_email_reaches_the_page(tmp_path):
     rows = read_commits([_repo(tmp_path, "alpha", ["a"])])
     assert "FIXTURE-AUTHOR-IDENTITY" not in page_as_prompt(rows)
     assert not any("FIXTURE-AUTHOR" in str(v) for r in rows for v in r.values())
+
+
+# --- the three defects the first live run exposed ------------------------------
+
+def test_the_date_is_outside_the_ref_bracket(tmp_path):
+    """The first live run had `[ref=X DATE]` and the model copied the whole tag
+    body, so every jewel came back as `repo@sha 2025-10-01` and every one was
+    dropped. The guard did its job; the page still cost full price and
+    persisted nothing. The bracket holds the ref and nothing else."""
+    rows = read_commits([_repo(tmp_path, "alpha", ["a"])])
+    line = page_as_prompt(rows).splitlines()[0]
+    assert line.startswith(f"[ref={rows[0]['ref']}]")
+    assert rows[0]["date"] not in line.split("]")[0]
+
+
+def test_a_ref_with_the_date_appended_is_refused(tmp_path):
+    """Belt and braces: even if a model appends it, the guard must not accept."""
+    rows = read_commits([_repo(tmp_path, "alpha", ["a"])])
+    index = candidate_index(rows, "git")
+    from pipelines.scout.jewels import resolve_anchor as ra
+    assert ra({"ref": f"{rows[0]['ref']} {rows[0]['date']}"}, "git", index) is None
+
+
+def test_the_git_page_is_sized_by_jewel_yield_not_text_length():
+    """150 commits blew the 4096-token output ceiling less than halfway
+    through. A commit is a decision-with-reason by construction, so the walker
+    emits roughly one jewel per commit — density of jewels is the axis."""
+    from pipelines.scout.git_ore import DEFAULT_PAGE
+    assert DEFAULT_PAGE <= 60
+
+
+def test_truncation_raises_instead_of_looking_like_an_empty_page():
+    """The defect: _parse_json returns {} for incomplete JSON, so a page that
+    blew the ceiling was indistinguishable from a page with nothing in it."""
+    from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
+    truncated = ScoutCall(data={}, model="m", stop_reason="max_tokens",
+                          raw_text='{"jewels": [{"ref": "a@b"')
+    with pytest.raises(TriageTruncated):
+        _guard_truncation(truncated, "git")
+
+
+def test_a_clean_empty_page_is_not_an_error():
+    """A page really can hold nothing mineable. Only truncation is the fault."""
+    from agents.scout_agent import ScoutCall, _guard_truncation
+    _guard_truncation(ScoutCall(data={"jewels": []}, model="m",
+                                stop_reason="end_turn"), "git")
+
+
+def test_a_full_but_parseable_page_is_not_an_error():
+    """stop_reason max_tokens with usable data is a different situation and
+    must not abort a walk that produced real jewels."""
+    from agents.scout_agent import ScoutCall, _guard_truncation
+    _guard_truncation(ScoutCall(data={"jewels": [{"ref": "a@b"}]}, model="m",
+                                stop_reason="max_tokens"), "git")
