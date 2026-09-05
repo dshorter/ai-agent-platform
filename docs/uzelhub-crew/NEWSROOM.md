@@ -189,6 +189,35 @@ also the direct **evidence for the thesis** — the logs literally *are* the
 100%-human-AI-collaboration the site claims. Recursive by nature: the session
 that designed this newsroom is itself future ticker / newsletter / note material.
 
+> **CORRECTED 2026-09-04 — "richest by far" was true of the wrong axis, and the
+> error reached the published copy.** Session logs are the richest source of
+> *decisions, corrections and temporal anchors*. They are **not** rich
+> **narrative candidates**, and those are different properties that the word
+> "richest" was carrying at once — the same collapse that
+> `jewels-are-transcript-only-2026-09-03.md` found one layer down.
+>
+> A log records a problem *while it is being fought*: partial, in the present
+> tense, without the resolution that makes it a story. What it anchors superbly
+> is *when* something happened and *what was decided* — which is exactly what a
+> narrative needs as scaffolding and exactly what it cannot be built from alone.
+>
+> **This is why the copy has been wrong, and it is mechanical rather than
+> editorial.** The `NOT NULL` foreign key in `004` meant a jewel could only
+> anchor to a transcript row, so every lead ever synthesised was composed from
+> session logs alone. Most of the ore was structurally shielded from the Writer.
+> The operator held the publishing drip on the instinct that something was off
+> in the output; the cause was here, two layers below the copy.
+>
+> **What follows:** opening the other five sources is not a coverage exercise,
+> it is *the fix for the register of the copy*. Commit messages carry the
+> resolved account — what was decided and why, written after — which is the
+> register the notes have been missing (ADR-002 §6b). Read that section as the
+> primary justification for the recovery mine, ahead of coverage.
+>
+> The original sentence stands above because the mining evidence for it is real:
+> transcripts do hold the reasoning and the corrections. What it should never
+> have implied is that they are sufficient on their own.
+
 **Shape — a sequence table, not loose files.** Ingest the JSONL (the Codex
 reader already works; adapt to Claude Code's format) into a table —
 `session_id, date, turn, role, type (query | progress | final), text` — plus a

@@ -6,7 +6,10 @@ existing entries. The Editor flips status. Two contracts enforced in code,
 not just prose:
 
   - Pineapple rule: dedup reads ids + pitches ONLY. Statuses (claimed/spiked/rejected)
-    are never loaded, so an Editor spike cannot become Scout feedback.
+    are never loaded, so an Editor spike cannot become Scout feedback. The
+    2026-09-04 pitch digest shortens what is read; it does not widen it. There
+    is still no pattern here that matches a status, which is the whole of the
+    enforcement — the rule is broken by ADDING a regex, a visible act in a diff.
   - copyDraft discipline: every lead carries provenance (model, filed date)
     and `redaction: required` — nothing sourced from session logs publishes
     without a hard secret/PII scrub AND Editor approval. That is also why the
@@ -80,9 +83,46 @@ def format_lead(lead: dict, filed: date, model: str) -> str:
     return "\n".join(parts) + "\n"
 
 
-def load_pitched(path: Path) -> list[dict]:
+def _digest(pitch: str, limit: int) -> str:
+    """The first sentence of a pitch, or the first `limit` chars on a word
+    boundary — whichever comes first. Marked with an ellipsis so the model can
+    see it is reading a digest rather than a short pitch."""
+    pitch = pitch.strip()
+    if limit <= 0 or len(pitch) <= limit:
+        return pitch
+    window = pitch[:limit]
+    stop = max(window.rfind(". "), window.rfind("? "), window.rfind("! "))
+    if stop >= limit // 3:                      # a sentence ended in range
+        return window[: stop + 1]
+    cut = window.rfind(" ")
+    return (window[:cut] if cut > 0 else window).rstrip(",;:—- ") + " …"
+
+
+def load_pitched(path: Path, pitch_chars: int | None = None) -> list[dict]:
     """Past pitches for dedup — ids and pitch text ONLY, statuses deliberately
-    not read (the pineapple rule, enforced by omission)."""
+    not read (the pineapple rule, enforced by omission).
+
+    `pitch_chars` truncates each pitch to a digest. **This is the dominant term
+    in the synthesis prompt's cost**, not the jewels it reasons over: the
+    payload measured 477 entries / 299,322 chars / ~74,830 tokens on
+    2026-08-23, and it grows every time a lead is filed, forever, because
+    dedup memory can never be pruned (scout-mining-economics.md §Where the
+    money actually goes). Synthesis cost rose 4x in six weeks on that
+    mechanism alone.
+
+    Full pitch text was never shown to be necessary for the job. The question
+    — "whether a near-identical check needs full pitch text or just a slug and
+    a first line" — is named as open in the same document. A digest keeps what
+    dedup actually matches on: the id is already a semantic slug, and the first
+    sentence carries the story's claim. Pass None for the pre-2026-09 full-text
+    behaviour, which is what the measurement below should be compared against.
+
+    **Verify before resuming the ambient pass**, since this changes what the
+    model is shown: run one --synthesize --dry-run at the configured digest and
+    one at None over the same jewels, and check the second list does not
+    re-pitch anything already in the ledger. Dry runs file nothing, so this
+    costs two synthesis calls and no state.
+    """
     if not path.exists():
         return []
     pitched, current = [], None
@@ -104,6 +144,8 @@ def load_pitched(path: Path) -> list[dict]:
     for p in pitched:
         p.pop("_in_pitch", None)
         p["pitch"] = p["pitch"].strip()
+        if pitch_chars is not None:
+            p["pitch"] = _digest(p["pitch"], pitch_chars)
     return pitched
 
 

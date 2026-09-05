@@ -180,7 +180,7 @@ def _synthesis_stage(
     dry_run: bool,
 ) -> float:
     sequences = cross_agent_sequences(conn)
-    pitched = leads_mod.load_pitched(config.leads_path)
+    pitched = leads_mod.load_pitched(config.leads_path, config.pitch_digest_chars)
     with log_manager.tool_sequence(
         "scout_synthesis", reason=f"{len(found)} jewels, {len(sequences)} sequences"
     ) as ctx:

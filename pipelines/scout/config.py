@@ -53,6 +53,8 @@ class ScoutConfig:
     codex_logs_dir: Path       # Codex rollout logs (work-machine corpus, pulled from gdrive:)
     state_dir: Path            # cursor + map — external, inspectable, warm-bootable
     leads_path: Path           # the leads ledger (the Editor's queue)
+    # Last, with a default, so every existing construction keeps working.
+    pitch_digest_chars: int = 240  # chars of each past pitch shown to synthesis
 
     @classmethod
     def from_env(cls) -> "ScoutConfig":
@@ -92,6 +94,17 @@ class ScoutConfig:
             ),
             roam_iterations=int(os.environ.get("SCOUT_ROAM_ITERATIONS", "6")),
             max_cost_usd=float(os.environ.get("SCOUT_MAX_COST_USD", "2.0")),
+            # The already-pitched dedup payload is the DOMINANT term in the
+            # synthesis prompt — bigger than the jewels it reasons over, and it
+            # grows every time a lead is filed, forever, because dedup memory
+            # can never be pruned. Measured 2026-09-04 over 477 leads: full
+            # text is 279,744 chars (~70K tokens); at 240 it is 130,815
+            # (~33K), a 53% cut with every digest still a complete first
+            # sentence. Shorter limits cut more and start truncating
+            # mid-thought, and dedup quality is worth more than the last 12%.
+            # Set to 0/None-equivalent by passing a large number for the
+            # pre-2026-09 full-text behaviour. See leads.load_pitched.
+            pitch_digest_chars=int(os.environ.get("SCOUT_PITCH_DIGEST_CHARS", "240")),
             # Sessions moved to the claude user on 2026-07-16 (root→claude
             # consolidation); root's dir kept stale pre-switchover copies with
             # the SAME session ids, so ingest looked alive while everything
