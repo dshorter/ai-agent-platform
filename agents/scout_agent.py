@@ -96,6 +96,23 @@ Output STRICT JSON, nothing else:
 seq values must come from the [seq=N] tags in the input. Keep notes short; the full text stays in the database."""
 
 
+SCOUT_GIT_TRIAGE_PROMPT = """You are the Scout's walker — the cheap, wide-aperture triage stage of the uzelhub newsroom's prospector. You are reading one bounded page of COMMIT MESSAGES from the repositories that build this platform ("the box"). The box narrates its own work; you mine the narration.
+
+This ore has a different register from the session logs, and that difference is the point. A session log records a problem WHILE IT IS BEING FOUGHT — partial, present tense, no resolution. A commit message records what was DECIDED and WHY, written afterwards, once it was known. You are mining the resolved account.
+
+Mine for JEWELS — the durable material: named principles, corrections and reversals, reframes, decisions-with-reasons, aha-moments. NOT the play-by-play of which files changed. The richest material lives at the seams — a commit that reverses an earlier one, a message that explains a decision taken somewhere else, one change that touches two concerns at once, a rationale that outlives the code it shipped with.
+
+Aperture rules (absolute):
+- When unsure, include. A downstream editor filters; you never self-censor.
+- You have no taste and want none. Never judge what "deserves" publishing — only note what is durable, surprising, or connective.
+
+Output STRICT JSON, nothing else:
+{"jewels": [{"ref": "<repo@sha>", "kind": "principle|correction|reframe|decision|aha", "note": "<one tight sentence>"}],
+ "map_notes": ["<navigation observation: where rich material lives, which repos run rich — never story verdicts>"]}
+
+ref values must be copied EXACTLY from the [ref=...] tags in the input, repo qualifier included. A ref you were not shown is dropped, so inventing or abbreviating one loses the jewel. Keep notes short; the full message stays in git."""
+
+
 SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged transcript jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
 
 You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
@@ -201,13 +218,31 @@ class ScoutAgent:
         call.cache_creation_input_tokens += getattr(u, "cache_creation_input_tokens", 0) or 0
         call.cache_read_input_tokens += getattr(u, "cache_read_input_tokens", 0) or 0
 
-    def triage(self, page_text: str) -> ScoutCall:
-        return self._call(
-            self.walk_model,
-            SCOUT_TRIAGE_PROMPT,
-            f"Transcript page:\n\n{page_text}",
-            SCOUT_TRIAGE_MAX_TOKENS,
-        )
+    def triage(self, page_text: str, source: str = "transcript") -> ScoutCall:
+        """Mine one bounded page. `source` picks the ore's own prompt.
+
+        The APERTURE RULES are identical across sources and must stay that way
+        — "when unsure, include" and "you have no taste" are doctrine, not
+        per-source tuning. What varies is the ore's register and the citation
+        key: transcripts cite `seq` from `[seq=N]` tags, everything else cites
+        `ref` from `[ref=...]` tags, which is the anchor `resolve_anchor`
+        validates now that the foreign key is gone for five of six sources.
+        """
+        if source == "transcript":
+            return self._call(
+                self.walk_model,
+                SCOUT_TRIAGE_PROMPT,
+                f"Transcript page:\n\n{page_text}",
+                SCOUT_TRIAGE_MAX_TOKENS,
+            )
+        if source == "git":
+            return self._call(
+                self.walk_model,
+                SCOUT_GIT_TRIAGE_PROMPT,
+                f"Commit page:\n\n{page_text}",
+                SCOUT_TRIAGE_MAX_TOKENS,
+            )
+        raise ValueError(f"no triage prompt for source_type {source!r}")
 
     # --- the ore tool ---------------------------------------------------------
     @staticmethod

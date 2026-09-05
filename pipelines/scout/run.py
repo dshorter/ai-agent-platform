@@ -43,6 +43,7 @@ from pipelines.blog_pipeline.logging_context import (
 )
 from pipelines.blog_pipeline.pricing import compute_cost
 from pipelines.director.store import complete_run, create_run
+from pipelines.scout import git_ore
 from pipelines.scout import jewels as jewels_mod
 from pipelines.scout import leads as leads_mod
 from pipelines.scout import walk
@@ -327,6 +328,106 @@ def run_walk(
             )
             summary["jewels"] = len(found)
             summary["last_seq"] = last
+            summary["cost_usd"] = round(cost, 4)
+        return summary
+    except Exception:
+        status = "error"
+        raise
+    finally:
+        complete_run(conn, run_id, status)
+        conn.close()
+
+
+def run_git_walk(
+    config: ScoutConfig,
+    since: str | None = None,
+    until: str | None = None,
+    max_pages: int | None = None,
+    dry_run: bool = False,
+) -> dict:
+    """Mine the estate's commit messages and persist the jewels.
+
+    The git twin of `run_walk`, deliberately a separate verb rather than a
+    branch inside `_walk_stage`. That function is transcript-shaped to the
+    bone — an integer cursor, a seq range, a scratchpad column, two saved
+    positions — and none of it has a git analogue. The shared layer is the
+    JEWEL, not the walk: both persist through the same `persist()` with the
+    same allowlist guard, which is exactly where 1.4.0 put the seam.
+
+    No cursor. ADR-002 argues one coverage ledger over six bespoke cursors and
+    that ledger is not built, so this takes an explicit range and the operator
+    drives it — the same posture `--walk` already has.
+
+    **This verb has a cost ceiling, and `--walk` still does not.** That gap is
+    a live finding (ADR-002 §5: `run_walk` passes `cost_cap=None`, so the
+    operator verb ungated by SCOUT_PAUSED is uncapped). New code gets the
+    control; retrofitting the old one is its own change.
+    """
+    conn = psycopg.connect(config.postgres_dsn)
+    log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
+    agent = _agent(config)
+    run_id = create_run(conn, "scout")
+    status = "success"
+    summary = _blank_summary()
+    summary["run_id"] = str(run_id)
+    summary["source_type"] = "git"
+    found: list[dict] = []
+    cost = 0.0
+    try:
+        with log_manager.task_sequence(
+            task_id=str(run_id), description="scout: walk (git, mine only)"
+        ):
+            # Read the whole range once: it is a local git log over ~1,100
+            # commits, so paging by re-shelling would cost more than it saves.
+            # The PAGE is what bounds the model call, not the read.
+            everything = git_ore.read_commits(
+                list(config.git_repos), since=since, until=until, limit=10**6
+            )
+            pages = [
+                everything[i : i + config.page_rows]
+                for i in range(0, len(everything), config.page_rows)
+            ]
+            if max_pages:
+                pages = pages[:max_pages]
+            for page_no, rows in enumerate(pages, 1):
+                with log_manager.tool_sequence(
+                    # Same decision type as the transcript walk on purpose:
+                    # `decision_types` is curated behind a foreign key and
+                    # adding one is a decision, not a detail (AGENTS.md
+                    # §Shared surfaces). The source rides in the reason, so
+                    # per-source economics stay recoverable.
+                    "scout_walk",
+                    reason=f"git page {page_no}/{len(pages)}, {len(rows)} commits",
+                ) as ctx:
+                    call = agent.triage(git_ore.page_as_prompt(rows), source="git")
+                    page_jewels = call.data.get("jewels", []) or []
+                    map_notes = call.data.get("map_notes", []) or []
+                    cost += _record(
+                        ctx,
+                        call,
+                        {
+                            "source_type": "git",
+                            "commits": len(rows),
+                            "ref_range": [rows[0]["ref"], rows[-1]["ref"]],
+                            "jewels": len(page_jewels),
+                            "dry_run": dry_run,
+                        },
+                    )
+                found.extend(page_jewels)
+                summary["pages"] += 1
+                summary["rows"] += len(rows)
+                if not dry_run:
+                    summary["jewels_persisted"] += jewels_mod.persist(
+                        conn, page_jewels, rows, run_id, config.walk_model,
+                        source_type="git",
+                    )
+                    walk.append_map_notes(
+                        config.state_dir, map_notes, date.today().isoformat()
+                    )
+                if cost >= config.max_cost_usd:
+                    log.warning("scout.git_walk cost ceiling hit (%.4f)", cost)
+                    break
+            summary["jewels"] = len(found)
             summary["cost_usd"] = round(cost, 4)
         return summary
     except Exception:

@@ -62,6 +62,10 @@ def main() -> None:
     walk_group = parser.add_argument_group("--walk")
     walk_group.add_argument("--from-seq", type=int, default=0, help="first seq to mine (exclusive)")
     walk_group.add_argument("--pages", type=int, default=None, help="max pages to mine (default: to the end)")
+    walk_group.add_argument("--source", default="transcript", choices=["transcript", "git"],
+                            help="which ore to mine (default transcript). git takes "
+                                 "--since/--until instead of --from-seq, moves no cursor, "
+                                 "and carries a cost ceiling")
     syn_group = parser.add_argument_group("--synthesize")
     syn_group.add_argument("--since", help="earliest session_date (YYYY-MM-DD)")
     syn_group.add_argument("--until", help="latest session_date (YYYY-MM-DD)")
@@ -109,7 +113,15 @@ def main() -> None:
 
         print(json.dumps(run_pass(config, dry_run=args.dry_run), indent=2))
 
-    if args.walk:
+    if args.walk and args.source == "git":
+        from pipelines.scout.run import run_git_walk
+
+        print(json.dumps(
+            run_git_walk(config, since=args.since, until=args.until,
+                         max_pages=args.pages, dry_run=args.dry_run),
+            indent=2,
+        ))
+    elif args.walk:
         from pipelines.scout.run import run_walk
 
         print(json.dumps(
