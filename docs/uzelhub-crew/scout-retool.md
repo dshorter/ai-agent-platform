@@ -206,6 +206,21 @@ depend on it.
    remains the timer's entry point.
 3. **Row budget.** Config change plus the fresh-first fill rule.
 4. **Reclaim.** One `--walk` sweep over the full corpus. ~95 pages, ~$1.
+
+> **MEASURED 2026-09-05 — the ~$1 figure is wrong by about 4x, and it is
+> repeated across three documents.** The first real full-corpus walk came in at
+> **$0.037 per 150-row page**, so ~101 pages is **about $3.75**, not a dollar.
+> The estimate was derived from `$0.0105` a page, which was measured on the
+> *thin* August pages (a few dozen rows of fresh ore) and then applied to full
+> 150-row pages. The right number was always going to be ~3.5x higher, because
+> the page is ~3.5x the input.
+>
+> Nothing in the reasoning changes: $3.75 to fill the jewel layer once, against
+> ~$200 welded, is still exactly the point the retool was making, and the 200x
+> argument is untouched. What changes is that "about a dollar" must not be
+> quoted as a budget — the same cheap-sample error also made the git mine's
+> estimate 3x low, so it is a habit rather than a one-off.
+
 5. **Second cursor.** Ongoing top-up, if still wanted after 4.
 
 Resume the Scout (delete `SCOUT_PAUSED=1`) once the conversion measurement in

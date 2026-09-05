@@ -135,7 +135,22 @@ not shrink it. Whether a near-identical check needs full pitch text or just a
 slug and a first line is open.
 
 For scale on the other side: one Haiku walk page costs about $0.0105, and the
-entire corpus is 95 pages. **Re-walking everything costs about a dollar.** The
+entire corpus is 95 pages. **Re-walking everything costs about a dollar.**
+
+> **MEASURED 2026-09-05 — the ~$1 figure is wrong by about 4x, and it is
+> repeated across three documents.** The first real full-corpus walk came in at
+> **$0.037 per 150-row page**, so ~101 pages is **about $3.75**, not a dollar.
+> The estimate was derived from `$0.0105` a page, which was measured on the
+> *thin* August pages (a few dozen rows of fresh ore) and then applied to full
+> 150-row pages. The right number was always going to be ~3.5x higher, because
+> the page is ~3.5x the input.
+>
+> Nothing in the reasoning changes: $3.75 to fill the jewel layer once, against
+> ~$200 welded, is still exactly the point the retool was making, and the 200x
+> argument is untouched. What changes is that "about a dollar" must not be
+> quoted as a budget — the same cheap-sample error also made the git mine's
+> estimate 3x low, so it is a habit rather than a one-off.
+ The
 only reason that is not the obvious move is that today the walk cannot be run
 without also triggering a synthesis per pass, each carrying that payload. Walk
 and synthesis are welded; unwelding them is worth ~200x on any re-mining job.
