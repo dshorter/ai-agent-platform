@@ -202,11 +202,29 @@ that designed this newsroom is itself future ticker / newsletter / note material
 > narrative needs as scaffolding and exactly what it cannot be built from alone.
 >
 > **This is why the copy has been wrong, and it is mechanical rather than
-> editorial.** The `NOT NULL` foreign key in `004` meant a jewel could only
-> anchor to a transcript row, so every lead ever synthesised was composed from
-> session logs alone. Most of the ore was structurally shielded from the Writer.
+> editorial. There were TWO filters favouring sessions, and they are not the
+> same kind of thing — keep them apart:**
+>
+> 1. **The deterministic one, and the one that actually did the damage.** The
+>    `NOT NULL` foreign key in `004` meant a jewel could not exist without
+>    pointing at a transcript row. Not a preference, not a weighting — an
+>    absolute. Every lead ever synthesised was composed from session logs alone
+>    because nothing else could physically become a jewel. Most of the ore was
+>    structurally shielded from the Writer.
+> 2. **The soft one, in this document's own wording.** "Primary ore",
+>    "richest by far". A prompt- and doc-level bias that would tilt a walker's
+>    attention even with the schema wide open.
+>
+> **The second has never been exercised on its own, and that is the honest
+> state of it.** The FK masked it completely: with five sources unable to
+> produce a jewel at any weighting, no amount of wording could have made a
+> difference, and none of it was ever tested. Fixing the schema does not
+> retire the wording problem — it is the first time the wording problem can
+> even be observed. Watch for it in the recovery runs rather than assuming it
+> went away with 1.4.0.
+>
 > The operator held the publishing drip on the instinct that something was off
-> in the output; the cause was here, two layers below the copy.
+> in the output; the cause was the first filter, two layers below the copy.
 >
 > **What follows:** opening the other five sources is not a coverage exercise,
 > it is *the fix for the register of the copy*. Commit messages carry the
