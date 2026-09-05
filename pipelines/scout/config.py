@@ -55,6 +55,10 @@ class ScoutConfig:
     leads_path: Path           # the leads ledger (the Editor's queue)
     # Last, with a default, so every existing construction keeps working.
     pitch_digest_chars: int = 240  # chars of each past pitch shown to synthesis
+    # The estate's repos, as git ore. Commit messages carry the RESOLVED
+    # register that session logs structurally cannot — what was decided and
+    # why, written after — which is the register the copy has been missing.
+    git_repos: tuple[Path, ...] = ()
 
     @classmethod
     def from_env(cls) -> "ScoutConfig":
@@ -105,6 +109,13 @@ class ScoutConfig:
             # Set to 0/None-equivalent by passing a large number for the
             # pre-2026-09 full-text behaviour. See leads.load_pitched.
             pitch_digest_chars=int(os.environ.get("SCOUT_PITCH_DIGEST_CHARS", "240")),
+            git_repos=tuple(
+                Path(p) for p in os.environ.get(
+                    "SCOUT_GIT_REPOS",
+                    "/opt/ai-agent-platform:/opt/predictor_ingest:/opt/uzelhub-web"
+                    ":/opt/server-maintenance:/opt/_host",
+                ).split(":") if p
+            ),
             # Sessions moved to the claude user on 2026-07-16 (root→claude
             # consolidation); root's dir kept stale pre-switchover copies with
             # the SAME session ids, so ingest looked alive while everything
