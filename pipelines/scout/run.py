@@ -180,7 +180,7 @@ def _synthesis_stage(
     dry_run: bool,
 ) -> float:
     sequences = cross_agent_sequences(conn)
-    pitched = leads_mod.load_pitched(config.leads_path, config.pitch_digest_chars)
+    pitched = leads_mod.load_dedup_memory(config.leads_path, config.pitch_digest_chars)
     with log_manager.tool_sequence(
         "scout_synthesis", reason=f"{len(found)} jewels, {len(sequences)} sequences"
     ) as ctx:
@@ -213,7 +213,9 @@ def _synthesis_stage(
     summary["roam"] = call.tool_calls
 
     if not dry_run and new_leads:
-        summary["filed"] = leads_mod.append_leads(config.leads_path, new_leads, call.model)
+        summary["filed"] = leads_mod.append_leads(
+            config.leads_path, new_leads, call.model, config.pitch_digest_chars
+        )
     return cost
 
 

@@ -4,6 +4,7 @@ The payload is the dominant term in the synthesis prompt's cost and grows with
 the ledger forever. These tests pin the two properties that matter: the digest
 keeps what dedup matches on, and it does not widen what the Scout is shown.
 """
+import re
 from pathlib import Path
 
 from pipelines.scout.leads import _digest, load_pitched
@@ -103,3 +104,86 @@ def test_digest_does_not_cut_at_a_sentence_that_is_uselessly_early():
     got = _digest(pitch, 60)
     assert got != "Yes."
     assert "substance" in got
+
+
+# ---------------------------------------------------------------------------
+# The pitched index as its own file
+# ---------------------------------------------------------------------------
+
+from pipelines.scout.leads import (  # noqa: E402
+    append_leads, index_path_for, load_dedup_memory, write_pitched_index,
+)
+
+
+def test_index_is_parsed_by_the_same_reader(tmp_path):
+    """One format, one parser — the index must not need a second dialect."""
+    ledger = _write(tmp_path)
+    write_pitched_index(ledger, pitch_chars=120)
+    got = load_pitched(index_path_for(ledger))
+    assert [g["id"] for g in got] == ["2026-07-12-a-real-slug", "2026-07-13-second-lead"]
+    assert got[0]["pitch"].endswith("the run was not anomalous.")
+
+
+def test_index_file_physically_contains_no_verdict(tmp_path):
+    """The pineapple rule in file shape rather than in reader discipline.
+
+    The ledger fixture carries `status: spiked`. The index is what the Scout
+    reads, so the bytes on disk must not contain a status at all — then the
+    rule holds even if some future reader forgets to be careful.
+    """
+    ledger = _write(tmp_path)
+    write_pitched_index(ledger, pitch_chars=240)
+    raw = index_path_for(ledger).read_text(encoding="utf-8")
+    body = raw.split("leads:", 1)[1]          # the header explains the ban; skip it
+    # Assert on STRUCTURE, not substrings. Pitch prose legitimately contains
+    # the words "claimed" and "status:" — verified against the live 477-entry
+    # index on 2026-09-04, where seven such hits are all inside pitch text. A
+    # substring ban would fail on honest data and teach someone to delete the
+    # test. What must never appear is a status FIELD.
+    keys = set(re.findall(r"^    ([a-z_]+):", body, re.M))
+    assert keys == {"pitch"}, f"unexpected field(s) in the Scout's own file: {keys}"
+
+
+def test_dedup_falls_back_to_the_ledger_before_any_rebuild(tmp_path):
+    """No window where dedup reads nothing and re-pitches the whole backlog."""
+    ledger = _write(tmp_path)
+    assert not index_path_for(ledger).exists()
+    got = load_dedup_memory(ledger, 240)
+    assert [g["id"] for g in got] == ["2026-07-12-a-real-slug", "2026-07-13-second-lead"]
+
+
+def test_dedup_prefers_the_index_once_it_exists(tmp_path):
+    ledger = _write(tmp_path)
+    write_pitched_index(ledger, pitch_chars=120)
+    assert load_dedup_memory(ledger, 240)[0]["pitch"].endswith("not anomalous.")
+
+
+def test_filing_a_lead_updates_both_files(tmp_path):
+    """The ledger stays the record; the index must not drift from it."""
+    ledger = _write(tmp_path)
+    write_pitched_index(ledger, pitch_chars=240)
+    lead = {
+        "slug": "a-new-finding",
+        "register": "note",
+        "pitch": "A first sentence that carries the claim. Then a second one with detail "
+                 "that the dedup memory does not need to keep at all, going on for a while.",
+        "why_now": "now",
+        "sources": ["seq 1-2"],
+    }
+    assert append_leads(ledger, [lead], "claude-sonnet-5", 60) == 1
+    ids = lambda p: [x["id"] for x in load_pitched(p)]
+    assert ids(ledger) == ids(index_path_for(ledger))
+    assert any("a-new-finding" in i for i in ids(index_path_for(ledger)))
+    # And the index kept only the digest (60 here, so the cut actually bites).
+    entry = [x for x in load_pitched(index_path_for(ledger)) if "a-new-finding" in x["id"]][0]
+    assert entry["pitch"] == "A first sentence that carries the claim."
+
+
+def test_rebuild_is_idempotent_and_recovers_a_lost_index(tmp_path):
+    """The index is derived — losing it must never be a data loss event."""
+    ledger = _write(tmp_path)
+    write_pitched_index(ledger, pitch_chars=240)
+    first = index_path_for(ledger).read_text(encoding="utf-8")
+    index_path_for(ledger).unlink()
+    write_pitched_index(ledger, pitch_chars=240)
+    assert index_path_for(ledger).read_text(encoding="utf-8") == first
