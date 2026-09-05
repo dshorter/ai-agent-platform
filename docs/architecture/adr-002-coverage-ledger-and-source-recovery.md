@@ -314,6 +314,37 @@ effect and the operator's actual hypothesis — and each result means something 
 its own. `NEWSROOM.md`'s rule still governs the reading: *the Editor judges, not
 the contestant.*
 
+**A THIRD variable, found 2026-09-05 while proving the git reader — the arms
+do not cover the same period unless they are made to.**
+
+| ore | earliest | latest |
+|---|---|---|
+| transcripts (`scout_session_log`) | 2026-01-21 | 2026-09-05 |
+| git (all five repos) | **2025-09-26** | 2026-09-05 |
+
+Git history reaches four months further back than any transcript. 53 commits —
+5% of 1,133, all in `ai-agent-platform` — predate the corpus entirely, and
+because a walk pages chronologically from the start they are *exactly page one*.
+The first live proving run mined them and came back with jewels about ngrok and
+n8n webhooks: durable material, honestly mined, and about a subsystem that is
+out of scope and that no transcript has ever seen.
+
+So an unbounded git arm against a transcript arm measures **era** as much as
+register. The fix is free and must be deliberate: `--since 2026-01-21` on the
+git walk, so both arms cover the same window. Both verbs already take it.
+
+This is the third instance of one pattern in two days — the model swap moving
+with the source mix (§6b above), filing dates standing in for source dates in
+the arc analysis, and now era riding along with register. Same shape each time:
+two things moving together, and the one nobody is looking at explains the
+result. Worth treating as the default suspicion rather than a recurring
+surprise.
+
+The pre-2026 ore is not discarded by this. It is genuinely part of "the platform
+narrating its own building" and deserves mining on its own terms — it is simply
+not *comparable* material, so it must not be blended into a controlled
+comparison.
+
 **Recommendation: do not settle the QUALITY half on price. Settle it with these
 runs.**
 `NEWSROOM.md` already specifies the experiment and it has never been run — one

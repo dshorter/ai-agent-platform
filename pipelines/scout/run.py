@@ -324,7 +324,18 @@ def run_walk(
                 summary=summary,
                 dry_run=dry_run,
                 cursor_key=None,
-                cost_cap=None,
+                # Was None until 2026-09-05 — so the one verb that is an
+                # operator action, ungated by SCOUT_PAUSED, and exactly what a
+                # recovery mine runs, had no backstop at all. ADR-002 §5 agreed
+                # a ceiling before Phase 1 and argued the case: set it
+                # generously, do not remove it. At ~$0.024 a page the default
+                # $2 is eighty pages of headroom, so it cannot interfere with
+                # the experiment it is two orders of magnitude away from — and
+                # if a walk expected to cost pennies trips it, that is
+                # information (the ore is bigger than believed, the loop is not
+                # terminating, or SCOUT_WALK_MODEL is not the model intended).
+                # Removing it removes the signal, not just the limit.
+                cost_cap=config.max_cost_usd,
             )
             summary["jewels"] = len(found)
             summary["last_seq"] = last
@@ -358,10 +369,8 @@ def run_git_walk(
     that ledger is not built, so this takes an explicit range and the operator
     drives it — the same posture `--walk` already has.
 
-    **This verb has a cost ceiling, and `--walk` still does not.** That gap is
-    a live finding (ADR-002 §5: `run_walk` passes `cost_cap=None`, so the
-    operator verb ungated by SCOUT_PAUSED is uncapped). New code gets the
-    control; retrofitting the old one is its own change.
+    Both walk verbs carry a cost ceiling. This one had it from the start; the
+    transcript walk was retrofitted 2026-09-05, closing ADR-002 §5.
     """
     conn = psycopg.connect(config.postgres_dsn)
     log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
