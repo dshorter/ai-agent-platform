@@ -102,8 +102,10 @@ _READ_TRANSCRIPT_DEF: dict[str, Any] = {
     "name": "read_transcript",
     "description": (
         "Read a range of ingested session-log rows (the Scout's ore) by seq — "
-        "the numbers your jewels reference. Returns session/turn/role, the raw "
-        "text (clipped), and any scratchpad "
+        "the anchor carried by jewels whose source_type is 'transcript'. Jewels "
+        "from other sources carry a source_ref instead (a git jewel's looks "
+        "like repo@sha) and are followed with run_git, not this tool. Returns "
+        "session/turn/role, the raw text (clipped), and any scratchpad "
         "arc-notes you left on prior walks. Use it to pull a thread a jewel "
         "points at."
     ),
@@ -155,9 +157,10 @@ Copy the value INSIDE the brackets exactly — `[ref=repo@sha]` means the ref is
 SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged transcript jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
 
 You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
-- read_transcript — the ingested session-log ore, by seq (your jewels cite seqs; your own scratchpad arc-notes ride along).
+- read_transcript — the ingested session-log ore, by seq. Use it for a jewel whose `source_type` is `transcript`; its `seq` is the anchor, and your own scratchpad arc-notes ride along.
+- **Your jewels no longer all cite seqs.** Each carries `source_type` and, when it is not a transcript, a `source_ref` instead of a seq. A `git` jewel's ref looks like `repo@sha` — for example `ai-agent-platform@3c2878a270`. Follow one with run_git against that repo and sha (`show`, `log`, `blame`) exactly as you would pull a transcript thread by seq. These jewels are a different REGISTER, not just a different table: a session log records a problem while it is being fought, a commit message records what was decided and why, afterwards. The seam between the two accounts of one event is the richest thing in the pile.
 - read_file / grep — the repos and docs: design docs (NEWSROOM, personas), the sysadmin ledger (docs/uzelhub-crew/sysadmin-ledger.md), the ops calendar (ops/calendar.ics), the marketing survey (uzelhub-web/marketing/promotion-survey.yaml), devlogs.
-- run_git — read-only git across the registered projects (log/show/blame — when a story turns on when-and-why).
+- run_git — read-only git across the registered projects (log/show/blame). This is how you resolve a `git` jewel's `source_ref`, and how a story that turns on when-and-why gets its receipts.
 Your tool budget is small; spend it pulling threads, not surveying. When you have enough, stop and pitch.
 
 Generate WIDE. Bold many-way connections are welcome — the best stories are the ones no pattern predicted. False positives are cheap (an editor spikes them); missed leads are invisible and unrecoverable. Err reckless.
