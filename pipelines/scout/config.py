@@ -2,7 +2,9 @@
 
 The synthesis model is deliberately an env var (NEWSROOM §Model tiers: "make
 the synthesis model an env var, run one ambient pass each through Sonnet and
-Fable, let lead quality decide"). Fable 5 is the plan; the A/B is the check.
+Fable, let lead quality decide"). **Sonnet 5 is the default since 2026-09-03**
+on measured cost (ADR-002 §6); Fable remains one env var away and the quality
+half of that A/B has still never been run.
 """
 from __future__ import annotations
 

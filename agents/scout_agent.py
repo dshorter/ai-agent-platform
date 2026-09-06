@@ -5,8 +5,9 @@ NEWSROOM §Model tiers: the Scout is not one model call. The WALK (triage over
 big swaths of transcript — high token volume, low IQ demand) runs on the cheap
 tier, inheriting the marketer's Haiku-extraction split. The SYNTHESIS (the
 "link 16 things because maybe" leap — low volume, maximum IQ) runs on the
-premium tier, env-var'd, Fable 5 by plan. Nothing filters the Scout's missing
-leads, so the synthesis model sets the ceiling on what stories ever exist.
+premium tier, env-var'd — **Sonnet 5 since 2026-09-03**, Fable 5 before that
+(ADR-002 §6: measured at 187x the walk per call). Nothing filters the Scout's
+missing leads, so the synthesis model sets the ceiling on what stories exist.
 
 Synthesis has HANDS: a bounded read-only roam (the Director's ToolBox —
 read_file / grep / run_git — plus read_transcript over the ingested ore).
@@ -47,10 +48,22 @@ SCOUT_TRIAGE_MAX_TOKENS = 4096
 # the models already allowed 128,000. Kept clear of the SDK's 21,333
 # non-streaming ceiling; guard_truncation makes a wrong guess loud.
 #
-# Tightest case on the box: synthesis runs on Fable 5, where thinking is
-# ALWAYS on and shares this budget — so 8192 was funding the reasoning and
-# the answer from one pot, on the step NEWSROOM.md calls the creative
-# ceiling of the whole newsroom. Streaming this stage is the real fix.
+# THE HAZARD IS THE SEAT, NOT THE MODEL — corrected 2026-09-05 after it bit.
+# This paragraph used to read "synthesis runs on Fable 5, where thinking is
+# ALWAYS on and shares this budget". True when written, and filed as a
+# FABLE caveat — so when the seat moved to Sonnet 5 on 09-03 the warning
+# looked inapplicable and nobody carried it forward.
+#
+# It was never about Fable. Reasoning tokens and the answer come out of one
+# output pot on this stage whoever sits in it. Measured 2026-09-05 on
+# SONNET 5: a synthesis call burned the entire 20,000-token budget and
+# emitted ZERO characters — no answer at all, reported as "leads: 0" for
+# $0.43 until the truncation guard made it loud.
+#
+# So raising the ceiling buys a larger silence, not an answer. Streaming this
+# stage — or giving reasoning its own budget — remains the real fix, and it is
+# now a live blocker on running the register comparison at full selection size
+# rather than a note about a model we no longer use.
 SCOUT_SYNTHESIS_MAX_TOKENS = 20000
 # Hard ceiling on total roam tool output across one synthesis (same guard the
 # Director's loop carries against a context blowout).

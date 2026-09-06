@@ -414,6 +414,17 @@ read the two lead-lists side by side; the `agent_decisions` cost spine prices
 them automatically. At pennies per pass, let lead *quality* decide. If Sonnet's
 leads are as good, you've saved nothing worth measuring and kept it simpler.
 
+> **CORRECTED 2026-09-05 — this caveat was mis-filed, and the mis-filing cost
+> a day.** It is written as a *Fable* caveat, so when synthesis moved to
+> Sonnet 5 on 09-03 the warning read as no longer applicable and nobody
+> carried it forward. The hazard belongs to **the seat, not the model**:
+> reasoning tokens and the answer share one output budget on this stage
+> whoever occupies it. Measured on Sonnet 5 — a synthesis call burned the
+> whole 20,000-token budget and emitted **zero characters**, surfacing as
+> "0 leads" for $0.43 until a guard was added to make it loud. Read every
+> line below as applying to the synthesis seat. The refusal-handling half is
+> genuinely Fable-specific; the budget half is not.
+
 **Caveat to handle if Fable:** always-on thinking (minutes-long turns — fine for
 ambient work) and a safety-refusal classifier. Neither bites here
 (story-prospecting isn't cyber/bio), but wire the same `stop_reason: "refusal"`
