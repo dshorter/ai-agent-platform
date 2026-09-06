@@ -49,7 +49,7 @@ as a description, not a rule, and never read its silence as permission. An
 | Director's own memory across runs | `docs/director/director-ledger.md` |
 | Predictor: charter, domains, pipeline, deployment | `/opt/predictor_ingest/AGENTS.md` |
 | Predictor cost governance and the film decisions | `/opt/predictor_ingest/docs/architecture/adr-011-*.md` |
-| **This repo's own architecture decisions** | `docs/architecture/adr-NNN-*.md`. ADR-001 manual Writer assignments (**Deferred**, with the reasoning for not building it, plus a survey of three external systems). ADR-002 the coverage ledger, the recovery runs, and the synthesis model swap. |
+| **This repo's own architecture decisions** | `docs/architecture/adr-NNN-*.md`. ADR-001 manual Writer assignments (**Deferred**, with the reasoning for not building it, plus a survey of three external systems). ADR-002 the coverage ledger, the recovery runs, and the synthesis model swap. ADR-003 the leads ledger moves to Postgres (**direction settled, migration not scheduled**) — and the reason that matters most is that it turns the pineapple rule from a parser's incompleteness into a column grant. |
 | How silent failures happen here, with worked examples | `docs/uzelhub-crew/silent-instruments-2026-08-29.md`, and `docs/uzelhub-crew/jewels-are-transcript-only-2026-09-03.md` — a constraint that answered a question it was never asked |
 | Why a design decision was made, when the artifact alone won't say | The dated reasoning-arc docs: `asking-one-level-up-2026-08-29.md`, `loose-words-hide-decisions-2026-09-03.md`. Findings live in their own docs; these carry how the thinking moved. |
 
