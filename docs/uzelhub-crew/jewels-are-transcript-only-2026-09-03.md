@@ -112,6 +112,20 @@ is sparse because **99% of the corpus has never been walked into it.** `004`
 landed 2026-08-22 and `SCOUT_PAUSED=1` has been set since 2026-08-19, so the
 full re-mine the retool made affordable (~95 pages, ~$1) has never been run.
 
+> **SUPERSEDED 2026-09-05 — the table above is the state on 09-03 and is kept
+> as the record of how thin the layer was.** Both gaps it describes are now
+> closed. The git reader landed and mined 1,080 commits into 642 jewels
+> ($0.53); the full transcript re-mine this section says had never been run ran
+> the same day — 101 pages, 15,126 rows, 1,930 jewels persisted ($2.89). The
+> layer now holds **2,630 jewels across two source types** spanning 2026-01-24
+> to 2026-09-05, against 58 from a single date when this was written.
+>
+> The open empirical question this section poses — whether the other five
+> sources are rich or barren — is answered for **one** of them. Git is rich:
+> 642 jewels from 1,080 commits, weighted toward `decision` and `principle`,
+> which is the resolved register the transcripts structurally lack. Four sources
+> remain unmeasured.
+
 **And the single `source_type` value proves nothing about the other five.** All
 58 rows are transcript-anchored — necessarily, because until 1.4.0 the table
 could not store anything else. The absence of git, doc, ledger, calendar,

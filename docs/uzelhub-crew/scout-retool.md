@@ -1,6 +1,6 @@
 ---
 read: full
-status: opened 2026-08-21. §§1-4 BUILT and committed 2026-08-22 (3dc8894, 48ba6e1, 5950527, + the cursor commit); rollout steps 4 (reclaim sweep) and resume are NOT done and are operator calls. Decisions below are made, not proposed — where something is genuinely open it says so. Rests entirely on scout-mining-economics.md; read that first or the tuning here looks backwards. Scout is PAUSED (SCOUT_PAUSED=1) for the duration.
+status: opened 2026-08-21. §§1-4 BUILT and committed 2026-08-22 (3dc8894, 48ba6e1, 5950527, + the cursor commit). **Rollout step 4 (the reclaim sweep) RAN 2026-09-05** — full corpus, 101 pages, 1,930 jewels persisted, $2.89; see §How we will know it worked for the results against the criteria. Resume (deleting SCOUT_PAUSED) is still an operator call. Decisions below are made, not proposed — where something is genuinely open it says so. Rests entirely on scout-mining-economics.md; read that first or the tuning here looks backwards. Scout is PAUSED (SCOUT_PAUSED=1) for the duration.
 ---
 
 # Scout retool — from pipeline to substrate
@@ -205,7 +205,7 @@ depend on it.
 2. **Verbs.** `--walk` and `--synthesize` split out; `--pass` composes them and
    remains the timer's entry point.
 3. **Row budget.** Config change plus the fresh-first fill rule.
-4. **Reclaim.** One `--walk` sweep over the full corpus. ~95 pages, ~$1.
+4. **Reclaim.** ✅ **RAN 2026-09-05.** One `--walk` sweep over the full corpus: 101 pages, 15,126 rows, 1,945 jewels found and 1,930 persisted, **$2.89**, ~40 minutes. Terminated by exhausting the ore, not by hitting anything.
 
 > **MEASURED 2026-09-05 — the ~$1 figure is wrong by about 4x, and it is
 > repeated across three documents.** The first real full-corpus walk came in at
@@ -251,6 +251,16 @@ are independent; only the measurement depends on resuming.
 - **Persistence is complete.** After any walk, `count(*)` in `scout_jewel` for
   that `run_id` equals the jewel count that run logged. A silent shortfall means
   the write path is dropping rows.
+
+  > **MEASURED 2026-09-05: 1,945 found, 1,930 persisted — a 15-row shortfall,
+  > and it is NOT the failure this criterion was written to catch.** Those 15
+  > are `resolve_anchor` refusing seqs the walker was not shown, which is the
+  > anti-hallucination guard doing its job and is reported rather than silent.
+  > The criterion needs the distinction: a shortfall matching the *dropped*
+  > count is correct behaviour; a shortfall beyond it is a broken write path.
+  > For scale, the same run's git twin dropped **0 of 642**, so the transcript
+  > walker fabricates a citation about 0.8% of the time and the git walker did
+  > not do it at all.
 - **Reclaim is cheap.** The full-corpus `--walk` completes with zero synthesis
   calls and a total cost near $1. Anything materially higher means the verbs are
   still welded somewhere.
@@ -272,6 +282,15 @@ are independent; only the measurement depends on resuming.
   archive.
 
 ## Open
+
+- **The walker invented four kinds, and nothing stopped it** (found 2026-09-05).
+  Alongside the five the prompt names, the full sweep emitted `observation` (5),
+  `finding` (3), `note` (2) and `verification` (1) — 11 rows. `_clean_kind`
+  passes them through rather than coercing or dropping them. Eleven rows is
+  nothing; a vocabulary widening because no one is holding it closed is the same
+  shape as every other finding this week. Decide it: either the prompt's five are
+  the vocabulary and `_clean_kind` enforces that, or the set is open and
+  consumers must not assume five. Not a bug today, a decision owed.
 
 - **Should `--synthesize` be able to run over a jewel selection spanning
   multiple runs of the same ore?** Union is the obvious default, but two runs

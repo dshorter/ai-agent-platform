@@ -207,6 +207,39 @@ clean. That is not a control." A human watching a terminal is exactly that kind
 of non-control, and the failure mode here is unbounded spend against 1,500
 commits plus imported docs plus new logs.
 
+**PHASE 1 RUN RECORD — the first two runs, 2026-09-05.** Recorded in the shape
+this section asks for, so the caps question is answerable rather than
+impressionistic.
+
+| | git walk | transcript re-mine |
+|---|---|---|
+| units walked | 1,080 commits (22 pages) | 15,126 rows (101 pages) |
+| jewels found | 642 | 1,945 |
+| jewels persisted | 642 | 1,930 |
+| dropped by `resolve_anchor` | **0** | 15 (0.8%) |
+| cost | $0.53 | $2.89 |
+| wall time | 13 min | ~40 min |
+| **how it terminated** | **exhausted the ore** | **exhausted the ore** |
+
+**The last row is the point of the exercise, and it answers the question.**
+Neither run ended by hitting anything — not the cost ceiling, not a page cap,
+not a budget. Per this section's own test, *"a run that ends because it ran out
+of material tells us the cap was never binding."* Both did. So on the evidence
+so far the coverage caps were not what was limiting the recovery, and lifting
+them further buys nothing; the ceiling never came close (the transcript run used
+$2.89 against a $5 ceiling raised for it, and $0.53 against $2 for the git run).
+
+Two things the runs taught that no amount of reasoning would have:
+
+- **The cost estimate was 4x low, in three documents**, because $0.0105/page was
+  measured on thin August pages and applied to full 150-row ones. Corrected in
+  `scout-retool.md`, `scout-mining-economics.md` and
+  `jewels-are-transcript-only-2026-09-03.md`.
+- **The anti-hallucination guard is doing real work and the rate differs by
+  source.** 15 fabricated seqs on transcripts, 0 fabricated refs on git. Schema
+  1.4.0 traded the foreign key away for exactly this check, and it is now
+  measured rather than assumed.
+
 **What Phase 1 must record per run**, so the caps question is answerable rather
 than impressionistic: rows/units walked, jewels found, cost, wall time, and —
 the point of the exercise — whether the run terminated by exhausting the ore or
