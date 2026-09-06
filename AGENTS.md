@@ -82,6 +82,13 @@ casts a vote without anyone noticing. These are open:
   layer instead. (That argument is reasoning from 2026-08-31, not a decision.)
 - **Should the visitor-facing agents be in the trace?** `agent-roster.html`
   records the finding and the fix ("what's missing is an INSERT and a grant").
+- **What is one `agent_decisions` row, and what is one sequence?** Measured
+  2026-09-06: `step_number` is `1` on all 1,644 rows, one
+  `workflow_sequence_id` held six repetitions of the same chain, and 50% of
+  rows carry dotted names that inflate `agent_span` (a `COUNT(DISTINCT
+  agent_name)` over free text). **Settle the unit before building the
+  `agent_decisions` reader ADR-002 specifies** — it addresses "a sequence".
+  → `docs/uzelhub-crew/agent-span-counts-strings-2026-09-06.md`
 - **Opened 2026-09-03, all from ADR-002 — none of these is settled:**
   - **What is a `source_ref` for gated material?** It must be opaque, because the
     reference travels outward on a lead even when the content was scrubbed. The

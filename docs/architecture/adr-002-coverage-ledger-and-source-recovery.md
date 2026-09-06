@@ -240,6 +240,67 @@ Two things the runs taught that no amount of reasoning would have:
   1.4.0 traded the foreign key away for exactly this check, and it is now
   measured rather than assumed.
 
+**PHASE 1 RUN RECORD — the source-mix arms, 2026-09-06.** The first *controlled*
+run of the first question in the arms table above. The Fable-vs-Sonnet arm
+remains unrun.
+
+| | Arm A (transcript) | Arm B (all sources) |
+|---|---|---|
+| jewels selected | 250 | 250 |
+| window | 2026-04-06 → 05-13 | 2026-04-01 → 05-04 |
+| source mix | transcript 250 | transcript 174 / git 76 |
+| leads | 11 | 10 |
+| citations | 11 | **23** |
+| citations per lead | 1.0 | **2.3** |
+| git-anchored citations | 0% | **69%** |
+| max `agent_span` | 1 | **4** |
+| roam calls | 8, all `read_transcript` | 12, of which 8 `run_git` |
+| cost | $0.2355 | $0.2205 |
+| **how it terminated** | **forced pitch after 6 roam rounds** | **forced pitch after 6 roam rounds** |
+
+Held constant: model (Sonnet 5), effort (`high`), synthesis prompt, jewel volume,
+and — deliberately — an **empty dedup memory before each arm**, per the design
+review's first finding. Only the source mix moved.
+
+**The finding is not in the lead count. It is in what the leads are about.**
+Five of Arm B's ten leads are the same stories Arm A found, reframed
+(`the-hour-long-silent-hang` ↔ `katalon-console-silent-hang`,
+`kre-first-bet-and-its-reversal` ↔ `kre-first-pivot-and-abandonment`,
+`the-wrapper-div-that-ate-24-clicks` ↔ `wrapper-div-ate-the-send-button`,
+`false-green-the-discussion-post-that-never-posted` ↔ `false-green-discussion-panel`,
+`four-logins-hiding-in-one-page` ↔ `responsive-that-isnt-four-hidden-logins`).
+Arm B's other five have **no counterpart in Arm A** and are all git-derived.
+
+So: the source mix does not change *how much* the Scout finds. It changes what
+the material is about and how densely it is sourced. Lead count was flat (11 vs
+10) exactly as §homeostasis predicts; citation density more than doubled; git
+anchoring went 0% → 69%. And Arm B recovered the same five core stories while
+seeing **30% less transcript ore** (174 jewels against 250), because git carried
+the rest.
+
+**Against Arm B v1 (2026-09-05, 38% git-anchored):** anchoring nearly doubled to
+69%. That run predates the restoration of A6, which tells synthesis a git
+jewel's `source_ref` is a `repo@sha` and that `run_git` resolves it. v1 could
+read a git jewel's note but could not follow it to the commit, which is why its
+figure was a floor rather than a measurement.
+
+**The era confound this ADR names above was real at a second layer.** §A THIRD
+variable fixes it at the *mine* (`--since` on the git walk). It recurs at
+*selection*: `select()` orders by `session_date` and `LIMIT` takes the oldest, so
+an unbounded `--limit 250` gave Arm B 2026-01-24 → 04-06 (220 git / 30
+transcript) against Arm A's 2026-03-16 → 05-08 — different eras *and* different
+mixes. Fixed by putting `--since 2026-04-01` on **both** arms, the first month
+where both source types are populated. Residual: a ~9-day tail offset, accepted
+in preference to a 30% volume difference, which §homeostasis says would bias
+directionally.
+
+**Read the magnitudes as provisional. n=1 per arm, and the pipeline is
+stochastic.** The identical Arm B command returned **0 leads on its first
+attempt and 10 on its second** — the "roamed, ended cleanly, pitched nothing"
+failure, now known to be intermittent rather than deterministic. This section
+asks for ten supervised runs, and this is why. The *direction* is supported by
+two independent runs (v1 and today); the numbers need repetition.
+
 **What Phase 1 must record per run**, so the caps question is answerable rather
 than impressionistic: rows/units walked, jewels found, cost, wall time, and —
 the point of the exercise — whether the run terminated by exhausting the ore or
@@ -315,6 +376,16 @@ It is plausible on two mechanisms, both concrete:
   cross-agent seams the whole "stories live at the seams" thesis rests on become
   *mineable material* rather than a SQL hint applied after the fact.
 
+  > **BLOCKED 2026-09-06 — the unit is not what this assumed.** Measured: one
+  > `workflow_sequence_id` held six repetitions of the same four-name chain, so
+  > "a sequence" bundles an unknown number of passes; `step_number` is `1` on
+  > all 1,644 rows, so the `ORDER BY step_number` this would rely on orders
+  > nothing; and 50% of rows carry dotted names (`marketer_agent.extract` and
+  > `marketer_agent.package` count as two agents, `ghost.create_draft` is a blog
+  > API), so `agent_span` counts naming conventions. **Settle the mineable unit
+  > before building this reader** — build `doc` and `ledger` first, whose units
+  > are well specified. → `docs/uzelhub-crew/agent-span-counts-strings-2026-09-06.md`
+
 And `scout-mining-economics.md` predicts the *shape* of the effect: output is
 homeostatic at ~13 leads per pass regardless of input, so **expect differently
 sourced leads, not more of them** — which is exactly the balance being asked for,
@@ -344,7 +415,12 @@ That turns both questions into controlled comparisons over identical ore:
 
 Run them in that order — source mix first, since it is the larger expected
 effect and the operator's actual hypothesis — and each result means something on
-its own. `NEWSROOM.md`'s rule still governs the reading: *the Editor judges, not
+its own.
+
+> **Source mix RUN 2026-09-06** — see the second Phase 1 run record below. It
+> does not change lead volume; it changes register and citation density (0% →
+> 69% git-anchored, 1.0 → 2.3 citations per lead, `agent_span` 1 → 4). n=1 per
+> arm. **The Fable-vs-Sonnet arm is still unrun.** `NEWSROOM.md`'s rule still governs the reading: *the Editor judges, not
 the contestant.*
 
 **A THIRD variable, found 2026-09-05 while proving the git reader — the arms
