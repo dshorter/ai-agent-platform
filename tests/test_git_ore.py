@@ -221,10 +221,7 @@ def test_synthesis_truncation_raises_like_triage():
 def test_empty_result_keeps_the_model_words(tmp_path, monkeypatch):
     """Three zero-lead runs cost $2.72 and none could be diagnosed, because the
     only record was `leads: 0` and the raw response died with the process."""
-    import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
-    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
-    (tmp_path / "agents").mkdir()
     call = ScoutCall(data={}, model="claude-sonnet-5", stop_reason="end_turn",
                      raw_text="I looked and found nothing worth pitching.")
     _keep_evidence_if_empty(call, "synthesis")
@@ -241,10 +238,7 @@ def test_evidence_keeps_the_reasoning_for_the_roamed_but_pitched_nothing_mode(
     leads — has an EMPTY raw_text by definition, so a capture that keeps only
     raw_text records the same zero the spine already had. The reasoning summary
     is the only surviving account of what the model was doing."""
-    import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
-    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
-    (tmp_path / "agents").mkdir()
     call = ScoutCall(data={"leads": []}, model="claude-sonnet-5", stop_reason="end_turn",
                      iterations=7, raw_text="")
     call.reasoning = "I kept re-reading one narrow band and never widened."
@@ -257,10 +251,7 @@ def test_evidence_keeps_the_reasoning_for_the_roamed_but_pitched_nothing_mode(
 
 def test_a_result_with_leads_writes_no_residue(tmp_path, monkeypatch):
     """Only failures leave debugging residue — this is not provenance."""
-    import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
-    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
-    (tmp_path / "agents").mkdir()
     _keep_evidence_if_empty(
         ScoutCall(data={"leads": [{"slug": "x"}]}, model="m", raw_text="..."), "synthesis")
     assert not (tmp_path / "pipelines").exists()
@@ -278,10 +269,6 @@ def test_guard_reports_the_ceiling_that_actually_applies(tmp_path, monkeypatch):
     and that survives any value."""
     import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
-    # The guard captures evidence before raising, so without this the test
-    # writes residue into the live state dir. Found by doing exactly that.
-    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
-    (tmp_path / "agents").mkdir()
     assert m.SCOUT_SYNTHESIS_MAX_TOKENS != m.SCOUT_TRIAGE_MAX_TOKENS, (
         "the test cannot tell the two messages apart if the ceilings are equal"
     )
@@ -296,10 +283,7 @@ def test_guard_reports_the_ceiling_that_actually_applies(tmp_path, monkeypatch):
 def test_no_text_at_all_is_a_different_diagnosis_than_truncated_json(tmp_path, monkeypatch):
     """0 chars means nothing was written to truncate, so 'the page is too big'
     is wrong advice. The budget went somewhere other than the answer."""
-    import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
-    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
-    (tmp_path / "agents").mkdir()
     with pytest.raises(TriageTruncated, match="NO TEXT AT ALL"):
         _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
                                     raw_text=""), "synthesis")
