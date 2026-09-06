@@ -234,6 +234,27 @@ def test_empty_result_keeps_the_model_words(tmp_path, monkeypatch):
     assert "nothing worth pitching" in body and "end_turn" in body
 
 
+def test_evidence_keeps_the_reasoning_for_the_roamed_but_pitched_nothing_mode(
+    tmp_path, monkeypatch
+):
+    """The unexplained failure mode — 7 iterations, 6 tools, end_turn, zero
+    leads — has an EMPTY raw_text by definition, so a capture that keeps only
+    raw_text records the same zero the spine already had. The reasoning summary
+    is the only surviving account of what the model was doing."""
+    import agents.scout_agent as m
+    from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
+    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
+    (tmp_path / "agents").mkdir()
+    call = ScoutCall(data={"leads": []}, model="claude-sonnet-5", stop_reason="end_turn",
+                     iterations=7, raw_text="")
+    call.reasoning = "I kept re-reading one narrow band and never widened."
+    _keep_evidence_if_empty(call, "synthesis")
+    body = next(
+        (tmp_path / "pipelines" / "scout" / "state" / "empty-calls").glob("*.txt")
+    ).read_text()
+    assert "never widened" in body, "the reasoning is the evidence in this mode"
+
+
 def test_a_result_with_leads_writes_no_residue(tmp_path, monkeypatch):
     """Only failures leave debugging residue — this is not provenance."""
     import agents.scout_agent as m
@@ -248,17 +269,26 @@ def test_a_result_with_leads_writes_no_residue(tmp_path, monkeypatch):
 def test_guard_reports_the_ceiling_that_actually_applies(tmp_path, monkeypatch):
     """The first version hardcoded the triage ceiling into both messages, so a
     synthesis failure reported 4,096 when the real limit was 20,000 — an
-    instrument misreporting the number it exists to report."""
+    instrument misreporting the number it exists to report.
+
+    Asserted against the constants rather than literals since 2026-09-06, when
+    the synthesis ceiling moved to 64,000: a literal here fails on every
+    legitimate raise, which trains people to edit the test without reading it.
+    The property under test is "each message quotes its OWN stage's ceiling",
+    and that survives any value."""
     import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
     # The guard captures evidence before raising, so without this the test
     # writes residue into the live state dir. Found by doing exactly that.
     monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
     (tmp_path / "agents").mkdir()
-    with pytest.raises(TriageTruncated, match="20,000"):
+    assert m.SCOUT_SYNTHESIS_MAX_TOKENS != m.SCOUT_TRIAGE_MAX_TOKENS, (
+        "the test cannot tell the two messages apart if the ceilings are equal"
+    )
+    with pytest.raises(TriageTruncated, match=f"{m.SCOUT_SYNTHESIS_MAX_TOKENS:,}"):
         _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
                                     raw_text='{"leads": [{'), "synthesis")
-    with pytest.raises(TriageTruncated, match="4,096"):
+    with pytest.raises(TriageTruncated, match=f"{m.SCOUT_TRIAGE_MAX_TOKENS:,}"):
         _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
                                     raw_text='{"jewels": [{'), "git")
 

@@ -82,6 +82,7 @@ def _agent(config: ScoutConfig) -> ScoutAgent:
         synthesis_model=config.synthesis_model,
         synthesis_fallback=config.synthesis_fallback,
         roam_iterations=config.roam_iterations,
+        synthesis_effort=config.synthesis_effort,
     )
 
 

@@ -57,6 +57,7 @@ class ScoutConfig:
     leads_path: Path           # the leads ledger (the Editor's queue)
     # Last, with a default, so every existing construction keeps working.
     pitch_digest_chars: int = 240  # chars of each past pitch shown to synthesis
+    synthesis_effort: str = "high"  # reasoning depth on the synthesis seat (low..max)
     # The estate's repos, as git ore. Commit messages carry the RESOLVED
     # register that session logs structurally cannot — what was decided and
     # why, written after — which is the register the copy has been missing.
@@ -86,6 +87,12 @@ class ScoutConfig:
             # assumption.
             synthesis_model=os.environ.get("SCOUT_SYNTHESIS_MODEL", "claude-sonnet-5"),
             synthesis_fallback=os.environ.get("SCOUT_SYNTHESIS_FALLBACK", "claude-opus-5"),
+            # `high` is the API's own default, so the default here changes
+            # nothing — it names a variable that was previously held still by
+            # accident. Raise per run (xhigh, max) when a pass is worth more
+            # thinking; do not move it inside an arm comparison, because the
+            # stored Arm A / Arm B numbers were bought at this value.
+            synthesis_effort=os.environ.get("SCOUT_SYNTHESIS_EFFORT", "high"),
             page_rows=int(os.environ.get("SCOUT_PAGE_ROWS", "150")),
             # 150 rows, not the 450 that walk_pages=3 x page_rows=150 gave.
             # Output is homeostatic at ~13 leads a pass no matter what goes in

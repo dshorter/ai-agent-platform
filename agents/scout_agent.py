@@ -60,11 +60,35 @@ SCOUT_TRIAGE_MAX_TOKENS = 4096
 # emitted ZERO characters — no answer at all, reported as "leads: 0" for
 # $0.43 until the truncation guard made it loud.
 #
-# So raising the ceiling buys a larger silence, not an answer. Streaming this
-# stage — or giving reasoning its own budget — remains the real fix, and it is
-# now a live blocker on running the register comparison at full selection size
-# rather than a note about a model we no longer use.
-SCOUT_SYNTHESIS_MAX_TOKENS = 20000
+# So raising the ceiling buys a larger silence, not an answer.
+#
+# THE SECOND HALF OF THAT SENTENCE WAS NEVER AVAILABLE — corrected 2026-09-06.
+# This used to offer a choice: "stream this stage, or give reasoning its own
+# budget". There is no second option. `budget_tokens` is REMOVED on Sonnet 5
+# and returns a 400; the only depth control is `output_config.effort`, and
+# effort tunes how much reasoning happens, not which pot it comes out of.
+# The line survived its own 09-05 correction because that correction was about
+# WHOSE hazard it is (the seat, not Fable), and nobody re-checked whether the
+# remedies still existed. A fix named but never attempted is not load-bearing
+# until someone tries it.
+#
+# So: STREAMING, and only streaming. Done 2026-09-06 — this stage now goes
+# through client.messages.stream, which lifts the 21,333 non-streaming cap the
+# old 20,000 was tucked under, and the ceiling moves to 64,000 (the wire
+# editor's proven value). Reasoning still shares the pot; it now has a pot
+# worth sharing.
+SCOUT_SYNTHESIS_MAX_TOKENS = 64000
+# Above this the SDK hard-refuses a non-streaming request, before it is sent —
+# a startup failure, not a timeout (it broke sysadmin-daily 2026-08-08).
+# tests/test_stop_guards.py asserts every ceiling against its own copy of this
+# number, deliberately: a test that imported it could never catch a bad edit.
+SDK_NON_STREAMING_MAX_TOKENS = 21_333
+# Reasoning depth on the synthesis seat. `high` is the API default, so this
+# constant states the status quo rather than changing it — which is the point:
+# the Arm A / Arm B result was bought at the default, and an unstated default
+# is a variable nobody remembers holding still. Raise it per run via
+# SCOUT_SYNTHESIS_EFFORT (low|medium|high|xhigh|max), never mid-experiment.
+SCOUT_SYNTHESIS_EFFORT = "high"
 # Hard ceiling on total roam tool output across one synthesis (same guard the
 # Director's loop carries against a context blowout).
 SCOUT_MAX_TOOL_CHARS = 120_000
@@ -214,10 +238,12 @@ def _guard_truncation(call: "ScoutCall", source: str) -> None:
         f"{source} burned the whole {ceiling:,}-token output budget and emitted "
         f"NO TEXT AT ALL (0 chars). This is not a page-size problem: nothing was "
         f"written to truncate. The budget went somewhere other than the answer — "
-        f"on this stage that means reasoning tokens sharing the output pot, which "
-        f"scout_agent's own header flags ('thinking is ALWAYS on and shares this "
-        f"budget') and names the fix for: stream this stage, or give reasoning its "
-        f"own budget. Raising the ceiling alone just buys a larger silence."
+        f"on this stage that means reasoning tokens sharing the output pot. "
+        f"Synthesis streams at {SCOUT_SYNTHESIS_MAX_TOKENS:,} as of 2026-09-06, so "
+        f"seeing this again means the pot is genuinely exhausted, not merely small: "
+        f"lower output_config.effort (SCOUT_SYNTHESIS_EFFORT) or cut the selection "
+        f"size. Do NOT reach for a separate reasoning budget — budget_tokens is a "
+        f"400 on this seat."
     )
 
 
@@ -246,6 +272,12 @@ def _keep_evidence_if_empty(call: "ScoutCall", source: str) -> None:
             f"model={call.model} stop_reason={call.stop_reason} "
             f"iterations={call.iterations} out_tokens={call.output_tokens}\n"
             f"tool_calls={call.tool_calls}\n"
+            # The reasoning summary is the half that matters for the failure
+            # mode where the model roams, ends cleanly, and pitches nothing:
+            # raw_text is empty by definition there, so without this the file
+            # records the same zero the spine already had.
+            f"--- reasoning ({len(call.reasoning):,} chars, first 4000) ---\n"
+            f"{call.reasoning[:4000]}\n"
             f"--- raw_text ({len(call.raw_text):,} chars, first 4000) ---\n"
             f"{call.raw_text[:4000]}",
             encoding="utf-8",
@@ -275,6 +307,23 @@ def _text_of(resp: Any) -> str:
     ).strip()
 
 
+def _reasoning_of(resp: Any) -> str:
+    """The reasoning summary, when the seat asked for one.
+
+    Sonnet 5 defaults `thinking.display` to "omitted", which returns thinking
+    blocks with EMPTY text — so the tokens are spent, billed, and invisible.
+    That is the whole explanation for the 2026-09-05 zero-character run: the
+    model reasoned through 20,000 output tokens and the API returned none of
+    it, leaving an instrument that could only report the size of a silence.
+    Asking for "summarized" is what turns that silence into evidence.
+    """
+    return "".join(
+        getattr(b, "thinking", "") or ""
+        for b in (resp.content or [])
+        if getattr(b, "type", None) == "thinking"
+    ).strip()
+
+
 class ScoutAgent:
     def __init__(
         self,
@@ -284,12 +333,14 @@ class ScoutAgent:
         synthesis_fallback: str,
         roam_iterations: int = 6,
         toolbox: ToolBox | None = None,
+        synthesis_effort: str = SCOUT_SYNTHESIS_EFFORT,
     ) -> None:
         self.client = client
         self.walk_model = walk_model
         self.synthesis_model = synthesis_model
         self.synthesis_fallback = synthesis_fallback
         self.roam_iterations = roam_iterations
+        self.synthesis_effort = synthesis_effort
         self.toolbox = toolbox if toolbox is not None else default_toolbox()
         self.roam_tools = [d for d in TOOL_DEFS if d["name"] in _ROAM_TOOL_NAMES] + [
             _READ_TRANSCRIPT_DEF
@@ -297,15 +348,26 @@ class ScoutAgent:
 
     # --- plain single call (triage + refusal fallback) -----------------------
     def _call(self, model: str, system: str, user: str, max_tokens: int) -> ScoutCall:
-        resp = self.client.messages.create(
+        """Triage (4,096) and the synthesis refusal fallback (64,000) share this
+        path, and only one of them may be sent non-streaming. Branch on the
+        ceiling rather than on the caller: the rule is a property of the number,
+        and stating it that way is what stops the next raise from reintroducing
+        the startup failure. Triage keeps its exact current path."""
+        kwargs: dict[str, Any] = dict(
             model=model,
             max_tokens=max_tokens,
             system=system,
             messages=[{"role": "user", "content": user}],
         )
+        if max_tokens > SDK_NON_STREAMING_MAX_TOKENS:
+            with self.client.messages.stream(**kwargs) as stream:
+                resp = stream.get_final_message()
+        else:
+            resp = self.client.messages.create(**kwargs)
         call = ScoutCall(data=_parse_json(_text_of(resp)), model=model, raw_text=_text_of(resp))
         self._tally(call, resp)
         call.stop_reason = resp.stop_reason
+        call.reasoning = _reasoning_of(resp)
         return call
 
     @staticmethod
@@ -401,6 +463,9 @@ class ScoutAgent:
         response = None
 
         def _create(tool_choice: Any | None = None):
+            """Streamed, always — SCOUT_SYNTHESIS_MAX_TOKENS is above the SDK's
+            non-streaming cap, and this is the stage that was silently losing
+            its whole output budget to reasoning."""
             kwargs: dict[str, Any] = dict(
                 model=self.synthesis_model,
                 max_tokens=SCOUT_SYNTHESIS_MAX_TOKENS,
@@ -413,10 +478,17 @@ class ScoutAgent:
                 ],
                 messages=messages,
                 tools=self.roam_tools,
+                # Adaptive is the only on-mode on this seat and runs whether or
+                # not it is named; naming it makes the reasoning a declared part
+                # of the call instead of a default nobody chose. `summarized`
+                # is the diagnostic half — see _reasoning_of.
+                thinking={"type": "adaptive", "display": "summarized"},
+                output_config={"effort": self.synthesis_effort},
             )
             if tool_choice is not None:
                 kwargs["tool_choice"] = tool_choice
-            return self.client.messages.create(**kwargs)
+            with self.client.messages.stream(**kwargs) as stream:
+                return stream.get_final_message()
 
         while call.iterations <= self.roam_iterations:
             _mark_cache_breakpoint(messages)  # re-read prior roam turns from cache
@@ -477,6 +549,7 @@ class ScoutAgent:
             self._tally(call, response)
 
         call.raw_text = _text_of(response)
+        call.reasoning = _reasoning_of(response)
         call.data = _parse_json(call.raw_text)
         call.stop_reason = response.stop_reason
         _guard_truncation(call, "synthesis")

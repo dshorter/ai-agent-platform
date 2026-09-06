@@ -147,7 +147,6 @@ def test_non_streaming_agents_stay_under_the_sdk_ceiling():
     for name, value in (
         ("writer", writer.WRITER_MAX_TOKENS),
         ("director", director.DIRECTOR_MAX_TOKENS),
-        ("scout synthesis", scout.SCOUT_SYNTHESIS_MAX_TOKENS),
         ("scout triage", scout.SCOUT_TRIAGE_MAX_TOKENS),
     ):
         assert value <= NON_STREAMING_CAP, (
@@ -165,3 +164,48 @@ def test_streaming_agents_may_exceed_it():
     assert "messages.stream" in (
         Path(__file__).resolve().parent.parent / "agents/wire_editor_agent.py"
     ).read_text(), "wire editor exceeds the cap but no longer streams"
+
+
+def test_scout_synthesis_streams_because_it_exceeds_the_cap():
+    """Scout synthesis moved from the non-streaming list to this one on
+    2026-09-06, which is the entire content of the change: the old 20,000 was
+    not a considered budget, it was the largest number that fit under the cap,
+    and reasoning shares that pot. Assert BOTH halves — a ceiling above the cap
+    with no stream call is the startup failure this file exists to prevent."""
+    import agents.scout_agent as scout
+
+    assert scout.SCOUT_SYNTHESIS_MAX_TOKENS > NON_STREAMING_CAP
+    source = (
+        Path(__file__).resolve().parent.parent / "agents/scout_agent.py"
+    ).read_text()
+    assert "messages.stream" in source, (
+        "scout synthesis exceeds the cap but no longer streams"
+    )
+
+
+def test_scout_never_asks_for_a_separate_reasoning_budget():
+    """budget_tokens is a 400 on the synthesis seat (Sonnet 5) — the second of
+    the two fixes the code offered itself for a month, and the one that was
+    never available. Reaching for it again is the regression worth catching in
+    a test rather than in a paid run."""
+    import ast
+
+    tree = ast.parse(
+        (Path(__file__).resolve().parent.parent / "agents/scout_agent.py").read_text()
+    )
+    # Grep is wrong here: the guard's error message says the word "budget_tokens"
+    # on purpose, to warn the next reader off it. Only a real dict key or kwarg
+    # reaches the API, so that is what gets asserted.
+    sent = [
+        node.lineno
+        for node in ast.walk(tree)
+        if (isinstance(node, ast.keyword) and node.arg == "budget_tokens")
+        or (
+            isinstance(node, ast.Dict)
+            and any(
+                isinstance(k, ast.Constant) and k.value == "budget_tokens"
+                for k in node.keys
+            )
+        )
+    ]
+    assert not sent, f"budget_tokens is a 400 on this seat; sent at lines {sent}"
