@@ -245,11 +245,16 @@ def test_a_result_with_leads_writes_no_residue(tmp_path, monkeypatch):
     assert not (tmp_path / "pipelines").exists()
 
 
-def test_guard_reports_the_ceiling_that_actually_applies():
+def test_guard_reports_the_ceiling_that_actually_applies(tmp_path, monkeypatch):
     """The first version hardcoded the triage ceiling into both messages, so a
     synthesis failure reported 4,096 when the real limit was 20,000 — an
     instrument misreporting the number it exists to report."""
+    import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
+    # The guard captures evidence before raising, so without this the test
+    # writes residue into the live state dir. Found by doing exactly that.
+    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
+    (tmp_path / "agents").mkdir()
     with pytest.raises(TriageTruncated, match="20,000"):
         _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
                                     raw_text='{"leads": [{'), "synthesis")
@@ -258,10 +263,13 @@ def test_guard_reports_the_ceiling_that_actually_applies():
                                     raw_text='{"jewels": [{'), "git")
 
 
-def test_no_text_at_all_is_a_different_diagnosis_than_truncated_json():
+def test_no_text_at_all_is_a_different_diagnosis_than_truncated_json(tmp_path, monkeypatch):
     """0 chars means nothing was written to truncate, so 'the page is too big'
     is wrong advice. The budget went somewhere other than the answer."""
+    import agents.scout_agent as m
     from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
+    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
+    (tmp_path / "agents").mkdir()
     with pytest.raises(TriageTruncated, match="NO TEXT AT ALL"):
         _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
                                     raw_text=""), "synthesis")
