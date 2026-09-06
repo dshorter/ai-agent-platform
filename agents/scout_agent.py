@@ -251,7 +251,53 @@ def _guard_truncation(call: "ScoutCall", source: str) -> None:
 
 
 
-def _keep_evidence_if_empty(call: "ScoutCall", source: str) -> None:
+def _render_conversation(messages: list[dict[str, Any]]) -> str:
+    """The roam that led to an empty pitch, bounded enough to keep.
+
+    The 2026-09-06 capture proved the response half is not enough. Arm B ended
+    its forced-pitch turn with zero characters and zero thinking blocks, and
+    the recorded evidence could say only that. What the model had been SHOWN —
+    six rounds of roam, two of them errors, six repeats against one repo — was
+    thrown away with the process, so the one artefact that could explain the
+    silence was the one not kept. Same lesson as the original empty-call bug,
+    one layer up.
+
+    Bounded on purpose: tool results can run to SCOUT_MAX_TOOL_CHARS, and this
+    is debugging residue, not provenance.
+    """
+    out: list[str] = []
+    for i, msg in enumerate(messages):
+        content = msg.get("content")
+        out.append(f"[{i}] role={msg.get('role')}")
+        if isinstance(content, str):
+            out.append(f"      text: {content[:600]}")
+            continue
+        for block in content or []:
+            btype = getattr(block, "type", None) or (
+                block.get("type") if isinstance(block, dict) else None
+            )
+            if btype == "tool_use":
+                name = getattr(block, "name", None) or block.get("name")
+                args = getattr(block, "input", None) or block.get("input") or {}
+                out.append(f"      tool_use {name}({json.dumps(args)[:200]})")
+            elif btype == "tool_result":
+                body = block.get("content", "") if isinstance(block, dict) else ""
+                err = block.get("is_error") if isinstance(block, dict) else False
+                out.append(
+                    f"      tool_result{' !ERR' if err else ''} "
+                    f"({len(body):,} chars): {str(body)[:400]}"
+                )
+            elif btype in ("text", "thinking"):
+                body = getattr(block, btype, "") or ""
+                out.append(f"      {btype} ({len(body):,} chars): {body[:400]}")
+            else:
+                out.append(f"      {btype}")
+    return "\n".join(out)
+
+
+def _keep_evidence_if_empty(
+    call: "ScoutCall", source: str, messages: list[dict[str, Any]] | None = None
+) -> None:
     """Keep the model's actual words when a call produced nothing usable.
 
     Three zero-lead synthesis runs cost $2.72 between them and NONE could be
@@ -282,7 +328,9 @@ def _keep_evidence_if_empty(call: "ScoutCall", source: str) -> None:
             f"--- reasoning ({len(call.reasoning):,} chars, first 4000) ---\n"
             f"{call.reasoning[:4000]}\n"
             f"--- raw_text ({len(call.raw_text):,} chars, first 4000) ---\n"
-            f"{call.raw_text[:4000]}",
+            f"{call.raw_text[:4000]}\n"
+            f"--- conversation ({len(messages or [])} messages) ---\n"
+            + (_render_conversation(messages) if messages else "(not captured)"),
             encoding="utf-8",
         )
     except Exception:  # never let debugging residue break a run
@@ -556,5 +604,5 @@ class ScoutAgent:
         call.data = _parse_json(call.raw_text)
         call.stop_reason = response.stop_reason
         _guard_truncation(call, "synthesis")
-        _keep_evidence_if_empty(call, "synthesis")
+        _keep_evidence_if_empty(call, "synthesis", messages)
         return call

@@ -249,6 +249,33 @@ def test_evidence_keeps_the_reasoning_for_the_roamed_but_pitched_nothing_mode(
     assert "never widened" in body, "the reasoning is the evidence in this mode"
 
 
+def test_evidence_keeps_the_roam_that_led_to_the_silence(tmp_path):
+    """Arm B 2026-09-06 ended its forced pitch with zero characters AND zero
+    thinking blocks, so the response half of the capture could say nothing about
+    why. What the model had been shown — six rounds including two errors and six
+    repeats against one repo — died with the process. The conversation is the
+    only artefact that can explain an empty turn."""
+    from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
+
+    messages = [
+        {"role": "user", "content": "Jewels from this pass..."},
+        {"role": "user", "content": [
+            {"type": "tool_result", "tool_use_id": "x",
+             "content": "refused: project path is outside the registered project roots.",
+             "is_error": True},
+        ]},
+    ]
+    call = ScoutCall(data={"leads": []}, model="claude-sonnet-5",
+                     stop_reason="end_turn", iterations=7, raw_text="")
+    _keep_evidence_if_empty(call, "synthesis", messages)
+    body = next(
+        (tmp_path / "pipelines" / "scout" / "state" / "empty-calls").glob("*.txt")
+    ).read_text()
+    assert "conversation (2 messages)" in body
+    assert "!ERR" in body, "an errored roam call must be visible in the residue"
+    assert "outside the registered project roots" in body
+
+
 def test_a_result_with_leads_writes_no_residue(tmp_path, monkeypatch):
     """Only failures leave debugging residue — this is not provenance."""
     from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
