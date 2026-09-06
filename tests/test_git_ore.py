@@ -243,3 +243,25 @@ def test_a_result_with_leads_writes_no_residue(tmp_path, monkeypatch):
     _keep_evidence_if_empty(
         ScoutCall(data={"leads": [{"slug": "x"}]}, model="m", raw_text="..."), "synthesis")
     assert not (tmp_path / "pipelines").exists()
+
+
+def test_guard_reports_the_ceiling_that_actually_applies():
+    """The first version hardcoded the triage ceiling into both messages, so a
+    synthesis failure reported 4,096 when the real limit was 20,000 — an
+    instrument misreporting the number it exists to report."""
+    from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
+    with pytest.raises(TriageTruncated, match="20,000"):
+        _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
+                                    raw_text='{"leads": [{'), "synthesis")
+    with pytest.raises(TriageTruncated, match="4,096"):
+        _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
+                                    raw_text='{"jewels": [{'), "git")
+
+
+def test_no_text_at_all_is_a_different_diagnosis_than_truncated_json():
+    """0 chars means nothing was written to truncate, so 'the page is too big'
+    is wrong advice. The budget went somewhere other than the answer."""
+    from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
+    with pytest.raises(TriageTruncated, match="NO TEXT AT ALL"):
+        _guard_truncation(ScoutCall(data={}, model="m", stop_reason="max_tokens",
+                                    raw_text=""), "synthesis")

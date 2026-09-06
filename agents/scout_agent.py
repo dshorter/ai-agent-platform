@@ -186,14 +186,26 @@ def _guard_truncation(call: "ScoutCall", source: str) -> None:
     reported `leads: 0` for $0.43. That is indistinguishable from "the model
     read the ore and had nothing to pitch", which is why it has to be loud.
     """
-    if call.stop_reason == "max_tokens" and not call.data:
+    if call.stop_reason != "max_tokens" or call.data:
+        return
+    ceiling = SCOUT_SYNTHESIS_MAX_TOKENS if source == "synthesis" else SCOUT_TRIAGE_MAX_TOKENS
+    _keep_evidence_if_empty(call, source)   # capture BEFORE raising, or the raise loses it
+    if call.raw_text:
         raise TriageTruncated(
-            f"{source} triage hit the {SCOUT_TRIAGE_MAX_TOKENS}-token output "
-            f"ceiling and its JSON is unparseable ({len(call.raw_text):,} chars "
-            f"discarded). The PAGE is too big for this ore, not the ceiling too "
-            f"small — size the page by how many jewels it will yield, not by "
-            f"how much text it holds."
+            f"{source} hit the {ceiling:,}-token output ceiling mid-JSON "
+            f"({len(call.raw_text):,} chars discarded). The PAGE is too big for "
+            f"this ore — size it by how many findings it will yield, not by how "
+            f"much text it holds."
         )
+    raise TriageTruncated(
+        f"{source} burned the whole {ceiling:,}-token output budget and emitted "
+        f"NO TEXT AT ALL (0 chars). This is not a page-size problem: nothing was "
+        f"written to truncate. The budget went somewhere other than the answer — "
+        f"on this stage that means reasoning tokens sharing the output pot, which "
+        f"scout_agent's own header flags ('thinking is ALWAYS on and shares this "
+        f"budget') and names the fix for: stream this stage, or give reasoning its "
+        f"own budget. Raising the ceiling alone just buys a larger silence."
+    )
 
 
 
