@@ -202,3 +202,44 @@ def test_a_full_but_parseable_page_is_not_an_error():
     from agents.scout_agent import ScoutCall, _guard_truncation
     _guard_truncation(ScoutCall(data={"jewels": [{"ref": "a@b"}]}, model="m",
                                 stop_reason="max_tokens"), "git")
+
+
+def test_synthesis_truncation_raises_like_triage():
+    """The expensive stage had the hole the cheap one got fixed for.
+
+    A synthesis call hit exactly 20,000 output tokens, made no tool calls,
+    returned unparseable JSON and reported `leads: 0` for $0.43 — which reads
+    identically to "the model had nothing to pitch".
+    """
+    from agents.scout_agent import ScoutCall, TriageTruncated, _guard_truncation
+    with pytest.raises(TriageTruncated):
+        _guard_truncation(
+            ScoutCall(data={}, model="m", stop_reason="max_tokens",
+                      raw_text='{"leads": [{"slug": "half-a-'), "synthesis")
+
+
+def test_empty_result_keeps_the_model_words(tmp_path, monkeypatch):
+    """Three zero-lead runs cost $2.72 and none could be diagnosed, because the
+    only record was `leads: 0` and the raw response died with the process."""
+    import agents.scout_agent as m
+    from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
+    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
+    (tmp_path / "agents").mkdir()
+    call = ScoutCall(data={}, model="claude-sonnet-5", stop_reason="end_turn",
+                     raw_text="I looked and found nothing worth pitching.")
+    _keep_evidence_if_empty(call, "synthesis")
+    written = list((tmp_path / "pipelines" / "scout" / "state" / "empty-calls").glob("*.txt"))
+    assert len(written) == 1
+    body = written[0].read_text()
+    assert "nothing worth pitching" in body and "end_turn" in body
+
+
+def test_a_result_with_leads_writes_no_residue(tmp_path, monkeypatch):
+    """Only failures leave debugging residue — this is not provenance."""
+    import agents.scout_agent as m
+    from agents.scout_agent import ScoutCall, _keep_evidence_if_empty
+    monkeypatch.setattr(m, "__file__", str(tmp_path / "agents" / "scout_agent.py"))
+    (tmp_path / "agents").mkdir()
+    _keep_evidence_if_empty(
+        ScoutCall(data={"leads": [{"slug": "x"}]}, model="m", raw_text="..."), "synthesis")
+    assert not (tmp_path / "pipelines").exists()

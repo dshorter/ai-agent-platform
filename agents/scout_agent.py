@@ -22,6 +22,7 @@ The roam is free — a catalog of sources, no rotation, no quotas.
 """
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import re
 from dataclasses import dataclass, field
@@ -64,10 +65,8 @@ _READ_TRANSCRIPT_DEF: dict[str, Any] = {
     "name": "read_transcript",
     "description": (
         "Read a range of ingested session-log rows (the Scout's ore) by seq — "
-        "the anchor carried by jewels whose source_type is 'transcript'. Jewels "
-        "from other sources carry a source_ref instead (a git jewel's looks "
-        "like repo@sha) and are followed with run_git, not this tool. Returns "
-        "session/turn/role, the raw text (clipped), and any scratchpad "
+        "the numbers your jewels reference. Returns session/turn/role, the raw "
+        "text (clipped), and any scratchpad "
         "arc-notes you left on prior walks. Use it to pull a thread a jewel "
         "points at."
     ),
@@ -119,10 +118,9 @@ Copy the value INSIDE the brackets exactly — `[ref=repo@sha]` means the ref is
 SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged transcript jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
 
 You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
-- read_transcript — the ingested session-log ore, by seq. Use it for a jewel whose `source_type` is `transcript`; its `seq` is the anchor, and your own scratchpad arc-notes ride along.
-- **Your jewels no longer all cite seqs.** Each carries `source_type` and, when it is not a transcript, a `source_ref` instead of a seq. A `git` jewel's ref looks like `repo@sha` — for example `ai-agent-platform@3c2878a270`. Follow one with run_git against that repo and sha (`show`, `log`, `blame`) exactly as you would pull a transcript thread by seq. These jewels are a different REGISTER, not just a different table: a session log records a problem while it is being fought, a commit message records what was decided and why, afterwards. The seam between the two accounts of one event is the richest thing in the pile.
+- read_transcript — the ingested session-log ore, by seq (your jewels cite seqs; your own scratchpad arc-notes ride along).
 - read_file / grep — the repos and docs: design docs (NEWSROOM, personas), the sysadmin ledger (docs/uzelhub-crew/sysadmin-ledger.md), the ops calendar (ops/calendar.ics), the marketing survey (uzelhub-web/marketing/promotion-survey.yaml), devlogs.
-- run_git — read-only git across the registered projects (log/show/blame). This is how you resolve a `git` jewel's `source_ref`, and how a story that turns on when-and-why gets its receipts.
+- run_git — read-only git across the registered projects (log/show/blame — when a story turns on when-and-why).
 Your tool budget is small; spend it pulling threads, not surveying. When you have enough, stop and pitch.
 
 Generate WIDE. Bold many-way connections are welcome — the best stories are the ones no pattern predicted. False positives are cheap (an editor spikes them); missed leads are invisible and unrecoverable. Err reckless.
@@ -178,6 +176,15 @@ def _guard_truncation(call: "ScoutCall", source: str) -> None:
     with. Raising is therefore right — a walk persists per page, so everything
     already mined is safe, and stopping beats burning the rest of the corpus
     producing zeroes.
+
+    **Extended to SYNTHESIS 2026-09-05, which is where it should have gone
+    first.** The original fix guarded triage and its commit message claimed it
+    covered "the transcript path too" — it did not, it covered `triage()`. The
+    unguarded stage was the one costing ~$1.50 a call rather than ~$0.03, and
+    it bit within the hour: a synthesis run hit exactly 20,000 output tokens on
+    its first iteration, made no tool calls, returned unparseable JSON, and
+    reported `leads: 0` for $0.43. That is indistinguishable from "the model
+    read the ore and had nothing to pitch", which is why it has to be loud.
     """
     if call.stop_reason == "max_tokens" and not call.data:
         raise TriageTruncated(
@@ -187,6 +194,39 @@ def _guard_truncation(call: "ScoutCall", source: str) -> None:
             f"small — size the page by how many jewels it will yield, not by "
             f"how much text it holds."
         )
+
+
+
+def _keep_evidence_if_empty(call: "ScoutCall", source: str) -> None:
+    """Keep the model's actual words when a call produced nothing usable.
+
+    Three zero-lead synthesis runs cost $2.72 between them and NONE could be
+    diagnosed afterwards, because the only durable record was `leads: 0` in the
+    decision spine and the raw response was discarded with the process. An
+    instrument that records the *absence* of a result and throws away the
+    evidence for it is the same failure this estate keeps writing down.
+
+    Cheap and bounded: only on an empty result, only the first 4,000
+    characters, into the state dir rather than the spine — this is debugging
+    residue, not provenance, and it is not worth a schema change.
+    """
+    if call.data.get("leads") or call.data.get("jewels"):
+        return
+    try:
+        from pathlib import Path
+        d = Path(__file__).resolve().parent.parent / "pipelines" / "scout" / "state" / "empty-calls"
+        d.mkdir(parents=True, exist_ok=True)
+        stamp = _dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+        (d / f"{stamp}-{source}.txt").write_text(
+            f"model={call.model} stop_reason={call.stop_reason} "
+            f"iterations={call.iterations} out_tokens={call.output_tokens}\n"
+            f"tool_calls={call.tool_calls}\n"
+            f"--- raw_text ({len(call.raw_text):,} chars, first 4000) ---\n"
+            f"{call.raw_text[:4000]}",
+            encoding="utf-8",
+        )
+    except Exception:  # never let debugging residue break a run
+        pass
 
 
 def _parse_json(text: str) -> dict:
@@ -414,4 +454,6 @@ class ScoutAgent:
         call.raw_text = _text_of(response)
         call.data = _parse_json(call.raw_text)
         call.stop_reason = response.stop_reason
+        _guard_truncation(call, "synthesis")
+        _keep_evidence_if_empty(call, "synthesis")
         return call
