@@ -301,6 +301,40 @@ failure, now known to be intermittent rather than deterministic. This section
 asks for ten supervised runs, and this is why. The *direction* is supported by
 two independent runs (v1 and today); the numbers need repetition.
 
+> **SECOND PAIR, same day — and it corrects two of the claims above.** The
+> caveat immediately above was the right one to write, because repetition
+> promptly killed half the result.
+>
+> | run | leads | cites/lead | git-anchored | max span | `note` share |
+> |---|---|---|---|---|---|
+> | A #1 | 11 | 1.0 | 0% | 1 | 54% |
+> | A #2 | 10 | 1.7 | 0% | **4** | 50% |
+> | B #1 | 10 | 2.3 | 69% | 4 | 30% |
+> | B #2 | 11 | 1.9 | 52% | 4 | 27% |
+>
+> **What replicated:**
+> - **git-anchored citations — 0%, 0% against 69%, 52%.** Large, consistent,
+>   and the effect this experiment exists to detect.
+> - **Register shift — `note` share 54%/50% against 30%/27%.** Arm A skews to
+>   internal-reasoning notes; Arm B spreads to blog and ticker. Consistent in
+>   both pairs.
+> - **Flat lead volume — 11/10 against 10/11.** Exactly as §homeostasis
+>   predicts.
+>
+> **What did NOT replicate, and one of them could never have:**
+> - **`agent_span` 1 → 4 was not a source-mix effect.** Arm A reached span 4 in
+>   run #2. The mechanism settles it: `--source-type` filters **jewels only**,
+>   and all four runs were handed the *same 10 cross-agent sequences* as
+>   context. Span was structurally incapable of separating these arms, and
+>   reporting it as a finding in the first pair was an error.
+> - **Citations per lead 1.0 → 2.3 shrank to 1.7 → 1.9.** Arm A #1 was the
+>   outlier. A smaller effect may survive (means 1.35 vs 2.1), but not the one
+>   first claimed.
+>
+> The corrected result is narrower and better supported: **the source mix
+> changes what the leads are anchored to and what register they land in. It
+> does not change how many there are, and it does not move `agent_span`.**
+
 **What Phase 1 must record per run**, so the caps question is answerable rather
 than impressionistic: rows/units walked, jewels found, cost, wall time, and —
 the point of the exercise — whether the run terminated by exhausting the ore or
@@ -417,10 +451,12 @@ Run them in that order — source mix first, since it is the larger expected
 effect and the operator's actual hypothesis — and each result means something on
 its own.
 
-> **Source mix RUN 2026-09-06** — see the second Phase 1 run record below. It
-> does not change lead volume; it changes register and citation density (0% →
-> 69% git-anchored, 1.0 → 2.3 citations per lead, `agent_span` 1 → 4). n=1 per
-> arm. **The Fable-vs-Sonnet arm is still unrun.** `NEWSROOM.md`'s rule still governs the reading: *the Editor judges, not
+> **Source mix RUN 2026-09-06, two pairs** — see the second Phase 1 run record
+> below. It does not change lead volume. It changes what leads are anchored to
+> (git-anchored citations 0% → 69%/52%) and what register they land in (`note`
+> share ~52% → ~28%). It does **not** move `agent_span`, which cannot separate
+> these arms at all — `--source-type` filters jewels, and both arms get the same
+> sequences. **The Fable-vs-Sonnet arm is still unrun.** `NEWSROOM.md`'s rule still governs the reading: *the Editor judges, not
 the contestant.*
 
 **A THIRD variable, found 2026-09-05 while proving the git reader — the arms
