@@ -8,9 +8,11 @@ status: first skeleton, drafted 2026-07-14 as a pitch; note leg BUILT same day (
 > **Status:** first skeleton, 2026-07-14. A *prompt-shape*, written in second
 > person — the identity that eventually lives as the system prompt in the
 > content agent's next form.
-> **Complement to:** NEWSROOM §"Writer, in detail — and the voice bottle" (the
-> design that led here) and §"The one real fork" (settled by the build: the
-> Scout files leads only, so somebody has to write them).
+> **Complement to:** [spec-writer.md](spec-writer.md) (the current rule; this
+> file is the voice of the design and its open agenda) and NEWSROOM §"The one
+> real fork" (settled by the build: the Scout files leads only, so somebody has
+> to write them). *NEWSROOM §"Writer, in detail" was cut to a spec pointer on
+> 2026-09-06; the design that led here is in git history and named there.*
 > **`[OPEN]` markers are deliberate seams** — don't fill them silently; they
 > are the agenda for the next review.
 >

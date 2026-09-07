@@ -1,6 +1,6 @@
 ---
 read: full
-status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, shipped 2026-07-12 — the build settled four open choices, synced 2026-07-14; SEO POLICY MOVED OUT 2026-08-13 to /opt/_host/SEO.md (responsibility model split out to seo-duties.md 2026-08-16; where they disagree SEO.md wins); open items flagged inline
+status: REASONING AND HISTORY, not the current rule — seven sections cut to spec pointers 2026-09-06 (762 lines to 427). Current rules live in the four rewritable spec-*.md files; vocabulary in GLOSSARY.md. Living sketch opened 2026-07-08; §Scout settled 2026-07-10, shipped 2026-07-12 — the build settled four open choices, synced 2026-07-14; SEO POLICY MOVED OUT 2026-08-13 to /opt/_host/SEO.md (responsibility model split out to seo-duties.md 2026-08-16; where they disagree SEO.md wins); open items flagged inline
 ---
 
 # The Newsroom — content architecture (living sketch, ongoing)
@@ -16,23 +16,38 @@ status: living sketch (opened 2026-07-08); §Scout settled 2026-07-10, shipped 2
 > ideals from implementation" doctrine). Seed idea committed 2026-07-07 as
 > `5d60175` (the one-line parked version); this doc is its expansion.
 
-**Map** — the whole shape at a glance (regenerate with `_host/scripts/doc-map.py NEWSROOM.md --write` after editing headings; **read this doc in full** — the Scout spec alone spans four of these):
+> ## Read this for *why*, never for the current rule
+>
+> **The current rules live in the four rewritable specs** —
+> [spec-content-types.md](spec-content-types.md), [spec-scout.md](spec-scout.md),
+> [spec-wire-editor.md](spec-wire-editor.md), [spec-writer.md](spec-writer.md) —
+> and the vocabulary in [GLOSSARY.md](GLOSSARY.md). Those are edited in place and
+> hold no correction strata. **This document is the design's reasoning and its
+> history**: why a thing was decided, what it was decided against, and what was
+> later found to be wrong. Where this document and a spec disagree, the spec is
+> current and this one is the record of how it got there.
+>
+> Seven sections that now have a spec were cut to pointers on 2026-09-06. Each
+> pointer names the reasoning that was in it, so nothing is silently lost; the
+> full text is in git history.
+
+**Map** — the whole shape at a glance (regenerate with `_host/scripts/doc-map.py NEWSROOM.md --write` after editing headings):
 
 <!-- MAP:START -->
 - [The thesis](#the-thesis)
 - [The three-altitude pipeline (each altitude has a different author)](#the-three-altitude-pipeline-each-altitude-has-a-different-author)
 - [The org chart — three roles, one genuinely new agent](#the-org-chart--three-roles-one-genuinely-new-agent)
-- [Scout, in detail](#scout-in-detail)
+- [Scout — moved to a spec](#scout--moved-to-a-spec)
 - [The Scout learns navigation, not taste (the pineapple rule)](#the-scout-learns-navigation-not-taste-the-pineapple-rule)
-- [The Scout's sources — session logs first, read by cursor](#the-scouts-sources--session-logs-first-read-by-cursor)
+- [The Scout's sources — moved to a spec](#the-scouts-sources--moved-to-a-spec)
 - [Measured behaviour — moved to a leaf](#measured-behaviour--moved-to-a-leaf)
-- [Model tiers — cheap walk, premium synthesis (Sonnet 5 on the leap since 2026-09-03)](#model-tiers--cheap-walk-premium-synthesis-sonnet-5-on-the-leap-since-2026-09-03)
+- [Model tiers — moved to a spec](#model-tiers--moved-to-a-spec)
 - [Reuse vs fork — the ghost crew stays on ghost](#reuse-vs-fork--the-ghost-crew-stays-on-ghost)
 - [SEO duties — moved to a leaf](#seo-duties--moved-to-a-leaf)
-- [Writer, in detail — and the voice bottle](#writer-in-detail--and-the-voice-bottle)
-- [Marketer & Editor — mostly already here](#marketer--editor--mostly-already-here)
-- [Content types = the Editor's routing dimension](#content-types--the-editors-routing-dimension)
-- [Editorial rules — the cadence, the ticker filter, the three registers](#editorial-rules--the-cadence-the-ticker-filter-the-three-registers)
+- [Writer — moved to a spec](#writer--moved-to-a-spec)
+- [Marketer & Editor — moved to a spec](#marketer--editor--moved-to-a-spec)
+- [Content types — moved to a spec](#content-types--moved-to-a-spec)
+- [Editorial rules — moved to a spec](#editorial-rules--moved-to-a-spec)
 - [The one real fork — where the Scout stops (v1 vs mature)](#the-one-real-fork--where-the-scout-stops-v1-vs-mature)
 - [Open choices (none are blockers)](#open-choices-none-are-blockers)
 <!-- MAP:END -->
@@ -71,7 +86,7 @@ trail with a complete, human-walked specimen.*
 
 | Role | Job | Who | Status |
 |---|---|---|---|
-| [**Scout**](#scout-in-detail) | Wander logs/docs/repos/`agent_decisions`; file leads on the leads ledger (the unpromoted story queue) | nobody, autonomously | **shipped 2026-07-12** (`c749c31`) — daily 05:45 pass, filing since day one |
+| [**Scout**](#scout--moved-to-a-spec) | Wander logs/docs/repos/`agent_decisions`; file leads on the leads ledger (the unpromoted story queue) | nobody, autonomously | **shipped 2026-07-12** (`c749c31`) — daily 05:45 pass, filing since day one |
 | **Writer** | Turn a claimed lead into copy in the right register — a `notes.json` entry *or* a blog draft, `copyDraft` stamped | the **content agent** (276 runs) + the new **note desk** | **note leg shipped 2026-07-14** — voice bottle + convergent roam (`pipelines/writer/`, persona: `writer-persona.md`); blog leg = the content agent, unchanged |
 | **Wire Editor** | Triage the new-lead queue into a claim/spike/hold shortlist; carry the Editor-in-chief's shadow verdicts (gate-① concordance) | its own desk agent (Sonnet seat); proposals-only, never the pen | **hired + built 2026-07-18** (`pipelines/wire_editor/`, plan doc Phase 2) |
 | **Editor** | Dispose the Wire Editor's shortlist (gate ①); scrub + approve drafts (gate ②, permanent) | **operator** today; Director inherits gate ① on sustained shadow concordance | **live, as operator** — gate ② never migrates |
@@ -96,40 +111,22 @@ rearrangement (though assigning SEO correctly forced it to decompose into the
 layers below: a real separation won't sit still until you split the concept
 under it).
 
-## Scout, in detail
+## Scout — moved to a spec
 
-**Two sub-verbs, only one new:**
-- **Discover** (walk the whole box, surface unpromoted candidates) — new;
-  nobody does self-directed prospecting.
-- **Assess** (is there a story, what's the angle) — the **marketer already
-  does this**. `marketer_agent.extract_descriptor()` pulls structured meaning
-  out of a draft; `package()` shapes it for a channel with internal-link
-  selection. Don't rebuild "assess" — **reuse the marketer's extraction
-  *technique*, NOT the marketer agent** (see "Reuse vs fork" below: the agent
-  bakes in a Ghost-authoritative canonical model that inverts for notes).
-  Pointed *outward* at raw box material instead of a finished draft. Clean
-  boundary: the marketer assesses *one known thing for a channel*; the Scout
-  assesses *the unknown many for existence.* Same verb, opposite scope — and
-  the shared technique inherits the marketer's cost split (extraction on
-  **Haiku**, judgment on **Sonnet**), which is exactly what cheap whole-box
-  prospecting wants.
+**[spec-scout.md](spec-scout.md)** (`read: full`) — what the Scout is and does
+today: the two seats and their budgets, the seven sources and which have
+readers, the walk, synthesis, filing, the invariants and what is still open.
 
-**Story-worthiness heuristic — cross-agent span (and it's queryable):** the
-richest stories are emergent, living *at the seams between agents* — the
-content agent handing to the marketer, the Director reasoning over the
-marketer's survey, one agent refusing based on what another wrote. This is not
-a vibe: `agent_decisions` carries `workflow_sequence_id`, `parent_decision_id`,
-`step_number` — a "story where two agents interact" is literally **a sequence
-whose rows span more than one `agent_name`.** The Scout should **rank a lead by
-how many distinct agents its sequence touches.** (The calendar saga scores high
-— Director ↔ operator ↔ its own prior reasoning; the backup story lower —
-one domain, one actor — yet it shipped first only because it was *handed* to
-the walker. A cross-agent-aware Scout would have surfaced the saga itself.)
-**This heuristic is a hint that adds weight, never a filter that subtracts
-candidates** — weight the agent-seams higher for attention, but never stop
-surfacing the lone-actor story (the backup note was single-actor and shipped
-first). See "The Scout learns navigation, not taste" for why nothing is ever
-allowed to close the Scout's aperture.
+What this section held and the spec does not: the *derivation*. The Scout's two
+sub-verbs (discover is new, assess is the marketer's `extract_descriptor`
+pointed outward at the unknown many rather than at one known thing), and why
+cross-agent span is a queryable heuristic rather than a vibe — `agent_decisions`
+carries `workflow_sequence_id`, so "a story where two agents interact" is a
+sequence spanning more than one `agent_name`. Span was always a weight that adds
+attention, never a filter that subtracts candidates; that it counts strings and
+not agents was measured 2026-09-06
+([agent-span-counts-strings-2026-09-06.md](agent-span-counts-strings-2026-09-06.md)).
+Cut to a pointer 2026-09-06; the text is in git history.
 
 ## The Scout learns navigation, not taste (the pineapple rule)
 
@@ -178,138 +175,28 @@ hoarded before deciding it's stuck. Corollary: the monoculture failure mode is
 force, so it stays wide by default. A completeness-critic counterweight drops
 from load-bearing to belt-and-suspenders.
 
-## The Scout's sources — session logs first, read by cursor
+## The Scout's sources — moved to a spec
 
-The Scout grazes several sources (git, docs, `agent_decisions`, the ledger),
-but its **primary ore is the Claude Code session logs** — the transcripts of
-the human-AI sessions that build the box. This was the original flywheel idea
-(commit `5d60175`, "grazing the session logs"), and it's the richest by far:
-the *reasoning*, the corrections, the aha-moments — where the jewels live. It's
-also the direct **evidence for the thesis** — the logs literally *are* the
-100%-human-AI-collaboration the site claims. Recursive by nature: the session
-that designed this newsroom is itself future ticker / newsletter / note material.
+**[spec-scout.md](spec-scout.md) §Sources and readers** (`read: full`) — the
+seven source types, which have a reader and which are roam-only, the three
+registered roots, and the anchor each source cites.
 
-> **CORRECTED 2026-09-04 — "richest by far" was true of the wrong axis, and the
-> error reached the published copy.** Session logs are the richest source of
-> *decisions, corrections and temporal anchors*. They are **not** rich
-> **narrative candidates**, and those are different properties that the word
-> "richest" was carrying at once — the same collapse that
-> `jewels-are-transcript-only-2026-09-03.md` found one layer down.
->
-> A log records a problem *while it is being fought*: partial, in the present
-> tense, without the resolution that makes it a story. What it anchors superbly
-> is *when* something happened and *what was decided* — which is exactly what a
-> narrative needs as scaffolding and exactly what it cannot be built from alone.
->
-> **This is why the copy has been wrong, and it is mechanical rather than
-> editorial. There were TWO filters favouring sessions, and they are not the
-> same kind of thing — keep them apart:**
->
-> 1. **The deterministic one, and the one that actually did the damage.** The
->    `NOT NULL` foreign key in `004` meant a jewel could not exist without
->    pointing at a transcript row. Not a preference, not a weighting — an
->    absolute. Every lead ever synthesised was composed from session logs alone
->    because nothing else could physically become a jewel. Most of the ore was
->    structurally shielded from the Writer.
-> 2. **The soft one, in this document's own wording.** "Primary ore",
->    "richest by far". A prompt- and doc-level bias that would tilt a walker's
->    attention even with the schema wide open.
->
-> **The second has never been exercised on its own, and that is the honest
-> state of it.** The FK masked it completely: with five sources unable to
-> produce a jewel at any weighting, no amount of wording could have made a
-> difference, and none of it was ever tested. Fixing the schema does not
-> retire the wording problem — it is the first time the wording problem can
-> even be observed. Watch for it in the recovery runs rather than assuming it
-> went away with 1.4.0.
->
-> The operator held the publishing drip on the instinct that something was off
-> in the output; the cause was the first filter, two layers below the copy.
->
-> **What follows:** opening the other five sources is not a coverage exercise,
-> it is *the fix for the register of the copy*. Commit messages carry the
-> resolved account — what was decided and why, written after — which is the
-> register the notes have been missing (ADR-002 §6b). Read that section as the
-> primary justification for the recovery mine, ahead of coverage.
->
-> The original sentence stands above because the mining evidence for it is real:
-> transcripts do hold the reasoning and the corrections. What it should never
-> have implied is that they are sufficient on their own.
+What this section held and the spec does not: the reasoning behind the cursor
+substrate (keyset pagination over a sequence table, so coverage is linear while
+investigation stays temporally bidirectional — one cursor across all sources
+would close the Scout's temporal aperture, which is the pineapple rule again),
+and the opaque free-text scratchpad, deliberately not an `arc_id`, that nothing
+downstream may read as structured data.
 
-**Shape — a sequence table, not loose files.** Ingest the JSONL (the Codex
-reader already works; adapt to Claude Code's format) into a table —
-`session_id, date, turn, role, type (query | progress | final), text` — plus a
-**light-cleaned** copy of the human turns (fix dictation/spelling only, preserve
-meaning) **with the raw kept alongside**. Never let the tidy version become the
-only version; an LLM "cleanup" can quietly rewrite intent.
-
-**⚑ Redaction guardrail (absolute).** These logs contain everything —
-credentials spoken aloud, the recovery-key screenshot, the B2 key, internal
-paths, IPs, personal email, the security posture stated plainly. The Scout may
-**read freely**; **nothing derived from a session log publishes without a hard
-secret/PII/security scrub AND the Editor's approval.** Here read-freely /
-propose-writes stops being nice-to-have and becomes non-negotiable.
-
-**Why a table, not files — the cursor.** The table is a *cursor substrate*. A
-persisted high-water-mark (last-processed `date, session_id, turn`) lets the
-Scout:
-- **page a bounded chunk per run** — context stays small and doesn't drift or
-  overflow (the real risk of reading too much at once);
-- **resume exactly where it left off** — stop when context fills, come back;
-- **advance by story-arc when one is complete**, else by page — loop a full arc
-  as a unit, then move the cursor past it.
-
-Use **keyset pagination** (`WHERE (date, session_id, turn) > cursor`), not
-OFFSET — the log is append-only and ordered, so a watermark is stable where an
-offset would drift (à la a paged DB reader).
-
-**Scope the cursor to the logs, and nowhere else.** Its only job is *coverage*:
-guaranteeing the append-only log gets fully read at least once — best owned by
-the ingestion / a completeness pass, not baked into the Scout's judgment. It's
-external, inspectable, warm-bootable; reset it to re-scan; it encodes read
-position only, never taste. For **every other source** — git, docs,
-`agent_decisions`, the ledger — the Scout is **cursor-free and temporally
-bidirectional.** Investigation is non-linear: a decision made in March explains
-a bug in July, so a smart Scout must jump back and forth in time as it tracks a
-thread. A forward cursor there would *close the Scout's temporal aperture* —
-exactly what the pineapple rule forbids. **Coverage is linear (cursor);
-investigation is not (free roam).** One cursor across all sources is both clumsy
-and aperture-closing — don't. The coverage sweep itself is just the Scout's own
-**forward-only walk of newly-imported logs** — read the new chunk in order, miss
-nothing, advance the watermark. That's the whole of the cursor's job; it isn't a
-separate agent.
-
-**Arc notes: a free-text scratchpad column, not a schema.** Give every log
-record a free-text `scratchpad` column the Scout may scribble in during the
-forward walk — "connects to the backup saga," "possible arc: calendar
-authority." Deliberately *not* a rigid `arc_id` or an over-structured JSON field:
-that's schema-on-write before we know the shape (the nickel-jar move). Fuzzy
-prose is enough — LLM-native, inspectable, and it lets arcs stay *latent* until
-something actually needs them, at which point you extract structure on read into
-something *new* — never retrofit-parse the scratchpad, since that quietly
-re-imposes a schema (and probably a one-to-many).
-
-It's the Scout's own **opaque** space: it may use whatever internal format helps
-it think — prose, its own tags, a dab of ad-hoc JSON — but the contract is that
-**nothing downstream ever reads it as structured data.** It's all scratch as far
-as the system is concerned, and that opacity is exactly what keeps the schema
-(and the nickel jar) from sneaking back. The scratchpad is the arc substrate;
-nothing more is needed yet.
-
-**Jewels heuristic.** Mine for the *durable* material — named principles,
-corrections/reversals, reframes, decisions-with-reasons — not the play-by-play
-of which command ran. Same "story lives at the seams / emergence" nose the
-Scout already has, pointed at transcripts: the best moments are the corrections
-(the pineapple catch, reuse-vs-fork, the STATUS-values fix earlier tonight).
-
-**Parked — a batch arc-finder, only if the scratchpad isn't enough.**
-Arc-detection lives in the scratchpad first: the Scout notes connections inline
-as it walks. IF that proves too shallow, a *separate* batch process (ghost-crew
-nature — scheduled, whole-corpus, non-interactive) could later read all the
-scratchpads and assemble/rank complete arcs across sessions. But that's a
-speculative later consumer, not a first-pass build — the scratchpad-on-walk is
-v1, and the batch arc-finder earns its existence only if the inline notes fall
-short. Don't build it on spec.
+It also held the **2026-09-04 correction to "session logs are the richest ore"**
+— that the word was carrying two properties at once, and that the `NOT NULL`
+foreign key, not the wording, was what actually made every lead transcript-only.
+That correction now lives where it can be read whole:
+[jewels-are-transcript-only-2026-09-03.md](jewels-are-transcript-only-2026-09-03.md)
+for the mechanism, [newsroom-design-review-2026-09-04.md](newsroom-design-review-2026-09-04.md)
+for the review, and **stance** in [GLOSSARY.md](GLOSSARY.md) for the word that
+replaced the overloaded one. Cut to a pointer 2026-09-06; the text is in git
+history.
 
 ## Measured behaviour — moved to a leaf
 
@@ -330,105 +217,32 @@ What is being done about it: **[scout-retool.md](scout-retool.md)** (`read: full
 spec, not built) — persist the jewel layer, unweld walk from synthesis, size the
 plate by row budget, add a backfill cursor. A retool, not a fifth agent.
 
-## Model tiers — cheap walk, premium synthesis (Sonnet 5 on the leap since 2026-09-03)
+## Model tiers — moved to a spec
 
-The Scout is **not one model call** — it's two stages with opposite needs, so
-"Opus vs Sonnet for the Scout" is the wrong granularity. Tier it (this is the
-marketer's Haiku-triage / Sonnet-judgment split, inherited):
+**[spec-scout.md](spec-scout.md) §Seats and budgets** (`read: full`) — the two
+seats, their models, depth, output ceilings and measured cost, and the cost fuse
+on every verb.
 
-- **Walk / triage / dedup** — read big swaths of the box, filter, coverage
-  bookkeeping. *High token volume, low IQ demand.* → **Haiku 4.5** ($1/$5) or
-  Sonnet. You're paying per token to skim; keep it cheap.
-- **Creative synthesis** — the "link 16 things because maybe" leap over the
-  triaged candidates. *Low token volume, maximum IQ demand.* → **Fable 5**
-  ($10/$50), the most capable model. The model question applies **only** to
-  this stage.
+What this section held and the spec does not: the **asymmetry argument** for
+spending on synthesis, which is the part worth keeping. The Editor filters the
+Scout's bad leads, but nothing filters its *missing* ones — an editor can only
+reject what was surfaced, never conjure the story a duller model failed to see.
+False negatives are invisible and uncounted, so the synthesis seat sets the
+ceiling on what stories ever exist. **That argument is untouched by what
+followed, and it has still never been tested.**
 
-**Why spend top-tier on synthesis — the asymmetry:** this stage is the creative
-*ceiling of the whole newsroom*. The Editor filters the Scout's **bad** leads
-(false positives are cheap — spiked), but **nothing filters the Scout's
-*missing* leads** — the Editor can only reject what was surfaced, never conjure
-the story a duller model failed to see. False negatives are invisible and
-uncounted, so the synthesis model sets the ceiling on *what stories ever
-exist*. That's a stronger reason to spend than anywhere else in the pipeline
-(the Writer's quality rides on voice exemplars; the Editor's routing is
-near-mechanical).
-
-Two things make it cheap to spend here: it's **ambient** (weekly-ish, no user
-waiting — a slow deliberate model is fine) and **low-token** (synthesis reasons
-over already-triaged candidates, not the raw box). At that volume the ladder is
-pennies per pass — Sonnet $3/$15 → Opus $5/$25 → Fable $10/$50 — and the whole
-Director has spent ~$3.31 in its life. Cost is not the binding constraint.
-
-> **CORRECTED 2026-09-03 — the paragraph above is wrong, and both of its
-> premises are false.** Measured from `agent_decisions`: 39 `scout_synthesis`
-> calls on Fable 5 averaged **$1.3274** and totalled **$51.77**, against
-> **$0.75** for all 106 `scout_walk` calls combined. That is **187× per call**,
-> and 69× in total — not "pennies per pass".
->
-> It also grew steadily, from **$0.448** per call the week of 2026-07-06 to
-> **$1.847** by 2026-08-10 — 4× in six weeks. The mechanism is known and is in
-> `scout-mining-economics.md`: the already-pitched dedup payload rides in this
-> prompt and scales with the leads ledger, so synthesis gets more expensive
-> every time a lead is filed, forever.
->
-> Why the premises failed: **"ambient, weekly-ish"** — the pass went *daily* at
-> 05:45 on 2026-07-22, so the volume assumption was overtaken by a scheduling
-> decision made elsewhere. **"low-token"** — $1.33 a call on a $10/$50 model is
-> not a low-token workload by any reading.
->
-> **The QUALITY argument above is untouched.** False negatives really are
-> invisible, and synthesis really does set the ceiling on what stories can
-> exist. That argument was never about cost and survives this correction
-> unchanged — it has simply never been *tested*, because the A/B this section
-> specifies (due 2026-07-26) has never been run.
->
-> **What changed:** `SCOUT_SYNTHESIS_MODEL` now defaults to **Sonnet 5**. The
-> burden is inverted rather than the argument abandoned — default to the cheap
-> model, and spend 5× on Fable per run, deliberately, where it is shown to pay.
-> Sonnet 5's $2/$10 promotional rate is permanent as of 2026-09-01, which makes
-> the gap 5× rather than the 3.3× this section assumed.
-
-**Why Fable, not Opus:** by this operation's own benchmark logic (the devlog's
-reason for Director→Sonnet 5: it matches Opus 4.8 on knowledge-work and
-reasoning-with-tools, trailing only on pure coding), **Opus 4.8 is the
-weakest-justified choice** — 1.67× Sonnet's price for a rounding-error gain on
-non-coding work. Synthesis is divergent associative reasoning over a huge
-heterogeneous context — Fable 5's stated sweet spot. So the real fork is
-**Sonnet 5 (cheap, near-Opus) vs Fable 5 (top ceiling, still trivially cheap
-here)**; Opus is the mushy middle to skip. This is the one seat in the whole
-operation where raw IQ converts *directly* into stories-that-would-otherwise-
-never-exist — so **Fable 5 on the synthesis call is the plan**, the one place we
-break from the house Sonnet default.
-
-> **SUPERSEDED 2026-09-03 — see the correction above.** The reasoning in this
-> subsection stands on its own terms and is left intact; what changed is that
-> its cost premise was measured and found wrong by two orders of magnitude. The
-> default is now Sonnet 5. Fable remains one env var away for any run where the
-> depth is worth 5x, which is the question the never-run A/B still owes an
-> answer to.
-
-**Settle it with data, not this argument:** make the synthesis model an env var
-(like `DIRECTOR_MODEL`), run one ambient pass each through Sonnet and Fable,
-read the two lead-lists side by side; the `agent_decisions` cost spine prices
-them automatically. At pennies per pass, let lead *quality* decide. If Sonnet's
-leads are as good, you've saved nothing worth measuring and kept it simpler.
-
-> **CORRECTED 2026-09-05 — this caveat was mis-filed, and the mis-filing cost
-> a day.** It is written as a *Fable* caveat, so when synthesis moved to
-> Sonnet 5 on 09-03 the warning read as no longer applicable and nobody
-> carried it forward. The hazard belongs to **the seat, not the model**:
-> reasoning tokens and the answer share one output budget on this stage
-> whoever occupies it. Measured on Sonnet 5 — a synthesis call burned the
-> whole 20,000-token budget and emitted **zero characters**, surfacing as
-> "0 leads" for $0.43 until a guard was added to make it loud. Read every
-> line below as applying to the synthesis seat. The refusal-handling half is
-> genuinely Fable-specific; the budget half is not.
-
-**Caveat to handle if Fable:** always-on thinking (minutes-long turns — fine for
-ambient work) and a safety-refusal classifier. Neither bites here
-(story-prospecting isn't cyber/bio), but wire the same `stop_reason: "refusal"`
-handling the Director needs, and consider a server-side fallback to Opus 4.8.
+What followed: its cost premises were measured on 2026-09-03 and were wrong by
+two orders of magnitude — 39 Fable synthesis calls averaged $1.3274 against
+$0.75 for all 106 walk calls combined, 187× per call, growing 4× in six weeks
+because the dedup payload rides in that prompt and scales with the ledger.
+"Ambient, weekly-ish" had been overtaken by the daily timer. The default moved
+to Sonnet 5 to **invert the burden, not to refute the quality argument**; the
+A/B due 2026-07-26 is still owed, and is an open question in AGENTS.md. A second
+correction, 2026-09-05: the output-budget hazard belongs to the *seat*, not to
+Fable — a Sonnet 5 call burned all 20,000 tokens and emitted nothing, reading as
+"0 leads" for $0.43 until a guard made it loud
+([silent-instruments-2026-08-29.md](silent-instruments-2026-08-29.md) is the
+family). Cut to a pointer 2026-09-06; the text is in git history.
 
 ## Reuse vs fork — the ghost crew stays on ghost
 
@@ -466,222 +280,88 @@ Policy itself lives in **`/opt/_host/SEO.md`** — the two-host rule, indexing
 tiers, Ghost routing and tags, the field-note size contract, syndication
 canonicals. Where any of the three disagree, SEO.md is right.
 
-## Writer, in detail — and the voice bottle
+## Writer — moved to a spec
 
-The Writer is the content agent choosing a **voice profile** per assignment.
-Critical correction to the first-pass plan: *harvest is not enough.* The
-commit/devlog/ledger corpus is **one** voice (terse, epigrammatic,
-receipts-forward). The voice wanted for a note, a marketing headline, or a
-future surface may not exist anywhere to harvest — **you cannot mine a voice
-the box has never spoken.**
+**[spec-writer.md](spec-writer.md)** (`read: full`) — the assignment, the
+type-to-profile map, the note's shape, the convergent roam, where drafts park,
+the lifecycle and the seat. [writer-persona.md](writer-persona.md) stays as the
+voice of the design and its open agenda.
 
-So the bottle is not one jar — it is **voice profiles**, each drawing from two
-wells:
-- **Harvested** exemplars, where the voice is already demonstrated (→ an
-  "operator's log" profile from commits/devlog/ledger).
-- **Seeded** exemplars, where the voice is *aspirational* — samples the
-  operator drops in, or that are drafted and operator-approved, for a register
-  nothing has written yet.
+What this section held and the spec does not: why the bottle is **profiles, not
+one jar** — *you cannot mine a voice the box has never spoken*, so a profile
+draws from two wells, harvested where the voice is already demonstrated and
+seeded where it is aspirational. And why it must be bottled at all: the voice is
+a collaboration (model phrasing, operator discipline, the box's material) and
+"the current model on a good night" is not a durable dependency for an operation
+that swaps model brains routinely. Also the operator's 2026-07-18 note that **the
+bootstrap is not the process** — the first story's four runs and live
+calibration were voice refinement, banked into the bottle precisely so the next
+story needs less of it; judge maturity by the trend in hands-on minutes per
+story, not by the first story's cost. Cut to a pointer 2026-09-06; the text is
+in git history.
 
-**Mechanism = convention-path drop** (matching `data/ask/<slug>.md` and
-`img/notes/<slug>.*`): a `voice/<profile>/` holding `samples/` (exemplars,
-harvested or seeded) and a short `moves.md` (the named-move list). The Writer
-picks a profile per assignment; a new voice is authored by dropping samples,
-no code. Caution from the operator's standing rule: **samples carry the voice;
-name the moves sparingly** — over-specifying moves in-prompt deadens them, the
-exemplars do the real work. Bottle **per register**: apex notes run man-page
-dry (the codified register exception), commits epigrammatic, blog narrative —
-one house, three volumes.
+## Marketer & Editor — moved to a spec
 
-Voice attribution, for the label on the bottle: the register is a
-*collaboration* — model provides phrasing, operator provides discipline
-(name-the-move, receipts-before-rhyme, honesty-as-posture, log-don't-edit),
-the box provides material. None alone writes like this — which is *why* it must
-be bottled: "the current model on a good night" is not a durable dependency,
-and this operation swaps model brains routinely.
+**[spec-wire-editor.md](spec-wire-editor.md)** (`read: full`) — the triage
+desk's pass, its verdicts, the clustering rule, the policy it routes by, the
+chief's shadow and the concordance metric. The Marketer is unchanged and stays
+dedicated to the Ghost blog; per-surface SEO assignment is in
+[seo-duties.md](seo-duties.md).
 
-**The bootstrap is not the process (operator, 2026-07-18).** The first
-story's cycle — four Writer runs, live voice calibration, an Editor splice —
-was *voice refinement*, not the standing workflow: each hand-tuned draft
-exists to enrich the bottle (moves named, exemplars banked) precisely so the
-next story needs less of it. Steady state is one Writer draft against a
-matured bottle, a light Editor pass, approve. Judge pipeline maturity by the
-trend in hands-on minutes per story, not by the first story's cost.
+What this section held and the spec does not: that the routing desk's ledger
+turned out to be **the Scout's own leads file** rather than the survey's
+`featured:` field, which stays the marketing-promotion queue — a different desk.
+And why `spiked` and `rejected` stay distinct (added 2026-08-03, when the review
+desk's thumbs-down had no legal transition and was refused every time): only
+`rejected` is a signal about the *Writer*, and that is the metric that says
+whether the voice bottle is maturing. Producer-versus-orchestrator holds — the
+Scout and the Writer are producers; the Director approves and routes but never
+writes. Cut to a pointer 2026-09-06; the text is in git history.
 
-## Marketer & Editor — mostly already here
+## Content types — moved to a spec
 
-- **Marketer:** unchanged, and stays **dedicated to the Ghost blog** (see
-  "Reuse vs fork"). Its extraction *technique* is what the Scout reuses via a
-  shared lib — **not** the marketer agent itself, which bakes in a
-  Ghost-authoritative canonical model. (Per-surface SEO assignment resolved
-  2026-08-03 — the Writer holds the notes' per-item text; a "newsroom
-  marketer" seat opens when the notes corpus earns a link graph. See [seo-duties.md](seo-duties.md).)
-- **Editor:** operator today → the Director's designed weekly editorial pass.
-  **Topology settled 2026-07-18: the triage half of that pass is a hired
-  desk, the Wire Editor** (publishing-automation-plan.md Phase 2) — reads
-  the ledger, proposes claim/spike/register shortlists; operator applies via
-  `lead_mark`; Director stays Editor-in-chief and its morning brief stays an
-  ops organ (at most a one-line queue stat, never pitches — the two hats
-  are different altitudes and must not re-conflate). **The Editor-in-chief
-  shadows gate ① from day one** — suggested verdicts alongside the Wire
-  Editor's proposals, operator disposes; concordance over real cycles is
-  the maturity metric that eventually hands the Director the routing pen
-  (plan doc §Gate-① shadow mode). Gate ② — scrub + approval to publish —
-  is the operator's permanently.
-  The routing desk's ledger turned out to be the Scout's leads file
-  (`pipelines/scout/state/leads.yaml`; lifecycle since 2026-07-18:
-  `new → claimed → drafted → approved → published`, `spiked` from
-  new|claimed, **`rejected` from drafted** (added 2026-08-03 — until then there
-  was no verdict for "the draft isn't good enough", so the review desk's
-  thumbs-down emitted an illegal transition and was refused every time;
-  `spiked` and `rejected` stay distinct because only the second is a signal
-  about the *Writer*, and that is the metric that says whether the voice bottle
-  is maturing), all transitions via the `lead_mark` verb with dated stamps —
-  publishing-automation-plan.md Phase 1) —
-  the build chose the ledger pattern over the survey's `featured:` field, which
-  stays the *marketing-promotion* queue, a different desk. Producer-vs-
-  orchestrator stays intact: Scout and Writer are producers (Agent SDK, like
-  their siblings); the Director approves and routes but never writes.
+**[spec-content-types.md](spec-content-types.md)** (`read: full`) — the five
+types, their sinks and canonicals, voice profiles and audiences; the rules that
+cross all types; the shape of each; and what each desk does with the type. Where
+it and `/opt/_host/SEO.md` disagree, SEO.md wins.
 
-## Content types = the Editor's routing dimension
+What this section held and the spec does not: that **the taxonomy IS the
+Editor's routing table**, and that it is the axis the reuse-versus-fork
+principle scales across — a new type is a new sink profile plugged into shared
+mechanics, never a new agent, which is precisely why the ghost crew was forked
+rather than genericized. And the guardrail that outlives every amendment:
+*self-awareness first, war stories second is a **routing** filter the Editor
+applies, never a **discovery** filter the Scout applies.* Per-sink lenses narrow
+routing, never prospecting.
 
-Sinks aren't interchangeable — each content *type* carries its own {purpose,
-canonical model, voice, audience}. **This taxonomy IS the Editor's routing
-table (its rows)**, and it's the axis the reuse-vs-fork principle scales
-across: a new type is a new **sink profile** (canonical + voice + corpus)
-plugged into the shared mechanics — never a new agent. This is *why* we forked
-the ghost crew off rather than genericizing it: content types diverge, the
-extraction technique doesn't.
+Two amendments in that text are now wrong, and the spec is right: the note's
+`deepDive` was written as **mandatory** and was corrected to opportunistic by the
+operator on 2026-08-17 (SEO.md §The field-note contract), and the body cap
+carries a tolerance — 840 characters ±5%. Cut to a pointer 2026-09-06; the text
+is in git history.
 
-| Type | Primarily for | Sink / canonical | Voice | Audience |
-|---|---|---|---|---|
-| **Ticker** | the box's *activity*, in verbs — a rolling pulse under the header | site-wide masthead (fixed second row, since 2026-07-19; was apex-home), generate-time text pack | terse verb crawl | everyone — "running right now" |
-| **Weekly newsletter** | the Director's weekly report, made public — the week's digest | apex `/newsletter/`, self-canonical | newspaper broadsheet | prospects / followers |
-| **Field notes** | the ecosystem's **self-awareness** (4C / platform-is-the-product); war stories second | apex `/notes/`, self-canonical | man-page dry | prospects — "see the receipts" |
-| **Blog** | predictor-ingest commit history; grows by **subfolders** (Ghost = one instance, one blog) | Ghost, Ghost-canonical | narrative | developers / followers |
-| **White papers / case studies** | deep, rigorous technical proof | *unplaced — future sink* | formal / technical | evaluators / decision-makers |
+## Editorial rules — moved to a spec
 
-Two guardrails:
-- **Field notes are self-awareness first, war-stories second** — but that lens
-  is a *routing* filter the **Editor** applies, NOT a discovery filter the
-  Scout applies. The Scout walks wide; the Editor sorts by type. Per-sink
-  lenses narrow *routing*, never *prospecting* (the pineapple rule again).
-- **White papers are genuinely different** — audience AND depth, not just
-  voice. Sink unplaced (apex `/papers/` via generate.js? Ghost? its own
-  thing?), deliberately unsolved for now.
-- **Field-note shape (Editor's standing order, 2026-07-16, set while routing
-  the first story through the Writer):** three beats — the problem, the
-  solution, the lessons learned — one screen, with a Clemens lean: wit
-  wherever it crystallizes a fact, engaging and factual at once (the
-  Kodiak-diary measure — riveting *because* every detail is true).
-  Receipts stay; play-by-play goes. Long-form depth is the blog leg's job
-  (a retelling that links back to the note), so detail is banked, not lost.
-  **Amended 2026-08-13 — the blog leg is a DEEP DIVE, not a retelling**
-  (self-canonical and indexed; see [seo-duties.md](seo-duties.md) for why the word mattered), and
-  the standing order now carries a number: **a note's body caps at ~840
-  characters** — three tweets, a captain's log — with the `deepDive` link
-  **mandatory**, not optional. The cap *quantifies this 2026-07-16 order*
-  rather than replacing it: "one screen" and "long-form is the blog leg's job"
-  already said it, and the drafts had drifted to 3-4× anyway. A note that wants
-  a table is not a note — the schema escapes all values, so furniture cannot
-  render, which is a feature that keeps the generator decision-free. The two
-  live notes predate the cap and are grandfathered until trimmed. Contract in
-  SEO.md §The field-note contract.
-  **Amended 2026-07-17** (from reviewing an external rewrite of the first
-  published note — its scannability was right, its stripped receipts were
-  not): a note may open with a **Quick-context block** — a `context` field
-  citing keys in the shared lexicon (`marketing/data/lexicon.json`, one
-  canonical definition per house term); the generator renders only the
-  cited terms, and notes without the field render unchanged, so published
-  pages stay frozen. Enumerable receipts (commits, read histories, fix
-  steps) render as list body entries (`{"list": []}` / `{"numbered": []}`)
-  carrying the full receipt — scannability never at the receipts' expense.
-  Receipts remain non-negotiable; the published copy of a stamped note is
-  never retro-edited — shape improvements fold forward into the next note.
+**[spec-content-types.md](spec-content-types.md)** (`read: full`) — the cadence,
+the shape of each type, the wit rule and the employer gate. Cadence policy
+itself is `/opt/_host/SEO.md` §Cadence.
 
-## Editorial rules — the cadence, the ticker filter, the three registers
-
-The three apex content types form **a real newsroom's cadence**, by durability:
-**ticker** = the pulse (near-real-time), **newsletter** = the weekly edition
-(digest), **field notes** = the features (event-driven, durable). Pulse →
-digest → feature. All three draw from the same source (the box narrating
-itself); they differ by cadence, register, and durability — three sink
-profiles, one set of mechanics.
-
-**Day-job-derived material — technique-forward, application-anonymous
-(operator, 2026-07-18).** The ingested work-machine sessions are legitimate
-ore, and their stories publish under one hard rule on top of the usual
-scrub + Editor approval: the employer's application is never named,
-described, or identifiable. What publishes is the *method* arc —
-spreadsheet-to-archetypes, feature-to-technique mapping, agentic API
-discovery, plain-language-to-test — which the operator judges tellable
-compellingly with zero application specifics. Employer confidentiality is
-a distinct gate from credential/PII redaction; a lead can pass the scrub
-and still fail this. The Editor applies it at routing time.
-
-**All generator-native, not Ghost.** The newsletter and ticker are built the
-same way as field notes (data → generate.js → index + page-per-entry), NOT in
-Ghost. Ghost stays the narrative-blog sink. Embedding Ghost content into the
-static generator would couple it to a live CMS API and break the
-zero-dependency / git-is-truth model — the clumsy shoehorn to avoid. (If the
-newsletter is ever *emailed* to subscribers, that's a delivery leg — Ghost or a
-relay — not a reason to move the content's home into Ghost.)
-
-**The ticker — "live" is euphemistic; it's a text pack compiled on generate.**
-**(v1 SHIPPED 2026-07-19 — home-hero crawl, all running non-hidden survey
-nodes in survey order, deliberately deterministic: a random sample would
-break the CI regenerate-diff gate, so "rotation" arrives when the survey
-re-walks. Pure CSS marquee, hover-pause, reduced-motion fallback. The
-dedicated ticker table below remains the open v2 question.)**
-No real-time infra: a rolling set of recent items refreshed on each regenerate
-(driven by a cron) is indistinguishable from "live" for a crawl. **v1 source: a
-rotating sample of the inventory** (the survey — already generated, so *zero new
-plumbing*). That's a *status pulse* (what's on the box, live/paused) rather than
-*activity verbs* (what happened); both are legit ticker registers, and the
-status pulse directly animates the hero's "running right now." Activity-verb
-feeds (`agent_decisions`, git) come later. Sample and rotate — don't crawl all
-55; a fresh handful per regenerate keeps it varied and the pack small. Editorial
-rules, which are what keep it honest:
-- **Verbs, not victories.** Each item is a punchy, tip-length line — a success
-  blurb, a process, or a **method verb** ("Regenerated the site," "Ran the
-  weekly backup," "Shipped two cut sheets"). Process/method verbs are
-  load-bearing; pure wins are seasoning. The moment it crows, it's dead and
-  reads as spin.
-- **Challenges enter only as their resolution-verb, linking to the full note.**
-  A bare "backups are not working" reads as a live alarm and strips the context
-  that makes it honest. So a challenge never appears raw — it appears as the
-  action taken, with depth one tap away: *"Made backup silence page a phone →
-  read the field note."* The ticker is the pulse; the notes carry the
-  warts-and-all truth; together they're honest, and the ticker points to the
-  depth rather than pretending it doesn't exist. This is the guardrail against
-  an all-wins ticker smelling like spin.
-
-**The newsletter — the Director's weekly report, made public.** It IS the
-already-designed weekly editorial pass (devlog: "compile the week from the
-accumulated harvest → synthesize → route"), just wearing a public face.
-- **Newspaper broadsheet look**, but **responsive**: two columns on wide
-  screens, collapsing to one on mobile (we live on the phone). Keep the
-  masthead, headline hierarchy, and hairline rules; let the columns flex.
-- **Editor tuned to newspaper-style headlines** — a voice profile: active
-  voice, present tense, punchy head with a deck underneath. Seed it with real
-  newspaper-headline exemplars (per the voice-bottle: samples carry the voice).
-
-**Three registers as a system:** ticker = terse verb crawl, newsletter =
-newspaper editorial, field notes = man-page technical. Not three formats that
-happen to coexist — the *visual range of an actual newsroom*, which makes the
-metaphor real instead of decorative.
-
-**House wit rule (operator, 2026-07-17) — every content type except the
-ticker.** When composing, stay on the lookout for sharp, clever wit —
-opportunistic, never a requirement, never forced when the material doesn't
-offer it. The measure stays the Clemens lean / Kodiak diary (wit that
-crystallizes a fact); this rule extends it from the field-note register to
-the whole house — newsletter, blog, notes, papers — the ticker alone stays
-pure verb crawl. Provenance worth keeping: the snark in an external rewrite
-of the first note ("Revolutionary, we know") traced back to an explicit
-"add some gen-Z comments" instruction — well executed, wrong ask.
-Commissioned wit produces snark; opportunistic wit produces the Clemens
-lean. Never instruct a writer to *add* wit — instruct it to *watch for* it.
+What this section held and the spec does not: that the three apex types are **a
+real newsroom's cadence by durability** — ticker the pulse, newsletter the weekly
+edition, field notes the features; pulse → digest → feature, one set of mechanics
+behind three sink profiles, which is what makes the metaphor real rather than
+decorative. The ticker's two honesty rules and their reasoning: **verbs, not
+victories** (the moment it crows it reads as spin), and a challenge never appears
+raw but only as its resolution verb, linking to the note that carries the warts —
+the ticker points at the depth instead of pretending it does not exist. The
+employer gate (operator, 2026-07-18): work-machine sessions are legitimate ore,
+what publishes is the method arc with the application never named or
+identifiable, it is a distinct gate from the credential scrub, it is applied at
+routing, and a lead can pass the scrub and still fail it. And the house wit rule
+(operator, 2026-07-17): **never instruct a writer to add wit — instruct it to
+watch for it**, because commissioned wit produces snark and opportunistic wit
+produces the Clemens lean. Cut to a pointer 2026-09-06; the text is in git
+history.
 
 ## The one real fork — where the Scout stops (v1 vs mature)
 
@@ -745,9 +425,17 @@ Still open:
   generate.js, Ghost, or its own surface).
 - Ghost subfolder / tag-routing mechanics for new blog topics (Ghost hardwires
   one instance = one blog).
-- Synthesis-stage model: **A/B underway** — week 1 (07-13..19) on Fable 5,
-  week 2 on Sonnet 5 (`SCOUT_SYNTHESIS_MODEL` flip, calendar TODO), side-by-side
-  readout due 07-26; the Editor judges, not the contestant (see "Model tiers").
+- Synthesis-stage model: **still owed, not underway** (corrected 2026-09-06;
+  this entry read "A/B underway" for 40 days after its own readout was due).
+  The design was one week on Fable 5 and one on Sonnet 5 with a side-by-side
+  readout on 07-26, the Editor judging and not the contestant. It never ran.
+  What happened instead: cost was measured on 09-03 and the default moved to
+  Sonnet 5, which inverts the burden without answering the quality question.
+  ADR-002 §6b has since replaced the arm's design — run both arms as
+  `--synthesize --dry-run` over the same stored jewels, so the first arm's
+  leads never enter the second arm's dedup memory. Current state:
+  [spec-scout.md](spec-scout.md) §Seats and budgets. Open question:
+  ../../AGENTS.md.
 - **A dedicated ticker table** (added 2026-07-13, once the Scout started filing
   ticker-register leads): the ticker is a *rolling* pulse, so accumulating items
   need lifecycle management — when one rolls on, how long it stays, when it
@@ -760,3 +448,8 @@ Still open:
   own material on demand. Distinct from the spiked /scout-as-chat idea (ranking
   "most promising" stays Editor judgment) and pineapple-compatible: a commission
   scopes one errand, it doesn't narrow the ambient aperture.
+  **Qualified 2026-09-06.** ADR-001 splits this: it holds for a commissioned
+  *roam*, which reads ore and narrows nothing, and fails for a commissioned
+  read of the *ledger*, which is where dispositions live — that is the path by
+  which a verdict would reach the Scout. The compatibility is a property of
+  what the commission may read, not of commissioning itself.

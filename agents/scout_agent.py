@@ -1,7 +1,7 @@
 """
 Scout Agent — the newsroom's prospector, as two stages with opposite needs.
 
-NEWSROOM §Model tiers: the Scout is not one model call. The WALK (triage over
+spec-scout.md §Seats and budgets: the Scout is not one model call. The WALK (triage over
 big swaths of transcript — high token volume, low IQ demand) runs on the cheap
 tier, inheriting the marketer's Haiku-extraction split. The SYNTHESIS (the
 "link 16 things because maybe" leap — low volume, maximum IQ) runs on the
@@ -496,7 +496,8 @@ class ScoutAgent:
     def synthesize(self, context: dict[str, Any], conn=None) -> ScoutCall:
         """Bounded agentic roam + the pitch. On stop_reason=refusal at any
         point, retry once as a plain (tool-less) call on the fallback model
-        (NEWSROOM §Model tiers caveat — story-prospecting shouldn't trip the
+        (the refusal caveat NEWSROOM §Model tiers carried before that section
+        became a pointer — story-prospecting shouldn't trip the
         classifier, but wire the handling anyway)."""
         user = (
             "Jewels from this pass's transcript walk (seqs are read_transcript coordinates):\n"

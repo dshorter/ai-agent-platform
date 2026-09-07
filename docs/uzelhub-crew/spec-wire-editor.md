@@ -1,6 +1,6 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — the triage desk as it should run from 2026-09-07. One rule here is NOT yet in the prompt — clustering by arc versus angles (operator, 2026-09-05) — and the plan puts it there. For day-to-day reading it supersedes publishing-automation-plan.md Phase 2 and NEWSROOM.md §Marketer & Editor.
+status: CURRENT SPEC, rewritable — the triage desk as it should run, 2026-09-06. Every rule here is now live in the prompt: clustering by arc versus angles (operator, 2026-09-05) landed 2026-09-06, and _queue_text carries the citations it reads. For day-to-day reading it supersedes publishing-automation-plan.md Phase 2 and NEWSROOM.md §Marketer & Editor, which is now a pointer back here.
 ---
 
 # The Wire Editor — current spec
