@@ -227,5 +227,5 @@ push.
 - [x] leads, pitched and map archived and reset; jewels and cursor untouched
 - [x] map of the box injected; exploration measured before and after
 - [x] one pass, one Wire Editor pass, one Writer draft, all recorded
-- [ ] read-through done, drift fixed, nothing rewritten
+- [x] read-through done, drift fixed, nothing rewritten
 - [x] a handoff written between windows

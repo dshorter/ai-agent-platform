@@ -63,11 +63,19 @@ commits, files.
 
 **reader** — the module that turns one source into pages the walker can
 triage and into anchors persist() can validate. Today: transcripts (ingest
-plus the walk) and git (git_ore.py). Readers add retention, not access; the
-roam already reaches every source.
+plus the walk), git (git_ore.py) and files (file_ore.py, doc and ledger).
+Readers add retention, not access; the roam already reaches every source.
+
+**splitter** — the rule that cuts one file into units a jewel can anchor to:
+an H2 section for a doc, a dated `## 2026-09-02 — …` entry for a ledger. It
+owns the unit, its anchor and its date, and it carries the source's stance
+paragraph — which is what makes the file sources one triage prompt instead of
+one per kind. Two are built; a calendar VTODO and a survey YAML node are named
+and not built.
 
 **page** — the bounded chunk one triage call reads: 150 transcript rows,
-each clipped to 1,200 characters; a git page is sized by yield.
+each clipped to 1,200 characters; a git page is sized by yield (50 commits,
+measured); a file page is 30 units, estimated and not yet measured.
 
 **plate** — the total rows one daily pass may walk (`SCOUT_PASS_ROW_BUDGET`,
 150). Bigger plates mine thinner.
@@ -89,8 +97,9 @@ ever.
 the plan lists.)
 
 **anchor** — the jewel's pointer back to its ore: `seq` for a transcript row,
-`source_ref` otherwise (`repo@sha` for git). Validated against the page the
-walker was shown; an anchor it was not shown is dropped and counted.
+`source_ref` otherwise (`repo@sha` for git, `repo/path#anchor` for a doc or
+ledger unit). Validated against the page the walker was shown; an anchor it
+was not shown is dropped and counted.
 
 **scratchpad** — free-text arc breadcrumbs the walker appends to transcript
 rows. The Scout's own opaque space; nothing downstream parses it.

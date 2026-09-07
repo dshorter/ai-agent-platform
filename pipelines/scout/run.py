@@ -1,4 +1,4 @@
-"""The Scout's stages, and the three ways to run them.
+"""The Scout's stages, and the ways to run them.
 
 Same stateless shape as the rest of the crew: connect, read fresh, reason,
 persist to agent_decisions, exit. Every LLM call logs model/tokens/cost to the
@@ -22,6 +22,10 @@ Now:
                    sweep affordable.
     run_synthesis  read a jewel selection back out and surface leads from it.
                    The verb both future consumers of the jewel table grow from.
+    run_git_walk   the same mining act over commit messages, and
+    run_file_walk  over the box's own docs and ledgers. Cursor-free, operator-
+                   driven, sharing `_ore_walk_stage` with each other and the
+                   jewel table with everything above.
 
 `run_pass` deliberately hands synthesis the jewels it holds **in memory** rather
 than re-reading them from the table. The two are equivalent when the write
@@ -50,6 +54,7 @@ from pipelines.blog_pipeline.logging_context import (
 from pipelines.blog_pipeline.pricing import compute_cost
 from pipelines.director.store import complete_run, create_run
 from pipelines.scout import box_index
+from pipelines.scout import file_ore
 from pipelines.scout import git_ore
 from pipelines.scout import jewels as jewels_mod
 from pipelines.scout import leads as leads_mod
@@ -174,6 +179,84 @@ def _walk_stage(
             log.warning("scout.walk cost cap hit (%.4f)", cost)
             break
     return found, cost, cursor
+
+
+def _pages(units: list[dict], size: int, max_pages: int | None) -> list[list[dict]]:
+    """Cut a reader's units into model-sized pages, capped by `--pages`."""
+    pages = [units[i : i + size] for i in range(0, len(units), size)]
+    return pages[:max_pages] if max_pages else pages
+
+
+def _ore_walk_stage(
+    conn,
+    agent: ScoutAgent,
+    config: ScoutConfig,
+    log_manager,
+    run_id,
+    pages: list[list[dict]],
+    summary: dict,
+    dry_run: bool,
+    *,
+    source_type: str,
+    page_as_prompt,
+    count_key: str,
+    stance: str | None = None,
+) -> tuple[list[dict], float]:
+    """Triage and persist a cursor-free reader's pages. Returns (jewels, cost).
+
+    The git walk and the file walk are the same act — take a bounded page of
+    units, mine it, let persist() drop anything cited that was not on the page,
+    write, check the ceiling — and differ only in what a UNIT is. That difference
+    belongs to the reader, so this is the part they share and the readers stay
+    small.
+
+    It is deliberately NOT `_walk_stage`, which is transcript-shaped to the bone:
+    an integer cursor, a seq range, a scratchpad column and two saved positions,
+    none of which has an analogue over commits or sections. The seam is the same
+    one 1.4.0 chose — the JEWEL is shared, the walk is not — one level down.
+    """
+    found: list[dict] = []
+    cost = 0.0
+    for page_no, rows in enumerate(pages, 1):
+        with log_manager.tool_sequence(
+            # Same decision type as the transcript walk on purpose:
+            # `decision_types` is curated behind a foreign key and adding one is
+            # a decision, not a detail (AGENTS.md §Shared surfaces). The source
+            # rides in the reason, so per-source economics stay recoverable.
+            "scout_walk",
+            reason=f"{source_type} page {page_no}/{len(pages)}, {len(rows)} {count_key}",
+        ) as ctx:
+            call = agent.triage(
+                page_as_prompt(rows), source=source_type, stance=stance
+            )
+            page_jewels = call.data.get("jewels", []) or []
+            map_notes = call.data.get("map_notes", []) or []
+            cost += _record(
+                ctx,
+                call,
+                {
+                    "source_type": source_type,
+                    count_key: len(rows),
+                    "ref_range": [rows[0]["ref"], rows[-1]["ref"]],
+                    "jewels": len(page_jewels),
+                    "dry_run": dry_run,
+                },
+            )
+        found.extend(page_jewels)
+        summary["pages"] += 1
+        summary["rows"] += len(rows)
+        if not dry_run:
+            summary["jewels_persisted"] += jewels_mod.persist(
+                conn, page_jewels, rows, run_id, config.walk_model,
+                source_type=source_type,
+            )
+            walk.append_map_notes(
+                config.state_dir, map_notes, date.today().isoformat()
+            )
+        if cost >= config.max_cost_usd:
+            log.warning("scout.%s_walk cost ceiling hit (%.4f)", source_type, cost)
+            break
+    return found, cost
 
 
 # --- stage 2: the leap ---------------------------------------------------------
@@ -389,8 +472,6 @@ def run_git_walk(
     summary = _blank_summary()
     summary["run_id"] = str(run_id)
     summary["source_type"] = "git"
-    found: list[dict] = []
-    cost = 0.0
     try:
         with log_manager.task_sequence(
             task_id=str(run_id), description="scout: walk (git, mine only)"
@@ -405,51 +486,73 @@ def run_git_walk(
             # plate is sized in rows of text; a git page has to be sized by how
             # many jewels it will yield, because a commit message is a
             # decision-with-reason by construction and the walker emits roughly
-            # one per commit. See git_ore.DEFAULT_PAGE for the measurement.
-            page = git_ore.DEFAULT_PAGE
-            pages = [
-                everything[i : i + page] for i in range(0, len(everything), page)
-            ]
-            if max_pages:
-                pages = pages[:max_pages]
-            for page_no, rows in enumerate(pages, 1):
-                with log_manager.tool_sequence(
-                    # Same decision type as the transcript walk on purpose:
-                    # `decision_types` is curated behind a foreign key and
-                    # adding one is a decision, not a detail (AGENTS.md
-                    # §Shared surfaces). The source rides in the reason, so
-                    # per-source economics stay recoverable.
-                    "scout_walk",
-                    reason=f"git page {page_no}/{len(pages)}, {len(rows)} commits",
-                ) as ctx:
-                    call = agent.triage(git_ore.page_as_prompt(rows), source="git")
-                    page_jewels = call.data.get("jewels", []) or []
-                    map_notes = call.data.get("map_notes", []) or []
-                    cost += _record(
-                        ctx,
-                        call,
-                        {
-                            "source_type": "git",
-                            "commits": len(rows),
-                            "ref_range": [rows[0]["ref"], rows[-1]["ref"]],
-                            "jewels": len(page_jewels),
-                            "dry_run": dry_run,
-                        },
-                    )
-                found.extend(page_jewels)
-                summary["pages"] += 1
-                summary["rows"] += len(rows)
-                if not dry_run:
-                    summary["jewels_persisted"] += jewels_mod.persist(
-                        conn, page_jewels, rows, run_id, config.walk_model,
-                        source_type="git",
-                    )
-                    walk.append_map_notes(
-                        config.state_dir, map_notes, date.today().isoformat()
-                    )
-                if cost >= config.max_cost_usd:
-                    log.warning("scout.git_walk cost ceiling hit (%.4f)", cost)
-                    break
+            # one per four commits. See git_ore.DEFAULT_PAGE for the measurement.
+            found, cost = _ore_walk_stage(
+                conn, agent, config, log_manager, run_id,
+                _pages(everything, git_ore.DEFAULT_PAGE, max_pages),
+                summary, dry_run,
+                source_type="git",
+                page_as_prompt=git_ore.page_as_prompt,
+                count_key="commits",
+            )
+            summary["jewels"] = len(found)
+            summary["cost_usd"] = round(cost, 4)
+        return summary
+    except Exception:
+        status = "error"
+        raise
+    finally:
+        complete_run(conn, run_id, status)
+        conn.close()
+
+
+def run_file_walk(
+    config: ScoutConfig,
+    kind: str,
+    paths: list[str],
+    since: str | None = None,
+    until: str | None = None,
+    max_pages: int | None = None,
+    dry_run: bool = False,
+) -> dict:
+    """Mine the box's own prose — docs and ledgers — and persist the jewels.
+
+    The third walking verb, and the same posture as git: no cursor, an explicit
+    range, the operator driving it. What stands in for git's `--since/--until`
+    is the PATH, and `file_ore.read_units` refuses one outside the registered
+    roam roots — a `source_ref` is publishable text, so a gated repo's path must
+    not be mineable in the first place.
+
+    `kind` is both the splitter and the jewel's `source_type`, which is what
+    keeps doc and ledger one reader with two rules instead of two readers.
+    """
+    conn = psycopg.connect(config.postgres_dsn)
+    log_manager = SequenceAwareLogManager(db_writer=DecisionWriter(conn))
+    agent = _agent(config)
+    run_id = create_run(conn, "scout")
+    status = "success"
+    summary = _blank_summary()
+    summary["run_id"] = str(run_id)
+    summary["source_type"] = kind
+    try:
+        with log_manager.task_sequence(
+            task_id=str(run_id), description=f"scout: walk ({kind}, mine only)"
+        ):
+            # Read every unit once, then page it — the read is local file I/O
+            # and the PAGE is what bounds the model call, exactly as in git.
+            everything = file_ore.read_units(
+                paths, kind, since=since, until=until, limit=10**6
+            )
+            summary["units"] = len(everything)
+            found, cost = _ore_walk_stage(
+                conn, agent, config, log_manager, run_id,
+                _pages(everything, file_ore.DEFAULT_PAGE, max_pages),
+                summary, dry_run,
+                source_type=kind,
+                page_as_prompt=file_ore.page_as_prompt,
+                count_key="units",
+                stance=file_ore.STANCES[kind],
+            )
             summary["jewels"] = len(found)
             summary["cost_usd"] = round(cost, 4)
         return summary

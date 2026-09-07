@@ -154,6 +154,23 @@ Output STRICT JSON, nothing else:
 Copy the value INSIDE the brackets exactly — `[ref=repo@sha]` means the ref is `repo@sha`, with the repo qualifier and nothing else. Do NOT append the commit date; it is outside the bracket because it is not part of the ref. A ref you were not shown, or one carrying anything extra, is dropped and the jewel is lost. Keep notes short; the full message stays in git."""
 
 
+SCOUT_FILE_TRIAGE_PROMPT = """You are the Scout's walker — the cheap, wide-aperture triage stage of the uzelhub newsroom's prospector. You are reading one bounded page of UNITS OF WRITTEN PROSE from the files that build this platform ("the box") — one section or one dated entry per unit, each tagged with the ref it must be cited by.
+
+{{STANCE}}
+
+Mine for JEWELS — the durable material: named principles, corrections and reversals, reframes, decisions-with-reasons, aha-moments. NOT the play-by-play of what a section covers. The richest material lives at the seams — a passage that corrects an earlier one, a rule stated with the cost it admits, a claim that outlived the thing it was written about.
+
+Aperture rules (absolute):
+- When unsure, include. A downstream editor filters; you never self-censor.
+- You have no taste and want none. Never judge what "deserves" publishing — only note what is durable, surprising, or connective.
+
+Output STRICT JSON, nothing else:
+{"jewels": [{"ref": "<path#anchor>", "kind": "principle|correction|reframe|decision|aha", "note": "<one tight sentence>"}],
+ "map_notes": ["<navigation observation: where rich material lives, which files run rich — never story verdicts>"]}
+
+Copy the value INSIDE the brackets exactly — `[ref=repo/path/to/file.md#a-heading]` means the ref is `repo/path/to/file.md#a-heading`, with the repo qualifier and the anchor and nothing else. Do NOT append the date; it is outside the bracket because it is not part of the ref. A ref you were not shown, or one carrying anything extra, is dropped and the jewel is lost. Keep notes short; the whole section stays in the file."""
+
+
 SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
 
 You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
@@ -430,7 +447,9 @@ class ScoutAgent:
         call.cache_creation_input_tokens += getattr(u, "cache_creation_input_tokens", 0) or 0
         call.cache_read_input_tokens += getattr(u, "cache_read_input_tokens", 0) or 0
 
-    def triage(self, page_text: str, source: str = "transcript") -> ScoutCall:
+    def triage(
+        self, page_text: str, source: str = "transcript", stance: str | None = None
+    ) -> ScoutCall:
         """Mine one bounded page. `source` picks the ore's own prompt.
 
         The APERTURE RULES are identical across sources and must stay that way
@@ -444,13 +463,25 @@ class ScoutAgent:
         carry its own copy and return early, so a guard edit could land on one
         source and miss the other. That is not hypothetical — a861925's message
         claimed it covered "the transcript path too" when it had not.
+
+        A `stance` is what makes the FILE sources one prompt instead of four.
+        The reader supplies the paragraph (file_ore.STANCES), because which
+        stance a unit carries is a property of the splitter that cut it, not of
+        the walker reading it. Two sources ride this path today, doc and ledger;
+        a third costs a row in that table and nothing here.
         """
         if source == "transcript":
             prompt, header = SCOUT_TRIAGE_PROMPT, "Transcript page"
         elif source == "git":
             prompt, header = SCOUT_GIT_TRIAGE_PROMPT, "Commit page"
+        elif stance:
+            prompt = SCOUT_FILE_TRIAGE_PROMPT.replace("{{STANCE}}", stance)
+            header = "File page"
         else:
-            raise ValueError(f"no triage prompt for source_type {source!r}")
+            raise ValueError(
+                f"no triage prompt for source_type {source!r} and no stance to "
+                f"build one from"
+            )
         call = self._call(
             self.walk_model,
             prompt,

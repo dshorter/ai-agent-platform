@@ -50,7 +50,7 @@ MAX_FILE_BYTES = 2_000_000
 _HEADING_CHARS = 78
 _HEAD_BYTES = 4096  # enough to reach a heading past a frontmatter block
 
-_SKIP_DIRS = {
+SKIP_DIRS = {
     ".git", ".venv", "venv", "node_modules", "__pycache__", ".pytest_cache",
     ".mypy_cache", ".ruff_cache", ".cache", "dist", "build", "htmlcov",
     "site-packages", ".idea", ".vscode", "state",
@@ -137,7 +137,7 @@ def _candidates(roots: list[Path]) -> list[tuple[Path, os.stat_result]]:
             continue
         for dirpath, dirnames, filenames in os.walk(root):
             dirnames[:] = sorted(
-                d for d in dirnames if d not in _SKIP_DIRS and not d.startswith(".")
+                d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")
             )
             for name in sorted(filenames):
                 p = Path(dirpath) / name

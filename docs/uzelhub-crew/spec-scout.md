@@ -43,7 +43,8 @@ every source access.
 |---|---|---|---|
 | transcript | ingest into scout_session_log, then the walk | `seq` | by cursor, pages of 150 rows |
 | git | git_ore.py over `SCOUT_GIT_REPOS` (five repos) | `repo@sha` | `--walk --source git` over an explicit range; use `--since 2026-01-21` to match the transcript era |
-| doc, ledger, calendar, survey | none; roam only | `path#anchor` (planned) | not walked. The plan builds one generic file reader with per-kind splitters, not four readers |
+| doc, ledger | `file_ore.py` — ONE reader, a splitter per kind: an H2 section for a doc, a dated `## 2026-09-02 — …` entry for a ledger | `repo/path#anchor`, the same slug the doc's own MAP block uses | `--walk --source doc\|ledger --path <file or dir>`; refuses a path outside the three roam roots, because a `source_ref` is publishable text |
+| calendar, survey | none; roam only | `path#anchor` (planned) | not walked. Their splitters — a VTODO, a YAML node — are one row in `file_ore.SPLITTERS` and one stance paragraph each, added when something calls them and not before |
 | agent_decisions | none, blocked | sequence id | the mineable unit is unsettled (step_number is 1 on every row; names are dotted); settle it before any reader |
 
 The roam reaches only the registered roots: ai-agent-platform, uzelhub-web,
@@ -124,7 +125,7 @@ mined.
 | verb | does | moves a cursor | cost |
 |---|---|---|---|
 | `--ingest` | session logs into scout_session_log | no | trivial |
-| `--walk` (`--source transcript` or `git`; `--from-seq`, `--pages`, `--since`, `--until`) | mine and persist jewels | no | Haiku pages |
+| `--walk` (`--source transcript\|git\|doc\|ledger`; `--from-seq`, `--pages`, `--since`, `--until`, `--path`) | mine and persist jewels | no | Haiku pages |
 | `--synthesize` (selection flags, `--dry-run`) | leads from stored jewels | no | one synthesis |
 | `--pass` | walk within the plate, backfill the remainder, synthesize over that walk, file | forward and backfill | both |
 
@@ -141,7 +142,10 @@ overwritten. Lead slugs are never renamed. A cost ceiling on every walking leg.
 
 ## Open
 
-One generic file reader with splitters, doc and ledger first. The kind
+The remaining two splitters (a calendar VTODO, a survey YAML node), which have
+no caller yet. The file page size: 30 units is an estimate with headroom, not
+the measurement `git_ore.DEFAULT_PAGE` carries — the first live doc walk is what
+settles it. The kind
 vocabulary. Multi-run selections over the same ore (near-duplicate jewels).
 The agent_decisions unit. ADR-002's coverage ledger (not built; the two
 cursors do its job for transcripts). The cause of the empty forced pitch.
