@@ -154,7 +154,7 @@ Output STRICT JSON, nothing else:
 Copy the value INSIDE the brackets exactly — `[ref=repo@sha]` means the ref is `repo@sha`, with the repo qualifier and nothing else. Do NOT append the commit date; it is outside the bracket because it is not part of the ref. A ref you were not shown, or one carrying anything extra, is dropped and the jewel is lost. Keep notes short; the full message stays in git."""
 
 
-SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged transcript jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
+SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
 
 You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
 - read_transcript — the ingested session-log ore, by seq. Use it for a jewel whose `source_type` is `transcript`; its `seq` is the anchor, and your own scratchpad arc-notes ride along.
@@ -250,7 +250,6 @@ def _guard_truncation(call: "ScoutCall", source: str) -> None:
         f"size. Do NOT reach for a separate reasoning budget — budget_tokens is a "
         f"400 on this seat."
     )
-
 
 
 def _render_conversation(messages: list[dict[str, Any]]) -> str:
@@ -440,25 +439,24 @@ class ScoutAgent:
         key: transcripts cite `seq` from `[seq=N]` tags, everything else cites
         `ref` from `[ref=...]` tags, which is the anchor `resolve_anchor`
         validates now that the foreign key is gone for five of six sources.
+
+        ONE guard, after the branch, deliberately: the transcript path used to
+        carry its own copy and return early, so a guard edit could land on one
+        source and miss the other. That is not hypothetical — a861925's message
+        claimed it covered "the transcript path too" when it had not.
         """
         if source == "transcript":
-            call = self._call(
-                self.walk_model,
-                SCOUT_TRIAGE_PROMPT,
-                f"Transcript page:\n\n{page_text}",
-                SCOUT_TRIAGE_MAX_TOKENS,
-            )
-            _guard_truncation(call, source)
-            return call
-        if source == "git":
-            call = self._call(
-                self.walk_model,
-                SCOUT_GIT_TRIAGE_PROMPT,
-                f"Commit page:\n\n{page_text}",
-                SCOUT_TRIAGE_MAX_TOKENS,
-            )
+            prompt, header = SCOUT_TRIAGE_PROMPT, "Transcript page"
+        elif source == "git":
+            prompt, header = SCOUT_GIT_TRIAGE_PROMPT, "Commit page"
         else:
             raise ValueError(f"no triage prompt for source_type {source!r}")
+        call = self._call(
+            self.walk_model,
+            prompt,
+            f"{header}:\n\n{page_text}",
+            SCOUT_TRIAGE_MAX_TOKENS,
+        )
         _guard_truncation(call, source)
         return call
 
@@ -500,7 +498,16 @@ class ScoutAgent:
         became a pointer — story-prospecting shouldn't trip the
         classifier, but wire the handling anyway)."""
         user = (
-            "Jewels from this pass's transcript walk (seqs are read_transcript coordinates):\n"
+            # NOT "this pass's transcript walk". `--synthesize` hands over a
+            # stored selection that may be any mix of sources, and since schema
+            # 1.4.0 a jewel may carry a `source_ref` instead of a `seq`. Telling
+            # the model its jewels are transcript seqs is the same wrong sentence
+            # A6 (9e36a50) took out of the system prompt and cd64959 had to put
+            # back; it survived here because the restore worked the prompt
+            # constant and never looked at the turn built beside it.
+            "Jewels in this selection — each carries `source_type`: a transcript "
+            "jewel's `seq` is a read_transcript coordinate, a git jewel's "
+            "`source_ref` (repo@sha) is a run_git one:\n"
             f"{json.dumps(context.get('jewels', []), indent=1)}\n\n"
             "Cross-agent decision sequences (agent_span = distinct agents touched; "
             "a weight, never a filter):\n"

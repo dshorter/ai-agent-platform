@@ -2,8 +2,12 @@
 
 Same stateless shape as the rest of the crew: connect, read fresh, reason,
 persist to agent_decisions, exit. Every LLM call logs model/tokens/cost to the
-spine, so the Sonnet-vs-Fable synthesis A/B (NEWSROOM §Model tiers) prices
-itself automatically.
+spine, so the Sonnet-vs-Fable synthesis A/B (spec-scout.md §Seats and budgets)
+prices itself automatically. One exception, and it is a real hole: when
+synthesis stops with `stop_reason=refusal` the agent returns the FALLBACK
+call's usage alone, so the roam that preceded it is billed to nobody. Never
+seen live; noted 2026-09-07 rather than fixed, because the honest fix is two
+spine rows and this window does not restructure.
 
 **The walk and the synthesis are separable** (scout-retool.md §2). They used to
 be one indivisible act, which meant mining could not happen without also
@@ -25,8 +29,10 @@ succeeded, and going through the database would make a storage hiccup silently
 cost a pass its leads. Composition is at the function boundary, not the storage
 one.
 
-Dry-run is fully read-only: no cursor advance, no jewels, no scratchpad writes,
-no map appends, no leads filed — coverage is not consumed by a rehearsal.
+Dry-run consumes no COVERAGE: no cursor advance, no jewels, no scratchpad
+writes, no map appends, no leads filed. It is not read-only in the wider sense
+and never was — the run row and every call's cost still land on the spine,
+which is the point of rehearsing a priced stage.
 """
 from __future__ import annotations
 

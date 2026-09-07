@@ -28,7 +28,7 @@ no taste. Two stages with opposite needs, on two seats.
 | depth | none | `SCOUT_SYNTHESIS_EFFORT`, default high; the only depth control on this seat |
 | output | 4,096, a sanity ceiling | streamed; ceiling `SCOUT_SYNTHESIS_MAX_TOKENS` (64,000) |
 | cost | about $0.037 per 150-row page | about $0.25 per run since 09-06 (was $1.50 before streaming and the digest) |
-| ceiling | `SCOUT_MAX_COST_USD`, default $2, on every verb; checked between pages, so a fuse rather than a brake | same |
+| ceiling | `SCOUT_MAX_COST_USD`, default $2, on every walking leg — `--walk`, `--walk --source git`, and both of a pass's legs; checked between pages, so a fuse rather than a brake | none. A synthesis is one call and there is no between-pages to check at; what bounds it is `SCOUT_SYNTHESIS_MAX_TOKENS` on the way out and the digested dedup memory on the way in |
 
 Fable 5 on synthesis is one env var away. Whether it is worth five times
 Sonnet has never been measured; that arm is still owed.
@@ -137,7 +137,7 @@ arms so the first arm's leads never enter the second arm's dedup memory.
 The pineapple rule: no disposition on jewels, no status in the dedup memory,
 no verdict in any prompt. The aperture rules in both triage prompts. The
 forward cursor never moves backward. Raw transcript text is never
-overwritten. Lead slugs are never renamed. A cost ceiling on every verb.
+overwritten. Lead slugs are never renamed. A cost ceiling on every walking leg.
 
 ## Open
 
