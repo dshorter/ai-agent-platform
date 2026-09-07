@@ -221,11 +221,11 @@ push.
 
 ## Checklist
 
-- [ ] type replaces register in code, tests and prompts; the vocabulary test is green
-- [ ] prompts match their specs; the arc/angles rule is live in the Wire Editor
-- [ ] NEWSROOM shrunk to reasoning and pointers; AGENTS.md routes to the specs; maps regenerated
-- [ ] leads, pitched and map archived and reset; jewels and cursor untouched
-- [ ] map of the box injected; exploration measured before and after
-- [ ] one pass, one Wire Editor pass, one Writer draft, all recorded
+- [x] type replaces register in code, tests and prompts; the vocabulary test is green
+- [x] prompts match their specs; the arc/angles rule is live in the Wire Editor
+- [x] NEWSROOM shrunk to reasoning and pointers; AGENTS.md routes to the specs; maps regenerated
+- [x] leads, pitched and map archived and reset; jewels and cursor untouched
+- [x] map of the box injected; exploration measured before and after
+- [x] one pass, one Wire Editor pass, one Writer draft, all recorded
 - [ ] read-through done, drift fixed, nothing rewritten
-- [ ] a handoff written between windows
+- [x] a handoff written between windows
