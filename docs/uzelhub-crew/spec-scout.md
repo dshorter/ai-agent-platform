@@ -47,9 +47,13 @@ every source access.
 | agent_decisions | none, blocked | sequence id | the mineable unit is unsettled (step_number is 1 on every row; names are dotted); settle it before any reader |
 
 The roam reaches only the registered roots: ai-agent-platform, uzelhub-web,
-predictor_ingest. It cannot read _host or server-maintenance, and it has no
-index of what exists, so exploratory reads outside jewel coordinates fail
-(8 of 8 on 2026-09-06). A map of the box is the open capability. Gated
+predictor_ingest. It cannot read _host or server-maintenance. Since
+2026-09-06 an index of what exists under those roots rides in the synthesis
+context (`box_index.py`): path, size, mtime and first heading for up to 300
+readable text files, excluding generated trees, credential-shaped names, and
+any line the redaction gate would flag. Before it, exploratory reads outside
+jewel coordinates failed 8 of 8; the roam had no way to tell a refusal from
+an absent file. Gated
 day-job material gets an opaque `source_ref` resolved through a mapping that
 never leaves the box; its home is _host and it is not built.
 
@@ -81,7 +85,8 @@ never leaves the box; its home is _host and it is not built.
   `--of-run`, `--limit`, in source-date order across all sources. A pass
   selects its own walk's jewels; both paths hand synthesis the same shape.
 - Context: the selected jewels, the cross-agent decision sequences, the tail
-  of the map (4,000 characters), and the dedup memory as digests (id plus
+  of the map (4,000 characters), the box index (what files exist under the
+  roots; navigation, never taste), and the dedup memory as digests (id plus
   first sentence, at most 240 characters; status-blind).
 - Roam: up to `SCOUT_ROAM_ITERATIONS` (6) rounds of read_transcript,
   read_file, grep, run_git, with tool output capped; then the pitch is forced
@@ -136,8 +141,7 @@ overwritten. Lead slugs are never renamed. A cost ceiling on every verb.
 
 ## Open
 
-A map of the box (an index of the registered roots for the roam). One
-generic file reader with splitters, doc and ledger first. The kind
+One generic file reader with splitters, doc and ledger first. The kind
 vocabulary. Multi-run selections over the same ore (near-duplicate jewels).
 The agent_decisions unit. ADR-002's coverage ledger (not built; the two
 cursors do its job for transcripts). The cause of the empty forced pitch.
