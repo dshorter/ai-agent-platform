@@ -1,15 +1,19 @@
 ---
 read: full
-status: run record for window 2 of plan-2026-09-07-unify-and-reset, 2026-09-06. Steps 4 and 5 are done and measured; step 6 is blocked on one operator permission and is recorded here unfinished. Measurements, not conclusions — every number is from one run unless it says otherwise.
+status: run record for window 2 of plan-2026-09-07-unify-and-reset, 2026-09-06. Steps 4, 5 and 6 are done. Measurements, not conclusions — every number is from one run unless it says otherwise.
 ---
 
-# Window 2 — the reset, the box index, and the run that did not start
+# Window 2 — the reset, the box index, and the cycle that ran
 
 <!-- MAP:START -->
 - [Step 4 — the reset](#step-4--the-reset)
 - [Step 5 — the box index, measured](#step-5--the-box-index-measured)
   - [Two things seen while measuring, neither fixed](#two-things-seen-while-measuring-neither-fixed)
-- [Step 6 — not run](#step-6--not-run)
+- [Step 6 — the pass, in ADR-002's run-record shape](#step-6--the-pass-in-adr-002s-run-record-shape)
+  - [The box index, measured again where it counts](#the-box-index-measured-again-where-it-counts)
+  - [The Wire Editor, first run since 2026-08-03](#the-wire-editor-first-run-since-2026-08-03)
+  - [The Writer, first run since 2026-07-31](#the-writer-first-run-since-2026-07-31)
+- [Step 6 acceptance, all six](#step-6-acceptance-all-six)
 <!-- MAP:END -->
 
 ## Step 4 — the reset
@@ -97,26 +101,145 @@ of finishing.
 output, and `state/empty-calls/` is still empty. That failure remains open and
 intermittent; two clean runs are not a fix and are not evidence of one.
 
-## Step 6 — not run
+## Step 6 — the pass, in ADR-002's run-record shape
 
-**Blocked on one permission, not on a decision.** The plan's command overrides
-the operator pause for a single shell:
+The sandbox refuses the `SCOUT_PAUSED=` override the plan's command needs — it
+is the switch that gates the daily timer, and an agent does not get to unset
+it. The operator ran the command by hand at 03:35 UTC. The pause itself was
+verified live first: the same command without the override idles and exits 0.
 
-    SCOUT_PAUSED= .venv/bin/python -m pipelines.scout --pass
+| | one pass, 2026-09-07 03:35 UTC |
+|---|---|
+| rows walked | 150 (one page, seq 431101–447871) |
+| jewels found | 31 |
+| jewels persisted | 30 |
+| dropped by `resolve_anchor` | 1 (bad or off-page seq) |
+| scratchpad notes | 10 |
+| map notes written | 8 entries, 1,330 bytes |
+| leads filed | **17** |
+| walk cost | $0.0328 |
+| synthesis cost | $0.2693 |
+| **total cost** | **$0.3022** |
+| wall time | 3 min 8 s |
+| **how it terminated** | **`end_turn`, 5 roam iterations, no fallback, no truncation** |
 
-The sandbox refuses the `SCOUT_PAUSED=` override. Verified that the pause
-itself is live and working: the same command without the override idles and
-exits 0, exactly as `pipelines/scout/__main__.py` specifies.
+Persisted equals found minus dropped (30 = 31 − 1), which is the acceptance
+this shape exists to make answerable. `scout_jewel` went 2,630 → 2,660.
 
-**No substitute was run.** `--walk` plus `--synthesize` are operator verbs and
-are ungated, so they would have executed — but they are not the same thing.
-`--walk` moves no cursor, and a standalone `--synthesize` selects from stored
-jewels rather than from that walk's. Running them would have produced an
-artifact that looked like step 6 while quietly skipping the cursor advance,
-which is the half the step is named for. That is the substitution AGENTS.md
-calls a boundary crossed by a locally-efficient fix.
+**The cursor changed shape, not just value.** It was `{"seq": 418876}` and is
+now `{"forward": 447871, "backfill": 0}` — the two-cursor model `spec-scout.md`
+§The walk describes, written on the first real pass since. The window 1 handoff
+recorded the single-key form as the untouched baseline, so the next reader
+should not take the new shape for damage.
 
-What step 6 still owes, unchanged: one pass recorded in ADR-002's run-record
-shape (rows walked, jewels found and persisted, dropped anchors, map notes,
-leads filed, cost, wall time, how it terminated), then one Wire Editor pass,
-one claim applied by hand, and one Writer draft.
+**Every lead carries a `type:` from the five words**, none carries `register:`,
+all 17 are `new`. Spread: note 7, ticker 5, blog 2, paper 2, newsletter 1 — all
+five types, filed by a Scout that was told what the types are and never told
+which to want.
+
+### The box index, measured again where it counts
+
+The step 5 A/B moved one exploratory read. This pass, over different ore and
+without a controlled twin, is the stronger evidence:
+
+| | before arm (step 5) | this pass |
+|---|---|---|
+| exploratory `read_file` / `grep` | 0 attempted | **2 attempted, 2 landed** |
+| leads citing a file | 0 of 11 | **10 of 17** |
+
+Both reads went to `docs/uzelhub-crew/` — `scout-mining-economics.md` and
+`scout-retool.md` — paths taken off the index rather than guessed. Ten of the
+seventeen leads then cite a file. Against 8 of 8 failures on 2026-09-06 and
+zero attempts in the before arm, the capability now works; how much it improves
+the leads is a separate question nobody has measured.
+
+**One lead is the Scout pitching this exact gap.**
+`2026-09-06-roams-four-swings-four-misses` reports that the roam had never once
+succeeded outside transcript rows, and names this pass's own index as the
+structural response. It mined the failure it was in the middle of having fixed.
+
+### The Wire Editor, first run since 2026-08-03
+
+17 leads in, 17 proposals out, one per new lead. **10 claims, 7 holds, 0
+spikes.** The chief shadow agreed on all 17 (`chief_differs: 0`). Cost $0.3488
+($0.2980 triage, $0.0508 shadow). Artifact:
+`state/archive/wire-dry-20260906-2339.out`.
+
+**The operator-rejected clustering rule is confirmed dead in behaviour, not
+just in the prompt.** Two clusters formed — the mining-economics self-audit
+(6 angles) and the 2026-09-05 validation sweep (3 angles) — and every folded
+angle came back as a **hold**, not a spike. Before 2026-09-05 this desk turned
+124 of 127 spikes into exactly this situation. The zero is the whole point.
+
+**One drift from spec-wire-editor.md, small and real.** The spec's fold form is
+`hold, folded into <id>`. The reasons say "folded into the retool story" —
+naming the story, not the id. The fold target is still recoverable from the
+`clusters:` block, so nothing is lost, but the record does not carry it where
+the spec says it should. Not fixed here: changing the prompt mid-cycle would
+have made this run unreproducible.
+
+**The live pass was not re-run, deliberately.** `--dry-run` already recorded
+both calls on the spine (`wire_triage`, `chief_shadow`); the only thing a live
+pass adds is the same artifact persisted under `wire_editor/state/proposals/`
+instead of the archive. Paying $0.35 a second time for byte-identical output,
+to satisfy a command list rather than an acceptance, is the waste this estate
+keeps writing down. The cycle's $1 acceptance is the constraint that decided
+it. **If the operator wants the artifact in its usual home, one live pass puts
+it there.**
+
+### The Writer, first run since 2026-07-31
+
+One claim applied by hand, one draft banked. The claimed lead was
+`2026-09-06-roams-four-swings-four-misses` — the Scout's own report that its
+roam had never worked.
+
+| | |
+|---|---|
+| cost | $0.2112 |
+| roam calls | 4, **all landed** (`read_transcript`, `grep`, two `read_file`) |
+| body | **846 characters** (contract 798–882, target 840) |
+| beats | 3 — What happened / One line of the prompt / What shipped |
+| title, tagline, metaDescription | all present |
+| table | none |
+| `deepDive` | absent, correctly — no deep dive exists |
+| lead status | `claimed` → **`drafted`**, stamped by the pipeline |
+
+**The claim was applied with `--agent`, and the plan's command list omits it.**
+`lead_mark.py:35` requires it of any agent wearing the editor's hat, because on
+2026-08-03 concordance was found scoring 6/6 against leads an agent had claimed
+`--by editor`: a machine agreeing with a machine. The plan's line assumed the
+operator's hand. **Concordance still has never been humanly exercised**, and
+this run did not change that — it deliberately kept itself out of the metric.
+
+**The Writer read this document.** Its roam opened
+`window-2-runs-2026-09-06.md`, written earlier in the same session, and cited
+it. That is the convergent roam working exactly as specified, and it is also a
+short circuit worth naming: the draft's receipts include this file's account of
+the very measurement it describes, rather than the run logs underneath. Nothing
+in the draft is wrong; the provenance is one hop shallower than it looks.
+
+**Gate ② has something real to catch here.** The draft trips
+`redaction.scan` three times on the home-path rule — the same finding class
+that has blocked `sysadmin-ledger.md` for two windows. The string is not
+repeated here: writing it down to document it is how a leak moves from a
+gitignored draft into tracked prose, and this file was blocked once for
+exactly that before the sentence was rewritten. Nothing leaked — the draft is
+gitignored and carries the pipeline's `UNSCRUBBED` stamp. It is the first live
+demonstration that the scrub before gate ② is not ceremonial.
+
+## Step 6 acceptance, all six
+
+| acceptance | result |
+|---|---|
+| jewels persisted = found − dropped | 30 = 31 − 1 |
+| `map.md` non-empty | 8 entries, 1,330 bytes, navigation only |
+| every lead carries one of the five types | 17 of 17, none carrying `register:` |
+| wire artifact: one proposal per new lead, arc/angles form | 17 of 17; 0 spikes, 7 holds folded |
+| Writer banks a draft, lead reads `drafted` | both |
+| whole cycle under $1 | **$0.8622** |
+
+The budget held **because** the Wire Editor's live pass was skipped. Run it and
+the cycle is $1.21. That is the trade, stated plainly: the plan's command list
+and the plan's acceptance could not both be satisfied.
+
+
