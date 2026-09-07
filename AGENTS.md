@@ -43,7 +43,10 @@ as a description, not a rule, and never read its silence as permission. An
 | **What the box has taught us — principles, with receipts** | `/opt/_host/PRINCIPLES.md` (`read: full`). Start here when a change feels like it might be deciding something. |
 | The whole box — layout, ports, databases, overlaps | `/opt/_host/README.md` (`read: full`; _host has **no remote**, never add one) |
 | What actually runs, verified against timers and tables | `ops/desk/agent-roster.html` |
-| Newsroom: registers, routing, who holds which text | `docs/uzelhub-crew/NEWSROOM.md` |
+| **Newsroom vocabulary — one word per concept** | `docs/uzelhub-crew/GLOSSARY.md` (`read: reference`). Type, register, stance, source, citations. When two docs use a word differently, this file is current. |
+| **Newsroom: the current rule, per desk (rewritable specs)** | `docs/uzelhub-crew/spec-content-types.md`, `spec-scout.md`, `spec-wire-editor.md`, `spec-writer.md` (`read: full`, each short). A rule is stated once, here; prompts and code follow it. Where a spec and the code disagree, fix one the same day and say which. |
+| Newsroom: the design's reasoning and history | `docs/uzelhub-crew/NEWSROOM.md` — thesis, org chart, the pineapple rule, and the dated corrections. Read it for *why*, never for the current rule. |
+| The next session's runbook (unify, rename, reset, run end to end) | `docs/uzelhub-crew/plan-2026-09-07-unify-and-reset.md` |
 | Calendar helpers, namespaces, verbs | `ops/CALENDAR.md` |
 | SEO across apex/blog/corpus/syndication | `/opt/_host/SEO.md` (`read: full`) |
 | Director's own memory across runs | `docs/director/director-ledger.md` |
@@ -122,6 +125,9 @@ casts a vote without anyone noticing. These are open:
 - A document marked `read: full` is read whole before acting on it. Never
   conclude from a range-read. (Convention defined in `/opt/_host/README.md`.)
 - Docs are never silently rewritten. Corrections carry a date and keep the
-  original claim visible.
+  original claim visible. **Exception (2026-09-06): `GLOSSARY.md` and the
+  four `spec-*.md` files are rewritable** — edit in place, date the commit,
+  no correction strata. They hold the current rule; history lives everywhere
+  else.
 - Operator/sudo work ships as a runnable script — backup, validate, self-verify,
   restore on failure — never as a config paste.
