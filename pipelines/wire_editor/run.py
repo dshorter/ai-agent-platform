@@ -31,7 +31,7 @@ from pipelines.writer import assignment
 log = logging.getLogger("uzelhub_crew.wire_editor")
 
 VERDICTS = {"claim", "spike", "hold"}
-REGISTERS = {"note", "blog", "newsletter", "ticker"}
+REGISTERS = {"note", "blog", "newsletter", "ticker", "paper"}
 
 
 def _record(ctx, call: ScoutCall, payload: dict) -> float:
@@ -95,6 +95,21 @@ def _validate(proposals: list[dict], new_ids: set[str]) -> list[dict]:
         pid = str(p.get("id", ""))
         if pid in new_ids and pid not in seen and p.get("verdict") in VERDICTS:
             if p.get("register") not in REGISTERS:
+                # Coerce, but never quietly. This line silently rewrote every
+                # unknown register to "note" from the day it was written, so a
+                # register the Scout could pitch but this set did not know was
+                # relabelled with no trace — found 2026-09-06 while adding
+                # `paper`, which NEWSROOM's routing table has carried as a
+                # content type all along. The fallback is right; the silence
+                # was the bug.
+                log.warning(
+                    "wire_editor: unknown register %r on lead %s — coerced to "
+                    "'note'. If this is a real register, add it to REGISTERS "
+                    "here, to the Scout's enum, to leads_assay and to "
+                    "draft_review; a value that can be pitched but not routed "
+                    "is invisible by construction.",
+                    p.get("register"), pid,
+                )
                 p["register"] = "note"
             seen[pid] = p
     for missing in sorted(new_ids - set(seen)):

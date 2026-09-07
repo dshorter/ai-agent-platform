@@ -57,7 +57,7 @@ from pipelines.writer.assignment import load_leads  # noqa: E402
 LEADS_PATH = Path(os.environ.get("SCOUT_LEADS_PATH", _REPO / "pipelines" / "scout" / "state" / "leads.yaml"))
 PROPOSALS_DIR = Path(os.environ.get("WIRE_EDITOR_STATE_DIR", _REPO / "pipelines" / "wire_editor" / "state")) / "proposals"
 
-REGISTERS = ["ticker", "note", "newsletter", "blog"]
+REGISTERS = ["ticker", "note", "newsletter", "blog", "paper"]
 WIRE = ["claim", "spike", "hold"]
 
 # Named assays. Each is (label_a, terms_a, label_b, terms_b, what it tests).

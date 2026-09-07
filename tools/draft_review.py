@@ -586,10 +586,11 @@ def build(drafts: list[dict], notes: list[dict], slots: list[int], today: dt.dat
     # Rail rows: only registers actually present, in the order the newsroom
     # thinks about them (NEWSROOM §Content types), so the nav doesn't shuffle
     # between builds.
-    order = ["note", "newsletter", "blog", "ticker"]
+    order = ["note", "newsletter", "blog", "ticker", "paper"]
     present = {d.get("lead", {}).get("register", "note") for d in pending}
     regs = [r for r in order if r in present] + sorted(present - set(order))
-    labels = {"note": "Field notes", "newsletter": "Newsletter", "blog": "Blog", "ticker": "Ticker"}
+    labels = {"note": "Field notes", "newsletter": "Newsletter", "blog": "Blog",
+              "ticker": "Ticker", "paper": "Abstracts"}
     rows = "".join(
         f'<button class="navitem" data-reg="{html.escape(r)}" aria-pressed="false">'
         f'<span>{html.escape(labels.get(r, r.title()))}</span><span class="n"></span></button>'

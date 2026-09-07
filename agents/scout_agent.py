@@ -171,12 +171,14 @@ Dedup: skip only a lead whose pitch is essentially identical to one in the alrea
 
 REDACTION (absolute): these transcripts contain credentials, keys, internal paths, personal data. Never reproduce secret material in a pitch — point to it (session id, turns, sequence id, file) and paraphrase the story around it.
 
-Registers: ticker (terse verb line), newsletter (weekly digest item), note (durable field note — self-awareness first, war story second), blog (narrative retelling).
+Registers: ticker (terse verb line), newsletter (weekly digest item), note (durable field note — self-awareness first, war story second), blog (narrative retelling), paper (a rough ABSTRACT WITH REFERENCES — a claim rigorous enough to defend, and the pointers that would evidence it; never the paper itself, which is a different order of work).
+
+These name what a lead IS, not what you should go looking for. Pitch whatever the ore gives you and let the register fall out; never let a register you have not filled steer the walk. The Editor routes — you prospect.
 
 Your FINAL message must be STRICT JSON, nothing else:
 {"leads": [{"slug": "<kebab-case>", "pitch": "<2-4 sentences>", "why_now": "<one sentence>",
             "sources": ["<pointer, e.g. 'session 37e71c90 turns 210-260' or 'agent_decisions sequence <uuid>'>"],
-            "register": "ticker|newsletter|note|blog", "agent_span": <int, 1 if single-actor>}]}"""
+            "register": "ticker|newsletter|note|blog|paper", "agent_span": <int, 1 if single-actor>}]}"""
 
 
 @dataclass

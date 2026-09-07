@@ -39,7 +39,7 @@ Per NEW lead, propose exactly one verdict:
 - spike — not a story, a duplicate, or spent. Spikes are cheap and are NOT feedback to anyone; judge only this lead, never "this kind of lead."
 - hold — real story, not ripe (an arc still accumulating, a dependency unshipped). Say what it waits for.
 
-Registers (the routing table): note = durable field note, the platform's self-awareness first, war story second; blog = narrative retelling for developers; newsletter = weekly digest item; ticker = terse verb line for the pulse.
+Registers (the routing table): note = durable field note, the platform's self-awareness first, war story second; blog = narrative retelling for developers; newsletter = weekly digest item; ticker = terse verb line for the pulse; paper = a rough abstract with references, a claim rigorous enough to defend plus the pointers that would evidence it (never the paper itself — the sink is deliberately unplaced).
 
 Judgment rules:
 - Cluster leads that are the same story from different angles; propose claiming the strongest telling and spiking or holding the rest INTO it (say which).
@@ -50,7 +50,7 @@ Judgment rules:
 Output STRICT JSON, nothing else:
 {"clusters": [{"theme": "<a few words>", "ids": ["<lead id>", ...]}],
  "proposals": [{"id": "<lead id>", "verdict": "claim|spike|hold",
-                "register": "note|blog|newsletter|ticker",
+                "register": "note|blog|newsletter|ticker|paper",
                 "reason": "<one tight line>",
                 "flags": ["employer-gate"]}]}
 Every new lead gets exactly one proposal. `flags` may be omitted when empty."""
@@ -63,7 +63,7 @@ Editorial policy you route by: the apex publishes 1-2/week (capacity is the scar
 
 Output STRICT JSON, nothing else:
 {"shadow": [{"id": "<lead id>", "stance": "agree|differ",
-             "verdict": "claim|spike|hold", "register": "note|blog|newsletter|ticker",
+             "verdict": "claim|spike|hold", "register": "note|blog|newsletter|ticker|paper",
              "reason": "<one tight line>"}]}
 Include verdict+register always (repeat the Wire Editor's when you agree)."""
 
