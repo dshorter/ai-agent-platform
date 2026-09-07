@@ -68,7 +68,12 @@ def _queue_text(new: list[dict], context: dict[str, list[str]]) -> str:
             f"- id: {l['id']}\n  filed: {l.get('filed', '?')} | scout-type: "
             f"{l.get('type', '?')} | span: {l.get('agent_span', '?')}\n"
             f"  pitch: {_one_line(l.get('pitch', ''))}\n"
-            f"  why_now: {_one_line(l.get('why_now', ''), 160)}"
+            f"  why_now: {_one_line(l.get('why_now', ''), 160)}\n"
+            # The clustering rule reads source dates and source types off the
+            # citations, so the queue has to carry them. Without this line the
+            # desk can only cluster on pitch wording, which is how angles and
+            # arcs became indistinguishable (spec-wire-editor.md §Clustering).
+            f"  sources: {'; '.join(_one_line(str(s), 120) for s in (l.get('sources') or ['(none given)']))}"
         )
     for name, ids in context.items():
         lines.append(f"\nALREADY {name.upper()} ({len(ids)}): {', '.join(ids) or '(none)'}")
