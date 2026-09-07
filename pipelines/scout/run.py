@@ -43,6 +43,7 @@ from pipelines.blog_pipeline.logging_context import (
 )
 from pipelines.blog_pipeline.pricing import compute_cost
 from pipelines.director.store import complete_run, create_run
+from pipelines.scout import box_index
 from pipelines.scout import git_ore
 from pipelines.scout import jewels as jewels_mod
 from pipelines.scout import leads as leads_mod
@@ -191,6 +192,7 @@ def _synthesis_stage(
                 "jewels": found,
                 "sequences": sequences,
                 "map": walk.read_map(config.state_dir),
+                "box_index": box_index.build(),
                 "pitched": pitched,
             },
             conn=conn,

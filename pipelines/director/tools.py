@@ -72,6 +72,19 @@ _SECRET_EXACT = {
 _SECRET_PREFIX = (".env.",)  # .env.local, .env.prod, …
 _SECRET_SUFFIX = (".pem", ".key", ".pfx", ".p12", ".keystore")
 
+
+def looks_secret(p: Path) -> bool:
+    """Credential-shaped by name. Public because the Scout's box index has to
+    make the same judgment the toolbox does — a listed path the toolbox then
+    refuses is the dead end the index exists to remove, and two copies of this
+    rule would drift apart the first time one gained a suffix."""
+    n = p.name.lower()
+    return (
+        n in _SECRET_EXACT
+        or n.startswith(_SECRET_PREFIX)
+        or n.endswith(_SECRET_SUFFIX)
+    )
+
 # Read-only git subcommands the Director may run.
 _GIT_READONLY = {
     "log", "status", "diff", "show", "branch", "rev-parse", "ls-files", "ls-tree",
@@ -312,14 +325,7 @@ class ToolBox:
                 return p
         return None
 
-    @staticmethod
-    def _looks_secret(p: Path) -> bool:
-        n = p.name.lower()
-        return (
-            n in _SECRET_EXACT
-            or n.startswith(_SECRET_PREFIX)
-            or n.endswith(_SECRET_SUFFIX)
-        )
+    _looks_secret = staticmethod(looks_secret)
 
     # --- dispatch -----------------------------------------------------------
     def dispatch(self, name: str, tool_input: dict[str, Any]) -> tuple[str, bool]:
