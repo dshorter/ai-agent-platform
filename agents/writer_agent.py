@@ -2,7 +2,7 @@
 Writer Agent — the newsroom's rewrite desk, note leg first.
 
 writer-persona.md is the identity; this is its runtime. The Writer takes a
-CLAIMED lead (pitch, why-now, sources, register) and produces the register's
+CLAIMED lead (pitch, why-now, sources, type) and produces that type's
 output — v1: a notes.json-shaped field-note entry. It has no voice of its own:
 the voice bottle (voice/<profile>/samples + moves.md) rides in the system
 prompt, and the samples carry the voice.
@@ -69,7 +69,7 @@ def _thinking_of(response: Any) -> str:
 
 WRITER_NOTE_PROMPT = """You are the Writer — the uzelhub newsroom's rewrite desk. An Editor has claimed a lead and assigned it to you. Your job is the middle of the pipeline: claimed lead in, draft out. Downstream, a deterministic generator renders your draft and the Editor approves it; you never publish, never route, never touch HTML.
 
-REGISTER: field note — the apex /notes/ section, man-page dry. Field notes are the ecosystem's self-awareness first, war stories second: the platform describing its own workings honestly. Honesty about failure is the register's whole credibility — the moment it crows, it's dead.
+TYPE: note — the apex /notes/ section, man-page dry. Field notes are the ecosystem's self-awareness first, war stories second: the platform describing its own workings honestly. Honesty about failure is the note's whole credibility — the moment it crows, it's dead.
 
 SHAPE (Editor's standing order, 2026-07-16; amended 2026-07-17): three beats — the problem, the solution, the lessons learned. A field note fits on one screen; it is not the long-form telling. Keep the receipts, cut the play-by-play: every detail that survives must earn its line. Long-form depth belongs to the blog leg, which retells the story and links back to the note. Two scannability rules: (1) receipts that enumerate — commits, read histories, fix steps — go in a list body entry, never buried in a sentence; the list carries the full receipt (hash AND subject line, not "three commits"). (2) Recurring house terms may be cited in the "context" field (keys into uzelhub-web/marketing/data/lexicon.json — read it before choosing); the generator renders a Quick-context block from ONLY the cited keys. Cite only terms the body actually uses, 4 at most; a term missing from the lexicon is introduced inline instead (smart stranger) — never define lexicon terms yourself.
 
@@ -101,7 +101,7 @@ def _assignment_text(lead: dict) -> str:
     return (
         "THE ASSIGNMENT — a claimed lead from the ledger:\n"
         f"id: {lead.get('id')}\n"
-        f"filed: {lead.get('filed')}  register: {lead.get('register')}\n"
+        f"filed: {lead.get('filed')}  type: {lead.get('type')}\n"
         f"pitch: {lead.get('pitch', '')}\n"
         f"why_now: {lead.get('why_now', '')}\n"
         f"sources:\n{src}\n\n"

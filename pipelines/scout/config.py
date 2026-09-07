@@ -59,8 +59,8 @@ class ScoutConfig:
     pitch_digest_chars: int = 240  # chars of each past pitch shown to synthesis
     synthesis_effort: str = "high"  # reasoning depth on the synthesis seat (low..max)
     # The estate's repos, as git ore. Commit messages carry the RESOLVED
-    # register that session logs structurally cannot — what was decided and
-    # why, written after — which is the register the copy has been missing.
+    # account that session logs structurally cannot — what was decided and
+    # why, written after — which is the stance the copy has been missing.
     git_repos: tuple[Path, ...] = ()
 
     @classmethod

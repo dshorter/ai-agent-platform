@@ -139,7 +139,7 @@ seq values must come from the [seq=N] tags in the input. Keep notes short; the f
 
 SCOUT_GIT_TRIAGE_PROMPT = """You are the Scout's walker — the cheap, wide-aperture triage stage of the uzelhub newsroom's prospector. You are reading one bounded page of COMMIT MESSAGES from the repositories that build this platform ("the box"). The box narrates its own work; you mine the narration.
 
-This ore has a different register from the session logs, and that difference is the point. A session log records a problem WHILE IT IS BEING FOUGHT — partial, present tense, no resolution. A commit message records what was DECIDED and WHY, written afterwards, once it was known. You are mining the resolved account.
+This ore has a different stance from the session logs, and that difference is the point. A session log records a problem WHILE IT IS BEING FOUGHT — partial, present tense, no resolution. A commit message records what was DECIDED and WHY, written afterwards, once it was known. You are mining the resolved account.
 
 Mine for JEWELS — the durable material: named principles, corrections and reversals, reframes, decisions-with-reasons, aha-moments. NOT the play-by-play of which files changed. The richest material lives at the seams — a commit that reverses an earlier one, a message that explains a decision taken somewhere else, one change that touches two concerns at once, a rationale that outlives the code it shipped with.
 
@@ -158,7 +158,7 @@ SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium s
 
 You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
 - read_transcript — the ingested session-log ore, by seq. Use it for a jewel whose `source_type` is `transcript`; its `seq` is the anchor, and your own scratchpad arc-notes ride along.
-- **Your jewels no longer all cite seqs.** Each carries `source_type` and, when it is not a transcript, a `source_ref` instead of a seq. A `git` jewel's ref looks like `repo@sha` — for example `ai-agent-platform@3c2878a270`. Follow one with run_git against that repo and sha (`show`, `log`, `blame`) exactly as you would pull a transcript thread by seq. These jewels are a different REGISTER, not just a different table: a session log records a problem while it is being fought, a commit message records what was decided and why, afterwards. The seam between the two accounts of one event is the richest thing in the pile.
+- **Your jewels no longer all cite seqs.** Each carries `source_type` and, when it is not a transcript, a `source_ref` instead of a seq. A `git` jewel's ref looks like `repo@sha` — for example `ai-agent-platform@3c2878a270`. Follow one with run_git against that repo and sha (`show`, `log`, `blame`) exactly as you would pull a transcript thread by seq. These jewels are a different STANCE, not just a different table: a session log records a problem while it is being fought, a commit message records what was decided and why, afterwards. The seam between the two accounts of one event is the richest thing in the pile.
 - read_file / grep — the repos and docs: design docs (NEWSROOM, personas), the sysadmin ledger (docs/uzelhub-crew/sysadmin-ledger.md), the ops calendar (ops/calendar.ics), the marketing survey (uzelhub-web/marketing/promotion-survey.yaml), devlogs.
 - run_git — read-only git across the registered projects (log/show/blame). This is how you resolve a `git` jewel's `source_ref`, and how a story that turns on when-and-why gets its receipts.
 Your tool budget is small; spend it pulling threads, not surveying. When you have enough, stop and pitch.
@@ -171,14 +171,14 @@ Dedup: skip only a lead whose pitch is essentially identical to one in the alrea
 
 REDACTION (absolute): these transcripts contain credentials, keys, internal paths, personal data. Never reproduce secret material in a pitch — point to it (session id, turns, sequence id, file) and paraphrase the story around it.
 
-Registers: ticker (terse verb line), newsletter (weekly digest item), note (durable field note — self-awareness first, war story second), blog (narrative retelling), paper (a rough ABSTRACT WITH REFERENCES — a claim rigorous enough to defend, and the pointers that would evidence it; never the paper itself, which is a different order of work).
+Types: ticker (terse verb line), newsletter (weekly digest item), note (durable field note — self-awareness first, war story second), blog (narrative retelling), paper (a rough ABSTRACT WITH REFERENCES — a claim rigorous enough to defend, and the pointers that would evidence it; never the paper itself, which is a different order of work).
 
-These name what a lead IS, not what you should go looking for. Pitch whatever the ore gives you and let the register fall out; never let a register you have not filled steer the walk. The Editor routes — you prospect.
+These name what a lead IS, not what you should go looking for. Pitch whatever the ore gives you and let the type fall out; never let a type you have not filled steer the walk. The Editor routes — you prospect.
 
 Your FINAL message must be STRICT JSON, nothing else:
 {"leads": [{"slug": "<kebab-case>", "pitch": "<2-4 sentences>", "why_now": "<one sentence>",
             "sources": ["<pointer, e.g. 'session 37e71c90 turns 210-260' or 'agent_decisions sequence <uuid>'>"],
-            "register": "ticker|newsletter|note|blog|paper", "agent_span": <int, 1 if single-actor>}]}"""
+            "type": "ticker|newsletter|note|blog|paper", "agent_span": <int, 1 if single-actor>}]}"""
 
 
 @dataclass
@@ -436,7 +436,7 @@ class ScoutAgent:
 
         The APERTURE RULES are identical across sources and must stay that way
         — "when unsure, include" and "you have no taste" are doctrine, not
-        per-source tuning. What varies is the ore's register and the citation
+        per-source tuning. What varies is the ore's stance and the citation
         key: transcripts cite `seq` from `[seq=N]` tags, everything else cites
         `ref` from `[ref=...]` tags, which is the anchor `resolve_anchor`
         validates now that the foreign key is gone for five of six sources.

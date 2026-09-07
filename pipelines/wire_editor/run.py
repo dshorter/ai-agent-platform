@@ -31,7 +31,7 @@ from pipelines.writer import assignment
 log = logging.getLogger("uzelhub_crew.wire_editor")
 
 VERDICTS = {"claim", "spike", "hold"}
-REGISTERS = {"note", "blog", "newsletter", "ticker", "paper"}
+TYPES = {"note", "blog", "newsletter", "ticker", "paper"}
 
 
 def _record(ctx, call: ScoutCall, payload: dict) -> float:
@@ -65,8 +65,8 @@ def _queue_text(new: list[dict], context: dict[str, list[str]]) -> str:
     lines = [f"NEW LEADS ({len(new)}):"]
     for l in new:
         lines.append(
-            f"- id: {l['id']}\n  filed: {l.get('filed', '?')} | scout-register: "
-            f"{l.get('register', '?')} | span: {l.get('agent_span', '?')}\n"
+            f"- id: {l['id']}\n  filed: {l.get('filed', '?')} | scout-type: "
+            f"{l.get('type', '?')} | span: {l.get('agent_span', '?')}\n"
             f"  pitch: {_one_line(l.get('pitch', ''))}\n"
             f"  why_now: {_one_line(l.get('why_now', ''), 160)}"
         )
@@ -82,7 +82,7 @@ def _shortlist_text(new_by_id: dict[str, dict], proposals: list[dict]) -> str:
         flags = f" | flags: {','.join(p.get('flags', []))}" if p.get("flags") else ""
         lines.append(
             f"- id: {p['id']}\n  pitch: {_one_line(lead.get('pitch', ''), 240)}\n"
-            f"  wire: {p['verdict']} ({p.get('register', '?')}) — {p.get('reason', '')}{flags}"
+            f"  wire: {p['verdict']} ({p.get('type', '?')}) — {p.get('reason', '')}{flags}"
         )
     return "\n".join(lines)
 
@@ -94,29 +94,29 @@ def _validate(proposals: list[dict], new_ids: set[str]) -> list[dict]:
     for p in proposals:
         pid = str(p.get("id", ""))
         if pid in new_ids and pid not in seen and p.get("verdict") in VERDICTS:
-            if p.get("register") not in REGISTERS:
+            if p.get("type") not in TYPES:
                 # Coerce, but never quietly. This line silently rewrote every
-                # unknown register to "note" from the day it was written, so a
-                # register the Scout could pitch but this set did not know was
+                # unknown type to "note" from the day it was written, so a
+                # type the Scout could pitch but this set did not know was
                 # relabelled with no trace — found 2026-09-06 while adding
-                # `paper`, which NEWSROOM's routing table has carried as a
-                # content type all along. The fallback is right; the silence
-                # was the bug.
+                # `paper`, which the routing table has carried as a content
+                # type all along. The fallback is right; the silence was the
+                # bug.
                 log.warning(
-                    "wire_editor: unknown register %r on lead %s — coerced to "
-                    "'note'. If this is a real register, add it to REGISTERS "
-                    "here, to the Scout's enum, to leads_assay and to "
-                    "draft_review; a value that can be pitched but not routed "
-                    "is invisible by construction.",
-                    p.get("register"), pid,
+                    "wire_editor: unknown type %r on lead %s — coerced to "
+                    "'note'. If this is a real type, add it to TYPES here, to "
+                    "the Scout's enum, to leads_assay and to draft_review; a "
+                    "value that can be pitched but not routed is invisible by "
+                    "construction.",
+                    p.get("type"), pid,
                 )
-                p["register"] = "note"
+                p["type"] = "note"
             seen[pid] = p
     for missing in sorted(new_ids - set(seen)):
         seen[missing] = {
             "id": missing,
             "verdict": "hold",
-            "register": "note",
+            "type": "note",
             "reason": "(wire editor returned no verdict — operator judgment)",
         }
     return list(seen.values())
@@ -148,7 +148,7 @@ def _artifact(
         s = shadow_by_id.get(p["id"], {})
         out.append(f"  - id: {p['id']}")
         out.append(f"    wire: {p['verdict']}")
-        out.append(f"    register: {p.get('register', 'note')}")
+        out.append(f"    type: {p.get('type', 'note')}")
         out.append(f"    reason: {q(p.get('reason', ''))}")
         if p.get("flags"):
             out.append(f"    flags: [{', '.join(p['flags'])}]")

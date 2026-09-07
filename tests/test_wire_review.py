@@ -32,14 +32,14 @@ clusters:
 proposals:
   - id: lead-a
     wire: claim
-    register: note
+    type: note
     reason: "Worth pursuing, it says"
     chief: agree
     chief_verdict: claim
     chief_reason: "Concur"
   - id: lead-b
     wire: spike
-    register: blog
+    type: blog
     reason: "Fold elsewhere"
     flags: [employer-gate]
     chief: differ
@@ -47,7 +47,7 @@ proposals:
     chief_reason: "Actually distinct"
   - id: lead-c
     wire: hold
-    register: note
+    type: note
     reason: "Too soon"
     chief: silent
 """
@@ -117,7 +117,7 @@ def test_merge_later_artifact_wins(tmp_path):
     p1.write_text(ARTIFACT, encoding="utf-8")
     p2.write_text(
         "date: 2026-08-03\nclusters:\nproposals:\n"
-        "  - id: lead-c\n    wire: claim\n    register: note\n"
+        "  - id: lead-c\n    wire: claim\n    type: note\n"
         '    reason: "Ripened"\n    chief: agree\n'
         "    chief_verdict: claim\n    chief_reason: \"Now yes\"\n",
         encoding="utf-8")
@@ -138,12 +138,12 @@ def test_same_day_batches_merge_in_run_order(tmp_path):
     second = tmp_path / "a" / "2026-08-03-1357.yaml"
     first.write_text(
         "date: 2026-08-03\nclusters:\nproposals:\n"
-        "  - id: lead-x\n    wire: spike\n    register: note\n"
+        "  - id: lead-x\n    wire: spike\n    type: note\n"
         '    reason: "Morning read"\n    chief: silent\n',
         encoding="utf-8")
     second.write_text(
         "date: 2026-08-03\nclusters:\nproposals:\n"
-        "  - id: lead-x\n    wire: claim\n    register: note\n"
+        "  - id: lead-x\n    wire: claim\n    type: note\n"
         '    reason: "Afternoon reversal"\n    chief: silent\n',
         encoding="utf-8")
     art = _wr.merge_artifacts([first, second])

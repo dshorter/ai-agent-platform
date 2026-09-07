@@ -28,7 +28,7 @@ from pipelines.blog_pipeline.pricing import compute_cost
 from pipelines.director.store import complete_run, create_run
 from pipelines.writer import assignment
 from pipelines.writer.bottle import load_profile
-from pipelines.writer.config import REGISTER_PROFILES, WriterConfig
+from pipelines.writer.config import TYPE_PROFILES, WriterConfig
 
 log = logging.getLogger("uzelhub_crew.writer")
 
@@ -68,12 +68,12 @@ def run_draft(config: WriterConfig, lead_id: str, dry_run: bool = False) -> dict
     lead = assignment.find_lead(config.leads_path, lead_id)
     if lead is None:
         raise SystemExit(f"no lead '{lead_id}' on the ledger ({config.leads_path})")
-    register = lead.get("register", "note")
-    profile = REGISTER_PROFILES.get(register)
+    lead_type = lead.get("type", "note")
+    profile = TYPE_PROFILES.get(lead_type)
     if profile is None:
         raise SystemExit(
-            f"lead '{lead_id}' is register '{register}' — the v1 desk handles "
-            f"{sorted(REGISTER_PROFILES)} only (writer-persona.md §build order)"
+            f"lead '{lead_id}' is type '{lead_type}' — the v1 desk handles "
+            f"{sorted(TYPE_PROFILES)} only (writer-persona.md §build order)"
         )
     if not dry_run and lead.get("status") not in ("claimed", "drafted"):
         raise SystemExit(
@@ -95,7 +95,7 @@ def run_draft(config: WriterConfig, lead_id: str, dry_run: bool = False) -> dict
 
     run_id = create_run(conn, "writer")
     status = "success"
-    summary: dict = {"lead": lead_id, "register": register, "profile": profile}
+    summary: dict = {"lead": lead_id, "type": lead_type, "profile": profile}
     try:
         with log_manager.task_sequence(
             task_id=str(run_id), description=f"writer: draft {lead_id}"
@@ -108,7 +108,7 @@ def run_draft(config: WriterConfig, lead_id: str, dry_run: bool = False) -> dict
                     call,
                     {
                         "lead": lead_id,
-                        "register": register,
+                        "type": lead_type,
                         "delivered": bool(note.get("sections")),
                         "fallback_used": call.fallback_used,
                         "stop_reason": call.stop_reason,
