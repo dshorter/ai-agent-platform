@@ -1374,6 +1374,91 @@ html&gt;body{padding:0}&lt;/style&gt;
     color: var(--nf-surface);
   }
 
+  #newsroom-operating-manual-v2 .nf-role-gallery {
+    display: none;
+    margin-bottom: 18px;
+  }
+
+  #newsroom-operating-manual-v2[data-system-view=&quot;role&quot;] .nf-role-gallery { display: block; }
+  #newsroom-operating-manual-v2[data-system-view=&quot;role&quot;] .nf-role-strip { display: none; }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-head strong {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-head span {
+    color: var(--nf-muted);
+    font-size: 11px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(84px, 1fr));
+    gap: 8px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-card {
+    min-height: 116px;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 6px;
+    padding: 9px 6px;
+    border-radius: 11px;
+    background: var(--nf-surface-strong);
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-card[aria-pressed=&quot;true&quot;] {
+    border-color: var(--nf-accent);
+    background: var(--nf-soft);
+    color: var(--nf-ink);
+    box-shadow: inset 0 0 0 1px var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-art,
+  #newsroom-operating-manual-v2 .nf-role-system-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-art {
+    display: block;
+    object-fit: contain;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-system-icon {
+    display: grid;
+    place-items: center;
+    color: var(--nf-info);
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-system-icon svg { width: 38px; height: 38px; }
+
+  #newsroom-operating-manual-v2 .nf-role-card strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-card small {
+    display: block;
+    margin-top: 2px;
+    color: var(--nf-muted);
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
   #newsroom-operating-manual-v2 .nf-detail {
     padding: 18px;
     border-radius: 13px;
@@ -1799,13 +1884,24 @@ html&gt;body{padding:0}&lt;/style&gt;
     #newsroom-operating-manual-v2 .nf-output-channel span { left: calc(50% + 28px); width: 40%; }
   }
 
+  @media (max-width: 460px) {
+    #newsroom-operating-manual-v2 .nf-role-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     #newsroom-operating-manual-v2 .nf-stage-circle,
     #newsroom-operating-manual-v2 .nf-funnel-lane { transition: none; }
   }
+
+  @media (prefers-color-scheme: dark) {
+    #newsroom-operating-manual-v2 .nf-role-art {
+      filter: brightness(0) invert(1);
+      opacity: .88;
+    }
+  }
 &lt;/style&gt;
 
-&lt;div id=&quot;newsroom-operating-manual-v2&quot; aria-label=&quot;Uzelhub newsroom operating manual&quot; data-compact=&quot;false&quot; data-show-rail=&quot;true&quot;&gt;
+&lt;div id=&quot;newsroom-operating-manual-v2&quot; aria-label=&quot;Uzelhub newsroom operating manual&quot; data-compact=&quot;false&quot; data-show-rail=&quot;true&quot; data-system-view=&quot;flow&quot;&gt;
   &lt;section class=&quot;nf-window&quot;&gt;
     &lt;header class=&quot;nf-topbar&quot;&gt;
       &lt;div class=&quot;nf-brand&quot;&gt;
@@ -1842,8 +1938,34 @@ html&gt;body{padding:0}&lt;/style&gt;
 
           &lt;div class=&quot;nf-content&quot;&gt;
             &lt;section class=&quot;nf-canvas&quot; aria-label=&quot;Newsroom system stages&quot;&gt;
+              &lt;section class=&quot;nf-role-gallery&quot; aria-label=&quot;Newsroom roles&quot;&gt;
+                &lt;div class=&quot;nf-role-gallery-head&quot;&gt;&lt;strong&gt;Newsroom roles&lt;/strong&gt;&lt;span&gt;Select a seat to reveal its stages&lt;/span&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-role-gallery-grid&quot;&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Scout&quot; aria-pressed=&quot;true&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,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&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Scout&lt;/strong&gt;&lt;small&gt;finds&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Wire&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,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&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Wire Editor&lt;/strong&gt;&lt;small&gt;triages&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Editor&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAANbklEQVR42u1bbXBc11l+nvfcXcmSpY1teWXHKc6HHFtSkiaYgTRNqxITykwotHTcobQZJnRogRKmDB8DTOlMW6AMFIaP0oES+FFmmgHzkR9hOilpMgpNgDRJSVKvnMRuGhLsSHacSLJsSXvP+/Dj3pV217sryXacOOTO7Mzde/d8Pec9z/u+zzkLvHm9ef2/vvgq1WvAmJ3+eNwB+BsZ0LAKUC3/vOEsIACIAFC6eORaRtwocReBHhlOCtjv0PiJFyuV5t+/EQAwAF4qD++RhU8Sehd5+iTLYwrwa9HxeyeO7n/w9QBCOAcAhnzwn6OFLxG4FBIgTyH3hg+YkLbDDLcVewaqC3PHHsjL6wIFYG8AKrFUHvkiQ+GXpRgBF0Br/YEAdwCwUPihrp6N6xbmjv1bXo8uMAD2BmBfLJVHPsoQPi1PFwEm+UA7WEz+XjFlSN5Z7Bl4ZmFu/InXCgSeRTmt33rlQPDwNGCl3Iqtzpzr61aLNh0gIB1XETtnXqi83OK3r/p1hu5oLAAAY/gQLdmQm3WruprBUN0zA9wZwoCq+nD2fCycbws4QwDGPR/VeyGpabbZxrLYoj1CEoX31df7egeAABxbd/eQ3CmJANk0u52WWN0zmiSS2DU4eE1vHiXyQgAAGxdmNkjqrxuz1rCG68ASJPSl6ULptfACZxySzltwsGGNW5P5qw0fNPECAUKnLPiFAoAA4ORF6XGKr2TWvyoPw5YeIrubPtkz98qFBEDAwYMLAJ4kKEC+1iVUC44JimAFzz033+RGX9dukADg0p0g2cHcV35GEsI/5vWe9yyRZ1Vu+/au0qneJ2i2IwuDuRY/7iAp6UhSXRw+fvzg7AUUCEEADM89N0+zn63DxNdQ3gkjpY8fP35wBth73s3/bJMhAQjzJ6aeLfZsmjRL3gOCgNI8LmDrMooAAy2YK/7WzNTEHbW84kJMhwWMJQtzjzxc7Bk4SPBdtNAL5cESFHOr8NxDGi0YhJPy+EszUxN/8loO/lwAAOA5B/aGhbnxx9f1Dfy9gAKA7yGtjxaMtOwDEtBRAv8QqdtmJye+mrVfieeOz8YS4Pu5lqyS54ZHxgxD/1tzjei7eNcmSwvXiXEngH6QryDikArx0dnDB156FSQxw/kXW/eGsyhnZzhIy4AbS5brGEsAYP2Woc0XbRn56f7yVTevZYJ5tmhvGBwejbCrCF1KcV6G5xXx+MzR/YcAAENDXTi4LQJlAfv8HDO9AfD1W6/cFVQYJ1AGDe7pHTOTPb8ArBcwnp5LAGpmy1J59COgPgpgNxlsOQMQJJ8HeF+M/vsnjk38+1maqAHQhvLVVznj5wXMEnzYXA+9XFr8Zv904XcZ7N0ANvUl01fMLvbfyhD+yhZOlTL3isIyEZ8Ofljr4EuDOy/tXr/lLga7neA2QAQ8LgufEsBiJn7ytq7eAS7MHbs/l7zOZMkYUPHi+oG/DKHwo5RGLBRudqXldafCd63Y9dcAyvL48oJ67gd0E8HdstDd01d+/tSJo5ONIkwjCFyLqfUODo8msHto3JZL3NZGAKn5e6Ml5l7945nJiV85A5dHALrkkkvWzVT7niFsC+SLDEkBMb4/wo+aFT4PT3fQwmZayDOMCFoCxeqPCTgBQB7ik3UEvCYADIB6No8MJoaHjfYWKVYBFlYXJyilJQXF+LHpqcqX1ghCABD7Nu+8IYTkQWXqk0gapLsIu6NqOBS8Oo9oGxRwJWXXgXi74H0K2mOpPUWzTRBecqafmnnxwBfr+8DVdqK/PHy3heQWeZpm6i/UlPuzjSLk+S9OWcLhlw/vf6HheeekKwHG0/7y8CctJJ+taxu1jRfJHcAhAU8AeATEfzvtu+EkJ7Eu7iFsn9wXGEKXx/QbM1MT76h3wbYKlxVLW0Z/omnwaKEDtlOEDJAzhF5P9ZvZ+72rXHpLGuEeSA1tSh6zBAwGcodZeL9Z8jlj+Gpw34/u9GG4vixJoHIS5r312exqLIAA2D84/JgxXJOjHVY2+1ayOCFoRsGvyNciV3CJmfS+ZWizqXiIYF9GsC3lduXvBMFpoZjprUsrTaQxjf6OE0cr31ilBewNAFQaHH2nMbxVcq1BsGihBrmbhRJT++F6ab0z+wNU8gNG68tFl1YqUy7HMWQrIym6+7el9FCuVkWAdMUXey351lIqvnI6PJU35h8El1QfriByqgNAOYHpluxreQUgs/YpuzkXnVfgDKW0JEh+58wAdluwH4RUrfEFxQcmJ5+Yq03sSgAwi6B2FwDskZx1W14rSN3t6qRJTok3YmioK2fhDktwPHtPjeWW345nBCClJYk8/un05P6fQqWyGKN+HGQA5Hkr9zZO7IoAABsG53YCvKxp80Od+KKjO802AbaX5pLRFTjIAKhUvvoyAiPZ8mPI5Tc07UOItMRj/NT0ZOUTANBfHvlto/15Dlwij6kn4YEmYu0EQKbNyXkdLVie17MD4Wl13KBIM0jh+s4aYPac5jfSkkLWvlIpftCh6wVN10Jb0szlvzgzVfksAJTKw39mIXxG8lgjPwlPzR5+8plW7rejG3Tymg7rXGuY/UYY5Dd05oHsubvflLdCgNHI/5idnPgvym+jhQCQ7v6hmcnKXwAjxVJ55E6G5PbMXSMAEkgQuj8b+OnEa506AOrSFvPKVbhQdeABULwBIyPFNjxAYF/M3nNM2YQ5yS4X/w67dxempw78S/T005I+PDNV+crGjUP9pUHexRB+Mo9VQq29DAP7WjvA2ckHlwZHHiTthtycQnsfj1YbpG2BIUkx7p4+cvXjwHcMeDStqzsLvgaGr0OwR7JkK9MaaUnisfqHM1MHfr1WYc/Arq2FEP6ZZtc3RakASEHTnWIPazf4jLQwUOtzh9llXRm2CXDqgFMEDYj8QGYBj1aX2sNYAowVAAQa32Ohxj+Z0CpPU7Pk10rl4fcCQN/A8I5CCPc2DX4pBM8585F88C1jmKSdDW/atLO3SvVnE9AwkOYtruV74VR+193027qGGeRRoH2iNDi6IOLuZHHhqSx3H3cANQGDHv15kG/JvJkgxTRPiP6mvzyyjtTvkLy8afDLwgQJuO5bJtbTt9/b+XSt27Tz4kKwp0nrzcNMNJk6G82fFDQLYR+NP5PHoaFpibCREQIkB6QjEp4mdYBAxaWJpFCY0Mm52ZisGxD9bUb+HGlvVx4PZQmhkB3OaHksxwlaVHzb7NSB/2ynQSbtAEi60MfInrrJYws3ouVl5KlZ0idPH4RjkCHcIk9jB80AS4RFbjVyK8gxADAJMY0LKHY/S+ibpN01/aJu6h/U+wj+LaAuKWaxwfLg6yfHQZq7/89sf/otTKHtpk1bN5ikKLYWOlqmvrVEBBD2hmL1Y3Kfz4urPSlm8TskSR7laSpP0zzp6iK5ixZuJcM/lbbwMbfq1x3xA6SFOmBbtCEnDSQezJTqvW2P4rUFwAMLdQNoxfZNs8pEipEWfmQxLfZL+ggtCXkQ1Sp2aI4jQn7KLKlZmiTPQKkukjZqntw3O3ngX93jfZkeoBSdD2Z8vVX4uxovAPfTFB9H4zkfNmVWrHFFcH15ZqryFcXqF2iFQrb2loBoBaZaWFktAEoAFuQxGu3qUvnqyw0cpyW2THw1T4F8J4pBni56RMvw90w3R9nG/9fd51YQwveVyqNfmJ6auN29+kdkSGihdoYw76x8ucMdw+qGGfYEBZCPydPHALwEkrQkoSWFbGnASCOEQ7PHJg6upD4l7YIVM1WbiimvyFqYb907BnmaMiQfLw2OhOnJys+XBnbdyRB+A9Ae0jaADFkNyohjycnAc2B0uscoJIrVR2Y38llUKk8BuHv9lms30+evoOmtlL4X4FUQhkT0gPyDXH3qqEGy7WbDltHhIO1vIXcRrQ8+NkeJTgtB0b+tgF+dObL/nt7yVYMh6Fq6rgUwCugKidtAbCTQt3TAuvnYjRySHoLCrdNTT36n06D6LxnZWD0Vu0+99NThM90bDAC8f/Po5aRXQBbbBDXNWnsLRlZKJgUpjdF6tpw48uix5sa2b9/ePTe3bkMM3ChqwMVByvpFbTah6MCLEp+cPbr/oaadqXxJ7mUWTq9X0x8y2qlXq9sX6Lt41yamdpDkRXVaXJuTXqcBFJaWBUm4Pz09NTHSGDesNoV+da/kNIsYGioCQPe0LSwQL4O4KPfw7TLCZnAavARBc+AwRkYKmJkJ6O4+nZDm521rHFyaDPdqw8QUCj3+QjiiugfZfbXKpXsAKBaFxcXWk1qtEr29jkqliqbobsms+rYN72CV99S+E7gYRFebjA8tGLaVp6CAWQjHAIXsa8ucosmltkzAmGWH9BbW1Cktt7xclOvds8cmnqmNscECPEUxIS+r618EtNiB8Notp0YGB9eD7Fs5U15JU2lOKVZTprEnIajYdgkU5SZL6g074JycIunQV61yPGpvEyvJMM2qXCsABACL7JpMVP1MHgnkB2HdAbPa/kIdmnXNeX5vzO+VlfE6nya14JKaalMLpAyi8jqask0j5FpuY2lvrI5MjY39lBpjPTFl9+Qa4HrjXy1I7fz/aeH8XuPxzdl/83rzWrr+D/Zam9b5NshPAAAAAElFTkSuQmCC&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Editor&lt;/strong&gt;&lt;small&gt;decides&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Writer&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,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&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Writer&lt;/strong&gt;&lt;small&gt;drafts&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Release&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;span class=&quot;nf-role-system-icon&quot;&gt;&lt;i data-lucide=&quot;send&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                    &lt;span&gt;&lt;strong&gt;Release system&lt;/strong&gt;&lt;small&gt;ships&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/section&gt;
+
               &lt;div class=&quot;nf-status-line&quot;&gt;
-                &lt;span id=&quot;nf-status-copy&quot;&gt;Selected stage owner: Scout&lt;/span&gt;
+                &lt;span id=&quot;nf-status-copy&quot;&gt;Selected stage role: Scout&lt;/span&gt;
                 &lt;span class=&quot;nf-progress-text&quot; id=&quot;nf-progress&quot;&gt;1 of 8&lt;/span&gt;
               &lt;/div&gt;
 
@@ -1883,10 +2005,10 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;/div&gt;
 
               &lt;div class=&quot;nf-role-strip&quot; aria-label=&quot;Highlight role involvement&quot;&gt;
-                &lt;span&gt;Stage owner&lt;/span&gt;
+                &lt;span&gt;Stage role&lt;/span&gt;
                 &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Scout&quot; aria-pressed=&quot;true&quot;&gt;Scout&lt;/button&gt;
                 &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Wire&quot; aria-pressed=&quot;false&quot;&gt;Wire Editor&lt;/button&gt;
-                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Operator&quot; aria-pressed=&quot;false&quot;&gt;Operator&lt;/button&gt;
+                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Editor&quot; aria-pressed=&quot;false&quot;&gt;Editor&lt;/button&gt;
                 &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Writer&quot; aria-pressed=&quot;false&quot;&gt;Writer&lt;/button&gt;
                 &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Release&quot; aria-pressed=&quot;false&quot;&gt;Release&lt;/button&gt;
               &lt;/div&gt;
@@ -1999,16 +2121,16 @@ html&gt;body{padding:0}&lt;/style&gt;
     { title: &#x27;Walk &amp; synthesize&#x27;, kind: &#x27;prospecting&#x27;, owner: &#x27;Scout&#x27;, roles: [&#x27;Scout&#x27;], input: &#x27;Cursor-bounded ore pages, persisted jewels, selected jewels, map tail, box index, and status-blind dedup memory&#x27;, done: &#x27;Leads with ID, pitch, why-now, citations, type, and agent span&#x27;, next: &#x27;Scout taste remains status-blind: downstream editorial verdicts never feed back into discovery.&#x27; },
     { title: &#x27;File lead&#x27;, kind: &#x27;store&#x27;, owner: &#x27;Scout ledger&#x27;, roles: [&#x27;Scout&#x27;], input: &#x27;A synthesized lead from the Scout&#x27;, done: &#x27;Append-only leads.yaml record at status new with redaction required; its stable ID becomes the handle&#x27;, next: &#x27;The Scout appends leads; it never edits or removes an existing lead.&#x27; },
     { title: &#x27;Propose triage&#x27;, kind: &#x27;advice&#x27;, owner: &#x27;Wire Editor + chief shadow&#x27;, roles: [&#x27;Wire&#x27;], input: &#x27;Every new lead plus IDs already claimed, drafted, published, or spiked&#x27;, done: &#x27;A proposal to claim, hold, or spike, with suggested type, reason, clusters, and chief shadow&#x27;, next: &#x27;Triage is advice. It cannot mutate the lead ledger or make the routing decision.&#x27; },
-    { title: &#x27;Gate ① · route&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Operator&#x27;], input: &#x27;Scout lead, Wire advice, and chief shadow&#x27;, done: &#x27;A durable human decision: claim, hold, or spike, plus the effective type and destination&#x27;, next: &#x27;The operator is the routing authority; agents may recommend but cannot cross this gate.&#x27; },
+    { title: &#x27;Gate ① · route&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Editor&#x27;], input: &#x27;Scout lead, Wire advice, and chief shadow&#x27;, done: &#x27;A durable human decision: claim, hold, or spike, plus the effective type and destination&#x27;, next: &#x27;The operator is the routing authority; agents may recommend but cannot cross this gate.&#x27; },
     { title: &#x27;Create draft&#x27;, kind: &#x27;production&#x27;, owner: &#x27;Writer&#x27;, roles: [&#x27;Writer&#x27;], input: &#x27;Claimed assignment + content shape + selected voice bottle + convergent reads of cited sources&#x27;, done: &#x27;A revisioned, structured draft with evidence and copyDraft provenance&#x27;, next: &#x27;The Writer drafts only: it cannot route, approve, publish, or alter the presentation layer.&#x27; },
-    { title: &#x27;Gate ② · approve&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Operator&#x27;], input: &#x27;The exact draft revision, its evidence, mechanical scan findings, and substantive/voice review&#x27;, done: &#x27;Human approval bound to that revision after the scrub is complete&#x27;, next: &#x27;A clean scan is evidence for the operator, never a substitute for human approval.&#x27; },
+    { title: &#x27;Gate ② · approve&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Editor&#x27;], input: &#x27;The exact draft revision, its evidence, mechanical scan findings, and substantive/voice review&#x27;, done: &#x27;Human approval bound to that revision after the scrub is complete&#x27;, next: &#x27;A clean scan is evidence for the operator, never a substitute for human approval.&#x27; },
     { title: &#x27;Queue &amp; release&#x27;, kind: &#x27;delivery&#x27;, owner: &#x27;Release + generator&#x27;, roles: [&#x27;Release&#x27;], input: &#x27;An approved draft revision and its selected destination&#x27;, done: &#x27;A queued publication record; release stamps the publication date and deterministic generation renders the page&#x27;, next: &#x27;Promotion is not publication: queued and released remain distinct states with traceable provenance.&#x27; }
   ];
 
   const roleStageMap = {
     Scout: [0, 1, 2],
     Wire: [3],
-    Operator: [4, 6],
+    Editor: [4, 6],
     Writer: [5],
     Release: [7]
   };
@@ -2043,8 +2165,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     el(&#x27;nf-back&#x27;).disabled = current === 0;
     el(&#x27;nf-next-button&#x27;).textContent = current === stages.length - 1 ? &#x27;Restart map&#x27; : &#x27;Next stage&#x27;;
     el(&#x27;nf-status-copy&#x27;).textContent = activeView === &#x27;role&#x27;
-      ? `${selectedRole} owns ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? &#x27;stage&#x27; : &#x27;stages&#x27;}`
-      : `Selected stage owner: ${selectedRole}`;
+      ? `${selectedRole} touches ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? &#x27;stage&#x27; : &#x27;stages&#x27;}`
+      : `Selected stage role: ${selectedRole}`;
   }
 
   stageButtons.forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
@@ -2079,7 +2201,7 @@ html&gt;body{padding:0}&lt;/style&gt;
 
   const viewCopy = {
     flow: [&#x27;Newsroom system flow&#x27;, &#x27;Follow evidence through triage, drafting, approval, and release.&#x27;],
-    role: [&#x27;Responsibility by role&#x27;, &#x27;Choose a role below to reveal only the stages it owns.&#x27;]
+    role: [&#x27;Responsibility by role&#x27;, &#x27;Choose a newsroom seat above to reveal the stages it touches.&#x27;]
   };
 
   root.querySelectorAll(&#x27;.nf-nav button&#x27;).forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
@@ -2092,6 +2214,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       return;
     }
     activeView = button.dataset.view;
+    root.dataset.systemView = activeView;
     el(&#x27;nf-story-title&#x27;).textContent = &#x27;Newsroom system — evidence to published work&#x27;;
     const [title, subtitle] = viewCopy[button.dataset.view];
     el(&#x27;nf-view-title&#x27;).textContent = title;
