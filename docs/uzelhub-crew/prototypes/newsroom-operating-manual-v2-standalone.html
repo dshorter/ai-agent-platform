@@ -2038,7 +2038,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;div class=&quot;nf-toolbar&quot;&gt;
             &lt;div&gt;
               &lt;h2&gt;How the voice bottle enters a draft&lt;/h2&gt;
-              &lt;p class=&quot;nf-subtitle&quot;&gt;Shape stays in the Writer prompt; voice arrives from exemplars at runtime.&lt;/p&gt;
+              &lt;p class=&quot;nf-subtitle&quot;&gt;Gate ①’s content type selects the shape; its voice profile arrives from exemplars at runtime.&lt;/p&gt;
             &lt;/div&gt;
           &lt;/div&gt;
 
@@ -2064,7 +2064,7 @@ html&gt;body{padding:0}&lt;/style&gt;
                     &lt;div class=&quot;nf-input-group-head&quot;&gt;&lt;strong&gt;System context&lt;/strong&gt;&lt;span&gt;reused across drafts&lt;/span&gt;&lt;/div&gt;
                     &lt;div class=&quot;nf-input-stack&quot;&gt;
                       &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;shape&quot; aria-pressed=&quot;false&quot;&gt;
-                        &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;ruler&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Shape prompt&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What form · beats, size contract, schema&lt;/span&gt;
+                        &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;ruler&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Shape prompt&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What form · each content type owns its shape&lt;/span&gt;
                       &lt;/button&gt;
                       &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;bottle&quot; aria-pressed=&quot;true&quot;&gt;
                         &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;flask-conical&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Voice bottle&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;How it sounds · moves + sorted exemplars&lt;/span&gt;
@@ -2303,10 +2303,10 @@ html&gt;body{padding:0}&lt;/style&gt;
 
   const bottleDetails = {
     assignment: { label: &#x27;Runtime input · assignment&#x27;, title: &#x27;Claimed lead&#x27;, owner: &#x27;pipelines/writer/assignment.py&#x27;, input: &#x27;The full lead: stable ID, pitch, why-now, type, and source pointers&#x27;, rule: &#x27;The effective assignment is the durable output of Gate ①&#x27;, boundary: &#x27;The Writer receives routing context but cannot change the routing decision.&#x27; },
-    shape: { label: &#x27;System prompt · structure&#x27;, title: &#x27;Shape prompt&#x27;, owner: &#x27;agents/writer_agent.py&#x27;, input: &#x27;Three beats, 798–882 body characters, receipts as lists, and the strict note JSON schema&#x27;, rule: &#x27;Shape belongs in the Writer prompt; the bottle carries sentence-level voice&#x27;, boundary: &#x27;Samples outrank written instructions. A shape change requires the exemplars to be re-cut with it.&#x27; },
+    shape: { label: &#x27;System prompt · type-specific structure&#x27;, title: &#x27;Shape prompt&#x27;, owner: &#x27;Gate ① type → drafting path&#x27;, input: &#x27;The effective content type: ticker, newsletter, note, blog, or paper. Each type owns a distinct editorial form.&#x27;, rule: &#x27;Type selects the drafting path, voice profile, and output shape. This diagram follows the note path: three beats, 798–882 body characters, receipts as lists, and the strict note JSON schema.&#x27;, boundary: &#x27;The note contract is not universal. Another content type must use its own form, profile, and output contract.&#x27; },
     bottle: { label: &#x27;Prompt input · profile&#x27;, title: &#x27;Voice bottle&#x27;, owner: &#x27;voice/man-page-dry/&#x27;, input: &#x27;moves.md and harvested JSON samples, loaded in sorted order&#x27;, rule: &#x27;Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.&#x27;, boundary: &#x27;An empty samples directory hard-fails instead of drafting without an established voice.&#x27; },
     evidence: { label: &#x27;Tool loop · evidence&#x27;, title: &#x27;Convergent roam&#x27;, owner: &#x27;Writer using the Scout’s read tools&#x27;, input: &#x27;The assignment’s cited transcript, files, and commits inside registered roots&#x27;, rule: &#x27;Pull exactly the cited threads until the draft can be written from receipts, not vibes&#x27;, boundary: &#x27;Missing facts are researched further or written around, never invented.&#x27; },
-    seat: { label: &#x27;Model call · production&#x27;, title: &#x27;Writer call&#x27;, owner: &#x27;Writer model seat&#x27;, input: &#x27;Stable system block (shape + bottle), changing assignment, and tool results&#x27;, rule: &#x27;The model produces the note under the shape, voice, and evidence constraints&#x27;, boundary: &#x27;Truncation fails loudly; a refused call cannot silently become an incomplete draft.&#x27; },
+    seat: { label: &#x27;Model call · production&#x27;, title: &#x27;Writer call&#x27;, owner: &#x27;Writer model seat&#x27;, input: &#x27;Stable system block (shape + bottle), changing assignment, and tool results&#x27;, rule: &#x27;The model produces the draft under its content type’s shape, voice, and evidence constraints&#x27;, boundary: &#x27;Truncation fails loudly; a refused call cannot silently become an incomplete draft.&#x27; },
     output: { label: &#x27;Runtime output · parked&#x27;, title: &#x27;Banked draft&#x27;, owner: &#x27;pipelines/writer/run.py&#x27;, input: &#x27;Strict structured JSON from the model; cited sources remain attached to the draft record&#x27;, rule: &#x27;Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted&#x27;, boundary: &#x27;The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.&#x27; }
   };
 

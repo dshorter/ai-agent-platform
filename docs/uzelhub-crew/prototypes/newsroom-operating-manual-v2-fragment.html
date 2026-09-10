@@ -1001,7 +1001,7 @@
           <div class="nf-toolbar">
             <div>
               <h2>How the voice bottle enters a draft</h2>
-              <p class="nf-subtitle">Shape stays in the Writer prompt; voice arrives from exemplars at runtime.</p>
+              <p class="nf-subtitle">Gate ①’s content type selects the shape; its voice profile arrives from exemplars at runtime.</p>
             </div>
           </div>
 
@@ -1027,7 +1027,7 @@
                     <div class="nf-input-group-head"><strong>System context</strong><span>reused across drafts</span></div>
                     <div class="nf-input-stack">
                       <button class="nf-bottle-node" type="button" data-bottle="shape" aria-pressed="false">
-                        <span class="nf-node-icon"><i data-lucide="ruler" aria-hidden="true"></i></span><span class="nf-node-title">Shape prompt</span><span class="nf-node-copy">What form · beats, size contract, schema</span>
+                        <span class="nf-node-icon"><i data-lucide="ruler" aria-hidden="true"></i></span><span class="nf-node-title">Shape prompt</span><span class="nf-node-copy">What form · each content type owns its shape</span>
                       </button>
                       <button class="nf-bottle-node" type="button" data-bottle="bottle" aria-pressed="true">
                         <span class="nf-node-icon"><i data-lucide="flask-conical" aria-hidden="true"></i></span><span class="nf-node-title">Voice bottle</span><span class="nf-node-copy">How it sounds · moves + sorted exemplars</span>
@@ -1266,10 +1266,10 @@
 
   const bottleDetails = {
     assignment: { label: 'Runtime input · assignment', title: 'Claimed lead', owner: 'pipelines/writer/assignment.py', input: 'The full lead: stable ID, pitch, why-now, type, and source pointers', rule: 'The effective assignment is the durable output of Gate ①', boundary: 'The Writer receives routing context but cannot change the routing decision.' },
-    shape: { label: 'System prompt · structure', title: 'Shape prompt', owner: 'agents/writer_agent.py', input: 'Three beats, 798–882 body characters, receipts as lists, and the strict note JSON schema', rule: 'Shape belongs in the Writer prompt; the bottle carries sentence-level voice', boundary: 'Samples outrank written instructions. A shape change requires the exemplars to be re-cut with it.' },
+    shape: { label: 'System prompt · type-specific structure', title: 'Shape prompt', owner: 'Gate ① type → drafting path', input: 'The effective content type: ticker, newsletter, note, blog, or paper. Each type owns a distinct editorial form.', rule: 'Type selects the drafting path, voice profile, and output shape. This diagram follows the note path: three beats, 798–882 body characters, receipts as lists, and the strict note JSON schema.', boundary: 'The note contract is not universal. Another content type must use its own form, profile, and output contract.' },
     bottle: { label: 'Prompt input · profile', title: 'Voice bottle', owner: 'voice/man-page-dry/', input: 'moves.md and harvested JSON samples, loaded in sorted order', rule: 'Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.', boundary: 'An empty samples directory hard-fails instead of drafting without an established voice.' },
     evidence: { label: 'Tool loop · evidence', title: 'Convergent roam', owner: 'Writer using the Scout’s read tools', input: 'The assignment’s cited transcript, files, and commits inside registered roots', rule: 'Pull exactly the cited threads until the draft can be written from receipts, not vibes', boundary: 'Missing facts are researched further or written around, never invented.' },
-    seat: { label: 'Model call · production', title: 'Writer call', owner: 'Writer model seat', input: 'Stable system block (shape + bottle), changing assignment, and tool results', rule: 'The model produces the note under the shape, voice, and evidence constraints', boundary: 'Truncation fails loudly; a refused call cannot silently become an incomplete draft.' },
+    seat: { label: 'Model call · production', title: 'Writer call', owner: 'Writer model seat', input: 'Stable system block (shape + bottle), changing assignment, and tool results', rule: 'The model produces the draft under its content type’s shape, voice, and evidence constraints', boundary: 'Truncation fails loudly; a refused call cannot silently become an incomplete draft.' },
     output: { label: 'Runtime output · parked', title: 'Banked draft', owner: 'pipelines/writer/run.py', input: 'Strict structured JSON from the model; cited sources remain attached to the draft record', rule: 'Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted', boundary: 'The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.' }
   };
 
