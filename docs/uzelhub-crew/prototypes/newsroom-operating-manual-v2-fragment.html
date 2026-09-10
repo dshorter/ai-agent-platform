@@ -435,32 +435,6 @@
     gap: 10px;
   }
 
-  #newsroom-operating-manual-v2 .nf-state-badge {
-    display: inline-flex;
-    align-items: center;
-    min-height: 25px;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--nf-info) 13%, var(--nf-surface));
-    color: var(--nf-info);
-    font-size: 11px;
-    font-weight: 500;
-    white-space: nowrap;
-  }
-
-  #newsroom-operating-manual-v2 .nf-state-badge[data-state="gap"],
-  #newsroom-operating-manual-v2 .nf-state-badge[data-state="paused"],
-  #newsroom-operating-manual-v2 .nf-state-badge[data-state="proposed"] {
-    background: var(--nf-soft);
-    color: var(--nf-accent);
-  }
-
-  #newsroom-operating-manual-v2 .nf-stage-state {
-    color: var(--nf-info);
-    font-size: 11px;
-    text-align: center;
-  }
-
   #newsroom-operating-manual-v2 .nf-bottle-grid {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 260px;
@@ -655,11 +629,10 @@
       </div>
       <div class="nf-context">
         <div>
-          <span class="nf-kicker">Operating manual · current design + implementation</span>
+          <span class="nf-kicker">Interactive specification · newsroom system flow</span>
           <strong id="nf-story-title">Field note path — claimed lead to released page</strong>
         </div>
       </div>
-      <span class="nf-live"><span class="nf-live-dot"></span> Prospecting paused</span>
     </header>
 
     <div class="nf-layout">
@@ -668,10 +641,9 @@
         <nav class="nf-nav">
           <button type="button" aria-pressed="true" data-view="flow"><i data-lucide="git-branch" aria-hidden="true"></i> System flow</button>
           <button type="button" aria-pressed="false" data-view="role"><i data-lucide="users" aria-hidden="true"></i> Role</button>
-          <button type="button" aria-pressed="false" data-view="status"><i data-lucide="circle-dot-dashed" aria-hidden="true"></i> Built vs next</button>
           <button type="button" aria-pressed="false" data-view="bottle"><i data-lucide="flask-conical" aria-hidden="true"></i> Voice bottle</button>
         </nav>
-        <p class="nf-rail-note">Select a stage to see what the real system reads, writes, and refuses to do.</p>
+        <p class="nf-rail-note">Select a stage to see what the specified system reads, writes, and must preserve.</p>
       </aside>
 
       <main class="nf-main">
@@ -679,56 +651,49 @@
           <div class="nf-toolbar">
             <div>
               <h2 id="nf-view-title">The field-note path</h2>
-              <p class="nf-subtitle" id="nf-view-subtitle">The built path, its two human gates, and the gaps the current plan names.</p>
+              <p class="nf-subtitle" id="nf-view-subtitle">Follow evidence through triage, drafting, approval, and release.</p>
             </div>
-            <label class="nf-field">Path
-              <select id="nf-workflow">
-                <option value="note">Field note — built</option>
-                <option value="blog">Blog — separate pipeline</option>
-                <option value="mvp">Editorial UI — proposed</option>
-              </select>
-            </label>
           </div>
 
           <div class="nf-content">
             <section class="nf-canvas" aria-label="Newsroom system stages">
               <div class="nf-status-line">
-                <span id="nf-status-copy">Observed 10 Sep 2026: ingestion active; the paid Scout pass is paused</span>
+                <span id="nf-status-copy">Two explicit human decisions separate discovery, drafting, and release.</span>
                 <span class="nf-progress-text" id="nf-progress">1 of 8</span>
               </div>
 
               <div class="nf-flow" id="nf-flow">
                 <button class="nf-stage" type="button" data-stage="0" aria-current="step">
                   <span class="nf-stage-circle"><i data-lucide="database" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Ingest ore</span><span class="nf-stage-owner">Scout intake</span><span class="nf-stage-state">Built · active</span>
+                  <span class="nf-stage-name">Ingest ore</span><span class="nf-stage-owner">Scout intake</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="1">
                   <span class="nf-stage-circle"><i data-lucide="gem" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Walk & synthesize</span><span class="nf-stage-owner">Scout</span><span class="nf-stage-state">Built · paused</span>
+                  <span class="nf-stage-name">Walk & synthesize</span><span class="nf-stage-owner">Scout</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="2">
                   <span class="nf-stage-circle"><i data-lucide="notebook-tabs" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">File lead</span><span class="nf-stage-owner">Scout ledger</span><span class="nf-stage-state">Built</span>
+                  <span class="nf-stage-name">File lead</span><span class="nf-stage-owner">Scout ledger</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="3">
                   <span class="nf-stage-circle"><i data-lucide="list-checks" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Propose triage</span><span class="nf-stage-owner">Wire + chief</span><span class="nf-stage-state">Built</span>
+                  <span class="nf-stage-name">Propose triage</span><span class="nf-stage-owner">Wire + chief</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="4">
                   <span class="nf-stage-circle"><i data-lucide="route" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Gate ① · route</span><span class="nf-stage-owner">Operator</span><span class="nf-stage-state">Human · partial UI</span>
+                  <span class="nf-stage-name">Gate ① · route</span><span class="nf-stage-owner">Operator</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="5">
                   <span class="nf-stage-circle"><i data-lucide="file-pen-line" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Draft note</span><span class="nf-stage-owner">Writer</span><span class="nf-stage-state">Built · note only</span>
+                  <span class="nf-stage-name">Draft note</span><span class="nf-stage-owner">Writer</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="6">
                   <span class="nf-stage-circle"><i data-lucide="shield-check" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Gate ② · approve</span><span class="nf-stage-owner">Operator</span><span class="nf-stage-state">Human · enforcement gap</span>
+                  <span class="nf-stage-name">Gate ② · approve</span><span class="nf-stage-owner">Operator</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="7">
                   <span class="nf-stage-circle"><i data-lucide="send" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Queue & release</span><span class="nf-stage-owner">Release + generator</span><span class="nf-stage-state">Built · apex</span>
+                  <span class="nf-stage-name">Queue & release</span><span class="nf-stage-owner">Release + generator</span>
                 </button>
               </div>
 
@@ -743,13 +708,13 @@
             </section>
 
             <aside class="nf-detail" aria-live="polite">
-              <div class="nf-label-row"><span class="nf-step-label" id="nf-step-label">Stage 1 · intake</span><span class="nf-state-badge" id="nf-state-badge" data-state="built">Built · active</span></div>
+              <div class="nf-label-row"><span class="nf-step-label" id="nf-step-label">Stage 1 · intake</span></div>
               <h3 id="nf-stage-title">Ingest ore</h3>
               <div class="nf-owner"><i data-lucide="user-round" aria-hidden="true"></i><span id="nf-owner">Owner: Scout intake</span></div>
               <dl class="nf-detail-grid">
                 <div class="nf-detail-item"><dt>Reads</dt><dd id="nf-input">Session logs; explicit walks can also read git, documents and ledgers</dd></div>
                 <div class="nf-detail-item"><dt>Writes</dt><dd id="nf-done">New session rows into scout_session_log; no model call</dd></div>
-                <div class="nf-detail-item"><dt>Boundary / gap</dt><dd id="nf-next">Ingestion continues while prospecting is paused; Refresh must never trigger paid work</dd></div>
+                <div class="nf-detail-item"><dt>Guardrail</dt><dd id="nf-next">Capture is passive: ingestion never initiates synthesis or changes editorial state</dd></div>
               </dl>
               <div class="nf-actions">
                 <button class="nf-action" id="nf-back" type="button">Previous</button>
@@ -766,19 +731,11 @@
               <h2>How the voice bottle enters a draft</h2>
               <p class="nf-subtitle">Shape stays in the Writer prompt; voice arrives from exemplars at runtime.</p>
             </div>
-            <label class="nf-field">Writing path
-              <select id="nf-profile-path">
-                <option value="note">Note body · man-page-dry</option>
-                <option value="doorway">Doorway copy · blocked</option>
-                <option value="blog">Blog narrative · separate</option>
-                <option value="newsletter">Newsletter · not built</option>
-              </select>
-            </label>
           </div>
 
           <div class="nf-bottle-grid">
             <section aria-label="Voice bottle inputs and draft output">
-              <div class="nf-voice-definition"><i data-lucide="mic-off" aria-hidden="true"></i><span><strong>Voice here means written register, not recorded audio.</strong> The built Writer receives text records and source pointers.</span></div>
+              <div class="nf-voice-definition"><i data-lucide="mic-off" aria-hidden="true"></i><span><strong>Voice here means written register, not recorded audio.</strong> The Writer receives the assignment, voice exemplars, and evidence as text.</span></div>
 
               <div class="nf-bottle-inputs">
                 <button class="nf-bottle-node" type="button" data-bottle="assignment" aria-pressed="false">
@@ -811,11 +768,11 @@
                 </button>
                 <div class="nf-gate-next"><span>then</span><strong>Gate ②</strong><span>scrub + human review</span></div>
               </div>
-              <p class="nf-path-message" id="nf-path-message">Built today: note → man-page-dry → Writer → banked JSON draft.</p>
+              <p class="nf-path-message" id="nf-path-message">Note → man-page-dry voice profile → Writer → banked JSON draft → Gate ②.</p>
             </section>
 
             <aside class="nf-detail" id="nf-bottle-detail" aria-live="polite">
-              <div class="nf-label-row"><span class="nf-step-label" id="nf-bottle-label">Prompt input · profile</span><span class="nf-state-badge" id="nf-bottle-state" data-state="built">Built</span></div>
+              <div class="nf-label-row"><span class="nf-step-label" id="nf-bottle-label">Prompt input · profile</span></div>
               <h3 id="nf-bottle-title">Voice profile</h3>
               <div class="nf-owner"><i data-lucide="folder" aria-hidden="true"></i><span id="nf-bottle-owner">voice/man-page-dry/</span></div>
               <dl class="nf-detail-grid">
@@ -835,21 +792,15 @@
 (() => {
   const root = document.getElementById('newsroom-operating-manual-v2');
   const stages = [
-    { title: 'Ingest ore', kind: 'intake', owner: 'Scout intake', roles: ['Scout'], state: 'Built · active', stateKey: 'built', input: 'Session logs; explicit walks can also read git, documents and ledgers', done: 'New session rows in scout_session_log; ingestion itself makes no model call', next: 'Ingestion continues while prospecting is paused. Refresh must never trigger a paid walk or synthesis.' },
-    { title: 'Walk & synthesize', kind: 'prospecting', owner: 'Scout', roles: ['Scout'], state: 'Built · paused', stateKey: 'paused', input: 'Cursor-bounded ore pages → persisted jewels → selected jewels, map tail, box index and status-blind dedup memory', done: 'Leads with ID, pitch, why-now, citations, type and agent span', next: 'The daily pass is paused by SCOUT_PAUSED. Explicit walk/synthesize commands bypass that pause and remain operator-paid actions.' },
-    { title: 'File lead', kind: 'store', owner: 'Scout ledger', roles: ['Scout'], state: 'Built', stateKey: 'built', input: 'A synthesized lead from the Scout', done: 'Append-only leads.yaml record at status new with redaction required; stable ID becomes the handle', next: 'The Scout never edits or removes leads, and Editor verdicts never enter its prompt or dedup memory.' },
-    { title: 'Propose triage', kind: 'advice', owner: 'Wire Editor + chief shadow', roles: ['Wire'], state: 'Built', stateKey: 'built', input: 'Every new lead plus IDs already claimed, drafted, published or spiked', done: 'Gitignored proposal artifact: claim, hold or spike advice, suggested type, reason, clusters and chief shadow', next: 'Advice does not touch the ledger. Current proposals carry type but no Scout destination recommendation.' },
-    { title: 'Gate ① · route', kind: 'human gate', owner: 'Operator', roles: ['Operator'], state: 'Human · partial UI', stateKey: 'gap', input: 'Scout lead, Wire advice and chief shadow', done: 'Operator claims, holds or spikes and confirms/overrides type; current tools return lead_mark commands', next: 'Independent destination selection is settled policy but not wired. Browser selections are local, not durable decisions.' },
-    { title: 'Draft note', kind: 'production', owner: 'Writer', roles: ['Writer'], state: 'Built · note only', stateKey: 'built', input: 'Claimed lead + note type + man-page-dry bottle + convergent reads of the lead’s cited sources', done: 'Strict note JSON banked in gitignored state, copyDraft stamped by code, lead marked drafted', next: 'The Writer never routes, publishes, touches HTML or approves its own redaction. Other newsroom content paths are not built here.' },
-    { title: 'Gate ② · approve', kind: 'human gate', owner: 'Operator', roles: ['Operator'], state: 'Human · enforcement gap', stateKey: 'gap', input: 'Exact draft, evidence, mechanical scan findings and the human’s substantive/voice judgment', done: 'Intended result: approval bound to the reviewed revision and completed scrub; corrections preserve prior revisions', next: 'Current promotion validates fields but does not enforce completed review. A clean scanner result is not human approval.' },
-    { title: 'Queue & release', kind: 'delivery', owner: 'promote_draft + release.js + generate.js', roles: ['Release'], state: 'Built · apex', stateKey: 'built', input: 'Approved note record crossing into uzelhub-web/marketing/data/notes.json', done: 'Queued note has no published date; release.js stamps the real date and the deterministic generator renders the page', next: 'Promotion is not publication. DEV/third-destination delivery and per-destination recovery are proposed under NR-09, not implemented.' }
+    { title: 'Ingest ore', kind: 'intake', owner: 'Scout intake', roles: ['Scout'], input: 'Session logs and explicit reads of git, documents, and ledgers', done: 'Immutable ore records with source provenance', next: 'Capture is passive: ingestion never initiates synthesis or changes editorial state.' },
+    { title: 'Walk & synthesize', kind: 'prospecting', owner: 'Scout', roles: ['Scout'], input: 'Cursor-bounded ore pages, persisted jewels, selected jewels, map tail, box index, and status-blind dedup memory', done: 'Leads with ID, pitch, why-now, citations, type, and agent span', next: 'Scout taste remains status-blind: downstream editorial verdicts never feed back into discovery.' },
+    { title: 'File lead', kind: 'store', owner: 'Scout ledger', roles: ['Scout'], input: 'A synthesized lead from the Scout', done: 'Append-only leads.yaml record at status new with redaction required; its stable ID becomes the handle', next: 'The Scout appends leads; it never edits or removes an existing lead.' },
+    { title: 'Propose triage', kind: 'advice', owner: 'Wire Editor + chief shadow', roles: ['Wire'], input: 'Every new lead plus IDs already claimed, drafted, published, or spiked', done: 'A proposal to claim, hold, or spike, with suggested type, reason, clusters, and chief shadow', next: 'Triage is advice. It cannot mutate the lead ledger or make the routing decision.' },
+    { title: 'Gate ① · route', kind: 'human gate', owner: 'Operator', roles: ['Operator'], input: 'Scout lead, Wire advice, and chief shadow', done: 'A durable human decision: claim, hold, or spike, plus the effective type and destination', next: 'The operator is the routing authority; agents may recommend but cannot cross this gate.' },
+    { title: 'Draft note', kind: 'production', owner: 'Writer', roles: ['Writer'], input: 'Claimed assignment + note shape + man-page-dry voice bottle + convergent reads of cited sources', done: 'A revisioned, structured note draft with evidence and copyDraft provenance', next: 'The Writer drafts only: it cannot route, approve, publish, or alter the presentation layer.' },
+    { title: 'Gate ② · approve', kind: 'human gate', owner: 'Operator', roles: ['Operator'], input: 'The exact draft revision, its evidence, mechanical scan findings, and substantive/voice review', done: 'Human approval bound to that revision after the scrub is complete', next: 'A clean scan is evidence for the operator, never a substitute for human approval.' },
+    { title: 'Queue & release', kind: 'delivery', owner: 'Release + generator', roles: ['Release'], input: 'An approved draft revision and its selected destination', done: 'A queued publication record; release stamps the publication date and deterministic generation renders the page', next: 'Promotion is not publication: queued and released remain distinct states with traceable provenance.' }
   ];
-
-  const workflowCopy = {
-    note: ['Field note path — claimed lead to released page', 'Observed 10 Sep 2026: ingestion active; the paid Scout pass is paused', 'The built path, its two human gates, and the gaps the current plan names.'],
-    blog: ['Blog path — content agent to Ghost draft', 'Separate pipeline: commit batch → content agent → marketer → Ghost', 'The blog crew remains dedicated to the predictor commit-history blog; its voice has not migrated to the bottle.'],
-    mvp: ['Editorial UI — proposed operating contract', 'Proposed, not deployed: durable routing, revisioned review and per-destination delivery', 'The UI specification defines the intended two-gate operation; open decisions D-04/05/06/07 still govern construction.']
-  };
 
   const roleStageMap = {
     Scout: [0, 1, 2],
@@ -861,7 +812,6 @@
 
   let current = 0;
   let selectedRole = null;
-  let showGaps = false;
 
   const stageButtons = [...root.querySelectorAll('.nf-stage')];
   const el = id => root.querySelector('#' + id);
@@ -872,13 +822,11 @@
       if (index === current) button.setAttribute('aria-current', 'step');
       else button.removeAttribute('aria-current');
       button.dataset.complete = index < current ? 'true' : 'false';
-      button.dataset.dim = (selectedRole && !roleStageMap[selectedRole].includes(index)) || (showGaps && stageButtons[index] && stages[index].stateKey === 'built') ? 'true' : 'false';
+      button.dataset.dim = selectedRole && !roleStageMap[selectedRole].includes(index) ? 'true' : 'false';
     });
     el('nf-step-label').textContent = `Stage ${current + 1} · ${stage.kind}`;
     el('nf-stage-title').textContent = stage.title;
     el('nf-owner').textContent = `Owner: ${stage.owner}`;
-    el('nf-state-badge').textContent = stage.state;
-    el('nf-state-badge').dataset.state = stage.stateKey;
     el('nf-input').textContent = stage.input;
     el('nf-done').textContent = stage.done;
     el('nf-next').textContent = stage.next;
@@ -896,7 +844,7 @@
     const nextRole = button.dataset.role;
     selectedRole = selectedRole === nextRole ? null : nextRole;
     root.querySelectorAll('.nf-role').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.role === selectedRole)));
-    el('nf-status-copy').textContent = selectedRole ? `${selectedRole} touches ${roleStageMap[selectedRole].length} stages` : workflowCopy[el('nf-workflow').value][1];
+    el('nf-status-copy').textContent = selectedRole ? `${selectedRole} touches ${roleStageMap[selectedRole].length} stages` : 'Two explicit human decisions separate discovery, drafting, and release.';
     render();
   }));
 
@@ -912,18 +860,9 @@
     render();
   });
 
-  el('nf-workflow').addEventListener('change', event => {
-    const [title, status, subtitle] = workflowCopy[event.target.value];
-    el('nf-story-title').textContent = title;
-    el('nf-status-copy').textContent = status;
-    el('nf-view-subtitle').textContent = subtitle;
-    el('nf-handoff').textContent = '';
-  });
-
   const viewCopy = {
-    flow: ['The field-note path', 'The built path, its two human gates, and the gaps the current plan names.'],
-    role: ['Responsibility by role', 'Choose a role below to reveal only the stages it owns.'],
-    status: ['Built versus next', 'Built behavior stays distinct from the proposed editorial UI and destination work.']
+    flow: ['The field-note path', 'Follow evidence through triage, drafting, approval, and release.'],
+    role: ['Responsibility by role', 'Choose a role below to reveal only the stages it owns.']
   };
 
   root.querySelectorAll('.nf-nav button').forEach(button => button.addEventListener('click', () => {
@@ -935,8 +874,7 @@
       el('nf-story-title').textContent = 'Voice bottle — written register enters the Writer at runtime';
       return;
     }
-    showGaps = button.dataset.view === 'status';
-    el('nf-story-title').textContent = workflowCopy[el('nf-workflow').value][0];
+    el('nf-story-title').textContent = 'Field note path — claimed lead to released page';
     const [title, subtitle] = viewCopy[button.dataset.view];
     el('nf-view-title').textContent = title;
     el('nf-view-subtitle').textContent = subtitle;
@@ -945,40 +883,25 @@
       selectedRole = null;
       root.querySelectorAll('.nf-role').forEach(item => item.setAttribute('aria-pressed', 'false'));
     }
-    if (button.dataset.view === 'status') {
-      el('nf-status-copy').textContent = 'Gaps: durable decisions, approval enforcement, effective assignments and external delivery';
-    } else if (button.dataset.view === 'flow') {
-      const [storyTitle, status] = workflowCopy[el('nf-workflow').value];
-      el('nf-story-title').textContent = storyTitle;
-      el('nf-status-copy').textContent = status;
-    }
+    if (button.dataset.view === 'flow') el('nf-status-copy').textContent = 'Two explicit human decisions separate discovery, drafting, and release.';
     render();
   }));
 
   const bottleDetails = {
-    assignment: { label: 'Runtime input · assignment', state: 'Built', stateKey: 'built', title: 'Claimed lead', owner: 'pipelines/writer/assignment.py', input: 'The full lead: stable ID, pitch, why-now, type and source pointers', rule: 'A real run accepts claimed leads and drafted leads for redraft; dry-run can rehearse any status', boundary: 'The Writer reads the ledger’s current type directly. The proposed human override needs an effective-assignment projection.' },
-    shape: { label: 'System prompt · structure', state: 'Built', stateKey: 'built', title: 'Shape prompt', owner: 'agents/writer_agent.py', input: 'Three beats, 798–882 body characters, receipts as lists and the strict note JSON schema', rule: 'Shape belongs in the Writer prompt; the bottle carries sentence-level voice', boundary: 'Samples outrank written instructions. A shape change must re-cut every sample in the same change.' },
-    bottle: { label: 'Prompt input · profile', state: 'Built', stateKey: 'built', title: 'Voice profile', owner: 'voice/man-page-dry/', input: 'moves.md and two harvested JSON samples, loaded in sorted order', rule: 'Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.', boundary: 'An empty samples directory hard-fails instead of drafting voiceless.' },
-    evidence: { label: 'Tool loop · evidence', state: 'Built', stateKey: 'built', title: 'Convergent roam', owner: 'Writer using the Scout’s read tools', input: 'The assignment’s cited transcript, files and commits inside three registered roots', rule: 'Pull exactly the cited threads until the draft can be written from receipts, not vibes', boundary: 'Up to six tool rounds by default and a character cap; missing facts are researched further or written around, never invented.' },
-    seat: { label: 'Model call · production', state: 'Built · budget gap', stateKey: 'gap', title: 'Writer call', owner: 'Sonnet 5; Opus 5 on refusal', input: 'Stable system block (shape + bottle) plus the changing assignment and tool results', rule: 'Adaptive thinking may return a summary; truncation fails loudly; refusal retries once without tools', boundary: 'WRITER_MAX_COST_USD is parsed but not enforced in the current call path. Automatic drafting must not advertise it as a guarantee.' },
-    output: { label: 'Runtime output · parked', state: 'Built', stateKey: 'built', title: 'Banked note draft', owner: 'pipelines/writer/run.py', input: 'Strict note JSON from the model; cited sources are kept with the draft record', rule: 'Code adds copyDraft provenance, parks the artifact in gitignored state and marks the lead drafted', boundary: 'The Writer never touches HTML or publishes. The draft must still cross the separate scrub and human gate ②.' }
-  };
-
-  const profileCopy = {
-    note: { state: 'Built', stateKey: 'built', owner: 'voice/man-page-dry/', input: 'moves.md and two harvested JSON samples', rule: 'The only TYPE_PROFILES row is note → man-page-dry', boundary: 'This profile supplies voice to note bodies; shape remains in the Writer prompt.', message: 'Built today: note → man-page-dry → Writer → banked JSON draft.' },
-    doorway: { state: 'Blocked', stateKey: 'gap', owner: 'voice/doorway-warm/', input: 'moves.md exists; samples/ is empty', rule: 'Doorway-warm is intended for hooks, excerpts and per-platform titles — bodies never', boundary: 'The loader correctly hard-fails because a moves list without samples would deaden the voice.', message: 'Not runnable: doorway-warm has no samples, and it is not a body-writing profile.' },
-    blog: { state: 'Separate', stateKey: 'gap', owner: 'agents/content_agent.py → marketer → Ghost', input: 'Predictor commit batches enter the existing blog pipeline', rule: 'The blog crew remains dedicated to the predictor commit-history blog', boundary: 'Narrative voice has not been migrated into a bottle profile; do not depict the note Writer as producing this path.', message: 'Separate today: content agent → marketer → Ghost draft; bottle migration remains future work.' },
-    newsletter: { state: 'Not built', stateKey: 'proposed', owner: 'No Writer path or seeded profile', input: 'The intended newspaper-broadsheet profile has not been authored', rule: 'A voice the box has never spoken must be seeded, not harvested', boundary: 'No newsletter drafting path exists; the profile and sink must be built before this route can run.', message: 'Designed, not implemented: newsletter waits for a seeded voice profile and drafting path.' }
+    assignment: { label: 'Runtime input · assignment', title: 'Claimed lead', owner: 'pipelines/writer/assignment.py', input: 'The full lead: stable ID, pitch, why-now, type, and source pointers', rule: 'The effective assignment is the durable output of Gate ①', boundary: 'The Writer receives routing context but cannot change the routing decision.' },
+    shape: { label: 'System prompt · structure', title: 'Shape prompt', owner: 'agents/writer_agent.py', input: 'Three beats, 798–882 body characters, receipts as lists, and the strict note JSON schema', rule: 'Shape belongs in the Writer prompt; the bottle carries sentence-level voice', boundary: 'Samples outrank written instructions. A shape change requires the exemplars to be re-cut with it.' },
+    bottle: { label: 'Prompt input · profile', title: 'Voice profile', owner: 'voice/man-page-dry/', input: 'moves.md and harvested JSON samples, loaded in sorted order', rule: 'Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.', boundary: 'An empty samples directory hard-fails instead of drafting without an established voice.' },
+    evidence: { label: 'Tool loop · evidence', title: 'Convergent roam', owner: 'Writer using the Scout’s read tools', input: 'The assignment’s cited transcript, files, and commits inside registered roots', rule: 'Pull exactly the cited threads until the draft can be written from receipts, not vibes', boundary: 'Missing facts are researched further or written around, never invented.' },
+    seat: { label: 'Model call · production', title: 'Writer call', owner: 'Writer model seat', input: 'Stable system block (shape + bottle), changing assignment, and tool results', rule: 'The model produces the note under the shape, voice, and evidence constraints', boundary: 'Truncation fails loudly; a refused call cannot silently become an incomplete draft.' },
+    output: { label: 'Runtime output · parked', title: 'Banked note draft', owner: 'pipelines/writer/run.py', input: 'Strict note JSON from the model; cited sources remain attached to the draft record', rule: 'Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted', boundary: 'The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.' }
   };
 
   let activeBottle = 'bottle';
   function renderBottle(key = activeBottle) {
     activeBottle = key;
-    const detail = key === 'bottle' ? { ...bottleDetails.bottle, ...profileCopy[el('nf-profile-path').value] } : bottleDetails[key];
+    const detail = bottleDetails[key];
     root.querySelectorAll('[data-bottle]').forEach(node => node.setAttribute('aria-pressed', String(node.dataset.bottle === key)));
     el('nf-bottle-label').textContent = detail.label;
-    el('nf-bottle-state').textContent = detail.state;
-    el('nf-bottle-state').dataset.state = detail.stateKey;
     el('nf-bottle-title').textContent = detail.title;
     el('nf-bottle-owner').textContent = detail.owner;
     el('nf-bottle-input').textContent = detail.input;
@@ -987,12 +910,6 @@
   }
 
   root.querySelectorAll('[data-bottle]').forEach(node => node.addEventListener('click', () => renderBottle(node.dataset.bottle)));
-  el('nf-profile-path').addEventListener('change', event => {
-    const profile = profileCopy[event.target.value];
-    el('nf-path-message').textContent = profile.message;
-    activeBottle = 'bottle';
-    renderBottle('bottle');
-  });
 
   const design = { compact: false, showRoleRail: true, accent: '#d84a32' };
   function applyDesign() {
