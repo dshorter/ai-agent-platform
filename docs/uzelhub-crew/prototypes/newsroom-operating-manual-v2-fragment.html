@@ -630,7 +630,7 @@
       <div class="nf-context">
         <div>
           <span class="nf-kicker">Interactive specification · newsroom system flow</span>
-          <strong id="nf-story-title">Field note path — claimed lead to released page</strong>
+          <strong id="nf-story-title">Newsroom system — evidence to published work</strong>
         </div>
       </div>
     </header>
@@ -650,7 +650,7 @@
         <section class="nf-pane" id="nf-system-pane">
           <div class="nf-toolbar">
             <div>
-              <h2 id="nf-view-title">The field-note path</h2>
+              <h2 id="nf-view-title">Newsroom system flow</h2>
               <p class="nf-subtitle" id="nf-view-subtitle">Follow evidence through triage, drafting, approval, and release.</p>
             </div>
           </div>
@@ -685,7 +685,7 @@
                 </button>
                 <button class="nf-stage" type="button" data-stage="5">
                   <span class="nf-stage-circle"><i data-lucide="file-pen-line" aria-hidden="true"></i></span>
-                  <span class="nf-stage-name">Draft note</span><span class="nf-stage-owner">Writer</span>
+                  <span class="nf-stage-name">Create draft</span><span class="nf-stage-owner">Writer</span>
                 </button>
                 <button class="nf-stage" type="button" data-stage="6">
                   <span class="nf-stage-circle"><i data-lucide="shield-check" aria-hidden="true"></i></span>
@@ -764,11 +764,11 @@
 
               <div class="nf-output-row">
                 <button class="nf-output-node" type="button" data-bottle="output">
-                  <span class="nf-node-icon"><i data-lucide="file-json" aria-hidden="true"></i></span><span class="nf-node-title">Banked note draft</span><span class="nf-node-copy">Gitignored JSON + mechanical copyDraft stamp</span>
+                  <span class="nf-node-icon"><i data-lucide="file-json" aria-hidden="true"></i></span><span class="nf-node-title">Banked draft</span><span class="nf-node-copy">Structured JSON + mechanical copyDraft stamp</span>
                 </button>
                 <div class="nf-gate-next"><span>then</span><strong>Gate ②</strong><span>scrub + human review</span></div>
               </div>
-              <p class="nf-path-message" id="nf-path-message">Note → man-page-dry voice profile → Writer → banked JSON draft → Gate ②.</p>
+              <p class="nf-path-message" id="nf-path-message">Assignment + shape + selected voice profile + evidence → Writer → banked draft → Gate ②.</p>
             </section>
 
             <aside class="nf-detail" id="nf-bottle-detail" aria-live="polite">
@@ -797,7 +797,7 @@
     { title: 'File lead', kind: 'store', owner: 'Scout ledger', roles: ['Scout'], input: 'A synthesized lead from the Scout', done: 'Append-only leads.yaml record at status new with redaction required; its stable ID becomes the handle', next: 'The Scout appends leads; it never edits or removes an existing lead.' },
     { title: 'Propose triage', kind: 'advice', owner: 'Wire Editor + chief shadow', roles: ['Wire'], input: 'Every new lead plus IDs already claimed, drafted, published, or spiked', done: 'A proposal to claim, hold, or spike, with suggested type, reason, clusters, and chief shadow', next: 'Triage is advice. It cannot mutate the lead ledger or make the routing decision.' },
     { title: 'Gate ① · route', kind: 'human gate', owner: 'Operator', roles: ['Operator'], input: 'Scout lead, Wire advice, and chief shadow', done: 'A durable human decision: claim, hold, or spike, plus the effective type and destination', next: 'The operator is the routing authority; agents may recommend but cannot cross this gate.' },
-    { title: 'Draft note', kind: 'production', owner: 'Writer', roles: ['Writer'], input: 'Claimed assignment + note shape + man-page-dry voice bottle + convergent reads of cited sources', done: 'A revisioned, structured note draft with evidence and copyDraft provenance', next: 'The Writer drafts only: it cannot route, approve, publish, or alter the presentation layer.' },
+    { title: 'Create draft', kind: 'production', owner: 'Writer', roles: ['Writer'], input: 'Claimed assignment + content shape + selected voice bottle + convergent reads of cited sources', done: 'A revisioned, structured draft with evidence and copyDraft provenance', next: 'The Writer drafts only: it cannot route, approve, publish, or alter the presentation layer.' },
     { title: 'Gate ② · approve', kind: 'human gate', owner: 'Operator', roles: ['Operator'], input: 'The exact draft revision, its evidence, mechanical scan findings, and substantive/voice review', done: 'Human approval bound to that revision after the scrub is complete', next: 'A clean scan is evidence for the operator, never a substitute for human approval.' },
     { title: 'Queue & release', kind: 'delivery', owner: 'Release + generator', roles: ['Release'], input: 'An approved draft revision and its selected destination', done: 'A queued publication record; release stamps the publication date and deterministic generation renders the page', next: 'Promotion is not publication: queued and released remain distinct states with traceable provenance.' }
   ];
@@ -861,7 +861,7 @@
   });
 
   const viewCopy = {
-    flow: ['The field-note path', 'Follow evidence through triage, drafting, approval, and release.'],
+    flow: ['Newsroom system flow', 'Follow evidence through triage, drafting, approval, and release.'],
     role: ['Responsibility by role', 'Choose a role below to reveal only the stages it owns.']
   };
 
@@ -874,7 +874,7 @@
       el('nf-story-title').textContent = 'Voice bottle — written register enters the Writer at runtime';
       return;
     }
-    el('nf-story-title').textContent = 'Field note path — claimed lead to released page';
+    el('nf-story-title').textContent = 'Newsroom system — evidence to published work';
     const [title, subtitle] = viewCopy[button.dataset.view];
     el('nf-view-title').textContent = title;
     el('nf-view-subtitle').textContent = subtitle;
@@ -893,7 +893,7 @@
     bottle: { label: 'Prompt input · profile', title: 'Voice profile', owner: 'voice/man-page-dry/', input: 'moves.md and harvested JSON samples, loaded in sorted order', rule: 'Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.', boundary: 'An empty samples directory hard-fails instead of drafting without an established voice.' },
     evidence: { label: 'Tool loop · evidence', title: 'Convergent roam', owner: 'Writer using the Scout’s read tools', input: 'The assignment’s cited transcript, files, and commits inside registered roots', rule: 'Pull exactly the cited threads until the draft can be written from receipts, not vibes', boundary: 'Missing facts are researched further or written around, never invented.' },
     seat: { label: 'Model call · production', title: 'Writer call', owner: 'Writer model seat', input: 'Stable system block (shape + bottle), changing assignment, and tool results', rule: 'The model produces the note under the shape, voice, and evidence constraints', boundary: 'Truncation fails loudly; a refused call cannot silently become an incomplete draft.' },
-    output: { label: 'Runtime output · parked', title: 'Banked note draft', owner: 'pipelines/writer/run.py', input: 'Strict note JSON from the model; cited sources remain attached to the draft record', rule: 'Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted', boundary: 'The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.' }
+    output: { label: 'Runtime output · parked', title: 'Banked draft', owner: 'pipelines/writer/run.py', input: 'Strict structured JSON from the model; cited sources remain attached to the draft record', rule: 'Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted', boundary: 'The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.' }
   };
 
   let activeBottle = 'bottle';

@@ -1667,7 +1667,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       &lt;div class=&quot;nf-context&quot;&gt;
         &lt;div&gt;
           &lt;span class=&quot;nf-kicker&quot;&gt;Interactive specification · newsroom system flow&lt;/span&gt;
-          &lt;strong id=&quot;nf-story-title&quot;&gt;Field note path — claimed lead to released page&lt;/strong&gt;
+          &lt;strong id=&quot;nf-story-title&quot;&gt;Newsroom system — evidence to published work&lt;/strong&gt;
         &lt;/div&gt;
       &lt;/div&gt;
     &lt;/header&gt;
@@ -1687,7 +1687,7 @@ html&gt;body{padding:0}&lt;/style&gt;
         &lt;section class=&quot;nf-pane&quot; id=&quot;nf-system-pane&quot;&gt;
           &lt;div class=&quot;nf-toolbar&quot;&gt;
             &lt;div&gt;
-              &lt;h2 id=&quot;nf-view-title&quot;&gt;The field-note path&lt;/h2&gt;
+              &lt;h2 id=&quot;nf-view-title&quot;&gt;Newsroom system flow&lt;/h2&gt;
               &lt;p class=&quot;nf-subtitle&quot; id=&quot;nf-view-subtitle&quot;&gt;Follow evidence through triage, drafting, approval, and release.&lt;/p&gt;
             &lt;/div&gt;
           &lt;/div&gt;
@@ -1722,7 +1722,7 @@ html&gt;body{padding:0}&lt;/style&gt;
                 &lt;/button&gt;
                 &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;5&quot;&gt;
                   &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;file-pen-line&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
-                  &lt;span class=&quot;nf-stage-name&quot;&gt;Draft note&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Writer&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Create draft&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Writer&lt;/span&gt;
                 &lt;/button&gt;
                 &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;6&quot;&gt;
                   &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;shield-check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
@@ -1801,11 +1801,11 @@ html&gt;body{padding:0}&lt;/style&gt;
 
               &lt;div class=&quot;nf-output-row&quot;&gt;
                 &lt;button class=&quot;nf-output-node&quot; type=&quot;button&quot; data-bottle=&quot;output&quot;&gt;
-                  &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;file-json&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Banked note draft&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;Gitignored JSON + mechanical copyDraft stamp&lt;/span&gt;
+                  &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;file-json&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Banked draft&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;Structured JSON + mechanical copyDraft stamp&lt;/span&gt;
                 &lt;/button&gt;
                 &lt;div class=&quot;nf-gate-next&quot;&gt;&lt;span&gt;then&lt;/span&gt;&lt;strong&gt;Gate ②&lt;/strong&gt;&lt;span&gt;scrub + human review&lt;/span&gt;&lt;/div&gt;
               &lt;/div&gt;
-              &lt;p class=&quot;nf-path-message&quot; id=&quot;nf-path-message&quot;&gt;Note → man-page-dry voice profile → Writer → banked JSON draft → Gate ②.&lt;/p&gt;
+              &lt;p class=&quot;nf-path-message&quot; id=&quot;nf-path-message&quot;&gt;Assignment + shape + selected voice profile + evidence → Writer → banked draft → Gate ②.&lt;/p&gt;
             &lt;/section&gt;
 
             &lt;aside class=&quot;nf-detail&quot; id=&quot;nf-bottle-detail&quot; aria-live=&quot;polite&quot;&gt;
@@ -1834,7 +1834,7 @@ html&gt;body{padding:0}&lt;/style&gt;
     { title: &#x27;File lead&#x27;, kind: &#x27;store&#x27;, owner: &#x27;Scout ledger&#x27;, roles: [&#x27;Scout&#x27;], input: &#x27;A synthesized lead from the Scout&#x27;, done: &#x27;Append-only leads.yaml record at status new with redaction required; its stable ID becomes the handle&#x27;, next: &#x27;The Scout appends leads; it never edits or removes an existing lead.&#x27; },
     { title: &#x27;Propose triage&#x27;, kind: &#x27;advice&#x27;, owner: &#x27;Wire Editor + chief shadow&#x27;, roles: [&#x27;Wire&#x27;], input: &#x27;Every new lead plus IDs already claimed, drafted, published, or spiked&#x27;, done: &#x27;A proposal to claim, hold, or spike, with suggested type, reason, clusters, and chief shadow&#x27;, next: &#x27;Triage is advice. It cannot mutate the lead ledger or make the routing decision.&#x27; },
     { title: &#x27;Gate ① · route&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Operator&#x27;], input: &#x27;Scout lead, Wire advice, and chief shadow&#x27;, done: &#x27;A durable human decision: claim, hold, or spike, plus the effective type and destination&#x27;, next: &#x27;The operator is the routing authority; agents may recommend but cannot cross this gate.&#x27; },
-    { title: &#x27;Draft note&#x27;, kind: &#x27;production&#x27;, owner: &#x27;Writer&#x27;, roles: [&#x27;Writer&#x27;], input: &#x27;Claimed assignment + note shape + man-page-dry voice bottle + convergent reads of cited sources&#x27;, done: &#x27;A revisioned, structured note draft with evidence and copyDraft provenance&#x27;, next: &#x27;The Writer drafts only: it cannot route, approve, publish, or alter the presentation layer.&#x27; },
+    { title: &#x27;Create draft&#x27;, kind: &#x27;production&#x27;, owner: &#x27;Writer&#x27;, roles: [&#x27;Writer&#x27;], input: &#x27;Claimed assignment + content shape + selected voice bottle + convergent reads of cited sources&#x27;, done: &#x27;A revisioned, structured draft with evidence and copyDraft provenance&#x27;, next: &#x27;The Writer drafts only: it cannot route, approve, publish, or alter the presentation layer.&#x27; },
     { title: &#x27;Gate ② · approve&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Operator&#x27;], input: &#x27;The exact draft revision, its evidence, mechanical scan findings, and substantive/voice review&#x27;, done: &#x27;Human approval bound to that revision after the scrub is complete&#x27;, next: &#x27;A clean scan is evidence for the operator, never a substitute for human approval.&#x27; },
     { title: &#x27;Queue &amp; release&#x27;, kind: &#x27;delivery&#x27;, owner: &#x27;Release + generator&#x27;, roles: [&#x27;Release&#x27;], input: &#x27;An approved draft revision and its selected destination&#x27;, done: &#x27;A queued publication record; release stamps the publication date and deterministic generation renders the page&#x27;, next: &#x27;Promotion is not publication: queued and released remain distinct states with traceable provenance.&#x27; }
   ];
@@ -1898,7 +1898,7 @@ html&gt;body{padding:0}&lt;/style&gt;
   });
 
   const viewCopy = {
-    flow: [&#x27;The field-note path&#x27;, &#x27;Follow evidence through triage, drafting, approval, and release.&#x27;],
+    flow: [&#x27;Newsroom system flow&#x27;, &#x27;Follow evidence through triage, drafting, approval, and release.&#x27;],
     role: [&#x27;Responsibility by role&#x27;, &#x27;Choose a role below to reveal only the stages it owns.&#x27;]
   };
 
@@ -1911,7 +1911,7 @@ html&gt;body{padding:0}&lt;/style&gt;
       el(&#x27;nf-story-title&#x27;).textContent = &#x27;Voice bottle — written register enters the Writer at runtime&#x27;;
       return;
     }
-    el(&#x27;nf-story-title&#x27;).textContent = &#x27;Field note path — claimed lead to released page&#x27;;
+    el(&#x27;nf-story-title&#x27;).textContent = &#x27;Newsroom system — evidence to published work&#x27;;
     const [title, subtitle] = viewCopy[button.dataset.view];
     el(&#x27;nf-view-title&#x27;).textContent = title;
     el(&#x27;nf-view-subtitle&#x27;).textContent = subtitle;
@@ -1930,7 +1930,7 @@ html&gt;body{padding:0}&lt;/style&gt;
     bottle: { label: &#x27;Prompt input · profile&#x27;, title: &#x27;Voice profile&#x27;, owner: &#x27;voice/man-page-dry/&#x27;, input: &#x27;moves.md and harvested JSON samples, loaded in sorted order&#x27;, rule: &#x27;Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.&#x27;, boundary: &#x27;An empty samples directory hard-fails instead of drafting without an established voice.&#x27; },
     evidence: { label: &#x27;Tool loop · evidence&#x27;, title: &#x27;Convergent roam&#x27;, owner: &#x27;Writer using the Scout’s read tools&#x27;, input: &#x27;The assignment’s cited transcript, files, and commits inside registered roots&#x27;, rule: &#x27;Pull exactly the cited threads until the draft can be written from receipts, not vibes&#x27;, boundary: &#x27;Missing facts are researched further or written around, never invented.&#x27; },
     seat: { label: &#x27;Model call · production&#x27;, title: &#x27;Writer call&#x27;, owner: &#x27;Writer model seat&#x27;, input: &#x27;Stable system block (shape + bottle), changing assignment, and tool results&#x27;, rule: &#x27;The model produces the note under the shape, voice, and evidence constraints&#x27;, boundary: &#x27;Truncation fails loudly; a refused call cannot silently become an incomplete draft.&#x27; },
-    output: { label: &#x27;Runtime output · parked&#x27;, title: &#x27;Banked note draft&#x27;, owner: &#x27;pipelines/writer/run.py&#x27;, input: &#x27;Strict note JSON from the model; cited sources remain attached to the draft record&#x27;, rule: &#x27;Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted&#x27;, boundary: &#x27;The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.&#x27; }
+    output: { label: &#x27;Runtime output · parked&#x27;, title: &#x27;Banked draft&#x27;, owner: &#x27;pipelines/writer/run.py&#x27;, input: &#x27;Strict structured JSON from the model; cited sources remain attached to the draft record&#x27;, rule: &#x27;Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted&#x27;, boundary: &#x27;The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.&#x27; }
   };
 
   let activeBottle = &#x27;bottle&#x27;;
