@@ -1,0 +1,1015 @@
+<style>
+  #newsroom-operating-manual-v2 {
+    --nf-bg: light-dark(#f4f0e7, #171815);
+    --nf-surface: light-dark(#fffdf8, #22231f);
+    --nf-surface-strong: light-dark(#ffffff, #292b26);
+    --nf-ink: light-dark(#1e211d, #f2f0e8);
+    --nf-muted: light-dark(#667067, #afb5aa);
+    --nf-line: light-dark(#d8d4ca, #44473f);
+    --nf-accent: #d84a32;
+    --nf-accent-ink: #ffffff;
+    --nf-soft: color-mix(in srgb, var(--nf-accent) 13%, var(--nf-surface));
+    --nf-info: light-dark(#315d72, #8fc8df);
+    width: 100%;
+    color: var(--nf-ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color-scheme: light dark;
+  }
+
+  #newsroom-operating-manual-v2 * { box-sizing: border-box; }
+  #newsroom-operating-manual-v2 button,
+  #newsroom-operating-manual-v2 select { font: inherit; }
+
+  #newsroom-operating-manual-v2 .nf-window {
+    min-height: 650px;
+    background: var(--nf-bg);
+    border: 1px solid var(--nf-line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 18px 52px light-dark(rgba(55, 45, 30, .13), rgba(0, 0, 0, .28));
+  }
+
+  #newsroom-operating-manual-v2 .nf-topbar {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 18px;
+    background: var(--nf-surface);
+    border-bottom: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    font-weight: 500;
+    letter-spacing: .06em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--nf-accent);
+    color: var(--nf-accent-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-context {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-context > div { min-width: 0; width: 100%; }
+
+  #newsroom-operating-manual-v2 .nf-kicker {
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-context strong {
+    display: block;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #newsroom-operating-manual-v2 .nf-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: var(--nf-soft);
+    color: var(--nf-accent);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  #newsroom-operating-manual-v2 .nf-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  #newsroom-operating-manual-v2 .nf-layout {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    min-height: 580px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-rail {
+    padding: 18px 12px;
+    background: var(--nf-surface);
+    border-right: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-rail-label {
+    margin: 0 8px 8px;
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav {
+    display: grid;
+    gap: 5px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav button {
+    width: 100%;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--nf-muted);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav button[aria-pressed="true"] {
+    background: var(--nf-soft);
+    color: var(--nf-ink);
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav svg { width: 17px; height: 17px; }
+
+  #newsroom-operating-manual-v2 .nf-rail-note {
+    margin: 28px 8px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--nf-line);
+    color: var(--nf-muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  #newsroom-operating-manual-v2 .nf-main {
+    padding: 22px;
+    min-width: 0;
+  }
+
+  #newsroom-operating-manual-v2 .nf-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  #newsroom-operating-manual-v2 h2,
+  #newsroom-operating-manual-v2 h3,
+  #newsroom-operating-manual-v2 p { margin: 0; }
+
+  #newsroom-operating-manual-v2 h2 {
+    font-size: clamp(22px, 3vw, 30px);
+    line-height: 1.15;
+    font-weight: 500;
+    letter-spacing: -.025em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-subtitle {
+    margin-top: 5px;
+    color: var(--nf-muted);
+    font-size: 14px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-field {
+    display: grid;
+    gap: 5px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 select {
+    min-height: 40px;
+    min-width: 176px;
+    padding: 7px 34px 7px 11px;
+    border: 1px solid var(--nf-line);
+    border-radius: 9px;
+    background: var(--nf-surface-strong);
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  #newsroom-operating-manual-v2 .nf-canvas {
+    min-width: 0;
+  }
+
+  #newsroom-operating-manual-v2 .nf-status-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-progress-text { color: var(--nf-ink); }
+
+  #newsroom-operating-manual-v2 .nf-flow {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(110px, 1fr));
+    gap: 34px 22px;
+    padding: 18px 4px 26px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-flow::before {
+    content: "";
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    top: 46px;
+    height: 2px;
+    background: var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-flow::after {
+    content: "";
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    top: 198px;
+    height: 2px;
+    background: var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--nf-ink);
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage-circle {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--nf-line);
+    border-radius: 50%;
+    background: var(--nf-surface-strong);
+    color: var(--nf-muted);
+    transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage:hover .nf-stage-circle { transform: translateY(-2px); }
+  #newsroom-operating-manual-v2 .nf-stage[aria-current="step"] .nf-stage-circle {
+    background: var(--nf-accent);
+    border-color: var(--nf-accent);
+    color: var(--nf-accent-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage[data-complete="true"] .nf-stage-circle {
+    border-color: var(--nf-accent);
+    color: var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage[data-dim="true"] { opacity: .3; }
+  #newsroom-operating-manual-v2 .nf-stage svg { width: 21px; height: 21px; }
+
+  #newsroom-operating-manual-v2 .nf-stage-name {
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage-owner {
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    padding-top: 16px;
+    border-top: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-strip span {
+    margin-right: 3px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role {
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid var(--nf-line);
+    border-radius: 999px;
+    background: var(--nf-surface);
+    color: var(--nf-ink);
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role[aria-pressed="true"] {
+    background: var(--nf-ink);
+    border-color: var(--nf-ink);
+    color: var(--nf-surface);
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail {
+    padding: 18px;
+    border-radius: 13px;
+    background: var(--nf-surface-strong);
+    box-shadow: 0 10px 28px light-dark(rgba(55, 45, 30, .10), rgba(0, 0, 0, .22));
+  }
+
+  #newsroom-operating-manual-v2 .nf-step-label {
+    color: var(--nf-accent);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail h3 {
+    margin-top: 6px;
+    font-size: 21px;
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-owner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    color: var(--nf-muted);
+    font-size: 13px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-owner svg { width: 16px; height: 16px; }
+
+  #newsroom-operating-manual-v2 .nf-detail-grid {
+    display: grid;
+    gap: 14px;
+    margin-top: 20px;
+    padding: 16px 0;
+    border-top: 1px solid var(--nf-line);
+    border-bottom: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail-item dt {
+    margin-bottom: 4px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail-item dd {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  #newsroom-operating-manual-v2 .nf-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-action {
+    min-height: 39px;
+    border: 1px solid var(--nf-line);
+    border-radius: 9px;
+    background: transparent;
+    color: var(--nf-ink);
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-action-primary {
+    background: var(--nf-accent);
+    border-color: var(--nf-accent);
+    color: var(--nf-accent-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-handoff {
+    min-height: 22px;
+    margin-top: 10px;
+    color: var(--nf-muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  #newsroom-operating-manual-v2 .nf-pane[hidden] { display: none; }
+
+  #newsroom-operating-manual-v2 .nf-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-state-badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 25px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--nf-info) 13%, var(--nf-surface));
+    color: var(--nf-info);
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  #newsroom-operating-manual-v2 .nf-state-badge[data-state="gap"],
+  #newsroom-operating-manual-v2 .nf-state-badge[data-state="paused"],
+  #newsroom-operating-manual-v2 .nf-state-badge[data-state="proposed"] {
+    background: var(--nf-soft);
+    color: var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage-state {
+    color: var(--nf-info);
+    font-size: 11px;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-bottle-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  #newsroom-operating-manual-v2 .nf-voice-definition {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--nf-accent);
+    background: var(--nf-soft);
+    color: var(--nf-ink);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  #newsroom-operating-manual-v2 .nf-voice-definition svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+    color: var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-bottle-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-bottle-node {
+    min-height: 98px;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    align-content: center;
+    padding: 12px;
+    border: 1px solid var(--nf-line);
+    border-radius: 11px;
+    background: var(--nf-surface-strong);
+    color: var(--nf-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-bottle-node[aria-pressed="true"] {
+    border-color: var(--nf-accent);
+    box-shadow: inset 0 0 0 1px var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-node-icon {
+    grid-row: 1 / span 2;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--nf-soft);
+    color: var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-node-icon svg { width: 17px; height: 17px; }
+  #newsroom-operating-manual-v2 .nf-node-title { font-size: 13px; font-weight: 500; }
+  #newsroom-operating-manual-v2 .nf-node-copy { color: var(--nf-muted); font-size: 12px; line-height: 1.35; }
+
+  #newsroom-operating-manual-v2 .nf-converge {
+    display: grid;
+    justify-items: center;
+    gap: 7px;
+    margin: 13px 0;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-converge svg { width: 20px; height: 20px; }
+
+  #newsroom-operating-manual-v2 .nf-writer-node {
+    width: 100%;
+    min-height: 68px;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    padding: 12px 14px;
+    border: 0;
+    border-radius: 12px;
+    background: var(--nf-ink);
+    color: var(--nf-surface);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-writer-node .nf-node-icon {
+    background: color-mix(in srgb, var(--nf-surface) 15%, transparent);
+    color: var(--nf-surface);
+  }
+
+  #newsroom-operating-manual-v2 .nf-writer-node > span:nth-child(2) { display: grid; gap: 3px; }
+  #newsroom-operating-manual-v2 .nf-writer-node .nf-node-copy { color: color-mix(in srgb, var(--nf-surface) 72%, transparent); }
+  #newsroom-operating-manual-v2 .nf-writer-node > svg { width: 20px; height: 20px; }
+
+  #newsroom-operating-manual-v2 .nf-output-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-node {
+    min-height: 82px;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    align-content: center;
+    padding: 11px 12px;
+    border: 1px solid var(--nf-line);
+    border-radius: 11px;
+    background: var(--nf-surface-strong);
+    color: var(--nf-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-gate-next {
+    min-width: 130px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 4px;
+    padding: 10px;
+    border: 1px dashed var(--nf-line);
+    border-radius: 11px;
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-gate-next strong { color: var(--nf-ink); font-weight: 500; }
+
+  #newsroom-operating-manual-v2 .nf-path-message {
+    min-height: 20px;
+    margin-top: 10px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2[data-compact="true"] .nf-main { padding: 16px; }
+  #newsroom-operating-manual-v2[data-compact="true"] .nf-flow { gap: 22px 14px; }
+  #newsroom-operating-manual-v2[data-show-rail="false"] .nf-layout { grid-template-columns: 1fr; }
+  #newsroom-operating-manual-v2[data-show-rail="false"] .nf-rail { display: none; }
+
+  @media (max-width: 820px) {
+    #newsroom-operating-manual-v2 .nf-layout { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-rail { display: none; }
+    #newsroom-operating-manual-v2 .nf-content { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-detail { max-width: none; }
+    #newsroom-operating-manual-v2 .nf-bottle-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 590px) {
+    #newsroom-operating-manual-v2 .nf-window { border-radius: 12px; }
+    #newsroom-operating-manual-v2 .nf-topbar { align-items: flex-start; flex-wrap: wrap; }
+    #newsroom-operating-manual-v2 .nf-brand { min-width: 0; }
+    #newsroom-operating-manual-v2 .nf-live { margin-left: auto; }
+    #newsroom-operating-manual-v2 .nf-context { order: 3; flex-basis: 100%; }
+    #newsroom-operating-manual-v2 .nf-main { padding: 16px 12px; }
+    #newsroom-operating-manual-v2 .nf-toolbar { align-items: stretch; flex-direction: column; }
+    #newsroom-operating-manual-v2 select { width: 100%; }
+    #newsroom-operating-manual-v2 .nf-flow { grid-template-columns: repeat(2, 1fr); gap: 28px 18px; }
+    #newsroom-operating-manual-v2 .nf-flow::before,
+    #newsroom-operating-manual-v2 .nf-flow::after { display: none; }
+    #newsroom-operating-manual-v2 .nf-bottle-inputs { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-output-row { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #newsroom-operating-manual-v2 .nf-stage-circle { transition: none; }
+  }
+</style>
+
+<div id="newsroom-operating-manual-v2" aria-label="Uzelhub newsroom operating manual" data-compact="false" data-show-rail="true">
+  <section class="nf-window">
+    <header class="nf-topbar">
+      <div class="nf-brand">
+        <span class="nf-brand-mark"><i data-lucide="radio" aria-hidden="true"></i></span>
+        NEWSROOM
+      </div>
+      <div class="nf-context">
+        <div>
+          <span class="nf-kicker">Operating manual · current design + implementation</span>
+          <strong id="nf-story-title">Field note path — claimed lead to released page</strong>
+        </div>
+      </div>
+      <span class="nf-live"><span class="nf-live-dot"></span> Prospecting paused</span>
+    </header>
+
+    <div class="nf-layout">
+      <aside class="nf-rail" aria-label="Navigator views">
+        <p class="nf-rail-label">Navigate by</p>
+        <nav class="nf-nav">
+          <button type="button" aria-pressed="true" data-view="flow"><i data-lucide="git-branch" aria-hidden="true"></i> System flow</button>
+          <button type="button" aria-pressed="false" data-view="role"><i data-lucide="users" aria-hidden="true"></i> Role</button>
+          <button type="button" aria-pressed="false" data-view="status"><i data-lucide="circle-dot-dashed" aria-hidden="true"></i> Built vs next</button>
+          <button type="button" aria-pressed="false" data-view="bottle"><i data-lucide="flask-conical" aria-hidden="true"></i> Voice bottle</button>
+        </nav>
+        <p class="nf-rail-note">Select a stage to see what the real system reads, writes, and refuses to do.</p>
+      </aside>
+
+      <main class="nf-main">
+        <section class="nf-pane" id="nf-system-pane">
+          <div class="nf-toolbar">
+            <div>
+              <h2 id="nf-view-title">The field-note path</h2>
+              <p class="nf-subtitle" id="nf-view-subtitle">The built path, its two human gates, and the gaps the current plan names.</p>
+            </div>
+            <label class="nf-field">Path
+              <select id="nf-workflow">
+                <option value="note">Field note — built</option>
+                <option value="blog">Blog — separate pipeline</option>
+                <option value="mvp">Editorial UI — proposed</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="nf-content">
+            <section class="nf-canvas" aria-label="Newsroom system stages">
+              <div class="nf-status-line">
+                <span id="nf-status-copy">Observed 10 Sep 2026: ingestion active; the paid Scout pass is paused</span>
+                <span class="nf-progress-text" id="nf-progress">1 of 8</span>
+              </div>
+
+              <div class="nf-flow" id="nf-flow">
+                <button class="nf-stage" type="button" data-stage="0" aria-current="step">
+                  <span class="nf-stage-circle"><i data-lucide="database" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">Ingest ore</span><span class="nf-stage-owner">Scout intake</span><span class="nf-stage-state">Built · active</span>
+                </button>
+                <button class="nf-stage" type="button" data-stage="1">
+                  <span class="nf-stage-circle"><i data-lucide="gem" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">Walk & synthesize</span><span class="nf-stage-owner">Scout</span><span class="nf-stage-state">Built · paused</span>
+                </button>
+                <button class="nf-stage" type="button" data-stage="2">
+                  <span class="nf-stage-circle"><i data-lucide="notebook-tabs" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">File lead</span><span class="nf-stage-owner">Scout ledger</span><span class="nf-stage-state">Built</span>
+                </button>
+                <button class="nf-stage" type="button" data-stage="3">
+                  <span class="nf-stage-circle"><i data-lucide="list-checks" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">Propose triage</span><span class="nf-stage-owner">Wire + chief</span><span class="nf-stage-state">Built</span>
+                </button>
+                <button class="nf-stage" type="button" data-stage="4">
+                  <span class="nf-stage-circle"><i data-lucide="route" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">Gate ① · route</span><span class="nf-stage-owner">Operator</span><span class="nf-stage-state">Human · partial UI</span>
+                </button>
+                <button class="nf-stage" type="button" data-stage="5">
+                  <span class="nf-stage-circle"><i data-lucide="file-pen-line" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">Draft note</span><span class="nf-stage-owner">Writer</span><span class="nf-stage-state">Built · note only</span>
+                </button>
+                <button class="nf-stage" type="button" data-stage="6">
+                  <span class="nf-stage-circle"><i data-lucide="shield-check" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">Gate ② · approve</span><span class="nf-stage-owner">Operator</span><span class="nf-stage-state">Human · enforcement gap</span>
+                </button>
+                <button class="nf-stage" type="button" data-stage="7">
+                  <span class="nf-stage-circle"><i data-lucide="send" aria-hidden="true"></i></span>
+                  <span class="nf-stage-name">Queue & release</span><span class="nf-stage-owner">Release + generator</span><span class="nf-stage-state">Built · apex</span>
+                </button>
+              </div>
+
+              <div class="nf-role-strip" aria-label="Highlight role involvement">
+                <span>Highlight role</span>
+                <button class="nf-role" type="button" data-role="Scout" aria-pressed="false">Scout</button>
+                <button class="nf-role" type="button" data-role="Wire" aria-pressed="false">Wire Editor</button>
+                <button class="nf-role" type="button" data-role="Operator" aria-pressed="false">Operator</button>
+                <button class="nf-role" type="button" data-role="Writer" aria-pressed="false">Writer</button>
+                <button class="nf-role" type="button" data-role="Release" aria-pressed="false">Release</button>
+              </div>
+            </section>
+
+            <aside class="nf-detail" aria-live="polite">
+              <div class="nf-label-row"><span class="nf-step-label" id="nf-step-label">Stage 1 · intake</span><span class="nf-state-badge" id="nf-state-badge" data-state="built">Built · active</span></div>
+              <h3 id="nf-stage-title">Ingest ore</h3>
+              <div class="nf-owner"><i data-lucide="user-round" aria-hidden="true"></i><span id="nf-owner">Owner: Scout intake</span></div>
+              <dl class="nf-detail-grid">
+                <div class="nf-detail-item"><dt>Reads</dt><dd id="nf-input">Session logs; explicit walks can also read git, documents and ledgers</dd></div>
+                <div class="nf-detail-item"><dt>Writes</dt><dd id="nf-done">New session rows into scout_session_log; no model call</dd></div>
+                <div class="nf-detail-item"><dt>Boundary / gap</dt><dd id="nf-next">Ingestion continues while prospecting is paused; Refresh must never trigger paid work</dd></div>
+              </dl>
+              <div class="nf-actions">
+                <button class="nf-action" id="nf-back" type="button">Previous</button>
+                <button class="nf-action nf-action-primary" id="nf-next-button" type="button">Next stage</button>
+              </div>
+              <p class="nf-handoff" id="nf-handoff"></p>
+            </aside>
+          </div>
+        </section>
+
+        <section class="nf-pane" id="nf-bottle-pane" hidden>
+          <div class="nf-toolbar">
+            <div>
+              <h2>How the voice bottle enters a draft</h2>
+              <p class="nf-subtitle">Shape stays in the Writer prompt; voice arrives from exemplars at runtime.</p>
+            </div>
+            <label class="nf-field">Writing path
+              <select id="nf-profile-path">
+                <option value="note">Note body · man-page-dry</option>
+                <option value="doorway">Doorway copy · blocked</option>
+                <option value="blog">Blog narrative · separate</option>
+                <option value="newsletter">Newsletter · not built</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="nf-bottle-grid">
+            <section aria-label="Voice bottle inputs and draft output">
+              <div class="nf-voice-definition"><i data-lucide="mic-off" aria-hidden="true"></i><span><strong>Voice here means written register, not recorded audio.</strong> The built Writer receives text records and source pointers.</span></div>
+
+              <div class="nf-bottle-inputs">
+                <button class="nf-bottle-node" type="button" data-bottle="assignment" aria-pressed="false">
+                  <span class="nf-node-icon"><i data-lucide="notebook-pen" aria-hidden="true"></i></span><span class="nf-node-title">Claimed lead</span><span class="nf-node-copy">ID, pitch, why-now, type, source pointers</span>
+                </button>
+                <button class="nf-bottle-node" type="button" data-bottle="shape" aria-pressed="false">
+                  <span class="nf-node-icon"><i data-lucide="ruler" aria-hidden="true"></i></span><span class="nf-node-title">Shape prompt</span><span class="nf-node-copy">Three beats, size contract, output schema</span>
+                </button>
+                <button class="nf-bottle-node" type="button" data-bottle="bottle" aria-pressed="true">
+                  <span class="nf-node-icon"><i data-lucide="flask-conical" aria-hidden="true"></i></span><span class="nf-node-title">Voice profile</span><span class="nf-node-copy">moves.md + sorted samples become exemplars</span>
+                </button>
+                <button class="nf-bottle-node" type="button" data-bottle="evidence" aria-pressed="false">
+                  <span class="nf-node-icon"><i data-lucide="search-check" aria-hidden="true"></i></span><span class="nf-node-title">Convergent roam</span><span class="nf-node-copy">Pull exactly the cited threads into receipts</span>
+                </button>
+              </div>
+
+              <div class="nf-converge"><i data-lucide="move-down" aria-hidden="true"></i><span>one stable system block + one changing assignment</span></div>
+
+              <button class="nf-writer-node" type="button" data-bottle="seat">
+                <span class="nf-node-icon"><i data-lucide="brain-circuit" aria-hidden="true"></i></span>
+                <span><span class="nf-node-title">Writer call</span><span class="nf-node-copy">Sonnet 5 · bounded tool rounds · Opus 5 only on refusal</span></span>
+                <i data-lucide="arrow-down" aria-hidden="true"></i>
+              </button>
+
+              <div class="nf-converge"><i data-lucide="move-down" aria-hidden="true"></i><span>strict structured output; provenance added by code</span></div>
+
+              <div class="nf-output-row">
+                <button class="nf-output-node" type="button" data-bottle="output">
+                  <span class="nf-node-icon"><i data-lucide="file-json" aria-hidden="true"></i></span><span class="nf-node-title">Banked note draft</span><span class="nf-node-copy">Gitignored JSON + mechanical copyDraft stamp</span>
+                </button>
+                <div class="nf-gate-next"><span>then</span><strong>Gate ②</strong><span>scrub + human review</span></div>
+              </div>
+              <p class="nf-path-message" id="nf-path-message">Built today: note → man-page-dry → Writer → banked JSON draft.</p>
+            </section>
+
+            <aside class="nf-detail" id="nf-bottle-detail" aria-live="polite">
+              <div class="nf-label-row"><span class="nf-step-label" id="nf-bottle-label">Prompt input · profile</span><span class="nf-state-badge" id="nf-bottle-state" data-state="built">Built</span></div>
+              <h3 id="nf-bottle-title">Voice profile</h3>
+              <div class="nf-owner"><i data-lucide="folder" aria-hidden="true"></i><span id="nf-bottle-owner">voice/man-page-dry/</span></div>
+              <dl class="nf-detail-grid">
+                <div class="nf-detail-item"><dt>Loads</dt><dd id="nf-bottle-input">moves.md and two harvested JSON samples</dd></div>
+                <div class="nf-detail-item"><dt>Rule</dt><dd id="nf-bottle-rule">Samples carry the voice; named moves stay deliberately thin</dd></div>
+                <div class="nf-detail-item"><dt>Failure boundary</dt><dd id="nf-bottle-boundary">An empty samples directory hard-fails instead of drafting voiceless</dd></div>
+              </dl>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const root = document.getElementById('newsroom-operating-manual-v2');
+  const stages = [
+    { title: 'Ingest ore', kind: 'intake', owner: 'Scout intake', roles: ['Scout'], state: 'Built · active', stateKey: 'built', input: 'Session logs; explicit walks can also read git, documents and ledgers', done: 'New session rows in scout_session_log; ingestion itself makes no model call', next: 'Ingestion continues while prospecting is paused. Refresh must never trigger a paid walk or synthesis.' },
+    { title: 'Walk & synthesize', kind: 'prospecting', owner: 'Scout', roles: ['Scout'], state: 'Built · paused', stateKey: 'paused', input: 'Cursor-bounded ore pages → persisted jewels → selected jewels, map tail, box index and status-blind dedup memory', done: 'Leads with ID, pitch, why-now, citations, type and agent span', next: 'The daily pass is paused by SCOUT_PAUSED. Explicit walk/synthesize commands bypass that pause and remain operator-paid actions.' },
+    { title: 'File lead', kind: 'store', owner: 'Scout ledger', roles: ['Scout'], state: 'Built', stateKey: 'built', input: 'A synthesized lead from the Scout', done: 'Append-only leads.yaml record at status new with redaction required; stable ID becomes the handle', next: 'The Scout never edits or removes leads, and Editor verdicts never enter its prompt or dedup memory.' },
+    { title: 'Propose triage', kind: 'advice', owner: 'Wire Editor + chief shadow', roles: ['Wire'], state: 'Built', stateKey: 'built', input: 'Every new lead plus IDs already claimed, drafted, published or spiked', done: 'Gitignored proposal artifact: claim, hold or spike advice, suggested type, reason, clusters and chief shadow', next: 'Advice does not touch the ledger. Current proposals carry type but no Scout destination recommendation.' },
+    { title: 'Gate ① · route', kind: 'human gate', owner: 'Operator', roles: ['Operator'], state: 'Human · partial UI', stateKey: 'gap', input: 'Scout lead, Wire advice and chief shadow', done: 'Operator claims, holds or spikes and confirms/overrides type; current tools return lead_mark commands', next: 'Independent destination selection is settled policy but not wired. Browser selections are local, not durable decisions.' },
+    { title: 'Draft note', kind: 'production', owner: 'Writer', roles: ['Writer'], state: 'Built · note only', stateKey: 'built', input: 'Claimed lead + note type + man-page-dry bottle + convergent reads of the lead’s cited sources', done: 'Strict note JSON banked in gitignored state, copyDraft stamped by code, lead marked drafted', next: 'The Writer never routes, publishes, touches HTML or approves its own redaction. Other newsroom content paths are not built here.' },
+    { title: 'Gate ② · approve', kind: 'human gate', owner: 'Operator', roles: ['Operator'], state: 'Human · enforcement gap', stateKey: 'gap', input: 'Exact draft, evidence, mechanical scan findings and the human’s substantive/voice judgment', done: 'Intended result: approval bound to the reviewed revision and completed scrub; corrections preserve prior revisions', next: 'Current promotion validates fields but does not enforce completed review. A clean scanner result is not human approval.' },
+    { title: 'Queue & release', kind: 'delivery', owner: 'promote_draft + release.js + generate.js', roles: ['Release'], state: 'Built · apex', stateKey: 'built', input: 'Approved note record crossing into uzelhub-web/marketing/data/notes.json', done: 'Queued note has no published date; release.js stamps the real date and the deterministic generator renders the page', next: 'Promotion is not publication. DEV/third-destination delivery and per-destination recovery are proposed under NR-09, not implemented.' }
+  ];
+
+  const workflowCopy = {
+    note: ['Field note path — claimed lead to released page', 'Observed 10 Sep 2026: ingestion active; the paid Scout pass is paused', 'The built path, its two human gates, and the gaps the current plan names.'],
+    blog: ['Blog path — content agent to Ghost draft', 'Separate pipeline: commit batch → content agent → marketer → Ghost', 'The blog crew remains dedicated to the predictor commit-history blog; its voice has not migrated to the bottle.'],
+    mvp: ['Editorial UI — proposed operating contract', 'Proposed, not deployed: durable routing, revisioned review and per-destination delivery', 'The UI specification defines the intended two-gate operation; open decisions D-04/05/06/07 still govern construction.']
+  };
+
+  const roleStageMap = {
+    Scout: [0, 1, 2],
+    Wire: [3],
+    Operator: [4, 6],
+    Writer: [5],
+    Release: [7]
+  };
+
+  let current = 0;
+  let selectedRole = null;
+  let showGaps = false;
+
+  const stageButtons = [...root.querySelectorAll('.nf-stage')];
+  const el = id => root.querySelector('#' + id);
+
+  function render() {
+    const stage = stages[current];
+    stageButtons.forEach((button, index) => {
+      if (index === current) button.setAttribute('aria-current', 'step');
+      else button.removeAttribute('aria-current');
+      button.dataset.complete = index < current ? 'true' : 'false';
+      button.dataset.dim = (selectedRole && !roleStageMap[selectedRole].includes(index)) || (showGaps && stageButtons[index] && stages[index].stateKey === 'built') ? 'true' : 'false';
+    });
+    el('nf-step-label').textContent = `Stage ${current + 1} · ${stage.kind}`;
+    el('nf-stage-title').textContent = stage.title;
+    el('nf-owner').textContent = `Owner: ${stage.owner}`;
+    el('nf-state-badge').textContent = stage.state;
+    el('nf-state-badge').dataset.state = stage.stateKey;
+    el('nf-input').textContent = stage.input;
+    el('nf-done').textContent = stage.done;
+    el('nf-next').textContent = stage.next;
+    el('nf-progress').textContent = `${current + 1} of ${stages.length}`;
+    el('nf-back').disabled = current === 0;
+    el('nf-next-button').textContent = current === stages.length - 1 ? 'Restart map' : 'Next stage';
+  }
+
+  stageButtons.forEach(button => button.addEventListener('click', () => {
+    current = Number(button.dataset.stage);
+    render();
+  }));
+
+  root.querySelectorAll('.nf-role').forEach(button => button.addEventListener('click', () => {
+    const nextRole = button.dataset.role;
+    selectedRole = selectedRole === nextRole ? null : nextRole;
+    root.querySelectorAll('.nf-role').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.role === selectedRole)));
+    el('nf-status-copy').textContent = selectedRole ? `${selectedRole} touches ${roleStageMap[selectedRole].length} stages` : workflowCopy[el('nf-workflow').value][1];
+    render();
+  }));
+
+  el('nf-back').addEventListener('click', () => {
+    current = Math.max(0, current - 1);
+    render();
+  });
+
+  el('nf-next-button').addEventListener('click', () => {
+    const previous = stages[current].title;
+    current = current === stages.length - 1 ? 0 : current + 1;
+    el('nf-handoff').textContent = current === 0 ? 'New ore can enter; editorial verdicts never feed back into Scout taste.' : `${previous} hands off to ${stages[current].title}.`;
+    render();
+  });
+
+  el('nf-workflow').addEventListener('change', event => {
+    const [title, status, subtitle] = workflowCopy[event.target.value];
+    el('nf-story-title').textContent = title;
+    el('nf-status-copy').textContent = status;
+    el('nf-view-subtitle').textContent = subtitle;
+    el('nf-handoff').textContent = '';
+  });
+
+  const viewCopy = {
+    flow: ['The field-note path', 'The built path, its two human gates, and the gaps the current plan names.'],
+    role: ['Responsibility by role', 'Choose a role below to reveal only the stages it owns.'],
+    status: ['Built versus next', 'Built behavior stays distinct from the proposed editorial UI and destination work.']
+  };
+
+  root.querySelectorAll('.nf-nav button').forEach(button => button.addEventListener('click', () => {
+    root.querySelectorAll('.nf-nav button').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    const bottleView = button.dataset.view === 'bottle';
+    el('nf-system-pane').hidden = bottleView;
+    el('nf-bottle-pane').hidden = !bottleView;
+    if (bottleView) {
+      el('nf-story-title').textContent = 'Voice bottle — written register enters the Writer at runtime';
+      return;
+    }
+    showGaps = button.dataset.view === 'status';
+    el('nf-story-title').textContent = workflowCopy[el('nf-workflow').value][0];
+    const [title, subtitle] = viewCopy[button.dataset.view];
+    el('nf-view-title').textContent = title;
+    el('nf-view-subtitle').textContent = subtitle;
+    if (button.dataset.view === 'role' && !selectedRole) root.querySelector('.nf-role').click();
+    if (button.dataset.view !== 'role') {
+      selectedRole = null;
+      root.querySelectorAll('.nf-role').forEach(item => item.setAttribute('aria-pressed', 'false'));
+    }
+    if (button.dataset.view === 'status') {
+      el('nf-status-copy').textContent = 'Gaps: durable decisions, approval enforcement, effective assignments and external delivery';
+    } else if (button.dataset.view === 'flow') {
+      const [storyTitle, status] = workflowCopy[el('nf-workflow').value];
+      el('nf-story-title').textContent = storyTitle;
+      el('nf-status-copy').textContent = status;
+    }
+    render();
+  }));
+
+  const bottleDetails = {
+    assignment: { label: 'Runtime input · assignment', state: 'Built', stateKey: 'built', title: 'Claimed lead', owner: 'pipelines/writer/assignment.py', input: 'The full lead: stable ID, pitch, why-now, type and source pointers', rule: 'A real run accepts claimed leads and drafted leads for redraft; dry-run can rehearse any status', boundary: 'The Writer reads the ledger’s current type directly. The proposed human override needs an effective-assignment projection.' },
+    shape: { label: 'System prompt · structure', state: 'Built', stateKey: 'built', title: 'Shape prompt', owner: 'agents/writer_agent.py', input: 'Three beats, 798–882 body characters, receipts as lists and the strict note JSON schema', rule: 'Shape belongs in the Writer prompt; the bottle carries sentence-level voice', boundary: 'Samples outrank written instructions. A shape change must re-cut every sample in the same change.' },
+    bottle: { label: 'Prompt input · profile', state: 'Built', stateKey: 'built', title: 'Voice profile', owner: 'voice/man-page-dry/', input: 'moves.md and two harvested JSON samples, loaded in sorted order', rule: 'Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.', boundary: 'An empty samples directory hard-fails instead of drafting voiceless.' },
+    evidence: { label: 'Tool loop · evidence', state: 'Built', stateKey: 'built', title: 'Convergent roam', owner: 'Writer using the Scout’s read tools', input: 'The assignment’s cited transcript, files and commits inside three registered roots', rule: 'Pull exactly the cited threads until the draft can be written from receipts, not vibes', boundary: 'Up to six tool rounds by default and a character cap; missing facts are researched further or written around, never invented.' },
+    seat: { label: 'Model call · production', state: 'Built · budget gap', stateKey: 'gap', title: 'Writer call', owner: 'Sonnet 5; Opus 5 on refusal', input: 'Stable system block (shape + bottle) plus the changing assignment and tool results', rule: 'Adaptive thinking may return a summary; truncation fails loudly; refusal retries once without tools', boundary: 'WRITER_MAX_COST_USD is parsed but not enforced in the current call path. Automatic drafting must not advertise it as a guarantee.' },
+    output: { label: 'Runtime output · parked', state: 'Built', stateKey: 'built', title: 'Banked note draft', owner: 'pipelines/writer/run.py', input: 'Strict note JSON from the model; cited sources are kept with the draft record', rule: 'Code adds copyDraft provenance, parks the artifact in gitignored state and marks the lead drafted', boundary: 'The Writer never touches HTML or publishes. The draft must still cross the separate scrub and human gate ②.' }
+  };
+
+  const profileCopy = {
+    note: { state: 'Built', stateKey: 'built', owner: 'voice/man-page-dry/', input: 'moves.md and two harvested JSON samples', rule: 'The only TYPE_PROFILES row is note → man-page-dry', boundary: 'This profile supplies voice to note bodies; shape remains in the Writer prompt.', message: 'Built today: note → man-page-dry → Writer → banked JSON draft.' },
+    doorway: { state: 'Blocked', stateKey: 'gap', owner: 'voice/doorway-warm/', input: 'moves.md exists; samples/ is empty', rule: 'Doorway-warm is intended for hooks, excerpts and per-platform titles — bodies never', boundary: 'The loader correctly hard-fails because a moves list without samples would deaden the voice.', message: 'Not runnable: doorway-warm has no samples, and it is not a body-writing profile.' },
+    blog: { state: 'Separate', stateKey: 'gap', owner: 'agents/content_agent.py → marketer → Ghost', input: 'Predictor commit batches enter the existing blog pipeline', rule: 'The blog crew remains dedicated to the predictor commit-history blog', boundary: 'Narrative voice has not been migrated into a bottle profile; do not depict the note Writer as producing this path.', message: 'Separate today: content agent → marketer → Ghost draft; bottle migration remains future work.' },
+    newsletter: { state: 'Not built', stateKey: 'proposed', owner: 'No Writer path or seeded profile', input: 'The intended newspaper-broadsheet profile has not been authored', rule: 'A voice the box has never spoken must be seeded, not harvested', boundary: 'No newsletter drafting path exists; the profile and sink must be built before this route can run.', message: 'Designed, not implemented: newsletter waits for a seeded voice profile and drafting path.' }
+  };
+
+  let activeBottle = 'bottle';
+  function renderBottle(key = activeBottle) {
+    activeBottle = key;
+    const detail = key === 'bottle' ? { ...bottleDetails.bottle, ...profileCopy[el('nf-profile-path').value] } : bottleDetails[key];
+    root.querySelectorAll('[data-bottle]').forEach(node => node.setAttribute('aria-pressed', String(node.dataset.bottle === key)));
+    el('nf-bottle-label').textContent = detail.label;
+    el('nf-bottle-state').textContent = detail.state;
+    el('nf-bottle-state').dataset.state = detail.stateKey;
+    el('nf-bottle-title').textContent = detail.title;
+    el('nf-bottle-owner').textContent = detail.owner;
+    el('nf-bottle-input').textContent = detail.input;
+    el('nf-bottle-rule').textContent = detail.rule;
+    el('nf-bottle-boundary').textContent = detail.boundary;
+  }
+
+  root.querySelectorAll('[data-bottle]').forEach(node => node.addEventListener('click', () => renderBottle(node.dataset.bottle)));
+  el('nf-profile-path').addEventListener('change', event => {
+    const profile = profileCopy[event.target.value];
+    el('nf-path-message').textContent = profile.message;
+    activeBottle = 'bottle';
+    renderBottle('bottle');
+  });
+
+  const design = { compact: false, showRoleRail: true, accent: '#d84a32' };
+  function applyDesign() {
+    root.dataset.compact = String(design.compact);
+    root.dataset.showRail = String(design.showRoleRail);
+    root.style.setProperty('--nf-accent', design.accent);
+  }
+  applyDesign();
+
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({ container: root, onChange: applyDesign });
+    tweak.addToggle(design, 'compact', { label: 'Compact density', reference: 'newsroom.compact' });
+    tweak.addToggle(design, 'showRoleRail', { label: 'Show view rail', reference: 'newsroom.showRoleRail' });
+    tweak.addColorPicker(design, 'accent', { label: 'Newsroom accent', reference: '--nf-accent' });
+  }
+
+  render();
+  renderBottle();
+})();
+</script>
