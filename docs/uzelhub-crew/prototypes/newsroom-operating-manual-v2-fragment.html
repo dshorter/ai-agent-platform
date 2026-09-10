@@ -483,6 +483,8 @@
     margin-top: 16px;
   }
 
+  #newsroom-operating-manual-v2 .nf-actions[hidden] { display: none; }
+
   #newsroom-operating-manual-v2 .nf-action {
     min-height: 39px;
     border: 1px solid var(--nf-line);
@@ -982,11 +984,11 @@
               <h3 id="nf-stage-title">Ingest ore</h3>
               <div class="nf-owner"><i data-lucide="user-round" aria-hidden="true"></i><span id="nf-owner">Owner: Scout intake</span></div>
               <dl class="nf-detail-grid">
-                <div class="nf-detail-item"><dt>Reads</dt><dd id="nf-input">Session logs; explicit walks can also read git, documents and ledgers</dd></div>
-                <div class="nf-detail-item"><dt>Writes</dt><dd id="nf-done">New session rows into scout_session_log; no model call</dd></div>
-                <div class="nf-detail-item"><dt>Guardrail</dt><dd id="nf-next">Capture is passive: ingestion never initiates synthesis or changes editorial state</dd></div>
+                <div class="nf-detail-item"><dt id="nf-input-label">Reads</dt><dd id="nf-input">Session logs; explicit walks can also read git, documents and ledgers</dd></div>
+                <div class="nf-detail-item"><dt id="nf-done-label">Writes</dt><dd id="nf-done">New session rows into scout_session_log; no model call</dd></div>
+                <div class="nf-detail-item"><dt id="nf-next-label">Guardrail</dt><dd id="nf-next">Capture is passive: ingestion never initiates synthesis or changes editorial state</dd></div>
               </dl>
-              <div class="nf-actions">
+              <div class="nf-actions" id="nf-detail-actions">
                 <button class="nf-action" id="nf-back" type="button">Previous</button>
                 <button class="nf-action nf-action-primary" id="nf-next-button" type="button">Next stage</button>
               </div>
@@ -1098,9 +1100,53 @@
     Release: [7]
   };
 
+  const roleDetails = {
+    Scout: {
+      label: 'Newsroom role · discovery',
+      title: 'Scout',
+      seat: 'Agent seat · touches 3 stages',
+      responsibility: 'Looks for stories in the server’s own working history: session logs, commits, operations ledgers, and the record of agent decisions.',
+      handoff: 'Append-only lead records with stable IDs, pitches, why-now arguments, source pointers, types, and agent spans → Wire Editor and Gate ①.',
+      guardrail: 'Scout memory maps where to look, but remains blind to downstream editorial verdicts so discovery does not learn to chase approval.'
+    },
+    Wire: {
+      label: 'Newsroom role · triage',
+      title: 'Wire Editor',
+      seat: 'Agent seat · touches 1 stage',
+      responsibility: 'Reads the pile of new leads and proposes a shortlist: claim, hold, or spike.',
+      handoff: 'A triage proposal with suggested type, reason, clusters, and chief shadow → Gate ①.',
+      guardrail: 'Triage is advice. The Wire Editor cannot mutate the lead ledger or make the routing decision.'
+    },
+    Editor: {
+      label: 'Newsroom role · authority',
+      title: 'Editor',
+      seat: 'Human seat · touches 2 stages',
+      responsibility: 'Decides what gets pursued and approves every word before it goes public.',
+      handoff: 'Gate ① produces the effective type and destination. Gate ② produces approval bound to the exact reviewed revision.',
+      guardrail: 'Final approval never moves to a machine. Automated findings inform the editor; they do not replace editorial judgment.'
+    },
+    Writer: {
+      label: 'Newsroom role · production',
+      title: 'Writer',
+      seat: 'Agent seat · touches 1 stage',
+      responsibility: 'Turns an approved lead into a draft in the register the piece calls for.',
+      handoff: 'A revisioned structured draft with evidence and copyDraft provenance → scrub and Gate ②.',
+      guardrail: 'The Writer has no voice of its own: it works from selected exemplars, and it cannot route, approve, publish, or alter presentation.'
+    },
+    Release: {
+      label: 'System role · delivery',
+      title: 'Release system',
+      seat: 'System function · touches 1 stage',
+      responsibility: 'Promotes an approved draft into the publication queue, stamps the release date, and renders the page deterministically.',
+      handoff: 'Queued publication record → released page with traceable provenance.',
+      guardrail: 'Promotion is not publication. Queued and released remain distinct states, and release cannot supply missing approval.'
+    }
+  };
+
   let current = 0;
   let selectedRole = stages[0].roles[0];
   let activeView = 'flow';
+  let detailMode = 'stage';
 
   const stageButtons = [...root.querySelectorAll('.nf-stage')];
   const el = id => root.querySelector('#' + id);
@@ -1111,6 +1157,36 @@
     });
   }
 
+  function renderStageDetail(stage) {
+    el('nf-step-label').textContent = `Stage ${current + 1} · ${stage.kind}`;
+    el('nf-stage-title').textContent = stage.title;
+    el('nf-owner').textContent = `Owner: ${stage.owner}`;
+    el('nf-input-label').textContent = 'Reads';
+    el('nf-done-label').textContent = 'Writes';
+    el('nf-next-label').textContent = 'Guardrail';
+    el('nf-input').textContent = stage.input;
+    el('nf-done').textContent = stage.done;
+    el('nf-next').textContent = stage.next;
+    el('nf-detail-actions').hidden = false;
+    el('nf-back').disabled = current === 0;
+    el('nf-next-button').textContent = current === stages.length - 1 ? 'Restart map' : 'Next stage';
+  }
+
+  function renderRoleDetail() {
+    const role = roleDetails[selectedRole];
+    el('nf-step-label').textContent = role.label;
+    el('nf-stage-title').textContent = role.title;
+    el('nf-owner').textContent = role.seat;
+    el('nf-input-label').textContent = 'Responsibility';
+    el('nf-done-label').textContent = 'Handoff';
+    el('nf-next-label').textContent = 'Guardrail';
+    el('nf-input').textContent = role.responsibility;
+    el('nf-done').textContent = role.handoff;
+    el('nf-next').textContent = role.guardrail;
+    el('nf-detail-actions').hidden = true;
+    el('nf-handoff').textContent = '';
+  }
+
   function render() {
     const stage = stages[current];
     stageButtons.forEach((button, index) => {
@@ -1118,23 +1194,19 @@
       else button.removeAttribute('aria-current');
       button.dataset.dim = activeView === 'role' && !roleStageMap[selectedRole].includes(index) ? 'true' : 'false';
     });
-    el('nf-step-label').textContent = `Stage ${current + 1} · ${stage.kind}`;
-    el('nf-stage-title').textContent = stage.title;
-    el('nf-owner').textContent = `Owner: ${stage.owner}`;
-    el('nf-input').textContent = stage.input;
-    el('nf-done').textContent = stage.done;
-    el('nf-next').textContent = stage.next;
+    if (activeView === 'role' && detailMode === 'role') renderRoleDetail();
+    else renderStageDetail(stage);
     el('nf-progress').textContent = `${current + 1} of ${stages.length}`;
-    el('nf-back').disabled = current === 0;
-    el('nf-next-button').textContent = current === stages.length - 1 ? 'Restart map' : 'Next stage';
     el('nf-status-copy').textContent = activeView === 'role'
-      ? `${selectedRole} touches ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? 'stage' : 'stages'}`
+      ? `${roleDetails[selectedRole].title} touches ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? 'stage' : 'stages'}`
       : `Selected stage role: ${selectedRole}`;
   }
 
   stageButtons.forEach(button => button.addEventListener('click', () => {
     current = Number(button.dataset.stage);
     selectedRole = stages[current].roles[0];
+    detailMode = 'stage';
+    el('nf-handoff').textContent = '';
     syncRoleButtons();
     render();
   }));
@@ -1142,6 +1214,7 @@
   root.querySelectorAll('.nf-role').forEach(button => button.addEventListener('click', () => {
     selectedRole = button.dataset.role;
     current = roleStageMap[selectedRole][0];
+    detailMode = activeView === 'role' ? 'role' : 'stage';
     syncRoleButtons();
     render();
   }));
@@ -1149,6 +1222,8 @@
   el('nf-back').addEventListener('click', () => {
     current = Math.max(0, current - 1);
     selectedRole = stages[current].roles[0];
+    detailMode = 'stage';
+    el('nf-handoff').textContent = '';
     syncRoleButtons();
     render();
   });
@@ -1157,6 +1232,7 @@
     const previous = stages[current].title;
     current = current === stages.length - 1 ? 0 : current + 1;
     selectedRole = stages[current].roles[0];
+    detailMode = 'stage';
     syncRoleButtons();
     el('nf-handoff').textContent = current === 0 ? 'New ore can enter; editorial verdicts never feed back into Scout taste.' : `${previous} hands off to ${stages[current].title}.`;
     render();
@@ -1183,6 +1259,7 @@
     el('nf-view-title').textContent = title;
     el('nf-view-subtitle').textContent = subtitle;
     selectedRole = stages[current].roles[0];
+    detailMode = activeView === 'role' ? 'role' : 'stage';
     syncRoleButtons();
     render();
   }));

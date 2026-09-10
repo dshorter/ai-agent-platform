@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
-<title>Newsroom Operating Manual V2 Fragment</title>
+<title>Newsroom interactive user manual</title>
 <style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
 </head>
 <body>
-<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Newsroom Operating Manual V2 Fragment" srcdoc="&lt;!doctype html&gt;
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Newsroom interactive user manual" srcdoc="&lt;!doctype html&gt;
 &lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
 &lt;head&gt;
 &lt;meta charset=&quot;utf-8&quot;&gt;
 &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
 &lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
 &lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
-&lt;title&gt;Newsroom Operating Manual V2 Fragment&lt;/title&gt;
+&lt;title&gt;Newsroom interactive user manual&lt;/title&gt;
 &lt;style&gt;:root {
   color-scheme: light dark;
   background-color: var(
@@ -1520,6 +1520,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     margin-top: 16px;
   }
 
+  #newsroom-operating-manual-v2 .nf-actions[hidden] { display: none; }
+
   #newsroom-operating-manual-v2 .nf-action {
     min-height: 39px;
     border: 1px solid var(--nf-line);
@@ -2019,11 +2021,11 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;h3 id=&quot;nf-stage-title&quot;&gt;Ingest ore&lt;/h3&gt;
               &lt;div class=&quot;nf-owner&quot;&gt;&lt;i data-lucide=&quot;user-round&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span id=&quot;nf-owner&quot;&gt;Owner: Scout intake&lt;/span&gt;&lt;/div&gt;
               &lt;dl class=&quot;nf-detail-grid&quot;&gt;
-                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt&gt;Reads&lt;/dt&gt;&lt;dd id=&quot;nf-input&quot;&gt;Session logs; explicit walks can also read git, documents and ledgers&lt;/dd&gt;&lt;/div&gt;
-                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt&gt;Writes&lt;/dt&gt;&lt;dd id=&quot;nf-done&quot;&gt;New session rows into scout_session_log; no model call&lt;/dd&gt;&lt;/div&gt;
-                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt&gt;Guardrail&lt;/dt&gt;&lt;dd id=&quot;nf-next&quot;&gt;Capture is passive: ingestion never initiates synthesis or changes editorial state&lt;/dd&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt id=&quot;nf-input-label&quot;&gt;Reads&lt;/dt&gt;&lt;dd id=&quot;nf-input&quot;&gt;Session logs; explicit walks can also read git, documents and ledgers&lt;/dd&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt id=&quot;nf-done-label&quot;&gt;Writes&lt;/dt&gt;&lt;dd id=&quot;nf-done&quot;&gt;New session rows into scout_session_log; no model call&lt;/dd&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt id=&quot;nf-next-label&quot;&gt;Guardrail&lt;/dt&gt;&lt;dd id=&quot;nf-next&quot;&gt;Capture is passive: ingestion never initiates synthesis or changes editorial state&lt;/dd&gt;&lt;/div&gt;
               &lt;/dl&gt;
-              &lt;div class=&quot;nf-actions&quot;&gt;
+              &lt;div class=&quot;nf-actions&quot; id=&quot;nf-detail-actions&quot;&gt;
                 &lt;button class=&quot;nf-action&quot; id=&quot;nf-back&quot; type=&quot;button&quot;&gt;Previous&lt;/button&gt;
                 &lt;button class=&quot;nf-action nf-action-primary&quot; id=&quot;nf-next-button&quot; type=&quot;button&quot;&gt;Next stage&lt;/button&gt;
               &lt;/div&gt;
@@ -2135,9 +2137,53 @@ html&gt;body{padding:0}&lt;/style&gt;
     Release: [7]
   };
 
+  const roleDetails = {
+    Scout: {
+      label: &#x27;Newsroom role · discovery&#x27;,
+      title: &#x27;Scout&#x27;,
+      seat: &#x27;Agent seat · touches 3 stages&#x27;,
+      responsibility: &#x27;Looks for stories in the server’s own working history: session logs, commits, operations ledgers, and the record of agent decisions.&#x27;,
+      handoff: &#x27;Append-only lead records with stable IDs, pitches, why-now arguments, source pointers, types, and agent spans → Wire Editor and Gate ①.&#x27;,
+      guardrail: &#x27;Scout memory maps where to look, but remains blind to downstream editorial verdicts so discovery does not learn to chase approval.&#x27;
+    },
+    Wire: {
+      label: &#x27;Newsroom role · triage&#x27;,
+      title: &#x27;Wire Editor&#x27;,
+      seat: &#x27;Agent seat · touches 1 stage&#x27;,
+      responsibility: &#x27;Reads the pile of new leads and proposes a shortlist: claim, hold, or spike.&#x27;,
+      handoff: &#x27;A triage proposal with suggested type, reason, clusters, and chief shadow → Gate ①.&#x27;,
+      guardrail: &#x27;Triage is advice. The Wire Editor cannot mutate the lead ledger or make the routing decision.&#x27;
+    },
+    Editor: {
+      label: &#x27;Newsroom role · authority&#x27;,
+      title: &#x27;Editor&#x27;,
+      seat: &#x27;Human seat · touches 2 stages&#x27;,
+      responsibility: &#x27;Decides what gets pursued and approves every word before it goes public.&#x27;,
+      handoff: &#x27;Gate ① produces the effective type and destination. Gate ② produces approval bound to the exact reviewed revision.&#x27;,
+      guardrail: &#x27;Final approval never moves to a machine. Automated findings inform the editor; they do not replace editorial judgment.&#x27;
+    },
+    Writer: {
+      label: &#x27;Newsroom role · production&#x27;,
+      title: &#x27;Writer&#x27;,
+      seat: &#x27;Agent seat · touches 1 stage&#x27;,
+      responsibility: &#x27;Turns an approved lead into a draft in the register the piece calls for.&#x27;,
+      handoff: &#x27;A revisioned structured draft with evidence and copyDraft provenance → scrub and Gate ②.&#x27;,
+      guardrail: &#x27;The Writer has no voice of its own: it works from selected exemplars, and it cannot route, approve, publish, or alter presentation.&#x27;
+    },
+    Release: {
+      label: &#x27;System role · delivery&#x27;,
+      title: &#x27;Release system&#x27;,
+      seat: &#x27;System function · touches 1 stage&#x27;,
+      responsibility: &#x27;Promotes an approved draft into the publication queue, stamps the release date, and renders the page deterministically.&#x27;,
+      handoff: &#x27;Queued publication record → released page with traceable provenance.&#x27;,
+      guardrail: &#x27;Promotion is not publication. Queued and released remain distinct states, and release cannot supply missing approval.&#x27;
+    }
+  };
+
   let current = 0;
   let selectedRole = stages[0].roles[0];
   let activeView = &#x27;flow&#x27;;
+  let detailMode = &#x27;stage&#x27;;
 
   const stageButtons = [...root.querySelectorAll(&#x27;.nf-stage&#x27;)];
   const el = id =&gt; root.querySelector(&#x27;#&#x27; + id);
@@ -2148,6 +2194,36 @@ html&gt;body{padding:0}&lt;/style&gt;
     });
   }
 
+  function renderStageDetail(stage) {
+    el(&#x27;nf-step-label&#x27;).textContent = `Stage ${current + 1} · ${stage.kind}`;
+    el(&#x27;nf-stage-title&#x27;).textContent = stage.title;
+    el(&#x27;nf-owner&#x27;).textContent = `Owner: ${stage.owner}`;
+    el(&#x27;nf-input-label&#x27;).textContent = &#x27;Reads&#x27;;
+    el(&#x27;nf-done-label&#x27;).textContent = &#x27;Writes&#x27;;
+    el(&#x27;nf-next-label&#x27;).textContent = &#x27;Guardrail&#x27;;
+    el(&#x27;nf-input&#x27;).textContent = stage.input;
+    el(&#x27;nf-done&#x27;).textContent = stage.done;
+    el(&#x27;nf-next&#x27;).textContent = stage.next;
+    el(&#x27;nf-detail-actions&#x27;).hidden = false;
+    el(&#x27;nf-back&#x27;).disabled = current === 0;
+    el(&#x27;nf-next-button&#x27;).textContent = current === stages.length - 1 ? &#x27;Restart map&#x27; : &#x27;Next stage&#x27;;
+  }
+
+  function renderRoleDetail() {
+    const role = roleDetails[selectedRole];
+    el(&#x27;nf-step-label&#x27;).textContent = role.label;
+    el(&#x27;nf-stage-title&#x27;).textContent = role.title;
+    el(&#x27;nf-owner&#x27;).textContent = role.seat;
+    el(&#x27;nf-input-label&#x27;).textContent = &#x27;Responsibility&#x27;;
+    el(&#x27;nf-done-label&#x27;).textContent = &#x27;Handoff&#x27;;
+    el(&#x27;nf-next-label&#x27;).textContent = &#x27;Guardrail&#x27;;
+    el(&#x27;nf-input&#x27;).textContent = role.responsibility;
+    el(&#x27;nf-done&#x27;).textContent = role.handoff;
+    el(&#x27;nf-next&#x27;).textContent = role.guardrail;
+    el(&#x27;nf-detail-actions&#x27;).hidden = true;
+    el(&#x27;nf-handoff&#x27;).textContent = &#x27;&#x27;;
+  }
+
   function render() {
     const stage = stages[current];
     stageButtons.forEach((button, index) =&gt; {
@@ -2155,23 +2231,19 @@ html&gt;body{padding:0}&lt;/style&gt;
       else button.removeAttribute(&#x27;aria-current&#x27;);
       button.dataset.dim = activeView === &#x27;role&#x27; &amp;&amp; !roleStageMap[selectedRole].includes(index) ? &#x27;true&#x27; : &#x27;false&#x27;;
     });
-    el(&#x27;nf-step-label&#x27;).textContent = `Stage ${current + 1} · ${stage.kind}`;
-    el(&#x27;nf-stage-title&#x27;).textContent = stage.title;
-    el(&#x27;nf-owner&#x27;).textContent = `Owner: ${stage.owner}`;
-    el(&#x27;nf-input&#x27;).textContent = stage.input;
-    el(&#x27;nf-done&#x27;).textContent = stage.done;
-    el(&#x27;nf-next&#x27;).textContent = stage.next;
+    if (activeView === &#x27;role&#x27; &amp;&amp; detailMode === &#x27;role&#x27;) renderRoleDetail();
+    else renderStageDetail(stage);
     el(&#x27;nf-progress&#x27;).textContent = `${current + 1} of ${stages.length}`;
-    el(&#x27;nf-back&#x27;).disabled = current === 0;
-    el(&#x27;nf-next-button&#x27;).textContent = current === stages.length - 1 ? &#x27;Restart map&#x27; : &#x27;Next stage&#x27;;
     el(&#x27;nf-status-copy&#x27;).textContent = activeView === &#x27;role&#x27;
-      ? `${selectedRole} touches ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? &#x27;stage&#x27; : &#x27;stages&#x27;}`
+      ? `${roleDetails[selectedRole].title} touches ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? &#x27;stage&#x27; : &#x27;stages&#x27;}`
       : `Selected stage role: ${selectedRole}`;
   }
 
   stageButtons.forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
     current = Number(button.dataset.stage);
     selectedRole = stages[current].roles[0];
+    detailMode = &#x27;stage&#x27;;
+    el(&#x27;nf-handoff&#x27;).textContent = &#x27;&#x27;;
     syncRoleButtons();
     render();
   }));
@@ -2179,6 +2251,7 @@ html&gt;body{padding:0}&lt;/style&gt;
   root.querySelectorAll(&#x27;.nf-role&#x27;).forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
     selectedRole = button.dataset.role;
     current = roleStageMap[selectedRole][0];
+    detailMode = activeView === &#x27;role&#x27; ? &#x27;role&#x27; : &#x27;stage&#x27;;
     syncRoleButtons();
     render();
   }));
@@ -2186,6 +2259,8 @@ html&gt;body{padding:0}&lt;/style&gt;
   el(&#x27;nf-back&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
     current = Math.max(0, current - 1);
     selectedRole = stages[current].roles[0];
+    detailMode = &#x27;stage&#x27;;
+    el(&#x27;nf-handoff&#x27;).textContent = &#x27;&#x27;;
     syncRoleButtons();
     render();
   });
@@ -2194,6 +2269,7 @@ html&gt;body{padding:0}&lt;/style&gt;
     const previous = stages[current].title;
     current = current === stages.length - 1 ? 0 : current + 1;
     selectedRole = stages[current].roles[0];
+    detailMode = &#x27;stage&#x27;;
     syncRoleButtons();
     el(&#x27;nf-handoff&#x27;).textContent = current === 0 ? &#x27;New ore can enter; editorial verdicts never feed back into Scout taste.&#x27; : `${previous} hands off to ${stages[current].title}.`;
     render();
@@ -2220,6 +2296,7 @@ html&gt;body{padding:0}&lt;/style&gt;
     el(&#x27;nf-view-title&#x27;).textContent = title;
     el(&#x27;nf-view-subtitle&#x27;).textContent = subtitle;
     selectedRole = stages[current].roles[0];
+    detailMode = activeView === &#x27;role&#x27; ? &#x27;role&#x27; : &#x27;stage&#x27;;
     syncRoleButtons();
     render();
   }));
