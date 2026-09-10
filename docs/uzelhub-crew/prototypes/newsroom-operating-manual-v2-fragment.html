@@ -457,14 +457,43 @@
     color: var(--nf-accent);
   }
 
-  #newsroom-operating-manual-v2 .nf-bottle-inputs {
+  #newsroom-operating-manual-v2 .nf-injection-map {
+    position: relative;
+    min-width: 0;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-groups {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-group { min-width: 0; }
+
+  #newsroom-operating-manual-v2 .nf-input-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 10px;
+    margin-bottom: 7px;
+    color: var(--nf-muted);
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-group-head strong {
+    color: var(--nf-ink);
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-stack {
+    display: grid;
+    gap: 8px;
   }
 
   #newsroom-operating-manual-v2 .nf-bottle-node {
-    min-height: 98px;
+    min-height: 82px;
     display: grid;
     grid-template-columns: 32px minmax(0, 1fr);
     grid-template-rows: auto auto;
@@ -499,29 +528,99 @@
   #newsroom-operating-manual-v2 .nf-node-title { font-size: 13px; font-weight: 500; }
   #newsroom-operating-manual-v2 .nf-node-copy { color: var(--nf-muted); font-size: 12px; line-height: 1.35; }
 
-  #newsroom-operating-manual-v2 .nf-converge {
-    display: grid;
-    justify-items: center;
-    gap: 7px;
-    margin: 13px 0;
-    color: var(--nf-muted);
-    font-size: 12px;
+  #newsroom-operating-manual-v2 .nf-funnel {
+    position: relative;
+    height: 172px;
+    margin: 10px 4% 0;
+    isolation: isolate;
   }
 
-  #newsroom-operating-manual-v2 .nf-converge svg { width: 20px; height: 20px; }
+  #newsroom-operating-manual-v2 .nf-funnel-lane {
+    position: absolute;
+    inset-block: 0;
+    width: 51%;
+    display: flex;
+    justify-content: center;
+    padding-top: 22px;
+    color: var(--nf-muted);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .055em;
+    text-align: center;
+    text-transform: uppercase;
+    transition: background 180ms ease, color 180ms ease;
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-lane-story {
+    left: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 78% 100%);
+    background: color-mix(in srgb, var(--nf-info) 13%, var(--nf-surface));
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-lane-system {
+    right: 0;
+    clip-path: polygon(0 0, 100% 0, 22% 100%, 0 100%);
+    background: color-mix(in srgb, var(--nf-accent) 13%, var(--nf-surface));
+  }
+
+  #newsroom-operating-manual-v2[data-compact="true"] .nf-funnel { height: 140px; }
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context="story"] .nf-funnel-lane-story {
+    background: color-mix(in srgb, var(--nf-info) 32%, var(--nf-surface));
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context="system"] .nf-funnel-lane-system,
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context="both"] .nf-funnel-lane-system {
+    background: color-mix(in srgb, var(--nf-accent) 32%, var(--nf-surface));
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context="both"] .nf-funnel-lane-story {
+    background: color-mix(in srgb, var(--nf-info) 32%, var(--nf-surface));
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-merge {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: 13px;
+    width: min(220px, 58%);
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    transform: translateX(-50%);
+    color: var(--nf-ink);
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-merge span {
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-merge strong {
+    font-size: 14px;
+    font-weight: 500;
+  }
 
   #newsroom-operating-manual-v2 .nf-writer-node {
-    width: 100%;
-    min-height: 68px;
+    position: relative;
+    z-index: 3;
+    width: min(450px, 82%);
+    min-height: 84px;
     display: grid;
     grid-template-columns: 40px minmax(0, 1fr) auto;
     align-items: center;
     gap: 11px;
-    padding: 12px 14px;
-    border: 0;
-    border-radius: 12px;
+    margin: -4px auto 0;
+    padding: 14px 18px;
+    border: 3px solid var(--nf-surface);
+    border-radius: 999px;
     background: var(--nf-ink);
     color: var(--nf-surface);
+    box-shadow: 0 0 0 1px var(--nf-line), 0 12px 28px light-dark(rgba(55, 45, 30, .13), rgba(0, 0, 0, .26));
     text-align: left;
     cursor: pointer;
   }
@@ -534,10 +633,35 @@
   #newsroom-operating-manual-v2 .nf-writer-node > span:nth-child(2) { display: grid; gap: 3px; }
   #newsroom-operating-manual-v2 .nf-writer-node .nf-node-copy { color: color-mix(in srgb, var(--nf-surface) 72%, transparent); }
   #newsroom-operating-manual-v2 .nf-writer-node > svg { width: 20px; height: 20px; }
+  #newsroom-operating-manual-v2 .nf-writer-node[aria-pressed="true"] { box-shadow: 0 0 0 3px var(--nf-accent), 0 12px 28px light-dark(rgba(55, 45, 30, .13), rgba(0, 0, 0, .26)); }
+
+  #newsroom-operating-manual-v2 .nf-output-channel {
+    position: relative;
+    height: 78px;
+    display: grid;
+    place-items: center;
+    color: var(--nf-muted);
+    font-size: 11px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-channel::before {
+    content: "";
+    width: 42px;
+    height: 66px;
+    clip-path: polygon(39% 0, 61% 0, 61% 68%, 100% 68%, 50% 100%, 0 68%, 39% 68%);
+    background: color-mix(in srgb, var(--nf-accent) 72%, var(--nf-ink));
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-channel span {
+    position: absolute;
+    left: calc(50% + 32px);
+    width: min(190px, 36%);
+    line-height: 1.3;
+  }
 
   #newsroom-operating-manual-v2 .nf-output-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr) 76px minmax(150px, .72fr);
     gap: 10px;
     align-items: stretch;
   }
@@ -558,6 +682,24 @@
     cursor: pointer;
   }
 
+  #newsroom-operating-manual-v2 .nf-output-node[aria-pressed="true"] {
+    border-color: var(--nf-accent);
+    box-shadow: inset 0 0 0 1px var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-review-link {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 4px;
+    color: var(--nf-muted);
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-review-link svg { width: 28px; height: 28px; color: var(--nf-accent); }
+
   #newsroom-operating-manual-v2 .nf-gate-next {
     min-width: 130px;
     display: grid;
@@ -565,7 +707,7 @@
     align-content: center;
     gap: 4px;
     padding: 10px;
-    border: 1px dashed var(--nf-line);
+    border: 1px solid var(--nf-line);
     border-radius: 11px;
     color: var(--nf-muted);
     font-size: 12px;
@@ -606,12 +748,23 @@
     #newsroom-operating-manual-v2 .nf-flow { grid-template-columns: repeat(2, 1fr); gap: 28px 18px; }
     #newsroom-operating-manual-v2 .nf-flow::before,
     #newsroom-operating-manual-v2 .nf-flow::after { display: none; }
-    #newsroom-operating-manual-v2 .nf-bottle-inputs { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-input-groups { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-funnel { height: 150px; margin-inline: 0; }
+    #newsroom-operating-manual-v2 .nf-funnel-lane {
+      padding-top: 16px;
+      font-size: 9px;
+      letter-spacing: .025em;
+      white-space: nowrap;
+    }
+    #newsroom-operating-manual-v2 .nf-writer-node { width: 94%; }
     #newsroom-operating-manual-v2 .nf-output-row { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-review-link svg { transform: rotate(90deg); }
+    #newsroom-operating-manual-v2 .nf-output-channel span { left: calc(50% + 28px); width: 40%; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    #newsroom-operating-manual-v2 .nf-stage-circle { transition: none; }
+    #newsroom-operating-manual-v2 .nf-stage-circle,
+    #newsroom-operating-manual-v2 .nf-funnel-lane { transition: none; }
   }
 </style>
 
@@ -732,36 +885,54 @@
             <section aria-label="Voice bottle inputs and draft output">
               <div class="nf-voice-definition"><i data-lucide="mic-off" aria-hidden="true"></i><span><strong>Voice here means written register, not recorded audio.</strong> The Writer receives the assignment, voice exemplars, and evidence as text.</span></div>
 
-              <div class="nf-bottle-inputs">
-                <button class="nf-bottle-node" type="button" data-bottle="assignment" aria-pressed="false">
-                  <span class="nf-node-icon"><i data-lucide="notebook-pen" aria-hidden="true"></i></span><span class="nf-node-title">Claimed lead</span><span class="nf-node-copy">ID, pitch, why-now, type, source pointers</span>
-                </button>
-                <button class="nf-bottle-node" type="button" data-bottle="shape" aria-pressed="false">
-                  <span class="nf-node-icon"><i data-lucide="ruler" aria-hidden="true"></i></span><span class="nf-node-title">Shape prompt</span><span class="nf-node-copy">Three beats, size contract, output schema</span>
-                </button>
-                <button class="nf-bottle-node" type="button" data-bottle="bottle" aria-pressed="true">
-                  <span class="nf-node-icon"><i data-lucide="flask-conical" aria-hidden="true"></i></span><span class="nf-node-title">Voice profile</span><span class="nf-node-copy">moves.md + sorted samples become exemplars</span>
-                </button>
-                <button class="nf-bottle-node" type="button" data-bottle="evidence" aria-pressed="false">
-                  <span class="nf-node-icon"><i data-lucide="search-check" aria-hidden="true"></i></span><span class="nf-node-title">Convergent roam</span><span class="nf-node-copy">Pull exactly the cited threads into receipts</span>
-                </button>
-              </div>
+              <div class="nf-injection-map" id="nf-injection-map" data-active-context="system">
+                <div class="nf-input-groups">
+                  <section class="nf-input-group" aria-label="Story-specific context">
+                    <div class="nf-input-group-head"><strong>Story context</strong><span>changes per lead</span></div>
+                    <div class="nf-input-stack">
+                      <button class="nf-bottle-node" type="button" data-bottle="assignment" aria-pressed="false">
+                        <span class="nf-node-icon"><i data-lucide="notebook-pen" aria-hidden="true"></i></span><span class="nf-node-title">Claimed lead</span><span class="nf-node-copy">What to write · ID, pitch, why-now, type</span>
+                      </button>
+                      <button class="nf-bottle-node" type="button" data-bottle="evidence" aria-pressed="false">
+                        <span class="nf-node-icon"><i data-lucide="search-check" aria-hidden="true"></i></span><span class="nf-node-title">Evidence roam</span><span class="nf-node-copy">What is true · cited threads become receipts</span>
+                      </button>
+                    </div>
+                  </section>
 
-              <div class="nf-converge"><i data-lucide="move-down" aria-hidden="true"></i><span>one stable system block + one changing assignment</span></div>
+                  <section class="nf-input-group" aria-label="Reusable system context">
+                    <div class="nf-input-group-head"><strong>System context</strong><span>reused across drafts</span></div>
+                    <div class="nf-input-stack">
+                      <button class="nf-bottle-node" type="button" data-bottle="shape" aria-pressed="false">
+                        <span class="nf-node-icon"><i data-lucide="ruler" aria-hidden="true"></i></span><span class="nf-node-title">Shape prompt</span><span class="nf-node-copy">What form · beats, size contract, schema</span>
+                      </button>
+                      <button class="nf-bottle-node" type="button" data-bottle="bottle" aria-pressed="true">
+                        <span class="nf-node-icon"><i data-lucide="flask-conical" aria-hidden="true"></i></span><span class="nf-node-title">Voice bottle</span><span class="nf-node-copy">How it sounds · moves + sorted exemplars</span>
+                      </button>
+                    </div>
+                  </section>
+                </div>
 
-              <button class="nf-writer-node" type="button" data-bottle="seat">
-                <span class="nf-node-icon"><i data-lucide="brain-circuit" aria-hidden="true"></i></span>
-                <span><span class="nf-node-title">Writer call</span><span class="nf-node-copy">Sonnet 5 · bounded tool rounds · Opus 5 only on refusal</span></span>
-                <i data-lucide="arrow-down" aria-hidden="true"></i>
-              </button>
+                <div class="nf-funnel" role="img" aria-label="Story context and reusable system context converge into one Writer call">
+                  <div class="nf-funnel-lane nf-funnel-lane-story"><span>lead + receipts</span></div>
+                  <div class="nf-funnel-lane nf-funnel-lane-system"><span>shape + voice</span></div>
+                  <div class="nf-funnel-merge"><span>same model context</span><strong>All four constraints present</strong></div>
+                </div>
 
-              <div class="nf-converge"><i data-lucide="move-down" aria-hidden="true"></i><span>strict structured output; provenance added by code</span></div>
-
-              <div class="nf-output-row">
-                <button class="nf-output-node" type="button" data-bottle="output">
-                  <span class="nf-node-icon"><i data-lucide="file-json" aria-hidden="true"></i></span><span class="nf-node-title">Banked draft</span><span class="nf-node-copy">Structured JSON + mechanical copyDraft stamp</span>
+                <button class="nf-writer-node" type="button" data-bottle="seat" aria-pressed="false">
+                  <span class="nf-node-icon"><i data-lucide="brain-circuit" aria-hidden="true"></i></span>
+                  <span><span class="nf-node-title">Writer synthesis</span><span class="nf-node-copy">One call composes form, register, assignment, and receipts</span></span>
+                  <i data-lucide="sparkles" aria-hidden="true"></i>
                 </button>
-                <div class="nf-gate-next"><span>then</span><strong>Gate ②</strong><span>scrub + human review</span></div>
+
+                <div class="nf-output-channel" aria-hidden="true"><span>strict structured output + provenance</span></div>
+
+                <div class="nf-output-row">
+                  <button class="nf-output-node" type="button" data-bottle="output" aria-pressed="false">
+                    <span class="nf-node-icon"><i data-lucide="file-json" aria-hidden="true"></i></span><span class="nf-node-title">Banked draft</span><span class="nf-node-copy">Structured JSON + mechanical copyDraft stamp</span>
+                  </button>
+                  <div class="nf-review-link" aria-hidden="true"><i data-lucide="arrow-right"></i><span>review boundary</span></div>
+                  <div class="nf-gate-next"><span>human authority</span><strong>Gate ②</strong><span>scrub + substantive review</span></div>
+                </div>
               </div>
               <p class="nf-path-message" id="nf-path-message">Assignment + shape + selected voice profile + evidence → Writer → banked draft → Gate ②.</p>
             </section>
@@ -896,10 +1067,19 @@
   const bottleDetails = {
     assignment: { label: 'Runtime input · assignment', title: 'Claimed lead', owner: 'pipelines/writer/assignment.py', input: 'The full lead: stable ID, pitch, why-now, type, and source pointers', rule: 'The effective assignment is the durable output of Gate ①', boundary: 'The Writer receives routing context but cannot change the routing decision.' },
     shape: { label: 'System prompt · structure', title: 'Shape prompt', owner: 'agents/writer_agent.py', input: 'Three beats, 798–882 body characters, receipts as lists, and the strict note JSON schema', rule: 'Shape belongs in the Writer prompt; the bottle carries sentence-level voice', boundary: 'Samples outrank written instructions. A shape change requires the exemplars to be re-cut with it.' },
-    bottle: { label: 'Prompt input · profile', title: 'Voice profile', owner: 'voice/man-page-dry/', input: 'moves.md and harvested JSON samples, loaded in sorted order', rule: 'Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.', boundary: 'An empty samples directory hard-fails instead of drafting without an established voice.' },
+    bottle: { label: 'Prompt input · profile', title: 'Voice bottle', owner: 'voice/man-page-dry/', input: 'moves.md and harvested JSON samples, loaded in sorted order', rule: 'Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.', boundary: 'An empty samples directory hard-fails instead of drafting without an established voice.' },
     evidence: { label: 'Tool loop · evidence', title: 'Convergent roam', owner: 'Writer using the Scout’s read tools', input: 'The assignment’s cited transcript, files, and commits inside registered roots', rule: 'Pull exactly the cited threads until the draft can be written from receipts, not vibes', boundary: 'Missing facts are researched further or written around, never invented.' },
     seat: { label: 'Model call · production', title: 'Writer call', owner: 'Writer model seat', input: 'Stable system block (shape + bottle), changing assignment, and tool results', rule: 'The model produces the note under the shape, voice, and evidence constraints', boundary: 'Truncation fails loudly; a refused call cannot silently become an incomplete draft.' },
     output: { label: 'Runtime output · parked', title: 'Banked draft', owner: 'pipelines/writer/run.py', input: 'Strict structured JSON from the model; cited sources remain attached to the draft record', rule: 'Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted', boundary: 'The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.' }
+  };
+
+  const bottleContext = {
+    assignment: 'story',
+    evidence: 'story',
+    shape: 'system',
+    bottle: 'system',
+    seat: 'both',
+    output: 'output'
   };
 
   let activeBottle = 'bottle';
@@ -907,6 +1087,7 @@
     activeBottle = key;
     const detail = bottleDetails[key];
     root.querySelectorAll('[data-bottle]').forEach(node => node.setAttribute('aria-pressed', String(node.dataset.bottle === key)));
+    el('nf-injection-map').dataset.activeContext = bottleContext[key];
     el('nf-bottle-label').textContent = detail.label;
     el('nf-bottle-title').textContent = detail.title;
     el('nf-bottle-owner').textContent = detail.owner;
