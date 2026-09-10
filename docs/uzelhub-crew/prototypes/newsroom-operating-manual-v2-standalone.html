@@ -1327,11 +1327,6 @@ html&gt;body{padding:0}&lt;/style&gt;
     color: var(--nf-accent-ink);
   }
 
-  #newsroom-operating-manual-v2 .nf-stage[data-complete=&quot;true&quot;] .nf-stage-circle {
-    border-color: var(--nf-accent);
-    color: var(--nf-accent);
-  }
-
   #newsroom-operating-manual-v2 .nf-stage[data-dim=&quot;true&quot;] { opacity: .3; }
   #newsroom-operating-manual-v2 .nf-stage svg { width: 21px; height: 21px; }
 
@@ -1695,7 +1690,7 @@ html&gt;body{padding:0}&lt;/style&gt;
           &lt;div class=&quot;nf-content&quot;&gt;
             &lt;section class=&quot;nf-canvas&quot; aria-label=&quot;Newsroom system stages&quot;&gt;
               &lt;div class=&quot;nf-status-line&quot;&gt;
-                &lt;span id=&quot;nf-status-copy&quot;&gt;Two explicit human decisions separate discovery, drafting, and release.&lt;/span&gt;
+                &lt;span id=&quot;nf-status-copy&quot;&gt;Selected stage owner: Scout&lt;/span&gt;
                 &lt;span class=&quot;nf-progress-text&quot; id=&quot;nf-progress&quot;&gt;1 of 8&lt;/span&gt;
               &lt;/div&gt;
 
@@ -1735,8 +1730,8 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;/div&gt;
 
               &lt;div class=&quot;nf-role-strip&quot; aria-label=&quot;Highlight role involvement&quot;&gt;
-                &lt;span&gt;Highlight role&lt;/span&gt;
-                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Scout&quot; aria-pressed=&quot;false&quot;&gt;Scout&lt;/button&gt;
+                &lt;span&gt;Stage owner&lt;/span&gt;
+                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Scout&quot; aria-pressed=&quot;true&quot;&gt;Scout&lt;/button&gt;
                 &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Wire&quot; aria-pressed=&quot;false&quot;&gt;Wire Editor&lt;/button&gt;
                 &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Operator&quot; aria-pressed=&quot;false&quot;&gt;Operator&lt;/button&gt;
                 &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Writer&quot; aria-pressed=&quot;false&quot;&gt;Writer&lt;/button&gt;
@@ -1848,18 +1843,24 @@ html&gt;body{padding:0}&lt;/style&gt;
   };
 
   let current = 0;
-  let selectedRole = null;
+  let selectedRole = stages[0].roles[0];
+  let activeView = &#x27;flow&#x27;;
 
   const stageButtons = [...root.querySelectorAll(&#x27;.nf-stage&#x27;)];
   const el = id =&gt; root.querySelector(&#x27;#&#x27; + id);
+
+  function syncRoleButtons() {
+    root.querySelectorAll(&#x27;.nf-role&#x27;).forEach(button =&gt; {
+      button.setAttribute(&#x27;aria-pressed&#x27;, String(button.dataset.role === selectedRole));
+    });
+  }
 
   function render() {
     const stage = stages[current];
     stageButtons.forEach((button, index) =&gt; {
       if (index === current) button.setAttribute(&#x27;aria-current&#x27;, &#x27;step&#x27;);
       else button.removeAttribute(&#x27;aria-current&#x27;);
-      button.dataset.complete = index &lt; current ? &#x27;true&#x27; : &#x27;false&#x27;;
-      button.dataset.dim = selectedRole &amp;&amp; !roleStageMap[selectedRole].includes(index) ? &#x27;true&#x27; : &#x27;false&#x27;;
+      button.dataset.dim = activeView === &#x27;role&#x27; &amp;&amp; !roleStageMap[selectedRole].includes(index) ? &#x27;true&#x27; : &#x27;false&#x27;;
     });
     el(&#x27;nf-step-label&#x27;).textContent = `Stage ${current + 1} · ${stage.kind}`;
     el(&#x27;nf-stage-title&#x27;).textContent = stage.title;
@@ -1870,29 +1871,37 @@ html&gt;body{padding:0}&lt;/style&gt;
     el(&#x27;nf-progress&#x27;).textContent = `${current + 1} of ${stages.length}`;
     el(&#x27;nf-back&#x27;).disabled = current === 0;
     el(&#x27;nf-next-button&#x27;).textContent = current === stages.length - 1 ? &#x27;Restart map&#x27; : &#x27;Next stage&#x27;;
+    el(&#x27;nf-status-copy&#x27;).textContent = activeView === &#x27;role&#x27;
+      ? `${selectedRole} owns ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? &#x27;stage&#x27; : &#x27;stages&#x27;}`
+      : `Selected stage owner: ${selectedRole}`;
   }
 
   stageButtons.forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
     current = Number(button.dataset.stage);
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     render();
   }));
 
   root.querySelectorAll(&#x27;.nf-role&#x27;).forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
-    const nextRole = button.dataset.role;
-    selectedRole = selectedRole === nextRole ? null : nextRole;
-    root.querySelectorAll(&#x27;.nf-role&#x27;).forEach(item =&gt; item.setAttribute(&#x27;aria-pressed&#x27;, String(item.dataset.role === selectedRole)));
-    el(&#x27;nf-status-copy&#x27;).textContent = selectedRole ? `${selectedRole} touches ${roleStageMap[selectedRole].length} stages` : &#x27;Two explicit human decisions separate discovery, drafting, and release.&#x27;;
+    selectedRole = button.dataset.role;
+    current = roleStageMap[selectedRole][0];
+    syncRoleButtons();
     render();
   }));
 
   el(&#x27;nf-back&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
     current = Math.max(0, current - 1);
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     render();
   });
 
   el(&#x27;nf-next-button&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
     const previous = stages[current].title;
     current = current === stages.length - 1 ? 0 : current + 1;
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     el(&#x27;nf-handoff&#x27;).textContent = current === 0 ? &#x27;New ore can enter; editorial verdicts never feed back into Scout taste.&#x27; : `${previous} hands off to ${stages[current].title}.`;
     render();
   });
@@ -1911,16 +1920,13 @@ html&gt;body{padding:0}&lt;/style&gt;
       el(&#x27;nf-story-title&#x27;).textContent = &#x27;Voice bottle — written register enters the Writer at runtime&#x27;;
       return;
     }
+    activeView = button.dataset.view;
     el(&#x27;nf-story-title&#x27;).textContent = &#x27;Newsroom system — evidence to published work&#x27;;
     const [title, subtitle] = viewCopy[button.dataset.view];
     el(&#x27;nf-view-title&#x27;).textContent = title;
     el(&#x27;nf-view-subtitle&#x27;).textContent = subtitle;
-    if (button.dataset.view === &#x27;role&#x27; &amp;&amp; !selectedRole) root.querySelector(&#x27;.nf-role&#x27;).click();
-    if (button.dataset.view !== &#x27;role&#x27;) {
-      selectedRole = null;
-      root.querySelectorAll(&#x27;.nf-role&#x27;).forEach(item =&gt; item.setAttribute(&#x27;aria-pressed&#x27;, &#x27;false&#x27;));
-    }
-    if (button.dataset.view === &#x27;flow&#x27;) el(&#x27;nf-status-copy&#x27;).textContent = &#x27;Two explicit human decisions separate discovery, drafting, and release.&#x27;;
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     render();
   }));
 
@@ -1963,6 +1969,7 @@ html&gt;body{padding:0}&lt;/style&gt;
     tweak.addColorPicker(design, &#x27;accent&#x27;, { label: &#x27;Newsroom accent&#x27;, reference: &#x27;--nf-accent&#x27; });
   }
 
+  syncRoleButtons();
   render();
   renderBottle();
 })();

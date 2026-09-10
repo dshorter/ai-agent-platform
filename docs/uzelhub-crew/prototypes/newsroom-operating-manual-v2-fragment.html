@@ -290,11 +290,6 @@
     color: var(--nf-accent-ink);
   }
 
-  #newsroom-operating-manual-v2 .nf-stage[data-complete="true"] .nf-stage-circle {
-    border-color: var(--nf-accent);
-    color: var(--nf-accent);
-  }
-
   #newsroom-operating-manual-v2 .nf-stage[data-dim="true"] { opacity: .3; }
   #newsroom-operating-manual-v2 .nf-stage svg { width: 21px; height: 21px; }
 
@@ -658,7 +653,7 @@
           <div class="nf-content">
             <section class="nf-canvas" aria-label="Newsroom system stages">
               <div class="nf-status-line">
-                <span id="nf-status-copy">Two explicit human decisions separate discovery, drafting, and release.</span>
+                <span id="nf-status-copy">Selected stage owner: Scout</span>
                 <span class="nf-progress-text" id="nf-progress">1 of 8</span>
               </div>
 
@@ -698,8 +693,8 @@
               </div>
 
               <div class="nf-role-strip" aria-label="Highlight role involvement">
-                <span>Highlight role</span>
-                <button class="nf-role" type="button" data-role="Scout" aria-pressed="false">Scout</button>
+                <span>Stage owner</span>
+                <button class="nf-role" type="button" data-role="Scout" aria-pressed="true">Scout</button>
                 <button class="nf-role" type="button" data-role="Wire" aria-pressed="false">Wire Editor</button>
                 <button class="nf-role" type="button" data-role="Operator" aria-pressed="false">Operator</button>
                 <button class="nf-role" type="button" data-role="Writer" aria-pressed="false">Writer</button>
@@ -811,18 +806,24 @@
   };
 
   let current = 0;
-  let selectedRole = null;
+  let selectedRole = stages[0].roles[0];
+  let activeView = 'flow';
 
   const stageButtons = [...root.querySelectorAll('.nf-stage')];
   const el = id => root.querySelector('#' + id);
+
+  function syncRoleButtons() {
+    root.querySelectorAll('.nf-role').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.role === selectedRole));
+    });
+  }
 
   function render() {
     const stage = stages[current];
     stageButtons.forEach((button, index) => {
       if (index === current) button.setAttribute('aria-current', 'step');
       else button.removeAttribute('aria-current');
-      button.dataset.complete = index < current ? 'true' : 'false';
-      button.dataset.dim = selectedRole && !roleStageMap[selectedRole].includes(index) ? 'true' : 'false';
+      button.dataset.dim = activeView === 'role' && !roleStageMap[selectedRole].includes(index) ? 'true' : 'false';
     });
     el('nf-step-label').textContent = `Stage ${current + 1} · ${stage.kind}`;
     el('nf-stage-title').textContent = stage.title;
@@ -833,29 +834,37 @@
     el('nf-progress').textContent = `${current + 1} of ${stages.length}`;
     el('nf-back').disabled = current === 0;
     el('nf-next-button').textContent = current === stages.length - 1 ? 'Restart map' : 'Next stage';
+    el('nf-status-copy').textContent = activeView === 'role'
+      ? `${selectedRole} owns ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? 'stage' : 'stages'}`
+      : `Selected stage owner: ${selectedRole}`;
   }
 
   stageButtons.forEach(button => button.addEventListener('click', () => {
     current = Number(button.dataset.stage);
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     render();
   }));
 
   root.querySelectorAll('.nf-role').forEach(button => button.addEventListener('click', () => {
-    const nextRole = button.dataset.role;
-    selectedRole = selectedRole === nextRole ? null : nextRole;
-    root.querySelectorAll('.nf-role').forEach(item => item.setAttribute('aria-pressed', String(item.dataset.role === selectedRole)));
-    el('nf-status-copy').textContent = selectedRole ? `${selectedRole} touches ${roleStageMap[selectedRole].length} stages` : 'Two explicit human decisions separate discovery, drafting, and release.';
+    selectedRole = button.dataset.role;
+    current = roleStageMap[selectedRole][0];
+    syncRoleButtons();
     render();
   }));
 
   el('nf-back').addEventListener('click', () => {
     current = Math.max(0, current - 1);
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     render();
   });
 
   el('nf-next-button').addEventListener('click', () => {
     const previous = stages[current].title;
     current = current === stages.length - 1 ? 0 : current + 1;
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     el('nf-handoff').textContent = current === 0 ? 'New ore can enter; editorial verdicts never feed back into Scout taste.' : `${previous} hands off to ${stages[current].title}.`;
     render();
   });
@@ -874,16 +883,13 @@
       el('nf-story-title').textContent = 'Voice bottle — written register enters the Writer at runtime';
       return;
     }
+    activeView = button.dataset.view;
     el('nf-story-title').textContent = 'Newsroom system — evidence to published work';
     const [title, subtitle] = viewCopy[button.dataset.view];
     el('nf-view-title').textContent = title;
     el('nf-view-subtitle').textContent = subtitle;
-    if (button.dataset.view === 'role' && !selectedRole) root.querySelector('.nf-role').click();
-    if (button.dataset.view !== 'role') {
-      selectedRole = null;
-      root.querySelectorAll('.nf-role').forEach(item => item.setAttribute('aria-pressed', 'false'));
-    }
-    if (button.dataset.view === 'flow') el('nf-status-copy').textContent = 'Two explicit human decisions separate discovery, drafting, and release.';
+    selectedRole = stages[current].roles[0];
+    syncRoleButtons();
     render();
   }));
 
@@ -926,6 +932,7 @@
     tweak.addColorPicker(design, 'accent', { label: 'Newsroom accent', reference: '--nf-accent' });
   }
 
+  syncRoleButtons();
   render();
   renderBottle();
 })();
