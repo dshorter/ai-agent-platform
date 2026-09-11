@@ -29,7 +29,9 @@ HTML (the generator's). A dry run rehearses on a lead of any status and
 persists nothing. Verb: `python -m pipelines.writer --lead <id>`
 (`--dry-run`; `--list` shows the claimed leads the note desk can draft).
 
-The type selects everything else:
+The type selects the drafting path, voice profile and output shape below.
+Syndication destinations are independent; see spec-content-types.md
+§Content type and destination. A destination choice does not change the type.
 
 | type | path | profile | output |
 |---|---|---|---|

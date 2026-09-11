@@ -43,10 +43,13 @@ as a description, not a rule, and never read its silence as permission. An
 | **What the box has taught us — principles, with receipts** | `/opt/_host/PRINCIPLES.md` (`read: full`). Start here when a change feels like it might be deciding something. |
 | The whole box — layout, ports, databases, overlaps | `/opt/_host/README.md` (`read: full`; _host has **no remote**, never add one) |
 | What actually runs, verified against timers and tables | `ops/desk/agent-roster.html` |
+| **Newsroom: documentation entry point (added 2026-09-10)** | [Crew documentation index](docs/uzelhub-crew/README.md#newsroom-start-here) — routes to the working plan, proposed UI spec, paused-Scout audit, verbatim critique and merge history. Start with the plan; read the relevant spec and evidence before changing its boundary. |
 | **Newsroom vocabulary — one word per concept** | `docs/uzelhub-crew/GLOSSARY.md` (`read: reference`). Type, register, stance, source, citations. When two docs use a word differently, this file is current. |
 | **Newsroom: the current rule, per desk (rewritable specs)** | `docs/uzelhub-crew/spec-content-types.md`, `spec-scout.md`, `spec-wire-editor.md`, `spec-writer.md` (`read: full`, each short). A rule is stated once, here; prompts and code follow it. Where a spec and the code disagree, fix one the same day and say which. |
 | Newsroom: the design's reasoning and history | `docs/uzelhub-crew/NEWSROOM.md` — thesis, three altitudes, org chart, the pineapple essay, reuse-versus-fork, the one real fork, open choices. Seven sections that now have a spec were cut to pointers 2026-09-06 (762 lines to 455); each pointer names the reasoning it held. Read it for *why*, never for the current rule. |
-| The next session's runbook (unify, rename, reset, run end to end) | `docs/uzelhub-crew/plan-2026-09-07-unify-and-reset.md` |
+| **Newsroom: current construction leg — read before starting or resuming work** | [NEWSROOM-WORKPLAN.md](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md) — current task, dependencies, completion evidence and dated changes. Working draft pending finalization; its decision table distinguishes settled policy from open choices. The 2026-09-07 unify-and-reset plan is completed history. |
+| Newsroom: proposed editorial UI MVP (added 2026-09-09) | [spec-editorial-ui-mvp.md](docs/uzelhub-crew/spec-editorial-ui-mvp.md) (`read: full`) — routing, review, refresh, durable decisions and delivery acceptance for the existing work-plan tasks. Proposed requirements, not implemented behavior; interaction and storage choices are tracked in the work plan. |
+| Newsroom: paused-Scout integration evidence (added 2026-09-10) | [scout-ui-compatibility-2026-09-10.md](docs/uzelhub-crew/scout-ui-compatibility-2026-09-10.md) (`read: full`) — actual pause/ingestion behavior, record/reader gaps, review lifecycle, budgets and access checks. Read before connecting the UI, changing the lead store or considering resumption; dated observations require rechecking for execution. |
 | Calendar helpers, namespaces, verbs | `ops/CALENDAR.md` |
 | SEO across apex/blog/corpus/syndication | `/opt/_host/SEO.md` (`read: full`) |
 | Director's own memory across runs | `docs/director/director-ledger.md` |
@@ -149,5 +152,15 @@ casts a vote without anyone noticing. These are open:
   four `spec-*.md` files are rewritable** — edit in place, date the commit,
   no correction strata. They hold the current rule; history lives everywhere
   else.
+- **Operator-requested exception (2026-09-09): `NEWSROOM-WORKPLAN.md` is a
+  working, updatable document.** Update its current state in place; preserve
+  scope, order, dependency and acceptance changes in its dated change record.
+  Read it at session start, identify the active task ID, and update its evidence
+  and next action before handing off. The verbatim critique and dated planning
+  history are not rewritten as substitutes for maintaining this board.
 - Operator/sudo work ships as a runnable script — backup, validate, self-verify,
   restore on failure — never as a config paste.
+- **Operator clarification (2026-09-10): replaced documents may be marked
+  superseded.** Name the replacement, date and scope of supersession at the
+  top; preserve the historical body. A completed runbook is not a new-session
+  instruction. The verbatim critique remains an unchanged historical artifact.

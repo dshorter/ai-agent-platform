@@ -5,6 +5,12 @@ status: REASONING AND HISTORY, not the current rule — seven sections cut to sp
 
 # The Newsroom — content architecture (living sketch, ongoing)
 
+> **Navigation added 2026-09-10:** the [documentation index](README.md#newsroom-start-here)
+> links the recent critique, merge rationale, proposed UI specification and
+> paused-Scout audit. Read [NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md) for
+> the current construction leg and decision status. This document remains the
+> design's reasoning and history.
+
 > Formerly "The Reporter Flywheel" — renamed 2026-07-08 once the doc outgrew
 > both words (it's the whole content operation now — roles, content types, SEO —
 > not one agent or one loop). The flywheel is one mechanism inside it.

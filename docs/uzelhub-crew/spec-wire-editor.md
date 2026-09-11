@@ -5,6 +5,12 @@ status: CURRENT SPEC, rewritable — the triage desk as it should run, 2026-09-0
 
 # The Wire Editor — current spec
 
+**Destination policy, 2026-09-09:** spec-content-types.md §Content type and
+destination separates the Scout's type and destination recommendations, both
+subject to the operator's override at gate ①. Wire advice must preserve that
+distinction and attribution; it never makes the binding choice. Explicit
+destination fields and consumers are pending NR-09 in NEWSROOM-WORKPLAN.md.
+
 <!-- MAP:START -->
 - [One pass](#one-pass)
 - [Verdicts](#verdicts)

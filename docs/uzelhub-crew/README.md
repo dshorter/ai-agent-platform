@@ -1,4 +1,50 @@
+---
+read: reference
+status: DOCUMENTATION INDEX — navigation updated 2026-09-10. NEWSROOM-WORKPLAN.md owns the current construction leg; proposed specs and dated evidence are distinguished below. The earlier overview is retained as history.
+---
+
 # Uzelhub Crew — Documentation
+
+## Newsroom start here
+
+**Navigation update, 2026-09-10:** start with the work plan before beginning or
+resuming NEWSROOM work. Read the linked specification for the task, then the
+audit or history explaining it. Only the work plan maintains task status and
+the accepted sequence; its baseline remains pending finalization.
+
+| Document | Role / when to read |
+|---|---|
+| **[NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md)** | Current working plan: goal, settled/open decisions, stable NR task IDs, dependencies, completion evidence, change record and current handoff. |
+| **[Editorial UI MVP specification](spec-editorial-ui-mvp.md)** | Proposed requirements and acceptance for routing, review, refresh, approval and delivery. Read before changing the desks or their decision paths. |
+| **[Paused Scout/UI compatibility audit — September 10](scout-ui-compatibility-2026-09-10.md)** | Dated checks of the real paused flow and its producer/consumer boundaries. Read before connecting UI actions, changing storage or considering Scout resumption. |
+| [Next-leg merge rationale — September 9](plan-2026-09-09-next-leg.md) | Superseded as a work plan; retained bridge from the original eight follow-up items to the critique and publishing goal. The dated type/destination correction is part of this record. |
+| [Verbatim design critique — September 8](newsroom-design-critique-2026-09-08.md) | Preserved evaluation of the journey, construction and comparable products. Read for the assessment that motivated this leg; later decisions live in the work plan/specs. Keep this artifact unchanged. |
+
+The current editorial rules remain in [content types](spec-content-types.md),
+[Scout](spec-scout.md), [Wire Editor](spec-wire-editor.md) and
+[Writer](spec-writer.md), with terms in [GLOSSARY.md](GLOSSARY.md).
+[NEWSROOM.md](NEWSROOM.md) carries the design's reasoning and history.
+[AGENTS.md](../../AGENTS.md) routes shared-boundary decisions, including SEO
+and database authorities.
+
+The preceding construction leg is recorded in the
+[completed September 7 plan](plan-2026-09-07-unify-and-reset.md) and
+[window 3 handoff](handoff-2026-09-07-window-3.md).
+The September 7 runbook and [July publishing roadmap](publishing-automation-plan.md)
+are explicitly marked superseded for current construction; their history remains.
+
+**Maintaining discovery:** when adding a NEWSROOM plan, spec or review, add a
+descriptive link here and link it from its owning work-plan task or relevant
+authority. Mark whether it is current policy, proposed work or dated evidence.
+Keep decision/task status in its owner rather than copying it into indexes.
+
+## Earlier overview and operating index
+
+**Retained context, labeled 2026-09-10:** the overview and index below describe
+earlier blog/newsroom work. Their “active forward roadmap” labels and July
+Scout/A/B notes do not establish the current construction sequence or runtime
+state. Use the start-here routes above for this leg; the older roadmaps remain
+available for their scope and reasoning.
 
 The Uzelhub Crew is the agent system that turns commits from `predictor_ingest` into blog drafts in Dan's voice and publishes them to Ghost (`blog.uzelhub.com`) for Blog Director review.
 
@@ -13,7 +59,7 @@ Read these when doing ongoing work.
 - **[blog-director-checklist.md](blog-director-checklist.md)** — per-draft review attentions. What to notice when a draft lands in Ghost. The attention checklist, not a rubric.
 - **[prompt-tuning.md](prompt-tuning.md)** — running log of observations across drafts, plus the operating principles for *when* to tune (don't edit the prompt after one good sample) and Sprint One+ backlogs (corpus-level analysis, mermaid diagram support).
 - **[crawl-to-publish-plan.md](crawl-to-publish-plan.md)** — the active forward roadmap for the **Ghost/blog track**: pre-crawl prep → backlog crawl → analytical surface → Blog Director review → publish infrastructure → drip operate. Follow the sequence; reordering creates blocking dependencies.
-- **[publishing-automation-plan.md](publishing-automation-plan.md)** (`read: full`) — the active forward roadmap for the **notes/newsroom track** (opened 2026-07-18): ledger lifecycle states → Director editorial pass → Writer tuning → scrub pre-flight → one-command publish → syndication APIs. Same sequencing rule; also names the deliberate human gates that are never phases.
+- **[publishing-automation-plan.md](publishing-automation-plan.md)** (`read: full`) — **superseded as the active notes/newsroom roadmap, 2026-09-10**, by [NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md). Retains the July 18 phases, gates and reasoning behind lifecycle, editorial assistance, Writer tuning, scrub, release and syndication work.
 - **Scout leads** — `pipelines/scout/state/leads.yaml`, the Scout's story queue (v1, shipped 2026-07-12). **Local-only, deliberately not committed:** this repo's origin is public, and leads are transcript-derived — the redaction gate (NEWSROOM, absolute) forbids publishing them unscrubbed. The Scout appends `status: new` leads; the Editor (operator today) flips to `claimed`/`spiked`. Spikes are never fed back to the Scout (pineapple rule). Runs daily at 05:45 via `scout-pass.timer` (root: ingestion reads the 0600 session logs); manually: `python -m pipelines.scout --pass` (`--dry-run` rehearses without consuming coverage). Synthesis has a bounded read-only roam (Director's ToolBox + `read_transcript`) — where it digs is its own call, and the `tool_calls` trace in `agent_decisions` records the foraging. **A/B in flight:** week of 07-13 on Fable 5, week of 07-19 on Sonnet 5, readout 07-26 (VTODOs on the ops calendar; operator judges lead quality).
 
 The first two are paired: per-draft notable moments get logged from the checklist into prompt-tuning.md; tuning decisions emerge from patterns in the log, not single drafts. The third is the implementation roadmap that connects them at scale.

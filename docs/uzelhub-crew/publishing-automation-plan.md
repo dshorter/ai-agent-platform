@@ -1,9 +1,29 @@
 ---
 read: full
-status: active roadmap (opened 2026-07-18 from the gap analysis of that date); sibling to crawl-to-publish-plan.md (that doc = the Ghost/blog track; this doc = the notes/newsroom track)
+status: SUPERSEDED as the active notes/newsroom construction roadmap by NEWSROOM-WORKPLAN.md, marked 2026-09-10. Opened 2026-07-18; historical phases and reasoning retained. Current editorial rules live in the desk specs; the separate Ghost/blog roadmap is not superseded by this notice.
 ---
 
 # Publishing-Automation Plan — the notes/newsroom track
+
+> **Superseded — 2026-09-10.** This was the active roadmap opened July 18.
+> Use [NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md) for the current construction
+> sequence, decisions and completion criteria, and the
+> [documentation index](README.md#newsroom-start-here) for the current specs
+> and supporting reviews. The phases and “follow the sequence” instruction
+> below are retained history. Their relevant work has been reconciled into
+> the current leg; remaining ideas require explicit scope there.
+
+<!-- MAP:START -->
+- [Phase 1 — Ledger lifecycle states ✅ BUILT 2026-07-18](#phase-1--ledger-lifecycle-states--built-2026-07-18)
+- [Phase 2 — The Wire Editor (hired 2026-07-18) ✅ BUILT 2026-07-18, first pass run](#phase-2--the-wire-editor-hired-2026-07-18--built-2026-07-18-first-pass-run)
+  - [Gate-① shadow mode + migration milestone (operator, 2026-07-18)](#gate-①-shadow-mode--migration-milestone-operator-2026-07-18)
+- [Phase 3 — Writer tuning batch (parallel-safe)](#phase-3--writer-tuning-batch-parallel-safe)
+- [Phase 4 — Scrub pre-flight (assist, not gate)](#phase-4--scrub-pre-flight-assist-not-gate)
+- [Phase 5 — One-command publish](#phase-5--one-command-publish)
+- [Phase 6 — Syndication API legs](#phase-6--syndication-api-legs)
+- [Fixed point already on the calendar](#fixed-point-already-on-the-calendar)
+- [Parked (this track)](#parked-this-track)
+<!-- MAP:END -->
 
 The build order that closes the gaps between "one field note hand-shepherded
 through the pipeline" and steady-state publishing. Captured here so picking up
