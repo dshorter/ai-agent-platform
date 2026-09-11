@@ -4,6 +4,15 @@
 
 A code-first agent platform built on the Claude Agent SDK, Postgres, and Docker. Designed to host multiple pipelines (commit-to-blog, monitoring, scheduling) against multiple targets under one observability spine.
 
+**Documentation routes — updated 2026-09-10:** [AGENTS.md](AGENTS.md) identifies
+the authorities to read before changing shared boundaries. For NEWSROOM, use
+the [consolidated system specification](docs/uzelhub-crew/NEWSROOM-SPEC.md),
+[current working plan](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md) and
+[documentation index](docs/uzelhub-crew/README.md#newsroom-start-here).
+The spec includes the proposed UI contract with its decision state preserved;
+the index links source snapshots, audits, critique and merge history. The scaffolding-era status descriptions below are historical context
+for NEWSROOM; they do not replace the current plan.
+
 ---
 
 ## Current tenants
@@ -30,7 +39,8 @@ The HVAC work is preserved in-repo — schema, workflows, and portfolio pages ar
 
 Crawls `predictor_ingest` commit history, clusters commits into story batches, drafts posts in Dan Uzel's voice via a Content agent, packages them with SEO via a Marketer agent, and POSTs to Ghost as drafts for Blog Director review.
 
-Design details: [`docs/uzelhub-crew/sprint-zero-kickoff.md`](docs/uzelhub-crew/sprint-zero-kickoff.md).
+Design details: [archived Sprint Zero kickoff](docs/uzelhub-crew/archive/sprint-zero-kickoff.md).
+Archive link corrected 2026-09-10.
 
 Key modules:
 - `agents/content_agent.py` — voice writer (Sonnet)
@@ -128,7 +138,8 @@ ai-agent-platform/
 
 ## Documentation
 
-- **Platform kickoff and design** — [`docs/uzelhub-crew/sprint-zero-kickoff.md`](docs/uzelhub-crew/sprint-zero-kickoff.md)
+- **NEWSROOM specification and current work** — [system specification](docs/uzelhub-crew/NEWSROOM-SPEC.md), [working plan](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md), [documentation index](docs/uzelhub-crew/README.md#newsroom-start-here) (consolidated 2026-09-10)
+- **Platform kickoff and design (historical)** — [archived Sprint Zero kickoff](docs/uzelhub-crew/archive/sprint-zero-kickoff.md) (archive link corrected 2026-09-10)
 - **Database setup and migration** — [`database/README.md`](database/README.md)
 - **HVAC test-case docs (archived reference)** — [`docs/`](docs/) (folders `00-hopper` through `05-development`)
 

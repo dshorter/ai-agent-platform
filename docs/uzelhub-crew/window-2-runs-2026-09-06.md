@@ -241,5 +241,3 @@ demonstration that the scrub before gate ② is not ceremonial.
 The budget held **because** the Wire Editor's live pass was skipped. Run it and
 the cycle is $1.21. That is the trade, stated plainly: the plan's command list
 and the plan's acceptance could not both be satisfied.
-
-

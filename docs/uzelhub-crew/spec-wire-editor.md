@@ -1,9 +1,21 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — the triage desk as it should run, 2026-09-06. Every rule here is now live in the prompt: clustering by arc versus angles (operator, 2026-09-05) landed 2026-09-06, and _queue_text carries the citations it reads. For day-to-day reading it supersedes publishing-automation-plan.md Phase 2 and NEWSROOM.md §Marketer & Editor, which is now a pointer back here.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
 
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> CURRENT SPEC, rewritable — the triage desk as it should run, 2026-09-06. Every rule here is now live in the prompt: clustering by arc versus angles (operator, 2026-09-05) landed 2026-09-06, and _queue_text carries the citations it reads. For day-to-day reading it supersedes publishing-automation-plan.md Phase 2 and NEWSROOM.md §Marketer & Editor, which is now a pointer back here.
+
 # The Wire Editor — current spec
+
+**Destination policy, 2026-09-09:** spec-content-types.md §Content type and
+destination separates the Scout's type and destination recommendations, both
+subject to the operator's override at gate ①. Wire advice must preserve that
+distinction and attribution; it never makes the binding choice. Explicit
+destination fields and consumers are pending NR-09 in NEWSROOM-WORKPLAN.md.
 
 <!-- MAP:START -->
 - [One pass](#one-pass)

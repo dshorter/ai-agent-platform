@@ -1,31 +1,69 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — the routing table and the shape rules for the five types, as of 2026-09-06. Supersedes NEWSROOM.md §Content types and §Editorial rules for day-to-day reading. Where SEO.md states policy, SEO.md wins and this repeats it. No corrections stack here; edit in place and date the commit.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> CURRENT SPEC, rewritable — type/shape rules, with the operator's independent destination policy added 2026-09-09. Destination recommendation/override wiring is pending NR-09 in NEWSROOM-WORKPLAN.md. Supersedes NEWSROOM.md §Content types and §Editorial rules for day-to-day reading. Where SEO.md states policy, SEO.md wins and this repeats it. No corrections stack here; edit in place and date the commit.
 
 # Content types — the Editor's routing table
 
 <!-- MAP:START -->
 - [The table](#the-table)
+- [Content type and destination](#content-type-and-destination)
 - [Rules that cross all types](#rules-that-cross-all-types)
 - [Shape, per type](#shape-per-type)
 - [What each desk does with the type](#what-each-desk-does-with-the-type)
 <!-- MAP:END -->
 
-Five types. A piece has exactly one. The Editor routes by type at gate ①.
+Five types. A piece has exactly one. The Editor confirms or overrides the
+proposed type at gate ①; this does not select its syndication destinations.
 The Scout labels a lead with the type it would become and never goes looking
 for one (the pineapple rule). A new type is a new row here plus a voice
 profile and a sink, never a new agent.
 
 ## The table
 
-| type | for | sink and canonical | register (voice profile) | audience |
+| type | for | own-site sink and canonical | register (voice profile) | audience |
 |---|---|---|---|---|
 | **ticker** | the box's activity, in verbs; a rolling pulse | the site-wide masthead, a text pack compiled at generate time; v1 source is the survey | terse verb crawl (no profile; a pitch is most of a line) | everyone |
 | **newsletter** | the week's digest: the Director's weekly report made public | apex /newsletter/, self-canonical, generator-native | newspaper broadsheet (profile to be seeded; nothing on the box has spoken it) | prospects, followers |
 | **note** | field notes: the platform's self-awareness first, war stories second | apex /notes/, self-canonical; data/notes.json rendered by generate.js | man-page dry (profile man-page-dry, harvested) | prospects who want receipts |
 | **blog** | narrative for developers; deep dives; the predictor commit-history blog | Ghost, Ghost-canonical, grows by subfolders | narrative (harvested from published posts only) | developers, followers |
 | **paper** | a white paper or case study: deep, rigorous technical proof | unplaced, deliberately | formal, technical | evaluators, decision-makers |
+
+## Content type and destination
+
+**Operator decision, 2026-09-09:** content type and syndication destination
+are independent. Type governs the editorial form, voice and creation/rendering
+requirements. A destination is where an approved piece is delivered. The
+own-site sink table above does not prohibit any type from external syndication.
+
+Retain the Scout's recommendation with human override: it proposes the type
+and destination set separately; the operator accepts or changes them at gate
+①. Preserve the proposal and the operator's chosen values independently.
+The Wire Editor may advise; its proposal does not erase either attribution.
+Operator overrides remain downstream of the Scout's taste firewall.
+
+A field note remains a field note on DEV or Hashnode. A longer article can go
+to the same destinations. A piece does not need to be expanded, relabeled or
+given a companion of another type to qualify for syndication. Existing adapter
+coverage is an implementation fact, never a hard type-to-destination policy.
+
+Destination packaging may adapt formatting and supported metadata. It must
+preserve the approved claims and voice; substantive variants must be covered
+by gate ②. A real platform constraint is reported explicitly, with the affected
+delivery unresolved until handled, never silently dropped or called complete.
+Each syndicated copy identifies the piece's actual original under SEO.md.
+
+**Implementation gap:** the inspected Scout output and lead store record type,
+but no separate destination recommendation. Wiring that recommendation, human
+override and the independent delivery path is NR-09 in NEWSROOM-WORKPLAN.md.
+This policy does not claim those paths already work, or require every unbuilt
+content-creation path to exist before the first MVP.
 
 ## Rules that cross all types
 

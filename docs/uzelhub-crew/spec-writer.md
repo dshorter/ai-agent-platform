@@ -1,7 +1,13 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — the rewrite desk as built (the note path) and as designed (the rest), as of 2026-09-06. For day-to-day reading it supersedes writer-persona.md; the persona stays as the voice of the design and its [OPEN] agenda.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> CURRENT SPEC, rewritable — the rewrite desk as built (the note path) and as designed (the rest), as of 2026-09-06. For day-to-day reading it supersedes writer-persona.md; the persona stays as the voice of the design and its [OPEN] agenda.
 
 # The Writer — current spec
 
@@ -29,7 +35,9 @@ HTML (the generator's). A dry run rehearses on a lead of any status and
 persists nothing. Verb: `python -m pipelines.writer --lead <id>`
 (`--dry-run`; `--list` shows the claimed leads the note desk can draft).
 
-The type selects everything else:
+The type selects the drafting path, voice profile and output shape below.
+Syndication destinations are independent; see spec-content-types.md
+§Content type and destination. A destination choice does not change the type.
 
 | type | path | profile | output |
 |---|---|---|---|

@@ -1,7 +1,13 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — what the Scout is and does as of 2026-09-06. For day-to-day reading it supersedes the Scout sections of NEWSROOM.md, scout-retool.md §§1-4 and the operative parts of ADR-002; those stay as history and reasoning. Where this and the code disagree, fix one the same day and say which in the commit.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> CURRENT SPEC, rewritable — what the Scout is and does as of 2026-09-06. For day-to-day reading it supersedes the Scout sections of NEWSROOM.md, scout-retool.md §§1-4 and the operative parts of ADR-002; those stay as history and reasoning. Where this and the code disagree, fix one the same day and say which in the commit.
 
 # The Scout — current spec
 
@@ -96,6 +102,12 @@ never leaves the box; its home is _host and it is not built.
   before anything else happens.
 - Output, strict JSON: leads with slug, pitch (two to four sentences),
   why_now, citations, type, agent_span.
+- **Policy settled 2026-09-09, wiring pending NR-09:** retain the Scout's
+  recommendations with human override. Recommend type and destinations
+  independently, as specified in spec-content-types.md §Content type and
+  destination. The current JSON/store path above has no separate destination
+  field; do not describe it as implemented. Recommendations remain advisory;
+  operator choices and verdicts do not feed back into the Scout.
 - Aperture: generate wide, err reckless; false positives are cheap, missed
   leads are invisible. Span adds weight, never filters. Dedup skips only an
   essentially identical pitch. Types name what a lead is, never what to look

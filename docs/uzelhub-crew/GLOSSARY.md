@@ -5,6 +5,10 @@ status: house vocabulary, opened 2026-09-06 — one word per concept; retired sy
 
 # Glossary — the newsroom's words
 
+> **Workflow authority, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> consolidates current system requirements. This remains the vocabulary lookup;
+> older implementation/plan references below are not a competing specification.
+
 Look terms up; nobody reads this front to back.
 
 **The one rule.** Every concept gets one word. A doc, a prompt or a code
@@ -32,9 +36,22 @@ the type itself.
 moves.md. A type selects a profile (note → man-page-dry). Bottle, sample,
 exemplar, move, harvested, seeded and SHAPE are defined in voice/README.md.
 
-**sink** — where a type's published copy lives and which copy is canonical:
-apex /notes/, apex /newsletter/, the masthead text pack, Ghost, or unplaced
-(paper). A destination, never a name for the type.
+**sink** — the own-site rendering/storage path: apex /notes/, apex
+/newsletter/, the masthead text pack, Ghost, or unplaced (paper). The table
+of these paths describes primary publication, not which external destinations
+may receive a type.
+
+**destination** — an independently recommended and selected publication
+endpoint: the operator's website, DEV, Hashnode, or another enabled endpoint.
+A type does not determine its permitted destinations. The Scout recommends
+the set; the operator may override it at gate one. This is settled policy as
+of 2026-09-09; explicit recommendation/override storage is pending NR-09 in
+NEWSROOM-WORKPLAN.md.
+
+**canonical home** — the original URL identified for a piece. Syndicated
+copies identify that original where the destination supports canonical
+metadata. Different types can share destinations without sharing an original
+URL or requiring companion pieces. SEO.md owns the canonical policy.
 
 **deep dive / retelling** — the two kinds of blog piece a note can link to.
 A deep dive has distinct intent, is self-canonical and indexed (the normal
@@ -162,9 +179,11 @@ dates). Angles are several leads on one discrete event (one source date).
 Angles fold into the strongest telling; an arc is never folded. One date
 across two stances is corroboration and is kept whole.
 
-**gate ①** — routing: claim, spike, hold. The operator today; may migrate to
-the Director on concordance. **gate ②** — scrub and approval to publish. The
-operator, permanently.
+**gate ①** — routing: claim, spike, hold, and accept or override the proposed
+type and destination set. The operator retains this gate for the current
+goal; the older possible Director-transfer milestone is historical.
+**gate ②** — scrub and approval to publish the reviewed content. The operator,
+permanently. Destination recommendations do not add another editorial gate.
 
 **shadow** — the Editor-in-chief's agree or differ per proposal.
 **concordance** — its agreement rate with the operator's actual verdicts,

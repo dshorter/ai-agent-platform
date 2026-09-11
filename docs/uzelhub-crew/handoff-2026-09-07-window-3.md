@@ -15,6 +15,7 @@ anything; it is a map to the documents that are.
 - [What the read-through found](#what-the-read-through-found)
 - [Open, and none of it is window 4's to decide alone](#open-and-none-of-it-is-window-4s-to-decide-alone)
 - [What window 4 could do](#what-window-4-could-do)
+- [Follow-on planning — 2026-09-09](#follow-on-planning--2026-09-09)
 <!-- MAP:END -->
 
 ## Read first
@@ -124,3 +125,18 @@ The plan's checklist is complete, so this is a list and not a runbook:
 - **The surveying-line experiment**, single variable, both arms `--dry-run`.
 - **The Wire Editor's live pass**, $0.35, if the artifact is wanted in its usual
   home.
+
+## Follow-on planning — 2026-09-09
+
+The operator confirmed the seven-item session follow-up plus the 006 cutover
+as the next-leg starting list, and requested a merge with the September 8
+review. [The merged next-leg plan](plan-2026-09-09-next-leg.md) maps each item
+to the findings, reconnects the existing publishing roadmap, and records the
+remaining decisions. Its ordering is proposed; this pointer reports planning,
+not completion of any construction or operating action above.
+
+**2026-09-09 update:** [NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md) is now the
+updatable entry point for this leg. Read its current task, settled decisions
+and dependencies before resuming. It records the operator's independent
+type/destination rule and Scout recommendations with human override. The
+earlier merge remains reasoning history; construction is not yet started.

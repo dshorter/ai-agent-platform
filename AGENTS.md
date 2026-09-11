@@ -43,10 +43,14 @@ as a description, not a rule, and never read its silence as permission. An
 | **What the box has taught us — principles, with receipts** | `/opt/_host/PRINCIPLES.md` (`read: full`). Start here when a change feels like it might be deciding something. |
 | The whole box — layout, ports, databases, overlaps | `/opt/_host/README.md` (`read: full`; _host has **no remote**, never add one) |
 | What actually runs, verified against timers and tables | `ops/desk/agent-roster.html` |
+| **Newsroom: single system specification (consolidated 2026-09-10)** | [NEWSROOM-SPEC.md](docs/uzelhub-crew/NEWSROOM-SPEC.md) (`read: reference`) — current end-to-end design, roles, voice, types/destinations, proposed UI/record contract, acceptance and implementation gaps. Established, proposed, observed and open states are explicit. Read it for requirements and the work plan before construction. |
+| Newsroom documentation index | [Crew documentation index](docs/uzelhub-crew/README.md#newsroom-start-here) — specification, work plan, source snapshots, paused-Scout audit, verbatim critique and merge history. |
 | **Newsroom vocabulary — one word per concept** | `docs/uzelhub-crew/GLOSSARY.md` (`read: reference`). Type, register, stance, source, citations. When two docs use a word differently, this file is current. |
-| **Newsroom: the current rule, per desk (rewritable specs)** | `docs/uzelhub-crew/spec-content-types.md`, `spec-scout.md`, `spec-wire-editor.md`, `spec-writer.md` (`read: full`, each short). A rule is stated once, here; prompts and code follow it. Where a spec and the code disagree, fix one the same day and say which. |
+| Newsroom: former desk specifications | `docs/uzelhub-crew/spec-content-types.md`, `spec-scout.md`, `spec-wire-editor.md`, `spec-writer.md` — superseded as current authorities by NEWSROOM-SPEC.md on 2026-09-10; bodies retained as source snapshots. Prompts/code follow the consolidated requirements; record discrepancies without silently changing policy. |
 | Newsroom: the design's reasoning and history | `docs/uzelhub-crew/NEWSROOM.md` — thesis, three altitudes, org chart, the pineapple essay, reuse-versus-fork, the one real fork, open choices. Seven sections that now have a spec were cut to pointers 2026-09-06 (762 lines to 455); each pointer names the reasoning it held. Read it for *why*, never for the current rule. |
-| The next session's runbook (unify, rename, reset, run end to end) | `docs/uzelhub-crew/plan-2026-09-07-unify-and-reset.md` |
+| **Newsroom: current construction leg — read before starting or resuming work** | [NEWSROOM-WORKPLAN.md](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md) — current task, dependencies, completion evidence and dated changes. Working draft pending finalization; its decision table distinguishes settled policy from open choices. The 2026-09-07 unify-and-reset plan is completed history. |
+| Newsroom: proposed editorial UI MVP | [NEWSROOM-SPEC.md](docs/uzelhub-crew/NEWSROOM-SPEC.md) §§8–10/13 carries UI-01–06, durable records, delivery and acceptance. Proposed status remains; interaction/storage choices stay in the work plan. [Former UI spec](docs/uzelhub-crew/spec-editorial-ui-mvp.md) is a retained revision-0.2 source snapshot. |
+| Newsroom: paused-Scout integration evidence (added 2026-09-10) | [scout-ui-compatibility-2026-09-10.md](docs/uzelhub-crew/scout-ui-compatibility-2026-09-10.md) (`read: full`) — actual pause/ingestion behavior, record/reader gaps, review lifecycle, budgets and access checks. Read before connecting the UI, changing the lead store or considering resumption; dated observations require rechecking for execution. |
 | Calendar helpers, namespaces, verbs | `ops/CALENDAR.md` |
 | SEO across apex/blog/corpus/syndication | `/opt/_host/SEO.md` (`read: full`) |
 | Director's own memory across runs | `docs/director/director-ledger.md` |
@@ -149,5 +153,21 @@ casts a vote without anyone noticing. These are open:
   four `spec-*.md` files are rewritable** — edit in place, date the commit,
   no correction strata. They hold the current rule; history lives everywhere
   else.
+- **Operator-requested consolidation (2026-09-10): `NEWSROOM-SPEC.md` is the
+  rewritable system specification.** It replaces the four desk specs and UI
+  spec as current requirements; retain their historical bodies. The earlier
+  per-desk rewrite convention now applies to the consolidated spec. Date
+  requirement changes with their decision basis; update work-plan scope and
+  acceptance records where affected. Consolidation does not finalize NR-00.
+- **Operator-requested exception (2026-09-09): `NEWSROOM-WORKPLAN.md` is a
+  working, updatable document.** Update its current state in place; preserve
+  scope, order, dependency and acceptance changes in its dated change record.
+  Read it at session start, identify the active task ID, and update its evidence
+  and next action before handing off. The verbatim critique and dated planning
+  history are not rewritten as substitutes for maintaining this board.
 - Operator/sudo work ships as a runnable script — backup, validate, self-verify,
   restore on failure — never as a config paste.
+- **Operator clarification (2026-09-10): replaced documents may be marked
+  superseded.** Name the replacement, date and scope of supersession at the
+  top; preserve the historical body. A completed runbook is not a new-session
+  instruction. The verbatim critique remains an unchanged historical artifact.

@@ -1,9 +1,16 @@
 ---
 read: full
-status: RUNBOOK for the next session, written 2026-09-06 after the fuzziness assessment. Steps are ordered and each ends in a commit. Steps 1 to 4 and 6 are the core; 5, 7 and 8 follow. Nothing here re-walks the ore, truncates a table, or pushes.
+status: COMPLETED HISTORICAL RUNBOOK — superseded for future construction by NEWSROOM-WORKPLAN.md, marked 2026-09-10. Written 2026-09-06; the September 7 window-3 handoff records the closed leg and the still-unapplied 006 cutover. Retain these steps as history, not next-session instructions.
 ---
 
 # Plan — unify the specs, rename, reset the cycle, run it end to end
+
+> **Completed leg; superseded for new work — 2026-09-10.** This was the
+> next-session runbook prepared September 6. The
+> [window 3 handoff](handoff-2026-09-07-window-3.md) records its outcome and
+> the remaining live cutover work. Use [NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md)
+> for the next leg. The reset and run commands below record past work; they
+> are not instructions to reset today's state or resume prospecting.
 
 <!-- MAP:START -->
 - [How to run this session](#how-to-run-this-session)
