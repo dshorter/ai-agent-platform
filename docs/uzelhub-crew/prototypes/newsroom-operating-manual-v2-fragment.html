@@ -549,6 +549,13 @@
     min-width: 0;
   }
 
+  #newsroom-operating-manual-v2 .nf-input-envelope {
+    position: relative;
+    padding: 12px 12px 26px;
+    border: 1px solid var(--nf-line);
+    border-radius: 14px;
+  }
+
   #newsroom-operating-manual-v2 .nf-input-groups {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -615,10 +622,51 @@
   #newsroom-operating-manual-v2 .nf-node-title { font-size: 13px; font-weight: 500; }
   #newsroom-operating-manual-v2 .nf-node-copy { color: var(--nf-muted); font-size: 12px; line-height: 1.35; }
 
+  #newsroom-operating-manual-v2 .nf-input-collector {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    bottom: -43px;
+    width: min(240px, 70%);
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    transform: translateX(-50%);
+    color: var(--nf-muted);
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-collector::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: -13px;
+    bottom: 4px;
+    left: 50%;
+    border-left: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-collector strong {
+    padding: 0 8px;
+    background: var(--nf-bg);
+    color: var(--nf-ink);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  #newsroom-operating-manual-v2 .nf-collector-arrow {
+    width: 23px;
+    height: 24px;
+    background: var(--nf-accent);
+    clip-path: polygon(40% 0, 60% 0, 60% 52%, 100% 52%, 50% 100%, 0 52%, 40% 52%);
+  }
+
   #newsroom-operating-manual-v2 .nf-funnel {
     position: relative;
     height: 172px;
-    margin: 10px 4% 0;
+    margin: 48px 4% 0;
     isolation: isolate;
   }
 
@@ -1010,33 +1058,36 @@
               <div class="nf-voice-definition"><i data-lucide="mic-off" aria-hidden="true"></i><span><strong>Voice here means written register, not recorded audio.</strong> The Writer receives the assignment, voice exemplars, and evidence as text.</span></div>
 
               <div class="nf-injection-map" id="nf-injection-map" data-active-context="system">
-                <div class="nf-input-groups">
-                  <section class="nf-input-group" aria-label="Story-specific context">
-                    <div class="nf-input-group-head"><strong>Story context</strong><span>changes per lead</span></div>
-                    <div class="nf-input-stack">
-                      <button class="nf-bottle-node" type="button" data-bottle="assignment" aria-pressed="false">
-                        <span class="nf-node-icon"><i data-lucide="notebook-pen" aria-hidden="true"></i></span><span class="nf-node-title">Claimed lead</span><span class="nf-node-copy">What to write · ID, pitch, why-now, type</span>
-                      </button>
-                      <button class="nf-bottle-node" type="button" data-bottle="evidence" aria-pressed="false">
-                        <span class="nf-node-icon"><i data-lucide="search-check" aria-hidden="true"></i></span><span class="nf-node-title">Evidence roam</span><span class="nf-node-copy">What is true · cited threads become receipts</span>
-                      </button>
-                    </div>
-                  </section>
+                <div class="nf-input-envelope">
+                  <div class="nf-input-groups">
+                    <section class="nf-input-group" aria-label="Story-specific context">
+                      <div class="nf-input-group-head"><strong>Story context</strong><span>changes per lead</span></div>
+                      <div class="nf-input-stack">
+                        <button class="nf-bottle-node" type="button" data-bottle="assignment" aria-pressed="false">
+                          <span class="nf-node-icon"><i data-lucide="notebook-pen" aria-hidden="true"></i></span><span class="nf-node-title">Claimed lead</span><span class="nf-node-copy">What to write · ID, pitch, why-now, type</span>
+                        </button>
+                        <button class="nf-bottle-node" type="button" data-bottle="evidence" aria-pressed="false">
+                          <span class="nf-node-icon"><i data-lucide="search-check" aria-hidden="true"></i></span><span class="nf-node-title">Evidence roam</span><span class="nf-node-copy">What is true · cited threads become receipts</span>
+                        </button>
+                      </div>
+                    </section>
 
-                  <section class="nf-input-group" aria-label="Reusable system context">
-                    <div class="nf-input-group-head"><strong>System context</strong><span>reused across drafts</span></div>
-                    <div class="nf-input-stack">
-                      <button class="nf-bottle-node" type="button" data-bottle="shape" aria-pressed="false">
-                        <span class="nf-node-icon"><i data-lucide="ruler" aria-hidden="true"></i></span><span class="nf-node-title">Shape prompt</span><span class="nf-node-copy">What form · each content type owns its shape</span>
-                      </button>
-                      <button class="nf-bottle-node" type="button" data-bottle="bottle" aria-pressed="true">
-                        <span class="nf-node-icon"><i data-lucide="flask-conical" aria-hidden="true"></i></span><span class="nf-node-title">Voice bottle</span><span class="nf-node-copy">How it sounds · moves + sorted exemplars</span>
-                      </button>
-                    </div>
-                  </section>
+                    <section class="nf-input-group" aria-label="Reusable system context">
+                      <div class="nf-input-group-head"><strong>System context</strong><span>reused across drafts</span></div>
+                      <div class="nf-input-stack">
+                        <button class="nf-bottle-node" type="button" data-bottle="shape" aria-pressed="false">
+                          <span class="nf-node-icon"><i data-lucide="ruler" aria-hidden="true"></i></span><span class="nf-node-title">Shape prompt</span><span class="nf-node-copy">What form · each content type owns its shape</span>
+                        </button>
+                        <button class="nf-bottle-node" type="button" data-bottle="bottle" aria-pressed="true">
+                          <span class="nf-node-icon"><i data-lucide="flask-conical" aria-hidden="true"></i></span><span class="nf-node-title">Voice bottle</span><span class="nf-node-copy">How it sounds · moves + sorted exemplars</span>
+                        </button>
+                      </div>
+                    </section>
+                  </div>
+                  <div class="nf-input-collector" aria-hidden="true"><strong>All four inputs enter</strong><span class="nf-collector-arrow"></span></div>
                 </div>
 
-                <div class="nf-funnel" role="img" aria-label="Story context and reusable system context converge into one Writer call">
+                <div class="nf-funnel" role="img" aria-label="Claimed lead, evidence roam, shape prompt, and voice bottle all enter the funnel and converge into one Writer call">
                   <div class="nf-funnel-lane nf-funnel-lane-story"><span>lead + receipts</span></div>
                   <div class="nf-funnel-lane nf-funnel-lane-system"><span>shape + voice</span></div>
                   <div class="nf-funnel-merge"><span>same model context</span><strong>All four constraints present</strong></div>

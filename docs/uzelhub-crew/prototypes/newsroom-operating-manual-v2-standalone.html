@@ -1586,6 +1586,13 @@ html&gt;body{padding:0}&lt;/style&gt;
     min-width: 0;
   }
 
+  #newsroom-operating-manual-v2 .nf-input-envelope {
+    position: relative;
+    padding: 12px 12px 26px;
+    border: 1px solid var(--nf-line);
+    border-radius: 14px;
+  }
+
   #newsroom-operating-manual-v2 .nf-input-groups {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1652,10 +1659,51 @@ html&gt;body{padding:0}&lt;/style&gt;
   #newsroom-operating-manual-v2 .nf-node-title { font-size: 13px; font-weight: 500; }
   #newsroom-operating-manual-v2 .nf-node-copy { color: var(--nf-muted); font-size: 12px; line-height: 1.35; }
 
+  #newsroom-operating-manual-v2 .nf-input-collector {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    bottom: -43px;
+    width: min(240px, 70%);
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    transform: translateX(-50%);
+    color: var(--nf-muted);
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-collector::before {
+    content: &quot;&quot;;
+    position: absolute;
+    z-index: -1;
+    top: -13px;
+    bottom: 4px;
+    left: 50%;
+    border-left: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-collector strong {
+    padding: 0 8px;
+    background: var(--nf-bg);
+    color: var(--nf-ink);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  #newsroom-operating-manual-v2 .nf-collector-arrow {
+    width: 23px;
+    height: 24px;
+    background: var(--nf-accent);
+    clip-path: polygon(40% 0, 60% 0, 60% 52%, 100% 52%, 50% 100%, 0 52%, 40% 52%);
+  }
+
   #newsroom-operating-manual-v2 .nf-funnel {
     position: relative;
     height: 172px;
-    margin: 10px 4% 0;
+    margin: 48px 4% 0;
     isolation: isolate;
   }
 
@@ -2047,33 +2095,36 @@ html&gt;body{padding:0}&lt;/style&gt;
               &lt;div class=&quot;nf-voice-definition&quot;&gt;&lt;i data-lucide=&quot;mic-off&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;&lt;strong&gt;Voice here means written register, not recorded audio.&lt;/strong&gt; The Writer receives the assignment, voice exemplars, and evidence as text.&lt;/span&gt;&lt;/div&gt;
 
               &lt;div class=&quot;nf-injection-map&quot; id=&quot;nf-injection-map&quot; data-active-context=&quot;system&quot;&gt;
-                &lt;div class=&quot;nf-input-groups&quot;&gt;
-                  &lt;section class=&quot;nf-input-group&quot; aria-label=&quot;Story-specific context&quot;&gt;
-                    &lt;div class=&quot;nf-input-group-head&quot;&gt;&lt;strong&gt;Story context&lt;/strong&gt;&lt;span&gt;changes per lead&lt;/span&gt;&lt;/div&gt;
-                    &lt;div class=&quot;nf-input-stack&quot;&gt;
-                      &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;assignment&quot; aria-pressed=&quot;false&quot;&gt;
-                        &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;notebook-pen&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Claimed lead&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What to write · ID, pitch, why-now, type&lt;/span&gt;
-                      &lt;/button&gt;
-                      &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;evidence&quot; aria-pressed=&quot;false&quot;&gt;
-                        &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;search-check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Evidence roam&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What is true · cited threads become receipts&lt;/span&gt;
-                      &lt;/button&gt;
-                    &lt;/div&gt;
-                  &lt;/section&gt;
+                &lt;div class=&quot;nf-input-envelope&quot;&gt;
+                  &lt;div class=&quot;nf-input-groups&quot;&gt;
+                    &lt;section class=&quot;nf-input-group&quot; aria-label=&quot;Story-specific context&quot;&gt;
+                      &lt;div class=&quot;nf-input-group-head&quot;&gt;&lt;strong&gt;Story context&lt;/strong&gt;&lt;span&gt;changes per lead&lt;/span&gt;&lt;/div&gt;
+                      &lt;div class=&quot;nf-input-stack&quot;&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;assignment&quot; aria-pressed=&quot;false&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;notebook-pen&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Claimed lead&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What to write · ID, pitch, why-now, type&lt;/span&gt;
+                        &lt;/button&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;evidence&quot; aria-pressed=&quot;false&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;search-check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Evidence roam&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What is true · cited threads become receipts&lt;/span&gt;
+                        &lt;/button&gt;
+                      &lt;/div&gt;
+                    &lt;/section&gt;
 
-                  &lt;section class=&quot;nf-input-group&quot; aria-label=&quot;Reusable system context&quot;&gt;
-                    &lt;div class=&quot;nf-input-group-head&quot;&gt;&lt;strong&gt;System context&lt;/strong&gt;&lt;span&gt;reused across drafts&lt;/span&gt;&lt;/div&gt;
-                    &lt;div class=&quot;nf-input-stack&quot;&gt;
-                      &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;shape&quot; aria-pressed=&quot;false&quot;&gt;
-                        &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;ruler&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Shape prompt&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What form · each content type owns its shape&lt;/span&gt;
-                      &lt;/button&gt;
-                      &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;bottle&quot; aria-pressed=&quot;true&quot;&gt;
-                        &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;flask-conical&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Voice bottle&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;How it sounds · moves + sorted exemplars&lt;/span&gt;
-                      &lt;/button&gt;
-                    &lt;/div&gt;
-                  &lt;/section&gt;
+                    &lt;section class=&quot;nf-input-group&quot; aria-label=&quot;Reusable system context&quot;&gt;
+                      &lt;div class=&quot;nf-input-group-head&quot;&gt;&lt;strong&gt;System context&lt;/strong&gt;&lt;span&gt;reused across drafts&lt;/span&gt;&lt;/div&gt;
+                      &lt;div class=&quot;nf-input-stack&quot;&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;shape&quot; aria-pressed=&quot;false&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;ruler&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Shape prompt&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What form · each content type owns its shape&lt;/span&gt;
+                        &lt;/button&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;bottle&quot; aria-pressed=&quot;true&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;flask-conical&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Voice bottle&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;How it sounds · moves + sorted exemplars&lt;/span&gt;
+                        &lt;/button&gt;
+                      &lt;/div&gt;
+                    &lt;/section&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;nf-input-collector&quot; aria-hidden=&quot;true&quot;&gt;&lt;strong&gt;All four inputs enter&lt;/strong&gt;&lt;span class=&quot;nf-collector-arrow&quot;&gt;&lt;/span&gt;&lt;/div&gt;
                 &lt;/div&gt;
 
-                &lt;div class=&quot;nf-funnel&quot; role=&quot;img&quot; aria-label=&quot;Story context and reusable system context converge into one Writer call&quot;&gt;
+                &lt;div class=&quot;nf-funnel&quot; role=&quot;img&quot; aria-label=&quot;Claimed lead, evidence roam, shape prompt, and voice bottle all enter the funnel and converge into one Writer call&quot;&gt;
                   &lt;div class=&quot;nf-funnel-lane nf-funnel-lane-story&quot;&gt;&lt;span&gt;lead + receipts&lt;/span&gt;&lt;/div&gt;
                   &lt;div class=&quot;nf-funnel-lane nf-funnel-lane-system&quot;&gt;&lt;span&gt;shape + voice&lt;/span&gt;&lt;/div&gt;
                   &lt;div class=&quot;nf-funnel-merge&quot;&gt;&lt;span&gt;same model context&lt;/span&gt;&lt;strong&gt;All four constraints present&lt;/strong&gt;&lt;/div&gt;
