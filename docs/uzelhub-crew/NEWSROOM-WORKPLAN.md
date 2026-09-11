@@ -1,6 +1,6 @@
 ---
 read: full
-status: WORKING PLAN — revision 0.8, 2026-09-11; documentation organized into commits and PR preparation requested separately from construction. Publication scope and ledger wording are pending operator choices. NEWSROOM-SPEC.md remains the system specification; construction baseline remains unfinalized.
+status: WORKING PLAN — revision 0.9, 2026-09-11; earlier work and consolidated documentation published as separate review PRs at the operator's request. Ledger wording remains pending. NEWSROOM-SPEC.md remains the system specification; construction baseline remains unfinalized.
 ---
 
 # NEWSROOM — working construction plan
@@ -41,13 +41,13 @@ this plan. This document remains the only task/status board.
 
 | Field | Current value |
 |---|---|
-| Plan revision / baseline | 0.8 / not finalized |
+| Plan revision / baseline | 0.9 / not finalized |
 | Current task | **NR-00 — finalize the working plan** |
-| Current activity | Documentation organized into evidence/review, plan/routing and specification commits; isolated validation and PR descriptions prepared |
+| Current activity | Earlier 29 commits published in [PR #12](https://github.com/dshorter/ai-agent-platform/pull/12); subsequent documentation published in stacked [PR #13](https://github.com/dshorter/ai-agent-platform/pull/13) |
 | Construction started | None |
 | Next action | Resolve D-04/05/06 interaction choices and D-07 storage sequencing; review the specification and finalize the baseline. D-01 still blocks dependent source changes |
 | Unrecorded departures | None identified during plan preparation |
-| Next operating action | PR publication requested; confirm whether it includes the 29 earlier unpublished commits and resolve the separate ledger wording choice. Content release and prospecting resumption remain unrequested |
+| Next operating action | Review PR #12, then PR #13; after #12 merges, retarget #13 to main. Resolve the separate ledger wording choice. Content release and prospecting resumption remain unrequested |
 
 ## Goal and fixed constraints
 
@@ -99,7 +99,7 @@ stable references, not execution order. Status is maintained only in this table.
 | NR-04 | Shadow vocabulary and explicit fold target IDs / assistant | READY | Finalized plan | — |
 | NR-05 | Human-selected drafting/review rehearsal / operator + assistant | QUEUED | NR-01, NR-02, NR-04, NR-09 | — |
 | NR-06 | First document page and matched surveying experiment / assistant | PARKED | Source policy for the tested input; agreed bounded run scope | — |
-| NR-07 | Publication, timer resumption and source-code push decisions / operator | QUEUED | Separate conditions below; never one combined approval | September 11 commit/PR preparation requested; documentation committed and validated; broader publication scope pending. No push, content release or resumption yet |
+| NR-07 | Publication, timer resumption and source-code push decisions / operator | QUEUED | Separate conditions below; never one combined approval | September 11: source-review branches pushed and PRs #12/#13 opened as requested. Neither PR merged; content release and prospecting resumption remain unrequested |
 | NR-08 | Complete the 006 Postgres cutover / assistant builds, operator owns live cutover decision | PARKED | ADR-003; design NR-01/09 record contracts before migration; D-07 may move its place | — |
 | NR-09 | Scout recommendations, independent destination routing and complete delivery / assistant builds, operator ratifies route | QUEUED | Finalized plan; D-03 for third destination; D-04/05/06 for interaction; D-07 before dependent mutations | — |
 | NR-10 | Measure recurring effort and refine approved writing / operator + assistant | QUEUED | First authorized real release; comparable manual baseline for percentage claims | — |
@@ -240,7 +240,7 @@ For NR-07, keep three separate entries when decisions occur:
 |---|---|---|
 | First live content release | Not requested under this working plan | NR-05; approved version and selected destinations; usable release/recovery path |
 | Resume the Scout timer | Not requested under this working plan | Source/access readiness, bounded operation and a reason to replenish leads |
-| Push source-code commits | PR requested September 11; whether to include 29 earlier unpublished commits remains pending | Three new documentation commits prepared; isolated suite 307 passed / 13 DB-dependent skips; 203 local links and eight section maps checked; unpublished-tip redaction comparison clean. Ledger wording remains separate |
+| Push source-code commits | Completed for review September 11: operator requested a separate PR for the earlier 29 commits; [#12](https://github.com/dshorter/ai-agent-platform/pull/12) targets main and stacked [#13](https://github.com/dshorter/ai-agent-platform/pull/13) targets its branch. Neither merged | Earlier branch preserves all 29 commits. Documentation has three focused commits plus the PR handoff record. Isolated suites: 307 passed / 13 DB-dependent skips at both tips; 203 local links and eight section maps checked; all 32 unpublished commits scanned against public main with no new unresolved redaction findings. Ledger remains uncommitted |
 
 ## Make departures visible
 
@@ -281,6 +281,7 @@ current task list.
 | 0.6 / 2026-09-10 | Operator clarified that replaced documents may be marked superseded. Labeled the July publishing roadmap and September 9 merge as superseded work plans, and the September 7 runbook as a completed leg superseded for new work. Each points here; historical bodies remain. | Removes competing “active”/“next session” directions without changing the current task order, acceptance or open decisions. |
 | 0.7 / 2026-09-10 | Operator requested one specification reflecting the latest methods, plan and documentation without overriding design decisions. Created NEWSROOM-SPEC.md revision 1.0, incorporating the four desk specs, UI revision 0.2 proposal, compatibility evidence and system/voice explanation. Former specs carry dated replacement notices; source bodies and verbatim critique are preserved. | Consolidates requirements and updates discovery; this board retains task/decision status and sequence. No scope, order, acceptance or decision changed; no construction baseline finalized. |
 | 0.8 / 2026-09-11 | Operator requested organizing uncommitted work into appropriate commits and writing a PR. Grouped evidence/reviews, the plan/routing policy, and the consolidated specification; prepared PR text and ran isolated/documentation checks. Found 29 pre-existing unpublished commits and a separate ledger redaction/attribution issue; requested scope and wording choices. | Repository publication preparation is explicitly authorized alongside NR-00; no construction task or design decision changes. NR-07 remains partial preparation, with push scope unresolved; ledger cleanup is not yet applied. |
+| 0.9 / 2026-09-11 | Operator requested a separate PR for the earlier 29 commits. Published those unchanged in PR #12 and the subsequent documentation in stacked PR #13; recorded both review links and the merge order. Operator asked which ledger path was flagged; explained the finding and left the ledger unchanged. | Source-code publication for review is complete; NR-07 remains partial because content release and prospecting resumption are separate. No PR merged, construction baseline finalized, task reordered or design decision changed. |
 
 At finalization, add the immutable baseline row with accepted order and criteria
 reference. Preserve subsequent changes here while updating current-state
@@ -310,18 +311,29 @@ No construction task is complete. Next: resolve interaction choices D-04/05/06,
 evaluate the storage sequence D-07, and accept or revise the order and criteria
 before recording a finalized baseline. D-01 remains the source-access decision;
 D-03 controls completion of the third destination. D-00 and D-02 are settled.
-No served page, runtime, timer, publication state or user-owned ledger wording
+No served page, runtime, timer, content-release state or user-owned ledger wording
 was changed by this specification work.
 
-**Repository handoff — 2026-09-11:** the documentation is now in three focused
-commits on local main, with a local `codex/newsroom-specification` review branch.
-The existing 29 unpublished commits remain intact. Isolated committed-snapshot
-tests passed (307; 13 database-dependent skips), new/changed links and maps
-passed, and the unpublished tip compared with `origin/main` has no new
-unresolved redaction findings. No remote branch or PR has been published yet.
-The sysadmin ledger remains uncommitted: its private path needs the proposed
-generic wording, and its Scout-authorship claim needs a dated correction.
-Exact next repository action: receive the requested PR scope and ledger wording
-choices, apply the selected ledger treatment, publish the scoped branch and
-open the prepared PR. This does not finalize the construction baseline or
-authorize prospecting, migration or content release.
+**Repository handoff — 2026-09-11:** the existing 29 commits through `251b80e`
+are preserved in [PR #12](https://github.com/dshorter/ai-agent-platform/pull/12)
+(`codex/newsroom-foundations` → `main`). The three focused documentation
+commits and this handoff record are in stacked
+[PR #13](https://github.com/dshorter/ai-agent-platform/pull/13)
+(`codex/newsroom-specification` → `codex/newsroom-foundations`). Both review
+branches are published; neither PR is merged. The live working tree remains
+on local main.
+
+Isolated committed-snapshot tests passed for both the earlier tip and the
+documentation tip (307 each; 13 database-dependent skips each). New/changed
+links and maps passed. All 32 commits preceding this handoff record were
+scanned against the public `origin/main` baseline: 135 changed-file versions,
+no new unresolved redaction findings. The handoff record also passes the
+commit redaction hook.
+
+The sysadmin ledger remains uncommitted and excluded from both PRs. Its
+private-path wording and dated Scout-attribution correction remain pending;
+the operator's question about the path was answered without changing it.
+Exact next repository action: review #12, then #13; after #12 merges,
+retarget #13 to main so its review remains limited to the documentation.
+This does not finalize the construction baseline or authorize prospecting,
+migration or content release.
