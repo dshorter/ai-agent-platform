@@ -37,7 +37,7 @@ leads:
   - id: lead-one
     filed: 2026-07-01
     status: {status_one}
-    register: note
+    type: note
     pitch: >-
       A first lead, for marking.
     sources:
@@ -45,7 +45,7 @@ leads:
   - id: lead-two
     filed: 2026-07-02
     status: new
-    register: note
+    type: note
     pitch: >-
       A second lead, which must never be touched.
     sources:
@@ -249,8 +249,8 @@ def test_live_status_overrides_the_frozen_snapshot(tmp_path):
     ledger = tmp_path / "leads.yaml"
     ledger.write_text(
         "leads:\n"
-        "  - id: lead-a\n    status: rejected\n    register: note\n"
-        "  - id: lead-b\n    status: drafted\n    register: note\n",
+        "  - id: lead-a\n    status: rejected\n    type: note\n"
+        "  - id: lead-b\n    status: drafted\n    type: note\n",
         encoding="utf-8")
     drafts = [
         {"note": {"slug": "a"}, "lead": {"id": "lead-a", "status": "claimed"}},

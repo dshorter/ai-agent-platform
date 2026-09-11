@@ -1,6 +1,9 @@
 # ADR-003: The Leads Ledger Belongs in Postgres, Not in Hand-Parsed YAML
 
-**Status:** **Accepted — direction settled, migration not scheduled** (2026-09-04)
+**Status:** **Accepted — direction settled, migration not scheduled** (2026-09-04).
+**Amended 2026-09-07:** the schema half exists and is deliberately not applied —
+see [Amendment](#amendment-2026-09-07--the-schema-exists-and-is-not-applied) at
+the end.
 **Date:** 2026-09-04
 **Deciders:** dshorter, Claude (Opus 5)
 **Supersedes:** nothing. Amends the storage half of the three-concerns finding
@@ -197,3 +200,45 @@ mechanical if it is ever wanted.
 - **Whether `agent_decisions`-style governance applies.** The ledger is not an
   agent trace, but putting it in the cluster invites the question, and
   `AGENTS.md` §Open questions is where it belongs if asked.
+
+## Amendment 2026-09-07 — the schema exists and is not applied
+
+Step 8 of `plan-2026-09-07-unify-and-reset.md` asked for this migration. Half of
+it landed: `database/ai_agent_platform/006_scout_lead.sql`, with
+`006_verify.sql`, `006_rollback.sql` and `apply-006-scout-lead.sh`. **Nothing
+runs it, and `leads.yaml` is still the ledger.** The operator applies it, or
+does not.
+
+What changed from the sketch above, and why:
+
+- **`register` is `type` and `sources` is `citations`.** The plan's rename. Doing
+  it here rather than after the cutover is the one benefit of the migration not
+  having happened yet.
+- **The five types are a lookup table with a foreign key**, not a bare
+  `VARCHAR(16)`. Same pattern as `decision_types`, and for the reason AGENTS.md
+  gives for that one: adding a type is a decision, not a detail. It is also what
+  `spec-content-types.md` already says — "a new type is a new row here plus a
+  voice profile and a sink, never a new agent."
+- **The pineapple grant is column-level, and that is stronger than the sketch.**
+  `GRANT INSERT (id, filed, type, …)` omits `status`, so the Scout cannot file a
+  lead as anything but `new` — not by convention but by privilege — and with no
+  `UPDATE` and no `DELETE`, "the Scout never edits or removes a lead" stops being
+  a sentence in a spec. The sketch had only the view.
+- **The digest is a SQL function that mirrors `leads._digest` exactly**, verified
+  on eight cases including both cut paths and the empty string. Two copies of one
+  rule is the risk; `tests/test_lead_schema_parity.py` holds them together and
+  skips until 006 is applied.
+- **`lead_state` carries `drafted` in its own `from_state`**, so a redraft is
+  expressible in the schema rather than only in `run.py`.
+
+Verified end to end in a throwaway Postgres 15 container, never against the live
+cluster: apply, verify (12 assertions, including reading the wall from behind it
+with `SET ROLE`), roll back, roll back again, re-apply, verify again. A
+deliberately broken grant makes verification exit non-zero, which is what makes
+the teardown path real rather than decorative.
+
+**What is still owed, and it is the larger half.** A store module and the 17
+call sites moved onto it; the 17 live leads carried across; and the Scout
+connecting under its own DSN as `scout_role`, because a grant the process never
+connects under enforces nothing. Until all three, applying 006 changes nothing
+and leaving it unapplied costs nothing.

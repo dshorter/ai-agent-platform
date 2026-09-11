@@ -31,7 +31,7 @@ leads:
   - id: lead-live
     filed: 2026-07-01
     status: {status}
-    register: note
+    type: note
 """
 
 

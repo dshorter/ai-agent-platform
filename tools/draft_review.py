@@ -116,7 +116,7 @@ def render_body(body: list) -> str:
 def render_card(d: dict, i: int) -> str:
     note, lead = d["note"], d.get("lead", {})
     slug = note["slug"]
-    reg = lead.get("register", "note")
+    reg = lead.get("type", "note")
     meta = note.get("metaDescription", "")
     meta_len = len(meta)
     # Google truncates around 155-160 chars; flag the ones that will clip.
@@ -215,7 +215,7 @@ body{margin:0;background:var(--bg);color:var(--fg);
 font:1rem/1.62 var(--sans);-webkit-text-size-adjust:100%}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:4px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
-/* Rail + reading column. The rail filters the stack by register; it never
+/* Rail + reading column. The rail filters the stack by type; it never
    changes what the apply block or the drip schedule cover — filtering is a
    view, not a scope. */
 .shell{display:grid;grid-template-columns:12.5rem minmax(0,46rem);gap:2.4rem;
@@ -583,20 +583,21 @@ def build(drafts: list[dict], notes: list[dict], slots: list[int], today: dt.dat
     js = JS.replace("__SLOTS__", slot_json)
     names = [k for k, v in sorted(WEEKDAYS.items(), key=lambda kv: kv[1]) if v in slots]
 
-    # Rail rows: only registers actually present, in the order the newsroom
-    # thinks about them (NEWSROOM §Content types), so the nav doesn't shuffle
+    # Rail rows: only types actually present, in the order the newsroom
+    # thinks about them (spec-content-types.md), so the nav doesn't shuffle
     # between builds.
-    order = ["note", "newsletter", "blog", "ticker"]
-    present = {d.get("lead", {}).get("register", "note") for d in pending}
+    order = ["note", "newsletter", "blog", "ticker", "paper"]
+    present = {d.get("lead", {}).get("type", "note") for d in pending}
     regs = [r for r in order if r in present] + sorted(present - set(order))
-    labels = {"note": "Field notes", "newsletter": "Newsletter", "blog": "Blog", "ticker": "Ticker"}
+    labels = {"note": "Field notes", "newsletter": "Newsletter", "blog": "Blog",
+              "ticker": "Ticker", "paper": "Abstracts"}
     rows = "".join(
         f'<button class="navitem" data-reg="{html.escape(r)}" aria-pressed="false">'
         f'<span>{html.escape(labels.get(r, r.title()))}</span><span class="n"></span></button>'
         for r in regs
     )
     rail = (
-        '<nav class="rail" aria-label="Filter by register"><h2>Registers</h2>'
+        '<nav class="rail" aria-label="Filter by type"><h2>Types</h2>'
         '<button class="navitem" data-reg="all" aria-pressed="true">'
         '<span>Everything</span><span class="n"></span></button>'
         f"{rows}"

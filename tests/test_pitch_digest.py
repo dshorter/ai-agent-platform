@@ -14,7 +14,7 @@ leads:
   - id: 2026-07-12-a-real-slug
     filed: 2026-07-12
     status: spiked
-    register: blog
+    type: blog
     pitch: >-
       A cost anomaly hunt flipped its own framing: the label was wrong and the run was not
       anomalous. It was full-price re-sends of accumulated context. Marking the transcript
@@ -164,7 +164,7 @@ def test_filing_a_lead_updates_both_files(tmp_path):
     write_pitched_index(ledger, pitch_chars=240)
     lead = {
         "slug": "a-new-finding",
-        "register": "note",
+        "type": "note",
         "pitch": "A first sentence that carries the claim. Then a second one with detail "
                  "that the dedup memory does not need to keep at all, going on for a while.",
         "why_now": "now",

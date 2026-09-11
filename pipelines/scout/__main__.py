@@ -14,6 +14,14 @@ corpus cost ~$200 instead of ~$1:
     python -m pipelines.scout --walk --from-seq 0 --pages 95   # mine only, persist jewels
     python -m pipelines.scout --synthesize --since 2026-06-01 --until 2026-06-30
 
+Three ores, one jewel table. The non-transcript walks take an explicit range
+instead of a cursor, because ADR-002's coverage ledger is not built and the
+operator drives them:
+
+    python -m pipelines.scout --walk --source git --since 2026-01-21
+    python -m pipelines.scout --walk --source doc    --path docs/uzelhub-crew
+    python -m pipelines.scout --walk --source ledger --path docs/uzelhub-crew
+
 `--walk` moves NEITHER cursor. It re-reads ore the forward position has already
 covered, and writing that position would rewind the Scout.
 """
@@ -62,10 +70,17 @@ def main() -> None:
     walk_group = parser.add_argument_group("--walk")
     walk_group.add_argument("--from-seq", type=int, default=0, help="first seq to mine (exclusive)")
     walk_group.add_argument("--pages", type=int, default=None, help="max pages to mine (default: to the end)")
-    walk_group.add_argument("--source", default="transcript", choices=["transcript", "git"],
+    walk_group.add_argument("--source", default="transcript",
+                            choices=["transcript", "git", "doc", "ledger"],
                             help="which ore to mine (default transcript). git takes "
                                  "--since/--until instead of --from-seq, moves no cursor, "
-                                 "and carries a cost ceiling")
+                                 "and carries a cost ceiling; doc and ledger take --path "
+                                 "and the same ceiling")
+    walk_group.add_argument("--path", action="append", dest="paths",
+                            help="file or directory to mine, for --source doc|ledger; "
+                                 "repeatable. Must be inside a registered roam root — a "
+                                 "source_ref is publishable text, so a gated repo's paths "
+                                 "are not mineable")
     syn_group = parser.add_argument_group("--synthesize")
     syn_group.add_argument("--since", help="earliest session_date (YYYY-MM-DD)")
     syn_group.add_argument("--until", help="latest session_date (YYYY-MM-DD)")
@@ -119,6 +134,21 @@ def main() -> None:
         print(json.dumps(
             run_git_walk(config, since=args.since, until=args.until,
                          max_pages=args.pages, dry_run=args.dry_run),
+            indent=2,
+        ))
+    elif args.walk and args.source in ("doc", "ledger"):
+        from pipelines.scout.run import run_file_walk
+
+        if not args.paths:
+            sys.exit(
+                f"--source {args.source} needs at least one --path. There is no "
+                f"sensible default: which prose is worth a paid walk is the "
+                f"operator's call, exactly as --since is for git."
+            )
+        print(json.dumps(
+            run_file_walk(config, args.source, args.paths, since=args.since,
+                          until=args.until, max_pages=args.pages,
+                          dry_run=args.dry_run),
             indent=2,
         ))
     elif args.walk:

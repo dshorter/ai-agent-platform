@@ -10,13 +10,13 @@ last two weeks and the slug layer, not the corpus.
 This is the instrument for settling them. You name two lexicons, it splits
 477 leads by which one they match, and cross-tabs the split four ways:
 
-    register    — does the Scout route the two kinds differently?
+    type        — does the Scout route the two kinds differently?
     wire        — does the Wire Editor treat them differently?
     week        — is this a standing property or a recent drift?
     layer       — do the SLUGS say what the PITCHES say?
 
 The last one is the one worth building a tool for. On 2026-08-19 a claim
-that the Scout "never highlights accomplishments" died on the register and
+that the Scout "never highlights accomplishments" died on the type and
 wire tabs (wins outnumber problems 1.8:1 and get MORE blog treatment, and
 the wire claims both at ~50%) and survived only on the layer tab: slugs read
 116 negative to 61 positive, near-exactly the inverse of the pitch bodies
@@ -57,7 +57,7 @@ from pipelines.writer.assignment import load_leads  # noqa: E402
 LEADS_PATH = Path(os.environ.get("SCOUT_LEADS_PATH", _REPO / "pipelines" / "scout" / "state" / "leads.yaml"))
 PROPOSALS_DIR = Path(os.environ.get("WIRE_EDITOR_STATE_DIR", _REPO / "pipelines" / "wire_editor" / "state")) / "proposals"
 
-REGISTERS = ["ticker", "note", "newsletter", "blog"]
+TYPES = ["ticker", "note", "newsletter", "blog", "paper"]
 WIRE = ["claim", "spike", "hold"]
 
 # Named assays. Each is (label_a, terms_a, label_b, terms_b, what it tests).
@@ -163,11 +163,11 @@ def run(leads: list[dict], props: dict, la: str, ta: str, lb: str, tb: str, ques
     print(f"\n  headline: {overall[la]} {la} / {overall[lb]} {lb} / {overall['mixed']} mixed "
           f"/ {overall['neither']} neither   ({overall[la] / tot:.0%} of the decided pitches are {la})")
 
-    # 1. register — does the Scout route the two kinds to different shapes?
+    # 1. type — does the Scout route the two kinds to different shapes?
     g = collections.defaultdict(collections.Counter)
     for l in leads:
-        g[pitch_cls[l["id"]]][l.get("register", "note")] += 1
-    print(_tab("by REGISTER (how the Scout itself pitches each kind)", buckets, REGISTERS, g,
+        g[pitch_cls[l["id"]]][l.get("type", "note")] += 1
+    print(_tab("by TYPE (how the Scout itself pitches each kind)", buckets, TYPES, g,
                "a real demotion shows up as a blog/ticker inversion between the two rows"))
 
     # 2. wire verdict — does the desk downstream treat them differently?

@@ -1,0 +1,2764 @@
+<!doctype html>
+<html lang="en" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src 'unsafe-inline' blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Newsroom interactive user manual</title>
+<style>:root{color-scheme:light dark;background:light-dark(rgb(255 255 255), rgb(24 24 24))}html,body{margin:0}body{box-sizing:border-box;padding:1rem;background:inherit}iframe{display:block;width:100%;height:calc(100vh - 2rem);margin:0 auto;border:0}</style>
+</head>
+<body>
+<iframe sandbox="allow-scripts" referrerpolicy="no-referrer" title="Newsroom interactive user manual" srcdoc="&lt;!doctype html&gt;
+&lt;html lang=&quot;en&quot; data-visualize-standalone&gt;
+&lt;head&gt;
+&lt;meta charset=&quot;utf-8&quot;&gt;
+&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
+&lt;meta name=&quot;referrer&quot; content=&quot;no-referrer&quot;&gt;
+&lt;meta http-equiv=&quot;Content-Security-Policy&quot; content=&quot;default-src &#x27;none&#x27;; script-src &#x27;unsafe-inline&#x27; &#x27;unsafe-eval&#x27; &#x27;wasm-unsafe-eval&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; style-src &#x27;unsafe-inline&#x27; blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; img-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; font-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; media-src blob: data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://esm.sh https://fonts.bunny.net https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com; worker-src blob:; connect-src blob: data:; frame-src &#x27;none&#x27;; object-src &#x27;none&#x27;; base-uri &#x27;none&#x27;; form-action &#x27;none&#x27;&quot;&gt;
+&lt;title&gt;Newsroom interactive user manual&lt;/title&gt;
+&lt;style&gt;:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, &quot;Segoe UI&quot;, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, &quot;SF Mono&quot;, Menlo, Consolas, &quot;Liberation Mono&quot;,
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url(&quot;data:image/svg+xml,%3Csvg xmlns=&#x27;http://www.w3.org/2000/svg&#x27; viewBox=&#x27;0 0 17 17&#x27;%3E%3Cpath d=&#x27;M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z&#x27;/%3E%3C/svg%3E&quot;);
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme=&quot;light&quot;] {
+  color-scheme: light;
+}
+
+:root[data-theme=&quot;dark&quot;] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html &gt; body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive &gt; .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align=&quot;right&quot;]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align=&quot;center&quot;]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget &gt; :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls &gt; .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls &gt; .form-label &gt; :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled=&quot;true&quot;]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled=&quot;true&quot;] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type=&quot;file&quot;] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type=&quot;file&quot;]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type=&quot;file&quot;]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type=&quot;color&quot;] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type=&quot;color&quot;]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type=&quot;checkbox&quot;]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type=&quot;checkbox&quot;]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: &quot;&quot;;
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type=&quot;radio&quot;] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type=&quot;radio&quot;]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: &quot;&quot;;
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed=&quot;true&quot;],
+  [aria-selected=&quot;true&quot;],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed=&quot;true&quot;], [aria-selected=&quot;true&quot;], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type=&quot;file&quot;]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type=&quot;color&quot;] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type=&quot;date&quot;],
+    [type=&quot;datetime-local&quot;],
+    [type=&quot;month&quot;],
+    [type=&quot;time&quot;],
+    [type=&quot;week&quot;]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: &quot;&quot;;
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget &gt; svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html&gt;body{padding:0}&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;style&gt;
+  #newsroom-operating-manual-v2 {
+    --nf-bg: light-dark(#f4f0e7, #171815);
+    --nf-surface: light-dark(#fffdf8, #22231f);
+    --nf-surface-strong: light-dark(#ffffff, #292b26);
+    --nf-ink: light-dark(#1e211d, #f2f0e8);
+    --nf-muted: light-dark(#667067, #afb5aa);
+    --nf-line: light-dark(#d8d4ca, #44473f);
+    --nf-accent: #d84a32;
+    --nf-accent-ink: #ffffff;
+    --nf-soft: color-mix(in srgb, var(--nf-accent) 13%, var(--nf-surface));
+    --nf-info: light-dark(#315d72, #8fc8df);
+    width: 100%;
+    color: var(--nf-ink);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, sans-serif;
+    color-scheme: light dark;
+  }
+
+  #newsroom-operating-manual-v2 * { box-sizing: border-box; }
+  #newsroom-operating-manual-v2 button,
+  #newsroom-operating-manual-v2 select { font: inherit; }
+
+  #newsroom-operating-manual-v2 .nf-window {
+    min-height: 650px;
+    background: var(--nf-bg);
+    border: 1px solid var(--nf-line);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 18px 52px light-dark(rgba(55, 45, 30, .13), rgba(0, 0, 0, .28));
+  }
+
+  #newsroom-operating-manual-v2 .nf-topbar {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 12px 18px;
+    background: var(--nf-surface);
+    border-bottom: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 180px;
+    font-weight: 500;
+    letter-spacing: .06em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-brand-mark {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--nf-accent);
+    color: var(--nf-accent-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-context {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-context &gt; div { min-width: 0; width: 100%; }
+
+  #newsroom-operating-manual-v2 .nf-kicker {
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-context strong {
+    display: block;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  #newsroom-operating-manual-v2 .nf-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: var(--nf-soft);
+    color: var(--nf-accent);
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  #newsroom-operating-manual-v2 .nf-live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  #newsroom-operating-manual-v2 .nf-layout {
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    min-height: 580px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-rail {
+    padding: 18px 12px;
+    background: var(--nf-surface);
+    border-right: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-rail-label {
+    margin: 0 8px 8px;
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav {
+    display: grid;
+    gap: 5px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav button {
+    width: 100%;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: var(--nf-muted);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav button[aria-pressed=&quot;true&quot;] {
+    background: var(--nf-soft);
+    color: var(--nf-ink);
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-nav svg { width: 17px; height: 17px; }
+
+  #newsroom-operating-manual-v2 .nf-rail-note {
+    margin: 28px 8px 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--nf-line);
+    color: var(--nf-muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  #newsroom-operating-manual-v2 .nf-main {
+    padding: 22px;
+    min-width: 0;
+  }
+
+  #newsroom-operating-manual-v2 .nf-toolbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  #newsroom-operating-manual-v2 h2,
+  #newsroom-operating-manual-v2 h3,
+  #newsroom-operating-manual-v2 p { margin: 0; }
+
+  #newsroom-operating-manual-v2 h2 {
+    font-size: clamp(22px, 3vw, 30px);
+    line-height: 1.15;
+    font-weight: 500;
+    letter-spacing: -.025em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-subtitle {
+    margin-top: 5px;
+    color: var(--nf-muted);
+    font-size: 14px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-field {
+    display: grid;
+    gap: 5px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 select {
+    min-height: 40px;
+    min-width: 176px;
+    padding: 7px 34px 7px 11px;
+    border: 1px solid var(--nf-line);
+    border-radius: 9px;
+    background: var(--nf-surface-strong);
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-content {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  #newsroom-operating-manual-v2 .nf-canvas {
+    min-width: 0;
+  }
+
+  #newsroom-operating-manual-v2 .nf-status-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-progress-text { color: var(--nf-ink); }
+
+  #newsroom-operating-manual-v2 .nf-flow {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(110px, 1fr));
+    gap: 34px 22px;
+    padding: 18px 4px 26px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-flow::before {
+    content: &quot;&quot;;
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    top: 46px;
+    height: 2px;
+    background: var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-flow::after {
+    content: &quot;&quot;;
+    position: absolute;
+    left: 7%;
+    right: 7%;
+    top: 198px;
+    height: 2px;
+    background: var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    border: 0;
+    background: transparent;
+    color: var(--nf-ink);
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage-circle {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--nf-line);
+    border-radius: 50%;
+    background: var(--nf-surface-strong);
+    color: var(--nf-muted);
+    transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage:hover .nf-stage-circle { transform: translateY(-2px); }
+  #newsroom-operating-manual-v2 .nf-stage[aria-current=&quot;step&quot;] .nf-stage-circle {
+    background: var(--nf-accent);
+    border-color: var(--nf-accent);
+    color: var(--nf-accent-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage[data-dim=&quot;true&quot;] { opacity: .3; }
+  #newsroom-operating-manual-v2 .nf-stage svg { width: 21px; height: 21px; }
+
+  #newsroom-operating-manual-v2 .nf-stage-name {
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-stage-owner {
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    padding-top: 16px;
+    border-top: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-strip span {
+    margin-right: 3px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role {
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid var(--nf-line);
+    border-radius: 999px;
+    background: var(--nf-surface);
+    color: var(--nf-ink);
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role[aria-pressed=&quot;true&quot;] {
+    background: var(--nf-ink);
+    border-color: var(--nf-ink);
+    color: var(--nf-surface);
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery {
+    display: none;
+    margin-bottom: 18px;
+  }
+
+  #newsroom-operating-manual-v2[data-system-view=&quot;role&quot;] .nf-role-gallery { display: block; }
+  #newsroom-operating-manual-v2[data-system-view=&quot;role&quot;] .nf-role-strip { display: none; }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-head strong {
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-head span {
+    color: var(--nf-muted);
+    font-size: 11px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(84px, 1fr));
+    gap: 8px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-card {
+    min-height: 116px;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 6px;
+    padding: 9px 6px;
+    border-radius: 11px;
+    background: var(--nf-surface-strong);
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-card[aria-pressed=&quot;true&quot;] {
+    border-color: var(--nf-accent);
+    background: var(--nf-soft);
+    color: var(--nf-ink);
+    box-shadow: inset 0 0 0 1px var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-art,
+  #newsroom-operating-manual-v2 .nf-role-system-icon {
+    width: 58px;
+    height: 58px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-art {
+    display: block;
+    object-fit: contain;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-system-icon {
+    display: grid;
+    place-items: center;
+    color: var(--nf-info);
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-system-icon svg { width: 38px; height: 38px; }
+
+  #newsroom-operating-manual-v2 .nf-role-card strong {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  #newsroom-operating-manual-v2 .nf-role-card small {
+    display: block;
+    margin-top: 2px;
+    color: var(--nf-muted);
+    font-size: 10px;
+    line-height: 1.2;
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail {
+    padding: 18px;
+    border-radius: 13px;
+    background: var(--nf-surface-strong);
+    box-shadow: 0 10px 28px light-dark(rgba(55, 45, 30, .10), rgba(0, 0, 0, .22));
+  }
+
+  #newsroom-operating-manual-v2 .nf-step-label {
+    color: var(--nf-accent);
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail h3 {
+    margin-top: 6px;
+    font-size: 21px;
+    line-height: 1.2;
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-owner {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    color: var(--nf-muted);
+    font-size: 13px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-owner svg { width: 16px; height: 16px; }
+
+  #newsroom-operating-manual-v2 .nf-detail-grid {
+    display: grid;
+    gap: 14px;
+    margin-top: 20px;
+    padding: 16px 0;
+    border-top: 1px solid var(--nf-line);
+    border-bottom: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail-item dt {
+    margin-bottom: 4px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-detail-item dd {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  #newsroom-operating-manual-v2 .nf-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-actions[hidden] { display: none; }
+
+  #newsroom-operating-manual-v2 .nf-action {
+    min-height: 39px;
+    border: 1px solid var(--nf-line);
+    border-radius: 9px;
+    background: transparent;
+    color: var(--nf-ink);
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-action-primary {
+    background: var(--nf-accent);
+    border-color: var(--nf-accent);
+    color: var(--nf-accent-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-handoff {
+    min-height: 22px;
+    margin-top: 10px;
+    color: var(--nf-muted);
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  #newsroom-operating-manual-v2 .nf-pane[hidden] { display: none; }
+
+  #newsroom-operating-manual-v2 .nf-label-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-bottle-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: 18px;
+    align-items: start;
+  }
+
+  #newsroom-operating-manual-v2 .nf-voice-definition {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-left: 3px solid var(--nf-accent);
+    background: var(--nf-soft);
+    color: var(--nf-ink);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  #newsroom-operating-manual-v2 .nf-voice-definition svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 auto;
+    color: var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-injection-map {
+    position: relative;
+    min-width: 0;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-envelope {
+    position: relative;
+    padding: 12px 12px 26px;
+    border: 1px solid var(--nf-line);
+    border-radius: 14px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-group { min-width: 0; }
+
+  #newsroom-operating-manual-v2 .nf-input-group-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 7px;
+    color: var(--nf-muted);
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-group-head strong {
+    color: var(--nf-ink);
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-stack {
+    display: grid;
+    gap: 8px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-bottle-node {
+    min-height: 82px;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    align-content: center;
+    padding: 12px;
+    border: 1px solid var(--nf-line);
+    border-radius: 11px;
+    background: var(--nf-surface-strong);
+    color: var(--nf-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-bottle-node[aria-pressed=&quot;true&quot;] {
+    border-color: var(--nf-accent);
+    box-shadow: inset 0 0 0 1px var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-node-icon {
+    grid-row: 1 / span 2;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--nf-soft);
+    color: var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-node-icon svg { width: 17px; height: 17px; }
+  #newsroom-operating-manual-v2 .nf-node-title { font-size: 13px; font-weight: 500; }
+  #newsroom-operating-manual-v2 .nf-node-copy { color: var(--nf-muted); font-size: 12px; line-height: 1.35; }
+
+  #newsroom-operating-manual-v2 .nf-input-collector {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    bottom: -43px;
+    width: min(240px, 70%);
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    transform: translateX(-50%);
+    color: var(--nf-muted);
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-collector::before {
+    content: &quot;&quot;;
+    position: absolute;
+    z-index: -1;
+    top: -13px;
+    bottom: 4px;
+    left: 50%;
+    border-left: 1px solid var(--nf-line);
+  }
+
+  #newsroom-operating-manual-v2 .nf-input-collector strong {
+    padding: 0 8px;
+    background: var(--nf-bg);
+    color: var(--nf-ink);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  #newsroom-operating-manual-v2 .nf-collector-arrow {
+    width: 23px;
+    height: 24px;
+    background: var(--nf-accent);
+    clip-path: polygon(40% 0, 60% 0, 60% 52%, 100% 52%, 50% 100%, 0 52%, 40% 52%);
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel {
+    position: relative;
+    height: 172px;
+    margin: 48px 4% 0;
+    isolation: isolate;
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-lane {
+    position: absolute;
+    inset-block: 0;
+    width: 51%;
+    display: flex;
+    justify-content: center;
+    padding-top: 22px;
+    color: var(--nf-muted);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: .055em;
+    text-align: center;
+    text-transform: uppercase;
+    transition: background 180ms ease, color 180ms ease;
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-lane-story {
+    left: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 78% 100%);
+    background: color-mix(in srgb, var(--nf-info) 13%, var(--nf-surface));
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-lane-system {
+    right: 0;
+    clip-path: polygon(0 0, 100% 0, 22% 100%, 0 100%);
+    background: color-mix(in srgb, var(--nf-accent) 13%, var(--nf-surface));
+  }
+
+  #newsroom-operating-manual-v2[data-compact=&quot;true&quot;] .nf-funnel { height: 140px; }
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context=&quot;story&quot;] .nf-funnel-lane-story {
+    background: color-mix(in srgb, var(--nf-info) 32%, var(--nf-surface));
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context=&quot;system&quot;] .nf-funnel-lane-system,
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context=&quot;both&quot;] .nf-funnel-lane-system {
+    background: color-mix(in srgb, var(--nf-accent) 32%, var(--nf-surface));
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-injection-map[data-active-context=&quot;both&quot;] .nf-funnel-lane-story {
+    background: color-mix(in srgb, var(--nf-info) 32%, var(--nf-surface));
+    color: var(--nf-ink);
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-merge {
+    position: absolute;
+    z-index: 2;
+    left: 50%;
+    bottom: 13px;
+    width: min(220px, 58%);
+    display: grid;
+    justify-items: center;
+    gap: 2px;
+    transform: translateX(-50%);
+    color: var(--nf-ink);
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-merge span {
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  #newsroom-operating-manual-v2 .nf-funnel-merge strong {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  #newsroom-operating-manual-v2 .nf-writer-node {
+    position: relative;
+    z-index: 3;
+    width: min(450px, 82%);
+    min-height: 84px;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 11px;
+    margin: -4px auto 0;
+    padding: 14px 18px;
+    border: 3px solid var(--nf-surface);
+    border-radius: 999px;
+    background: var(--nf-ink);
+    color: var(--nf-surface);
+    box-shadow: 0 0 0 1px var(--nf-line), 0 12px 28px light-dark(rgba(55, 45, 30, .13), rgba(0, 0, 0, .26));
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-writer-node .nf-node-icon {
+    background: color-mix(in srgb, var(--nf-surface) 15%, transparent);
+    color: var(--nf-surface);
+  }
+
+  #newsroom-operating-manual-v2 .nf-writer-node &gt; span:nth-child(2) { display: grid; gap: 3px; }
+  #newsroom-operating-manual-v2 .nf-writer-node .nf-node-copy { color: color-mix(in srgb, var(--nf-surface) 72%, transparent); }
+  #newsroom-operating-manual-v2 .nf-writer-node &gt; svg { width: 20px; height: 20px; }
+  #newsroom-operating-manual-v2 .nf-writer-node[aria-pressed=&quot;true&quot;] { box-shadow: 0 0 0 3px var(--nf-accent), 0 12px 28px light-dark(rgba(55, 45, 30, .13), rgba(0, 0, 0, .26)); }
+
+  #newsroom-operating-manual-v2 .nf-output-channel {
+    position: relative;
+    height: 78px;
+    display: grid;
+    place-items: center;
+    color: var(--nf-muted);
+    font-size: 11px;
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-channel::before {
+    content: &quot;&quot;;
+    width: 42px;
+    height: 66px;
+    clip-path: polygon(39% 0, 61% 0, 61% 68%, 100% 68%, 50% 100%, 0 68%, 39% 68%);
+    background: color-mix(in srgb, var(--nf-accent) 72%, var(--nf-ink));
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-channel span {
+    position: absolute;
+    left: calc(50% + 32px);
+    width: min(190px, 36%);
+    line-height: 1.3;
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 76px minmax(150px, .72fr);
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-node {
+    min-height: 82px;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    align-content: center;
+    padding: 11px 12px;
+    border: 1px solid var(--nf-line);
+    border-radius: 11px;
+    background: var(--nf-surface-strong);
+    color: var(--nf-ink);
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #newsroom-operating-manual-v2 .nf-output-node[aria-pressed=&quot;true&quot;] {
+    border-color: var(--nf-accent);
+    box-shadow: inset 0 0 0 1px var(--nf-accent);
+  }
+
+  #newsroom-operating-manual-v2 .nf-review-link {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 4px;
+    color: var(--nf-muted);
+    font-size: 10px;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-review-link svg { width: 28px; height: 28px; color: var(--nf-accent); }
+
+  #newsroom-operating-manual-v2 .nf-gate-next {
+    min-width: 130px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 4px;
+    padding: 10px;
+    border: 1px solid var(--nf-line);
+    border-radius: 11px;
+    color: var(--nf-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  #newsroom-operating-manual-v2 .nf-gate-next strong { color: var(--nf-ink); font-weight: 500; }
+
+  #newsroom-operating-manual-v2 .nf-path-message {
+    min-height: 20px;
+    margin-top: 10px;
+    color: var(--nf-muted);
+    font-size: 12px;
+  }
+
+  #newsroom-operating-manual-v2[data-compact=&quot;true&quot;] .nf-main { padding: 16px; }
+  #newsroom-operating-manual-v2[data-compact=&quot;true&quot;] .nf-flow { gap: 22px 14px; }
+  #newsroom-operating-manual-v2[data-show-rail=&quot;false&quot;] .nf-layout { grid-template-columns: 1fr; }
+  #newsroom-operating-manual-v2[data-show-rail=&quot;false&quot;] .nf-rail { display: none; }
+
+  @media (max-width: 820px) {
+    #newsroom-operating-manual-v2 .nf-layout { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-rail { display: none; }
+    #newsroom-operating-manual-v2 .nf-content { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-detail { max-width: none; }
+    #newsroom-operating-manual-v2 .nf-bottle-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 590px) {
+    #newsroom-operating-manual-v2 .nf-window { border-radius: 12px; }
+    #newsroom-operating-manual-v2 .nf-topbar { align-items: flex-start; flex-wrap: wrap; }
+    #newsroom-operating-manual-v2 .nf-brand { min-width: 0; }
+    #newsroom-operating-manual-v2 .nf-live { margin-left: auto; }
+    #newsroom-operating-manual-v2 .nf-context { order: 3; flex-basis: 100%; }
+    #newsroom-operating-manual-v2 .nf-main { padding: 16px 12px; }
+    #newsroom-operating-manual-v2 .nf-toolbar { align-items: stretch; flex-direction: column; }
+    #newsroom-operating-manual-v2 select { width: 100%; }
+    #newsroom-operating-manual-v2 .nf-flow { grid-template-columns: repeat(2, 1fr); gap: 28px 18px; }
+    #newsroom-operating-manual-v2 .nf-flow::before,
+    #newsroom-operating-manual-v2 .nf-flow::after { display: none; }
+    #newsroom-operating-manual-v2 .nf-input-groups { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-funnel { height: 150px; margin-inline: 0; }
+    #newsroom-operating-manual-v2 .nf-funnel-lane {
+      padding-top: 16px;
+      font-size: 9px;
+      letter-spacing: .025em;
+      white-space: nowrap;
+    }
+    #newsroom-operating-manual-v2 .nf-writer-node { width: 94%; }
+    #newsroom-operating-manual-v2 .nf-output-row { grid-template-columns: 1fr; }
+    #newsroom-operating-manual-v2 .nf-review-link svg { transform: rotate(90deg); }
+    #newsroom-operating-manual-v2 .nf-output-channel span { left: calc(50% + 28px); width: 40%; }
+  }
+
+  @media (max-width: 460px) {
+    #newsroom-operating-manual-v2 .nf-role-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #newsroom-operating-manual-v2 .nf-stage-circle,
+    #newsroom-operating-manual-v2 .nf-funnel-lane { transition: none; }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    #newsroom-operating-manual-v2 .nf-role-art {
+      filter: brightness(0) invert(1);
+      opacity: .88;
+    }
+  }
+&lt;/style&gt;
+
+&lt;div id=&quot;newsroom-operating-manual-v2&quot; aria-label=&quot;Uzelhub newsroom operating manual&quot; data-compact=&quot;false&quot; data-show-rail=&quot;true&quot; data-system-view=&quot;flow&quot;&gt;
+  &lt;section class=&quot;nf-window&quot;&gt;
+    &lt;header class=&quot;nf-topbar&quot;&gt;
+      &lt;div class=&quot;nf-brand&quot;&gt;
+        &lt;span class=&quot;nf-brand-mark&quot;&gt;&lt;i data-lucide=&quot;radio&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+        NEWSROOM
+      &lt;/div&gt;
+      &lt;div class=&quot;nf-context&quot;&gt;
+        &lt;div&gt;
+          &lt;span class=&quot;nf-kicker&quot;&gt;Interactive specification · newsroom system flow&lt;/span&gt;
+          &lt;strong id=&quot;nf-story-title&quot;&gt;Newsroom system — evidence to published work&lt;/strong&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/header&gt;
+
+    &lt;div class=&quot;nf-layout&quot;&gt;
+      &lt;aside class=&quot;nf-rail&quot; aria-label=&quot;Navigator views&quot;&gt;
+        &lt;p class=&quot;nf-rail-label&quot;&gt;Navigate by&lt;/p&gt;
+        &lt;nav class=&quot;nf-nav&quot;&gt;
+          &lt;button type=&quot;button&quot; aria-pressed=&quot;true&quot; data-view=&quot;flow&quot;&gt;&lt;i data-lucide=&quot;git-branch&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; System flow&lt;/button&gt;
+          &lt;button type=&quot;button&quot; aria-pressed=&quot;false&quot; data-view=&quot;role&quot;&gt;&lt;i data-lucide=&quot;users&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Role&lt;/button&gt;
+          &lt;button type=&quot;button&quot; aria-pressed=&quot;false&quot; data-view=&quot;bottle&quot;&gt;&lt;i data-lucide=&quot;flask-conical&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt; Voice bottle&lt;/button&gt;
+        &lt;/nav&gt;
+        &lt;p class=&quot;nf-rail-note&quot;&gt;Select a stage to see what the specified system reads, writes, and must preserve.&lt;/p&gt;
+      &lt;/aside&gt;
+
+      &lt;main class=&quot;nf-main&quot;&gt;
+        &lt;section class=&quot;nf-pane&quot; id=&quot;nf-system-pane&quot;&gt;
+          &lt;div class=&quot;nf-toolbar&quot;&gt;
+            &lt;div&gt;
+              &lt;h2 id=&quot;nf-view-title&quot;&gt;Newsroom system flow&lt;/h2&gt;
+              &lt;p class=&quot;nf-subtitle&quot; id=&quot;nf-view-subtitle&quot;&gt;Follow evidence through triage, drafting, approval, and release.&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;nf-content&quot;&gt;
+            &lt;section class=&quot;nf-canvas&quot; aria-label=&quot;Newsroom system stages&quot;&gt;
+              &lt;section class=&quot;nf-role-gallery&quot; aria-label=&quot;Newsroom roles&quot;&gt;
+                &lt;div class=&quot;nf-role-gallery-head&quot;&gt;&lt;strong&gt;Newsroom roles&lt;/strong&gt;&lt;span&gt;Select a seat to reveal its stages&lt;/span&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-role-gallery-grid&quot;&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Scout&quot; aria-pressed=&quot;true&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,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&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Scout&lt;/strong&gt;&lt;small&gt;finds&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Wire&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,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&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Wire Editor&lt;/strong&gt;&lt;small&gt;triages&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Editor&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,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&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Editor&lt;/strong&gt;&lt;small&gt;decides&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Writer&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;img class=&quot;nf-role-art&quot; src=&quot;data:image/png;base64,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&quot; alt=&quot;&quot; width=&quot;64&quot; height=&quot;64&quot;&gt;
+                    &lt;span&gt;&lt;strong&gt;Writer&lt;/strong&gt;&lt;small&gt;drafts&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;button class=&quot;nf-role nf-role-card&quot; type=&quot;button&quot; data-role=&quot;Release&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;span class=&quot;nf-role-system-icon&quot;&gt;&lt;i data-lucide=&quot;send&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                    &lt;span&gt;&lt;strong&gt;Release system&lt;/strong&gt;&lt;small&gt;ships&lt;/small&gt;&lt;/span&gt;
+                  &lt;/button&gt;
+                &lt;/div&gt;
+              &lt;/section&gt;
+
+              &lt;div class=&quot;nf-status-line&quot;&gt;
+                &lt;span id=&quot;nf-status-copy&quot;&gt;Selected stage role: Scout&lt;/span&gt;
+                &lt;span class=&quot;nf-progress-text&quot; id=&quot;nf-progress&quot;&gt;1 of 8&lt;/span&gt;
+              &lt;/div&gt;
+
+              &lt;div class=&quot;nf-flow&quot; id=&quot;nf-flow&quot;&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;0&quot; aria-current=&quot;step&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;database&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Ingest ore&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Scout intake&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;1&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;gem&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Walk &amp; synthesize&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Scout&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;2&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;notebook-tabs&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;File lead&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Scout ledger&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;3&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;list-checks&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Propose triage&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Wire + chief&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;4&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;route&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Gate ① · route&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Operator&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;5&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;file-pen-line&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Create draft&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Writer&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;6&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;shield-check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Gate ② · approve&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Operator&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;nf-stage&quot; type=&quot;button&quot; data-stage=&quot;7&quot;&gt;
+                  &lt;span class=&quot;nf-stage-circle&quot;&gt;&lt;i data-lucide=&quot;send&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span class=&quot;nf-stage-name&quot;&gt;Queue &amp; release&lt;/span&gt;&lt;span class=&quot;nf-stage-owner&quot;&gt;Release + generator&lt;/span&gt;
+                &lt;/button&gt;
+              &lt;/div&gt;
+
+              &lt;div class=&quot;nf-role-strip&quot; aria-label=&quot;Highlight role involvement&quot;&gt;
+                &lt;span&gt;Stage role&lt;/span&gt;
+                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Scout&quot; aria-pressed=&quot;true&quot;&gt;Scout&lt;/button&gt;
+                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Wire&quot; aria-pressed=&quot;false&quot;&gt;Wire Editor&lt;/button&gt;
+                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Editor&quot; aria-pressed=&quot;false&quot;&gt;Editor&lt;/button&gt;
+                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Writer&quot; aria-pressed=&quot;false&quot;&gt;Writer&lt;/button&gt;
+                &lt;button class=&quot;nf-role&quot; type=&quot;button&quot; data-role=&quot;Release&quot; aria-pressed=&quot;false&quot;&gt;Release&lt;/button&gt;
+              &lt;/div&gt;
+            &lt;/section&gt;
+
+            &lt;aside class=&quot;nf-detail&quot; aria-live=&quot;polite&quot;&gt;
+              &lt;div class=&quot;nf-label-row&quot;&gt;&lt;span class=&quot;nf-step-label&quot; id=&quot;nf-step-label&quot;&gt;Stage 1 · intake&lt;/span&gt;&lt;/div&gt;
+              &lt;h3 id=&quot;nf-stage-title&quot;&gt;Ingest ore&lt;/h3&gt;
+              &lt;div class=&quot;nf-owner&quot;&gt;&lt;i data-lucide=&quot;user-round&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span id=&quot;nf-owner&quot;&gt;Owner: Scout intake&lt;/span&gt;&lt;/div&gt;
+              &lt;dl class=&quot;nf-detail-grid&quot;&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt id=&quot;nf-input-label&quot;&gt;Reads&lt;/dt&gt;&lt;dd id=&quot;nf-input&quot;&gt;Session logs; explicit walks can also read git, documents and ledgers&lt;/dd&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt id=&quot;nf-done-label&quot;&gt;Writes&lt;/dt&gt;&lt;dd id=&quot;nf-done&quot;&gt;New session rows into scout_session_log; no model call&lt;/dd&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt id=&quot;nf-next-label&quot;&gt;Guardrail&lt;/dt&gt;&lt;dd id=&quot;nf-next&quot;&gt;Capture is passive: ingestion never initiates synthesis or changes editorial state&lt;/dd&gt;&lt;/div&gt;
+              &lt;/dl&gt;
+              &lt;div class=&quot;nf-actions&quot; id=&quot;nf-detail-actions&quot;&gt;
+                &lt;button class=&quot;nf-action&quot; id=&quot;nf-back&quot; type=&quot;button&quot;&gt;Previous&lt;/button&gt;
+                &lt;button class=&quot;nf-action nf-action-primary&quot; id=&quot;nf-next-button&quot; type=&quot;button&quot;&gt;Next stage&lt;/button&gt;
+              &lt;/div&gt;
+              &lt;p class=&quot;nf-handoff&quot; id=&quot;nf-handoff&quot;&gt;&lt;/p&gt;
+            &lt;/aside&gt;
+          &lt;/div&gt;
+        &lt;/section&gt;
+
+        &lt;section class=&quot;nf-pane&quot; id=&quot;nf-bottle-pane&quot; hidden&gt;
+          &lt;div class=&quot;nf-toolbar&quot;&gt;
+            &lt;div&gt;
+              &lt;h2&gt;How the voice bottle enters a draft&lt;/h2&gt;
+              &lt;p class=&quot;nf-subtitle&quot;&gt;Gate ①’s content type selects the shape; its voice profile arrives from exemplars at runtime.&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div class=&quot;nf-bottle-grid&quot;&gt;
+            &lt;section aria-label=&quot;Voice bottle inputs and draft output&quot;&gt;
+              &lt;div class=&quot;nf-voice-definition&quot;&gt;&lt;i data-lucide=&quot;mic-off&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span&gt;&lt;strong&gt;Voice here means written register, not recorded audio.&lt;/strong&gt; The Writer receives the assignment, voice exemplars, and evidence as text.&lt;/span&gt;&lt;/div&gt;
+
+              &lt;div class=&quot;nf-injection-map&quot; id=&quot;nf-injection-map&quot; data-active-context=&quot;system&quot;&gt;
+                &lt;div class=&quot;nf-input-envelope&quot;&gt;
+                  &lt;div class=&quot;nf-input-groups&quot;&gt;
+                    &lt;section class=&quot;nf-input-group&quot; aria-label=&quot;Story-specific context&quot;&gt;
+                      &lt;div class=&quot;nf-input-group-head&quot;&gt;&lt;strong&gt;Story context&lt;/strong&gt;&lt;span&gt;changes per lead&lt;/span&gt;&lt;/div&gt;
+                      &lt;div class=&quot;nf-input-stack&quot;&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;assignment&quot; aria-pressed=&quot;false&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;notebook-pen&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Claimed lead&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What to write · ID, pitch, why-now, type&lt;/span&gt;
+                        &lt;/button&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;evidence&quot; aria-pressed=&quot;false&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;search-check&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Evidence roam&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What is true · cited threads become receipts&lt;/span&gt;
+                        &lt;/button&gt;
+                      &lt;/div&gt;
+                    &lt;/section&gt;
+
+                    &lt;section class=&quot;nf-input-group&quot; aria-label=&quot;Reusable system context&quot;&gt;
+                      &lt;div class=&quot;nf-input-group-head&quot;&gt;&lt;strong&gt;System context&lt;/strong&gt;&lt;span&gt;reused across drafts&lt;/span&gt;&lt;/div&gt;
+                      &lt;div class=&quot;nf-input-stack&quot;&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;shape&quot; aria-pressed=&quot;false&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;ruler&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Shape prompt&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;What form · each content type owns its shape&lt;/span&gt;
+                        &lt;/button&gt;
+                        &lt;button class=&quot;nf-bottle-node&quot; type=&quot;button&quot; data-bottle=&quot;bottle&quot; aria-pressed=&quot;true&quot;&gt;
+                          &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;flask-conical&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Voice bottle&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;How it sounds · moves + sorted exemplars&lt;/span&gt;
+                        &lt;/button&gt;
+                      &lt;/div&gt;
+                    &lt;/section&gt;
+                  &lt;/div&gt;
+                  &lt;div class=&quot;nf-input-collector&quot; aria-hidden=&quot;true&quot;&gt;&lt;strong&gt;All four inputs enter&lt;/strong&gt;&lt;span class=&quot;nf-collector-arrow&quot;&gt;&lt;/span&gt;&lt;/div&gt;
+                &lt;/div&gt;
+
+                &lt;div class=&quot;nf-funnel&quot; role=&quot;img&quot; aria-label=&quot;Claimed lead, evidence roam, shape prompt, and voice bottle all enter the funnel and converge into one Writer call&quot;&gt;
+                  &lt;div class=&quot;nf-funnel-lane nf-funnel-lane-story&quot;&gt;&lt;span&gt;lead + receipts&lt;/span&gt;&lt;/div&gt;
+                  &lt;div class=&quot;nf-funnel-lane nf-funnel-lane-system&quot;&gt;&lt;span&gt;shape + voice&lt;/span&gt;&lt;/div&gt;
+                  &lt;div class=&quot;nf-funnel-merge&quot;&gt;&lt;span&gt;same model context&lt;/span&gt;&lt;strong&gt;All four constraints present&lt;/strong&gt;&lt;/div&gt;
+                &lt;/div&gt;
+
+                &lt;button class=&quot;nf-writer-node&quot; type=&quot;button&quot; data-bottle=&quot;seat&quot; aria-pressed=&quot;false&quot;&gt;
+                  &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;brain-circuit&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                  &lt;span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Writer synthesis&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;One call composes form, register, assignment, and receipts&lt;/span&gt;&lt;/span&gt;
+                  &lt;i data-lucide=&quot;sparkles&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;
+                &lt;/button&gt;
+
+                &lt;div class=&quot;nf-output-channel&quot; aria-hidden=&quot;true&quot;&gt;&lt;span&gt;strict structured output + provenance&lt;/span&gt;&lt;/div&gt;
+
+                &lt;div class=&quot;nf-output-row&quot;&gt;
+                  &lt;button class=&quot;nf-output-node&quot; type=&quot;button&quot; data-bottle=&quot;output&quot; aria-pressed=&quot;false&quot;&gt;
+                    &lt;span class=&quot;nf-node-icon&quot;&gt;&lt;i data-lucide=&quot;file-json&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;/span&gt;&lt;span class=&quot;nf-node-title&quot;&gt;Banked draft&lt;/span&gt;&lt;span class=&quot;nf-node-copy&quot;&gt;Structured JSON + mechanical copyDraft stamp&lt;/span&gt;
+                  &lt;/button&gt;
+                  &lt;div class=&quot;nf-review-link&quot; aria-hidden=&quot;true&quot;&gt;&lt;i data-lucide=&quot;arrow-right&quot;&gt;&lt;/i&gt;&lt;span&gt;review boundary&lt;/span&gt;&lt;/div&gt;
+                  &lt;div class=&quot;nf-gate-next&quot;&gt;&lt;span&gt;human authority&lt;/span&gt;&lt;strong&gt;Gate ②&lt;/strong&gt;&lt;span&gt;scrub + substantive review&lt;/span&gt;&lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+              &lt;p class=&quot;nf-path-message&quot; id=&quot;nf-path-message&quot;&gt;Assignment + shape + selected voice profile + evidence → Writer → banked draft → Gate ②.&lt;/p&gt;
+            &lt;/section&gt;
+
+            &lt;aside class=&quot;nf-detail&quot; id=&quot;nf-bottle-detail&quot; aria-live=&quot;polite&quot;&gt;
+              &lt;div class=&quot;nf-label-row&quot;&gt;&lt;span class=&quot;nf-step-label&quot; id=&quot;nf-bottle-label&quot;&gt;Prompt input · profile&lt;/span&gt;&lt;/div&gt;
+              &lt;h3 id=&quot;nf-bottle-title&quot;&gt;Voice profile&lt;/h3&gt;
+              &lt;div class=&quot;nf-owner&quot;&gt;&lt;i data-lucide=&quot;folder&quot; aria-hidden=&quot;true&quot;&gt;&lt;/i&gt;&lt;span id=&quot;nf-bottle-owner&quot;&gt;voice/man-page-dry/&lt;/span&gt;&lt;/div&gt;
+              &lt;dl class=&quot;nf-detail-grid&quot;&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt&gt;Loads&lt;/dt&gt;&lt;dd id=&quot;nf-bottle-input&quot;&gt;moves.md and two harvested JSON samples&lt;/dd&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt&gt;Rule&lt;/dt&gt;&lt;dd id=&quot;nf-bottle-rule&quot;&gt;Samples carry the voice; named moves stay deliberately thin&lt;/dd&gt;&lt;/div&gt;
+                &lt;div class=&quot;nf-detail-item&quot;&gt;&lt;dt&gt;Failure boundary&lt;/dt&gt;&lt;dd id=&quot;nf-bottle-boundary&quot;&gt;An empty samples directory hard-fails instead of drafting voiceless&lt;/dd&gt;&lt;/div&gt;
+              &lt;/dl&gt;
+            &lt;/aside&gt;
+          &lt;/div&gt;
+        &lt;/section&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+&lt;/div&gt;
+
+&lt;script&gt;
+(() =&gt; {
+  const root = document.getElementById(&#x27;newsroom-operating-manual-v2&#x27;);
+  const stages = [
+    { title: &#x27;Ingest ore&#x27;, kind: &#x27;intake&#x27;, owner: &#x27;Scout intake&#x27;, roles: [&#x27;Scout&#x27;], input: &#x27;Session logs and explicit reads of git, documents, and ledgers&#x27;, done: &#x27;Immutable ore records with source provenance&#x27;, next: &#x27;Capture is passive: ingestion never initiates synthesis or changes editorial state.&#x27; },
+    { title: &#x27;Walk &amp; synthesize&#x27;, kind: &#x27;prospecting&#x27;, owner: &#x27;Scout&#x27;, roles: [&#x27;Scout&#x27;], input: &#x27;Cursor-bounded ore pages; then selected stored jewels, the map tail, box index, and status-blind dedup memory&#x27;, done: &#x27;During the walk, Scout identifies a durable finding (a principle, correction, reframe, decision, or aha), anchors it to the exact source record, and persists it as a jewel. Synthesis then turns selected jewels into leads with ID, pitch, why-now, citations, type, and agent span.&#x27;, next: &#x27;Scout taste remains status-blind: downstream editorial verdicts never feed back into discovery.&#x27; },
+    { title: &#x27;File lead&#x27;, kind: &#x27;store&#x27;, owner: &#x27;Scout ledger&#x27;, roles: [&#x27;Scout&#x27;], input: &#x27;A synthesized lead from the Scout&#x27;, done: &#x27;Append-only leads.yaml record at status new with redaction required; its stable ID becomes the handle&#x27;, next: &#x27;The Scout appends leads; it never edits or removes an existing lead.&#x27; },
+    { title: &#x27;Propose triage&#x27;, kind: &#x27;advice&#x27;, owner: &#x27;Wire Editor + chief shadow&#x27;, roles: [&#x27;Wire&#x27;], input: &#x27;Every new lead plus IDs already claimed, drafted, published, or spiked&#x27;, done: &#x27;A proposal to claim, hold, or spike, with suggested type, reason, clusters, and chief shadow&#x27;, next: &#x27;Triage is advice. It cannot mutate the lead ledger or make the routing decision.&#x27; },
+    { title: &#x27;Gate ① · route&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Editor&#x27;], input: &#x27;Scout lead, Wire advice, and chief shadow&#x27;, done: &#x27;A durable human decision: claim, hold, or spike, plus the effective type and destination&#x27;, next: &#x27;The operator is the routing authority; agents may recommend but cannot cross this gate.&#x27; },
+    { title: &#x27;Create draft&#x27;, kind: &#x27;production&#x27;, owner: &#x27;Writer&#x27;, roles: [&#x27;Writer&#x27;], input: &#x27;Claimed assignment + content shape + selected voice bottle + convergent reads of cited sources&#x27;, done: &#x27;A revisioned, structured draft with evidence and copyDraft provenance&#x27;, next: &#x27;The Writer drafts only: it cannot route, approve, publish, or alter the presentation layer.&#x27; },
+    { title: &#x27;Gate ② · approve&#x27;, kind: &#x27;human gate&#x27;, owner: &#x27;Operator&#x27;, roles: [&#x27;Editor&#x27;], input: &#x27;The exact draft revision, its evidence, mechanical scan findings, and substantive/voice review&#x27;, done: &#x27;Human approval bound to that revision after the scrub is complete&#x27;, next: &#x27;A clean scan is evidence for the operator, never a substitute for human approval.&#x27; },
+    { title: &#x27;Queue &amp; release&#x27;, kind: &#x27;delivery&#x27;, owner: &#x27;Release + generator&#x27;, roles: [&#x27;Release&#x27;], input: &#x27;An approved draft revision and its selected destination&#x27;, done: &#x27;A queued publication record; release stamps the publication date and deterministic generation renders the page&#x27;, next: &#x27;Promotion is not publication: queued and released remain distinct states with traceable provenance.&#x27; }
+  ];
+
+  const roleStageMap = {
+    Scout: [0, 1, 2],
+    Wire: [3],
+    Editor: [4, 6],
+    Writer: [5],
+    Release: [7]
+  };
+
+  const roleDetails = {
+    Scout: {
+      label: &#x27;Newsroom role · discovery&#x27;,
+      title: &#x27;Scout&#x27;,
+      seat: &#x27;Agent seat · touches 3 stages&#x27;,
+      responsibility: &#x27;Looks for stories in the server’s own working history: session logs, commits, operations ledgers, and the record of agent decisions.&#x27;,
+      handoff: &#x27;Append-only lead records with stable IDs, pitches, why-now arguments, source pointers, types, and agent spans → Wire Editor and Gate ①.&#x27;,
+      guardrail: &#x27;Scout memory maps where to look, but remains blind to downstream editorial verdicts so discovery does not learn to chase approval.&#x27;
+    },
+    Wire: {
+      label: &#x27;Newsroom role · triage&#x27;,
+      title: &#x27;Wire Editor&#x27;,
+      seat: &#x27;Agent seat · touches 1 stage&#x27;,
+      responsibility: &#x27;Reads the pile of new leads and proposes a shortlist: claim, hold, or spike.&#x27;,
+      handoff: &#x27;A triage proposal with suggested type, reason, clusters, and chief shadow → Gate ①.&#x27;,
+      guardrail: &#x27;Triage is advice. The Wire Editor cannot mutate the lead ledger or make the routing decision.&#x27;
+    },
+    Editor: {
+      label: &#x27;Newsroom role · authority&#x27;,
+      title: &#x27;Editor&#x27;,
+      seat: &#x27;Human seat · touches 2 stages&#x27;,
+      responsibility: &#x27;Decides what gets pursued and approves every word before it goes public.&#x27;,
+      handoff: &#x27;Gate ① produces the effective type and destination. Gate ② produces approval bound to the exact reviewed revision.&#x27;,
+      guardrail: &#x27;Final approval never moves to a machine. Automated findings inform the editor; they do not replace editorial judgment.&#x27;
+    },
+    Writer: {
+      label: &#x27;Newsroom role · production&#x27;,
+      title: &#x27;Writer&#x27;,
+      seat: &#x27;Agent seat · touches 1 stage&#x27;,
+      responsibility: &#x27;Turns an approved lead into a draft in the register the piece calls for.&#x27;,
+      handoff: &#x27;A revisioned structured draft with evidence and copyDraft provenance → scrub and Gate ②.&#x27;,
+      guardrail: &#x27;The Writer has no voice of its own: it works from selected exemplars, and it cannot route, approve, publish, or alter presentation.&#x27;
+    },
+    Release: {
+      label: &#x27;System role · delivery&#x27;,
+      title: &#x27;Release system&#x27;,
+      seat: &#x27;System function · touches 1 stage&#x27;,
+      responsibility: &#x27;Promotes an approved draft into the publication queue, stamps the release date, and renders the page deterministically.&#x27;,
+      handoff: &#x27;Queued publication record → released page with traceable provenance.&#x27;,
+      guardrail: &#x27;Promotion is not publication. Queued and released remain distinct states, and release cannot supply missing approval.&#x27;
+    }
+  };
+
+  let current = 0;
+  let selectedRole = stages[0].roles[0];
+  let activeView = &#x27;flow&#x27;;
+  let detailMode = &#x27;stage&#x27;;
+
+  const stageButtons = [...root.querySelectorAll(&#x27;.nf-stage&#x27;)];
+  const el = id =&gt; root.querySelector(&#x27;#&#x27; + id);
+
+  function syncRoleButtons() {
+    root.querySelectorAll(&#x27;.nf-role&#x27;).forEach(button =&gt; {
+      button.setAttribute(&#x27;aria-pressed&#x27;, String(button.dataset.role === selectedRole));
+    });
+  }
+
+  function renderStageDetail(stage) {
+    el(&#x27;nf-step-label&#x27;).textContent = `Stage ${current + 1} · ${stage.kind}`;
+    el(&#x27;nf-stage-title&#x27;).textContent = stage.title;
+    el(&#x27;nf-owner&#x27;).textContent = `Owner: ${stage.owner}`;
+    el(&#x27;nf-input-label&#x27;).textContent = &#x27;Reads&#x27;;
+    el(&#x27;nf-done-label&#x27;).textContent = &#x27;Writes&#x27;;
+    el(&#x27;nf-next-label&#x27;).textContent = &#x27;Guardrail&#x27;;
+    el(&#x27;nf-input&#x27;).textContent = stage.input;
+    el(&#x27;nf-done&#x27;).textContent = stage.done;
+    el(&#x27;nf-next&#x27;).textContent = stage.next;
+    el(&#x27;nf-detail-actions&#x27;).hidden = false;
+    el(&#x27;nf-back&#x27;).disabled = current === 0;
+    el(&#x27;nf-next-button&#x27;).textContent = current === stages.length - 1 ? &#x27;Restart map&#x27; : &#x27;Next stage&#x27;;
+  }
+
+  function renderRoleDetail() {
+    const role = roleDetails[selectedRole];
+    el(&#x27;nf-step-label&#x27;).textContent = role.label;
+    el(&#x27;nf-stage-title&#x27;).textContent = role.title;
+    el(&#x27;nf-owner&#x27;).textContent = role.seat;
+    el(&#x27;nf-input-label&#x27;).textContent = &#x27;Responsibility&#x27;;
+    el(&#x27;nf-done-label&#x27;).textContent = &#x27;Handoff&#x27;;
+    el(&#x27;nf-next-label&#x27;).textContent = &#x27;Guardrail&#x27;;
+    el(&#x27;nf-input&#x27;).textContent = role.responsibility;
+    el(&#x27;nf-done&#x27;).textContent = role.handoff;
+    el(&#x27;nf-next&#x27;).textContent = role.guardrail;
+    el(&#x27;nf-detail-actions&#x27;).hidden = true;
+    el(&#x27;nf-handoff&#x27;).textContent = &#x27;&#x27;;
+  }
+
+  function render() {
+    const stage = stages[current];
+    stageButtons.forEach((button, index) =&gt; {
+      if (index === current) button.setAttribute(&#x27;aria-current&#x27;, &#x27;step&#x27;);
+      else button.removeAttribute(&#x27;aria-current&#x27;);
+      button.dataset.dim = activeView === &#x27;role&#x27; &amp;&amp; !roleStageMap[selectedRole].includes(index) ? &#x27;true&#x27; : &#x27;false&#x27;;
+    });
+    if (activeView === &#x27;role&#x27; &amp;&amp; detailMode === &#x27;role&#x27;) renderRoleDetail();
+    else renderStageDetail(stage);
+    el(&#x27;nf-progress&#x27;).textContent = `${current + 1} of ${stages.length}`;
+    el(&#x27;nf-status-copy&#x27;).textContent = activeView === &#x27;role&#x27;
+      ? `${roleDetails[selectedRole].title} touches ${roleStageMap[selectedRole].length} ${roleStageMap[selectedRole].length === 1 ? &#x27;stage&#x27; : &#x27;stages&#x27;}`
+      : `Selected stage role: ${selectedRole}`;
+  }
+
+  stageButtons.forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
+    current = Number(button.dataset.stage);
+    selectedRole = stages[current].roles[0];
+    detailMode = &#x27;stage&#x27;;
+    el(&#x27;nf-handoff&#x27;).textContent = &#x27;&#x27;;
+    syncRoleButtons();
+    render();
+  }));
+
+  root.querySelectorAll(&#x27;.nf-role&#x27;).forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
+    selectedRole = button.dataset.role;
+    current = roleStageMap[selectedRole][0];
+    detailMode = activeView === &#x27;role&#x27; ? &#x27;role&#x27; : &#x27;stage&#x27;;
+    syncRoleButtons();
+    render();
+  }));
+
+  el(&#x27;nf-back&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+    current = Math.max(0, current - 1);
+    selectedRole = stages[current].roles[0];
+    detailMode = &#x27;stage&#x27;;
+    el(&#x27;nf-handoff&#x27;).textContent = &#x27;&#x27;;
+    syncRoleButtons();
+    render();
+  });
+
+  el(&#x27;nf-next-button&#x27;).addEventListener(&#x27;click&#x27;, () =&gt; {
+    const previous = stages[current].title;
+    current = current === stages.length - 1 ? 0 : current + 1;
+    selectedRole = stages[current].roles[0];
+    detailMode = &#x27;stage&#x27;;
+    syncRoleButtons();
+    el(&#x27;nf-handoff&#x27;).textContent = current === 0 ? &#x27;New ore can enter; editorial verdicts never feed back into Scout taste.&#x27; : `${previous} hands off to ${stages[current].title}.`;
+    render();
+  });
+
+  const viewCopy = {
+    flow: [&#x27;Newsroom system flow&#x27;, &#x27;Follow evidence through triage, drafting, approval, and release.&#x27;],
+    role: [&#x27;Responsibility by role&#x27;, &#x27;Choose a newsroom seat above to reveal the stages it touches.&#x27;]
+  };
+
+  root.querySelectorAll(&#x27;.nf-nav button&#x27;).forEach(button =&gt; button.addEventListener(&#x27;click&#x27;, () =&gt; {
+    root.querySelectorAll(&#x27;.nf-nav button&#x27;).forEach(item =&gt; item.setAttribute(&#x27;aria-pressed&#x27;, String(item === button)));
+    const bottleView = button.dataset.view === &#x27;bottle&#x27;;
+    el(&#x27;nf-system-pane&#x27;).hidden = bottleView;
+    el(&#x27;nf-bottle-pane&#x27;).hidden = !bottleView;
+    if (bottleView) {
+      el(&#x27;nf-story-title&#x27;).textContent = &#x27;Voice bottle — written register enters the Writer at runtime&#x27;;
+      return;
+    }
+    activeView = button.dataset.view;
+    root.dataset.systemView = activeView;
+    el(&#x27;nf-story-title&#x27;).textContent = &#x27;Newsroom system — evidence to published work&#x27;;
+    const [title, subtitle] = viewCopy[button.dataset.view];
+    el(&#x27;nf-view-title&#x27;).textContent = title;
+    el(&#x27;nf-view-subtitle&#x27;).textContent = subtitle;
+    selectedRole = stages[current].roles[0];
+    detailMode = activeView === &#x27;role&#x27; ? &#x27;role&#x27; : &#x27;stage&#x27;;
+    syncRoleButtons();
+    render();
+  }));
+
+  const bottleDetails = {
+    assignment: { label: &#x27;Runtime input · assignment&#x27;, title: &#x27;Claimed lead&#x27;, owner: &#x27;pipelines/writer/assignment.py&#x27;, input: &#x27;The full lead: stable ID, pitch, why-now, type, and source pointers&#x27;, rule: &#x27;The effective assignment is the durable output of Gate ①&#x27;, boundary: &#x27;The Writer receives routing context but cannot change the routing decision.&#x27; },
+    shape: { label: &#x27;System prompt · type-specific structure&#x27;, title: &#x27;Shape prompt&#x27;, owner: &#x27;Gate ① type → drafting path&#x27;, input: &#x27;The effective content type: ticker, newsletter, note, blog, or paper. Each type owns a distinct editorial form.&#x27;, rule: &#x27;Type selects the drafting path, voice profile, and output shape. This diagram follows the note path: three beats, 798–882 body characters, receipts as lists, and the strict note JSON schema.&#x27;, boundary: &#x27;The note contract is not universal. Another content type must use its own form, profile, and output contract.&#x27; },
+    bottle: { label: &#x27;Prompt input · profile&#x27;, title: &#x27;Voice bottle&#x27;, owner: &#x27;voice/man-page-dry/&#x27;, input: &#x27;moves.md and harvested JSON samples, loaded in sorted order&#x27;, rule: &#x27;Samples carry the voice; named moves stay deliberately thin. Wit is watched for, never commissioned.&#x27;, boundary: &#x27;An empty samples directory hard-fails instead of drafting without an established voice.&#x27; },
+    evidence: { label: &#x27;Tool loop · evidence&#x27;, title: &#x27;Convergent roam&#x27;, owner: &#x27;Writer using the Scout’s read tools&#x27;, input: &#x27;The assignment’s cited transcript, files, and commits inside registered roots&#x27;, rule: &#x27;Pull exactly the cited threads until the draft can be written from receipts, not vibes&#x27;, boundary: &#x27;Missing facts are researched further or written around, never invented.&#x27; },
+    seat: { label: &#x27;Model call · production&#x27;, title: &#x27;Writer call&#x27;, owner: &#x27;Writer model seat&#x27;, input: &#x27;Stable system block (shape + bottle), changing assignment, and tool results&#x27;, rule: &#x27;The model produces the draft under its content type’s shape, voice, and evidence constraints&#x27;, boundary: &#x27;Truncation fails loudly; a refused call cannot silently become an incomplete draft.&#x27; },
+    output: { label: &#x27;Runtime output · parked&#x27;, title: &#x27;Banked draft&#x27;, owner: &#x27;pipelines/writer/run.py&#x27;, input: &#x27;Strict structured JSON from the model; cited sources remain attached to the draft record&#x27;, rule: &#x27;Code adds copyDraft provenance, parks the artifact, and advances the lead to drafted&#x27;, boundary: &#x27;The Writer never touches HTML or publishes. The draft must still cross scrub and human Gate ②.&#x27; }
+  };
+
+  const bottleContext = {
+    assignment: &#x27;story&#x27;,
+    evidence: &#x27;story&#x27;,
+    shape: &#x27;system&#x27;,
+    bottle: &#x27;system&#x27;,
+    seat: &#x27;both&#x27;,
+    output: &#x27;output&#x27;
+  };
+
+  let activeBottle = &#x27;bottle&#x27;;
+  function renderBottle(key = activeBottle) {
+    activeBottle = key;
+    const detail = bottleDetails[key];
+    root.querySelectorAll(&#x27;[data-bottle]&#x27;).forEach(node =&gt; node.setAttribute(&#x27;aria-pressed&#x27;, String(node.dataset.bottle === key)));
+    el(&#x27;nf-injection-map&#x27;).dataset.activeContext = bottleContext[key];
+    el(&#x27;nf-bottle-label&#x27;).textContent = detail.label;
+    el(&#x27;nf-bottle-title&#x27;).textContent = detail.title;
+    el(&#x27;nf-bottle-owner&#x27;).textContent = detail.owner;
+    el(&#x27;nf-bottle-input&#x27;).textContent = detail.input;
+    el(&#x27;nf-bottle-rule&#x27;).textContent = detail.rule;
+    el(&#x27;nf-bottle-boundary&#x27;).textContent = detail.boundary;
+  }
+
+  root.querySelectorAll(&#x27;[data-bottle]&#x27;).forEach(node =&gt; node.addEventListener(&#x27;click&#x27;, () =&gt; renderBottle(node.dataset.bottle)));
+
+  const design = { compact: false, showRoleRail: true, accent: &#x27;#d84a32&#x27; };
+  function applyDesign() {
+    root.dataset.compact = String(design.compact);
+    root.dataset.showRail = String(design.showRoleRail);
+    root.style.setProperty(&#x27;--nf-accent&#x27;, design.accent);
+  }
+  applyDesign();
+
+  if (globalThis.Tweak) {
+    const tweak = new Tweak({ container: root, onChange: applyDesign });
+    tweak.addToggle(design, &#x27;compact&#x27;, { label: &#x27;Compact density&#x27;, reference: &#x27;newsroom.compact&#x27; });
+    tweak.addToggle(design, &#x27;showRoleRail&#x27;, { label: &#x27;Show view rail&#x27;, reference: &#x27;newsroom.showRoleRail&#x27; });
+    tweak.addColorPicker(design, &#x27;accent&#x27;, { label: &#x27;Newsroom accent&#x27;, reference: &#x27;--nf-accent&#x27; });
+  }
+
+  syncRoleButtons();
+  render();
+  renderBottle();
+})();
+&lt;/script&gt;
+
+&lt;script src=&quot;https://unpkg.com/@floating-ui/core@1.7.3/dist/floating-ui.core.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://unpkg.com/@floating-ui/dom@1.7.4/dist/floating-ui.dom.umd.min.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  if (window.FloatingUIDOM == null) {
+    return;
+  }
+  const { autoUpdate, computePosition, flip, offset, shift, size } =
+    window.FloatingUIDOM;
+  const tooltipPlacements = new Set([&quot;top&quot;, &quot;right&quot;, &quot;bottom&quot;, &quot;left&quot;]);
+  const tooltipId = `codex-visualization-tooltip-${
+    window.crypto?.randomUUID?.() ?? Date.now().toString(36)
+  }`;
+  const tooltipGap = 5;
+  const hoverDelay = 700;
+  const skipDelay = 300;
+  let activeTrigger = null;
+  let pendingTrigger = null;
+  let tooltip = null;
+  let openTimeout = null;
+  let autoUpdateCleanup = null;
+  let positionRequest = 0;
+  let skipDelayUntil = 0;
+  let lastPointerWasTouch = false;
+  let pinnedByTouch = false;
+
+  const getTrigger = (target) =&gt;
+    target?.nodeType === Node.ELEMENT_NODE
+      ? target.closest(&quot;[data-tooltip]&quot;)
+      : null;
+  const containsTarget = (trigger, target) =&gt;
+    target?.nodeType != null &amp;&amp; trigger.contains(target);
+  const getContent = (trigger) =&gt;
+    trigger.getAttribute(&quot;data-tooltip&quot;)?.trim() ?? &quot;&quot;;
+  const getPlacement = (trigger) =&gt; {
+    const placement = trigger.getAttribute(&quot;data-tooltip-placement&quot;);
+    return tooltipPlacements.has(placement) ? placement : &quot;top&quot;;
+  };
+  const getTooltip = () =&gt; {
+    if (tooltip == null) {
+      tooltip = document.createElement(&quot;div&quot;);
+      tooltip.id = tooltipId;
+      tooltip.className = &quot;tooltip&quot;;
+      tooltip.setAttribute(&quot;role&quot;, &quot;tooltip&quot;);
+    }
+    return tooltip;
+  };
+  const setDescribedBy = (trigger, described) =&gt; {
+    const ids = new Set(
+      (trigger.getAttribute(&quot;aria-describedby&quot;) ?? &quot;&quot;)
+        .split(/\s+/)
+        .filter(Boolean),
+    );
+    if (described) {
+      ids.add(tooltipId);
+    } else {
+      ids.delete(tooltipId);
+    }
+    if (ids.size === 0) {
+      trigger.removeAttribute(&quot;aria-describedby&quot;);
+    } else {
+      trigger.setAttribute(&quot;aria-describedby&quot;, [...ids].join(&quot; &quot;));
+    }
+  };
+  const clearOpenTimeout = () =&gt; {
+    if (openTimeout != null) {
+      window.clearTimeout(openTimeout);
+      openTimeout = null;
+    }
+    pendingTrigger = null;
+  };
+  const closeTooltip = (activateSkipDelay = true) =&gt; {
+    clearOpenTimeout();
+    pinnedByTouch = false;
+    positionRequest += 1;
+    autoUpdateCleanup?.();
+    autoUpdateCleanup = null;
+    if (activeTrigger == null) {
+      return;
+    }
+    setDescribedBy(activeTrigger, false);
+    activeTrigger = null;
+    tooltip?.remove();
+    if (activateSkipDelay) {
+      skipDelayUntil = Date.now() + skipDelay;
+    }
+  };
+  const updatePosition = (trigger, floating) =&gt; {
+    const request = ++positionRequest;
+    void computePosition(trigger, floating, {
+      middleware: [
+        offset(tooltipGap),
+        flip({ padding: tooltipGap }),
+        shift({ padding: tooltipGap }),
+        size({
+          padding: tooltipGap,
+          apply({ availableHeight, availableWidth, elements }) {
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-width&quot;,
+              `${Math.max(0, availableWidth)}px`,
+            );
+            elements.floating.style.setProperty(
+              &quot;--tooltip-available-height&quot;,
+              `${Math.max(0, availableHeight)}px`,
+            );
+          },
+        }),
+      ],
+      placement: getPlacement(trigger),
+      strategy: &quot;fixed&quot;,
+    })
+      .then(({ x, y }) =&gt; {
+        if (activeTrigger !== trigger || request !== positionRequest) {
+          return;
+        }
+        const scale = window.devicePixelRatio || 1;
+        floating.style.transform = `translate(${Math.round(x * scale) / scale}px, ${Math.round(y * scale) / scale}px)`;
+        floating.style.visibility = &quot;visible&quot;;
+      })
+      .catch(() =&gt; {
+        if (activeTrigger === trigger &amp;&amp; request === positionRequest) {
+          closeTooltip(false);
+        }
+      });
+  };
+  const openTooltip = (trigger) =&gt; {
+    const content = getContent(trigger);
+    if (!trigger.isConnected || content.length === 0) {
+      return;
+    }
+    clearOpenTimeout();
+    if (activeTrigger === trigger) {
+      return;
+    }
+    closeTooltip();
+    const floating = getTooltip();
+    floating.textContent = content;
+    floating.style.visibility = &quot;hidden&quot;;
+    floating.style.transform = &quot;translate(0, 0)&quot;;
+    document.body.appendChild(floating);
+    activeTrigger = trigger;
+    setDescribedBy(trigger, true);
+    autoUpdateCleanup = autoUpdate(trigger, floating, () =&gt; {
+      updatePosition(trigger, floating);
+    });
+  };
+  const requestOpen = (trigger, immediate = false) =&gt; {
+    if (
+      getContent(trigger).length === 0 ||
+      activeTrigger === trigger ||
+      pendingTrigger === trigger
+    ) {
+      return;
+    }
+    clearOpenTimeout();
+    pendingTrigger = trigger;
+    const delay =
+      immediate || activeTrigger != null || Date.now() &lt; skipDelayUntil
+        ? 0
+        : hoverDelay;
+    if (delay === 0) {
+      openTooltip(trigger);
+      return;
+    }
+    openTimeout = window.setTimeout(() =&gt; {
+      openTimeout = null;
+      pendingTrigger = null;
+      openTooltip(trigger);
+    }, delay);
+  };
+  const handlePointerOpen = (event) =&gt; {
+    if (event.pointerType === &quot;touch&quot;) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    requestOpen(trigger);
+  };
+  const handlePointer = (event) =&gt; {
+    lastPointerWasTouch =
+      event.type === &quot;pointerdown&quot; &amp;&amp; event.pointerType === &quot;touch&quot;;
+  };
+  const handleTouchClick = (event) =&gt; {
+    const isTouch = event.pointerType === &quot;touch&quot; || lastPointerWasTouch;
+    lastPointerWasTouch = false;
+    if (!isTouch || event.detail === 0) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (
+      trigger == null ||
+      !trigger.isConnected ||
+      getContent(trigger).length === 0 ||
+      (pinnedByTouch &amp;&amp; activeTrigger === trigger)
+    ) {
+      if (pinnedByTouch) {
+        closeTooltip();
+      }
+      return;
+    }
+    openTooltip(trigger);
+    pinnedByTouch = activeTrigger === trigger;
+    window.setTimeout(() =&gt; {
+      if (activeTrigger === trigger &amp;&amp; !trigger.isConnected) {
+        closeTooltip(false);
+      }
+    }, 0);
+  };
+  const handleLeave = (event) =&gt; {
+    if (pinnedByTouch) {
+      return;
+    }
+    const trigger = getTrigger(event.target);
+    if (trigger == null || containsTarget(trigger, event.relatedTarget)) {
+      return;
+    }
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const handleFocusIn = (event) =&gt; {
+    const trigger = getTrigger(event.target);
+    if (trigger?.matches(&quot;:focus-visible&quot;)) {
+      requestOpen(trigger, true);
+    }
+  };
+  const handleKeyDown = (event) =&gt; {
+    if (event.key === &quot;Escape&quot;) {
+      closeTooltip();
+    }
+  };
+  const handleContextMenu = (event) =&gt; {
+    lastPointerWasTouch = false;
+    const trigger = getTrigger(event.target);
+    if (activeTrigger === trigger || pendingTrigger === trigger) {
+      closeTooltip();
+    }
+  };
+  const destroy = () =&gt; {
+    closeTooltip(false);
+    lastPointerWasTouch = false;
+    document.removeEventListener(&quot;pointerover&quot;, handlePointerOpen);
+    document.removeEventListener(&quot;pointerdown&quot;, handlePointer);
+    document.removeEventListener(&quot;pointercancel&quot;, handlePointer);
+    document.removeEventListener(&quot;click&quot;, handleTouchClick);
+    document.removeEventListener(&quot;pointerout&quot;, handleLeave);
+    document.removeEventListener(&quot;focusin&quot;, handleFocusIn);
+    document.removeEventListener(&quot;focusout&quot;, handleLeave);
+    document.removeEventListener(&quot;keydown&quot;, handleKeyDown);
+    document.removeEventListener(&quot;contextmenu&quot;, handleContextMenu);
+    tooltip = null;
+  };
+
+  document.addEventListener(&quot;pointerover&quot;, handlePointerOpen);
+  document.addEventListener(&quot;pointerdown&quot;, handlePointer);
+  document.addEventListener(&quot;pointercancel&quot;, handlePointer);
+  document.addEventListener(&quot;click&quot;, handleTouchClick);
+  document.addEventListener(&quot;pointerout&quot;, handleLeave);
+  document.addEventListener(&quot;focusin&quot;, handleFocusIn);
+  document.addEventListener(&quot;focusout&quot;, handleLeave);
+  document.addEventListener(&quot;keydown&quot;, handleKeyDown);
+  document.addEventListener(&quot;contextmenu&quot;, handleContextMenu);
+  window.addEventListener(&quot;pagehide&quot;, destroy, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-tabs&quot;&gt;
+(() =&gt; {
+  const selector = &#x27;.nav[role=&quot;tablist&quot;] [role=&quot;tab&quot;]&#x27;;
+  const disabled = &#x27;:disabled,[aria-disabled=&quot;true&quot;]&#x27;;
+  const selectTab = (selected) =&gt; {
+    const panelId = selected.getAttribute(&quot;aria-controls&quot;);
+    for (const tab of selected.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;)) {
+      const active = tab === selected;
+      tab.classList.toggle(&quot;active&quot;, active);
+      tab.setAttribute(&quot;aria-selected&quot;, String(active));
+      const id = tab.getAttribute(&quot;aria-controls&quot;);
+      const panel = id &amp;&amp; document.getElementById(id);
+      if (panel != null) {
+        panel.hidden = id !== panelId;
+        if (!panel.hidden &amp;&amp; selected.id) {
+          panel.setAttribute(&quot;aria-labelledby&quot;, selected.id);
+        }
+      }
+    }
+  };
+  const interact = (event) =&gt; {
+    const tab = event.target?.closest?.(selector);
+    if (event.defaultPrevented || tab == null || tab.matches(disabled)) {
+      return;
+    }
+    if (event.type === &quot;click&quot;) {
+      selectTab(tab);
+      return;
+    }
+    const tabs = Array.from(
+      tab.closest(&#x27;[role=&quot;tablist&quot;]&#x27;).querySelectorAll(&#x27;[role=&quot;tab&quot;]&#x27;),
+    ).filter((candidate) =&gt; !candidate.matches(disabled));
+    const current = tabs.indexOf(tab);
+    let next;
+    if (event.key === &quot;ArrowRight&quot; || event.key === &quot;ArrowDown&quot;) {
+      next = (current + 1) % tabs.length;
+    } else if (event.key === &quot;ArrowLeft&quot; || event.key === &quot;ArrowUp&quot;) {
+      next = (current + tabs.length - 1) % tabs.length;
+    } else if (event.key === &quot;Home&quot;) {
+      next = 0;
+    } else if (event.key === &quot;End&quot;) {
+      next = tabs.length - 1;
+    } else {
+      return;
+    }
+    event.preventDefault();
+    tabs[next].focus();
+    selectTab(tabs[next]);
+  };
+
+  for (const list of document.querySelectorAll(&#x27;.nav[role=&quot;tablist&quot;]&#x27;)) {
+    const selected =
+      list.querySelector(&#x27;[role=&quot;tab&quot;][aria-selected=&quot;true&quot;]&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;].active&#x27;) ??
+      list.querySelector(&#x27;[role=&quot;tab&quot;]&#x27;);
+    if (selected != null) {
+      selectTab(selected);
+    }
+  }
+  document.addEventListener(&quot;click&quot;, interact);
+  document.addEventListener(&quot;keydown&quot;, interact);
+  window.addEventListener(&quot;pagehide&quot;, () =&gt; {
+    document.removeEventListener(&quot;click&quot;, interact);
+    document.removeEventListener(&quot;keydown&quot;, interact);
+  }, { once: true });
+})();
+&lt;/script&gt;
+&lt;script id=&quot;codex-visualization-lucide&quot; async src=&quot;https://unpkg.com/lucide@1.17.0/dist/umd/lucide.js&quot;&gt;&lt;/script&gt;
+&lt;script&gt;
+(() =&gt; {
+  const initialize = () =&gt; {
+    globalThis.lucide?.createIcons({ attrs: { width: 16, height: 16 } });
+  };
+  if (globalThis.lucide != null) {
+    initialize();
+    return;
+  }
+  document
+    .getElementById(&quot;codex-visualization-lucide&quot;)
+    ?.addEventListener(&quot;load&quot;, initialize, { once: true });
+})();
+&lt;/script&gt;
+
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+</body>
+</html>

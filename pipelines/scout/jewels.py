@@ -6,9 +6,10 @@ existed (docs/uzelhub-crew/scout-mining-economics.md). Writing them down is
 what lets the walk and the synthesis come apart, because a synthesis that can
 read jewels from a table no longer has to be the same process that mined them.
 
-Write-side only for now. Selection (the read side `--synthesize` will use)
-arrives with the verb split; adding it before there is a caller would be
-guessing at its arguments.
+Both sides live here now. `persist()` is the write side the walk calls per
+page; `select()` is the read side `--synthesize` reads a stored selection back
+through, added with the verb split rather than guessed at before it had a
+caller.
 """
 from __future__ import annotations
 

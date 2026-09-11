@@ -1,7 +1,7 @@
 """
 Scout Agent — the newsroom's prospector, as two stages with opposite needs.
 
-NEWSROOM §Model tiers: the Scout is not one model call. The WALK (triage over
+spec-scout.md §Seats and budgets: the Scout is not one model call. The WALK (triage over
 big swaths of transcript — high token volume, low IQ demand) runs on the cheap
 tier, inheriting the marketer's Haiku-extraction split. The SYNTHESIS (the
 "link 16 things because maybe" leap — low volume, maximum IQ) runs on the
@@ -139,7 +139,7 @@ seq values must come from the [seq=N] tags in the input. Keep notes short; the f
 
 SCOUT_GIT_TRIAGE_PROMPT = """You are the Scout's walker — the cheap, wide-aperture triage stage of the uzelhub newsroom's prospector. You are reading one bounded page of COMMIT MESSAGES from the repositories that build this platform ("the box"). The box narrates its own work; you mine the narration.
 
-This ore has a different register from the session logs, and that difference is the point. A session log records a problem WHILE IT IS BEING FOUGHT — partial, present tense, no resolution. A commit message records what was DECIDED and WHY, written afterwards, once it was known. You are mining the resolved account.
+This ore has a different stance from the session logs, and that difference is the point. A session log records a problem WHILE IT IS BEING FOUGHT — partial, present tense, no resolution. A commit message records what was DECIDED and WHY, written afterwards, once it was known. You are mining the resolved account.
 
 Mine for JEWELS — the durable material: named principles, corrections and reversals, reframes, decisions-with-reasons, aha-moments. NOT the play-by-play of which files changed. The richest material lives at the seams — a commit that reverses an earlier one, a message that explains a decision taken somewhere else, one change that touches two concerns at once, a rationale that outlives the code it shipped with.
 
@@ -154,13 +154,30 @@ Output STRICT JSON, nothing else:
 Copy the value INSIDE the brackets exactly — `[ref=repo@sha]` means the ref is `repo@sha`, with the repo qualifier and nothing else. Do NOT append the commit date; it is outside the bracket because it is not part of the ref. A ref you were not shown, or one carrying anything extra, is dropped and the jewel is lost. Keep notes short; the full message stays in git."""
 
 
-SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged transcript jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
+SCOUT_FILE_TRIAGE_PROMPT = """You are the Scout's walker — the cheap, wide-aperture triage stage of the uzelhub newsroom's prospector. You are reading one bounded page of UNITS OF WRITTEN PROSE from the files that build this platform ("the box") — one section or one dated entry per unit, each tagged with the ref it must be cited by.
+
+{{STANCE}}
+
+Mine for JEWELS — the durable material: named principles, corrections and reversals, reframes, decisions-with-reasons, aha-moments. NOT the play-by-play of what a section covers. The richest material lives at the seams — a passage that corrects an earlier one, a rule stated with the cost it admits, a claim that outlived the thing it was written about.
+
+Aperture rules (absolute):
+- When unsure, include. A downstream editor filters; you never self-censor.
+- You have no taste and want none. Never judge what "deserves" publishing — only note what is durable, surprising, or connective.
+
+Output STRICT JSON, nothing else:
+{"jewels": [{"ref": "<path#anchor>", "kind": "principle|correction|reframe|decision|aha", "note": "<one tight sentence>"}],
+ "map_notes": ["<navigation observation: where rich material lives, which files run rich — never story verdicts>"]}
+
+Copy the value INSIDE the brackets exactly — `[ref=repo/path/to/file.md#a-heading]` means the ref is `repo/path/to/file.md#a-heading`, with the repo qualifier and the anchor and nothing else. Do NOT append the date; it is outside the bracket because it is not part of the ref. A ref you were not shown, or one carrying anything extra, is dropped and the jewel is lost. Keep notes short; the whole section stays in the file."""
+
+
+SCOUT_SYNTHESIS_PROMPT = """You are the Scout's synthesis leap — the premium stage of the uzelhub newsroom's prospector. Over triaged jewels, cross-agent decision sequences, and your own navigation map, surface STORY LEADS: the platform narrating its own building, curated into pitches an editor can route.
 
 You may INVESTIGATE before pitching. These sources exist on the box; where you go is entirely your call — no rotation, no quotas, and ignoring all of them is legitimate too:
 - read_transcript — the ingested session-log ore, by seq. Use it for a jewel whose `source_type` is `transcript`; its `seq` is the anchor, and your own scratchpad arc-notes ride along.
-- **Your jewels no longer all cite seqs.** Each carries `source_type` and, when it is not a transcript, a `source_ref` instead of a seq. A `git` jewel's ref looks like `repo@sha` — for example `ai-agent-platform@3c2878a270`. Follow one with run_git against that repo and sha (`show`, `log`, `blame`) exactly as you would pull a transcript thread by seq. These jewels are a different REGISTER, not just a different table: a session log records a problem while it is being fought, a commit message records what was decided and why, afterwards. The seam between the two accounts of one event is the richest thing in the pile.
-- read_file / grep — the repos and docs: design docs (NEWSROOM, personas), the sysadmin ledger (docs/uzelhub-crew/sysadmin-ledger.md), the ops calendar (ops/calendar.ics), the marketing survey (uzelhub-web/marketing/promotion-survey.yaml), devlogs.
-- run_git — read-only git across the registered projects (log/show/blame). This is how you resolve a `git` jewel's `source_ref`, and how a story that turns on when-and-why gets its receipts.
+- **Your jewels no longer all cite seqs.** Each carries `source_type` and, when it is not a transcript, a `source_ref` instead of a seq. A `git` jewel's ref looks like `repo@sha` — for example `ai-agent-platform@3c2878a270`. Follow one with run_git against that repo and sha (`show`, `log`, `blame`) exactly as you would pull a transcript thread by seq. These jewels are a different STANCE, not just a different table: a session log records a problem while it is being fought, a commit message records what was decided and why, afterwards. The seam between the two accounts of one event is the richest thing in the pile.
+- read_file / grep — files inside the THREE registered roots, and nowhere else: /opt/ai-agent-platform (the crew, its docs and its ADRs), /opt/uzelhub-web (the apex site, marketing/promotion-survey.yaml, marketing/data/lexicon.json), /opt/predictor_ingest (the predictor and its ADRs). A path outside these three is refused, not empty — read the refusal as a boundary, never as an absent file, and do not retry around it. Worth knowing inside them: docs/uzelhub-crew/ (the newsroom's design and its dated findings), docs/uzelhub-crew/sysadmin-ledger.md, ops/calendar.ics, docs/architecture/. **An index of the files that actually exist under these roots rides in your context below.** Read a path off it instead of guessing one: from in here a guessed path that misses is indistinguishable from a refusal, so a miss teaches you nothing about what is there.
+- run_git — read-only git (log/show/blame) inside those same three roots. This is how you resolve a `git` jewel's `source_ref`, and how a story that turns on when-and-why gets its receipts. Some jewels carry a ref from a repo OUTSIDE the roots; run_git cannot open those, so treat the ref as the whole of the evidence and pitch from the jewel's own note, or leave it.
 Your tool budget is small; spend it pulling threads, not surveying. When you have enough, stop and pitch.
 
 Generate WIDE. Bold many-way connections are welcome — the best stories are the ones no pattern predicted. False positives are cheap (an editor spikes them); missed leads are invisible and unrecoverable. Err reckless.
@@ -171,12 +188,14 @@ Dedup: skip only a lead whose pitch is essentially identical to one in the alrea
 
 REDACTION (absolute): these transcripts contain credentials, keys, internal paths, personal data. Never reproduce secret material in a pitch — point to it (session id, turns, sequence id, file) and paraphrase the story around it.
 
-Registers: ticker (terse verb line), newsletter (weekly digest item), note (durable field note — self-awareness first, war story second), blog (narrative retelling).
+Types: ticker (terse verb line), newsletter (weekly digest item), note (durable field note — self-awareness first, war story second), blog (narrative retelling), paper (a rough ABSTRACT WITH REFERENCES — a claim rigorous enough to defend, and the pointers that would evidence it; never the paper itself, which is a different order of work).
+
+These name what a lead IS, not what you should go looking for. Pitch whatever the ore gives you and let the type fall out; never let a type you have not filled steer the walk. The Editor routes — you prospect.
 
 Your FINAL message must be STRICT JSON, nothing else:
 {"leads": [{"slug": "<kebab-case>", "pitch": "<2-4 sentences>", "why_now": "<one sentence>",
             "sources": ["<pointer, e.g. 'session 37e71c90 turns 210-260' or 'agent_decisions sequence <uuid>'>"],
-            "register": "ticker|newsletter|note|blog", "agent_span": <int, 1 if single-actor>}]}"""
+            "type": "ticker|newsletter|note|blog|paper", "agent_span": <int, 1 if single-actor>}]}"""
 
 
 @dataclass
@@ -248,7 +267,6 @@ def _guard_truncation(call: "ScoutCall", source: str) -> None:
         f"size. Do NOT reach for a separate reasoning budget — budget_tokens is a "
         f"400 on this seat."
     )
-
 
 
 def _render_conversation(messages: list[dict[str, Any]]) -> str:
@@ -429,34 +447,47 @@ class ScoutAgent:
         call.cache_creation_input_tokens += getattr(u, "cache_creation_input_tokens", 0) or 0
         call.cache_read_input_tokens += getattr(u, "cache_read_input_tokens", 0) or 0
 
-    def triage(self, page_text: str, source: str = "transcript") -> ScoutCall:
+    def triage(
+        self, page_text: str, source: str = "transcript", stance: str | None = None
+    ) -> ScoutCall:
         """Mine one bounded page. `source` picks the ore's own prompt.
 
         The APERTURE RULES are identical across sources and must stay that way
         — "when unsure, include" and "you have no taste" are doctrine, not
-        per-source tuning. What varies is the ore's register and the citation
+        per-source tuning. What varies is the ore's stance and the citation
         key: transcripts cite `seq` from `[seq=N]` tags, everything else cites
         `ref` from `[ref=...]` tags, which is the anchor `resolve_anchor`
         validates now that the foreign key is gone for five of six sources.
+
+        ONE guard, after the branch, deliberately: the transcript path used to
+        carry its own copy and return early, so a guard edit could land on one
+        source and miss the other. That is not hypothetical — a861925's message
+        claimed it covered "the transcript path too" when it had not.
+
+        A `stance` is what makes the FILE sources one prompt instead of four.
+        The reader supplies the paragraph (file_ore.STANCES), because which
+        stance a unit carries is a property of the splitter that cut it, not of
+        the walker reading it. Two sources ride this path today, doc and ledger;
+        a third costs a row in that table and nothing here.
         """
         if source == "transcript":
-            call = self._call(
-                self.walk_model,
-                SCOUT_TRIAGE_PROMPT,
-                f"Transcript page:\n\n{page_text}",
-                SCOUT_TRIAGE_MAX_TOKENS,
-            )
-            _guard_truncation(call, source)
-            return call
-        if source == "git":
-            call = self._call(
-                self.walk_model,
-                SCOUT_GIT_TRIAGE_PROMPT,
-                f"Commit page:\n\n{page_text}",
-                SCOUT_TRIAGE_MAX_TOKENS,
-            )
+            prompt, header = SCOUT_TRIAGE_PROMPT, "Transcript page"
+        elif source == "git":
+            prompt, header = SCOUT_GIT_TRIAGE_PROMPT, "Commit page"
+        elif stance:
+            prompt = SCOUT_FILE_TRIAGE_PROMPT.replace("{{STANCE}}", stance)
+            header = "File page"
         else:
-            raise ValueError(f"no triage prompt for source_type {source!r}")
+            raise ValueError(
+                f"no triage prompt for source_type {source!r} and no stance to "
+                f"build one from"
+            )
+        call = self._call(
+            self.walk_model,
+            prompt,
+            f"{header}:\n\n{page_text}",
+            SCOUT_TRIAGE_MAX_TOKENS,
+        )
         _guard_truncation(call, source)
         return call
 
@@ -494,16 +525,28 @@ class ScoutAgent:
     def synthesize(self, context: dict[str, Any], conn=None) -> ScoutCall:
         """Bounded agentic roam + the pitch. On stop_reason=refusal at any
         point, retry once as a plain (tool-less) call on the fallback model
-        (NEWSROOM §Model tiers caveat — story-prospecting shouldn't trip the
+        (the refusal caveat NEWSROOM §Model tiers carried before that section
+        became a pointer — story-prospecting shouldn't trip the
         classifier, but wire the handling anyway)."""
         user = (
-            "Jewels from this pass's transcript walk (seqs are read_transcript coordinates):\n"
+            # NOT "this pass's transcript walk". `--synthesize` hands over a
+            # stored selection that may be any mix of sources, and since schema
+            # 1.4.0 a jewel may carry a `source_ref` instead of a `seq`. Telling
+            # the model its jewels are transcript seqs is the same wrong sentence
+            # A6 (9e36a50) took out of the system prompt and cd64959 had to put
+            # back; it survived here because the restore worked the prompt
+            # constant and never looked at the turn built beside it.
+            "Jewels in this selection — each carries `source_type`: a transcript "
+            "jewel's `seq` is a read_transcript coordinate, a git jewel's "
+            "`source_ref` (repo@sha) is a run_git one:\n"
             f"{json.dumps(context.get('jewels', []), indent=1)}\n\n"
             "Cross-agent decision sequences (agent_span = distinct agents touched; "
             "a weight, never a filter):\n"
             f"{json.dumps(context.get('sequences', []), indent=1)}\n\n"
             "Your navigation map (most recent notes):\n"
             f"{context.get('map', '(empty — first pass)')}\n\n"
+            "The box's readable files (coordinates for read_file/grep, not a reading list):\n"
+            f"{context.get('box_index') or '(no index this run)'}\n\n"
             "Already-pitched (dedup ONLY — skip near-identical pitches, infer nothing else):\n"
             f"{json.dumps(context.get('pitched', []), indent=1)}\n\n"
             "Investigate if it helps, then surface your leads."

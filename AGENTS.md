@@ -43,13 +43,16 @@ as a description, not a rule, and never read its silence as permission. An
 | **What the box has taught us — principles, with receipts** | `/opt/_host/PRINCIPLES.md` (`read: full`). Start here when a change feels like it might be deciding something. |
 | The whole box — layout, ports, databases, overlaps | `/opt/_host/README.md` (`read: full`; _host has **no remote**, never add one) |
 | What actually runs, verified against timers and tables | `ops/desk/agent-roster.html` |
-| Newsroom: registers, routing, who holds which text | `docs/uzelhub-crew/NEWSROOM.md` |
+| **Newsroom vocabulary — one word per concept** | `docs/uzelhub-crew/GLOSSARY.md` (`read: reference`). Type, register, stance, source, citations. When two docs use a word differently, this file is current. |
+| **Newsroom: the current rule, per desk (rewritable specs)** | `docs/uzelhub-crew/spec-content-types.md`, `spec-scout.md`, `spec-wire-editor.md`, `spec-writer.md` (`read: full`, each short). A rule is stated once, here; prompts and code follow it. Where a spec and the code disagree, fix one the same day and say which. |
+| Newsroom: the design's reasoning and history | `docs/uzelhub-crew/NEWSROOM.md` — thesis, three altitudes, org chart, the pineapple essay, reuse-versus-fork, the one real fork, open choices. Seven sections that now have a spec were cut to pointers 2026-09-06 (762 lines to 455); each pointer names the reasoning it held. Read it for *why*, never for the current rule. |
+| The next session's runbook (unify, rename, reset, run end to end) | `docs/uzelhub-crew/plan-2026-09-07-unify-and-reset.md` |
 | Calendar helpers, namespaces, verbs | `ops/CALENDAR.md` |
 | SEO across apex/blog/corpus/syndication | `/opt/_host/SEO.md` (`read: full`) |
 | Director's own memory across runs | `docs/director/director-ledger.md` |
 | Predictor: charter, domains, pipeline, deployment | `/opt/predictor_ingest/AGENTS.md` |
 | Predictor cost governance and the film decisions | `/opt/predictor_ingest/docs/architecture/adr-011-*.md` |
-| **This repo's own architecture decisions** | `docs/architecture/adr-NNN-*.md`. ADR-001 manual Writer assignments (**Deferred**, with the reasoning for not building it, plus a survey of three external systems). ADR-002 the coverage ledger, the recovery runs, and the synthesis model swap. ADR-003 the leads ledger moves to Postgres (**direction settled, migration not scheduled**) — and the reason that matters most is that it turns the pineapple rule from a parser's incompleteness into a column grant. |
+| **This repo's own architecture decisions** | `docs/architecture/adr-NNN-*.md`. ADR-001 manual Writer assignments (**Deferred**, with the reasoning for not building it, plus a survey of three external systems). ADR-002 the coverage ledger, the recovery runs, and the synthesis model swap. ADR-003 the leads ledger moves to Postgres (**direction settled; the schema landed 2026-09-07 and is NOT applied** — `database/ai_agent_platform/006_scout_lead.sql` plus its verify, rollback and apply script; `leads.yaml` is still the ledger) — and the reason that matters most is that it turns the pineapple rule from a parser's incompleteness into a column grant. |
 | How silent failures happen here, with worked examples | `docs/uzelhub-crew/silent-instruments-2026-08-29.md`, and `docs/uzelhub-crew/jewels-are-transcript-only-2026-09-03.md` — a constraint that answered a question it was never asked |
 | Why a design decision was made, when the artifact alone won't say | The dated reasoning-arc docs: `asking-one-level-up-2026-08-29.md`, `loose-words-hide-decisions-2026-09-03.md`. Findings live in their own docs; these carry how the thinking moved. |
 
@@ -89,6 +92,21 @@ casts a vote without anyone noticing. These are open:
   agent_name)` over free text). **Settle the unit before building the
   `agent_decisions` reader ADR-002 specifies** — it addresses "a sequence".
   → `docs/uzelhub-crew/agent-span-counts-strings-2026-09-06.md`
+- **Which repos may the Scout mine, and which may it read?** The two lists
+  disagree and neither document says they should. `SCOUT_GIT_REPOS` walks five
+  repos for git ore (`ai-agent-platform`, `predictor_ingest`, `uzelhub-web`,
+  `server-maintenance`, `_host`); the roam's registered roots are three, and
+  `_host` and `server-maintenance` are excluded on purpose because the employer
+  vocabulary lives in `_host`. Measured 2026-09-06: **35 of the 2,630 jewels are
+  anchored to repos the roam cannot open** — 21 `server-maintenance`, 14
+  `_host` — so `run_git` refuses the very ref the jewel cites. Two consequences,
+  and only the first is cosmetic: the anchor is a dead end, and `source_ref` is
+  publishable text that travels to a lead's `sources` field, so `_host@<sha>`
+  names a gated repo in publishable output. Settle **which list moves** before
+  the next walk: narrow the ore to the roam's three, or register the other two
+  and accept what that opens. Do not split the difference silently. Related: the
+  gated-`source_ref` question below, which is the same leak from the other end.
+
 - **Opened 2026-09-03, all from ADR-002 — none of these is settled:**
   - **What is a `source_ref` for gated material?** It must be opaque, because the
     reference travels outward on a lead even when the content was scrubbed. The
@@ -104,9 +122,14 @@ casts a vote without anyone noticing. These are open:
     `NEWSROOM.md` specifies has been open since 2026-07-26. The default moved to
     Sonnet 5 to invert the burden, **not** because the quality argument was
     refuted.
-  - **Do a cursor and free roam conflict?** ADR-002 argues no — a cursor is a
-    return address, not a leash — and `NEWSROOM.md` §The Scout's sources still
-    says otherwise. **The two documents disagree today**; the amendment is owed.
+  - ~~**Do a cursor and free roam conflict?**~~ **Closed 2026-09-06 by
+    deletion, not by an amendment.** ADR-002 argued no — a cursor is a return
+    address, not a leash — against `NEWSROOM.md` §The Scout's sources, which
+    said "scope the cursor to the logs, and nowhere else". That section was cut
+    to a spec pointer when NEWSROOM became reasoning-only, so the contradicted
+    claim is no longer asserted anywhere. `spec-scout.md` §The walk is the only
+    statement of cursor behaviour now. The *reasoning* both sides shared —
+    coverage is linear, investigation is not — survives in the pointer.
 
 - ~~**Should redaction dismissals be path-scoped?**~~ **Settled 2026-09-01, and
   not by scoping them.** The blocked commits were never introducing the
@@ -122,6 +145,9 @@ casts a vote without anyone noticing. These are open:
 - A document marked `read: full` is read whole before acting on it. Never
   conclude from a range-read. (Convention defined in `/opt/_host/README.md`.)
 - Docs are never silently rewritten. Corrections carry a date and keep the
-  original claim visible.
+  original claim visible. **Exception (2026-09-06): `GLOSSARY.md` and the
+  four `spec-*.md` files are rewritable** — edit in place, date the commit,
+  no correction strata. They hold the current rule; history lives everywhere
+  else.
 - Operator/sudo work ships as a runnable script — backup, validate, self-verify,
   restore on failure — never as a config paste.

@@ -5,7 +5,7 @@ problem: **session logs record a problem while it is being fought.** They are
 the richest source of decisions and temporal anchors and they are not rich
 narrative candidates, because the resolution that makes a story is not in them
 (NEWSROOM.md §The Scout's sources, corrected 2026-09-04). Commit messages carry
-the opposite register — what was decided and why, written *after* — and there
+the opposite stance — what was decided and why, written *after* — and there
 are 1,527 of them across the estate averaging 106 words in this repo alone.
 
 Deliberately NOT a reuse of `blog_pipeline/git_reader.py`, though two things are

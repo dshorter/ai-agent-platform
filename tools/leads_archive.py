@@ -277,7 +277,7 @@ def timeline(lead: dict) -> list[tuple[str, str, str, bool]]:
 def render_row(lead: dict, prop: dict | None, cluster: str | None) -> str:
     lid = lead["id"]
     status = lead.get("status", "new")
-    reg = lead.get("register", "note")
+    reg = lead.get("type", "note")
     wire = (prop or {}).get("wire") or "unseen"
     # A "differ" from the chief shadow is two different events wearing one
     # word: 7 of the 8 on record carry the SAME verdict as the wire and

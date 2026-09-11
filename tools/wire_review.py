@@ -291,7 +291,7 @@ render();
 
 def render_card(p: dict, lead: dict, cluster: str | None, i: int) -> str:
     wire = p.get("wire", "hold")
-    reg = p.get("register", "note")
+    reg = p.get("type", "note")
     chief_stance = p.get("chief", "silent")
     chief_v = p.get("chief_verdict", "")
     differ = chief_stance == "differ"

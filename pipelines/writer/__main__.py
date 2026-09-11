@@ -12,7 +12,7 @@ import logging
 import sys
 
 from pipelines.writer import assignment
-from pipelines.writer.config import REGISTER_PROFILES, WriterConfig
+from pipelines.writer.config import TYPE_PROFILES, WriterConfig
 
 
 def main() -> None:
@@ -38,11 +38,11 @@ def main() -> None:
                 "the Editor claims before the Writer drafts"
             )
         for lead in claimed:
-            register = lead.get("register", "?")
+            lead_type = lead.get("type", "?")
             marker = "drafted" if lead["id"] in drafts else (
-                "ready" if register in REGISTER_PROFILES else f"no {register} desk yet"
+                "ready" if lead_type in TYPE_PROFILES else f"no {lead_type} desk yet"
             )
-            print(f"[{marker}] {lead['id']}  ({register})  {lead.get('pitch', '')[:90]}")
+            print(f"[{marker}] {lead['id']}  ({lead_type})  {lead.get('pitch', '')[:90]}")
 
     if args.lead:
         if not config.anthropic_api_key:

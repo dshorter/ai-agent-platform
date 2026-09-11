@@ -15,9 +15,9 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 _REPO = _HERE.parent.parent
 
-# v1 register→profile routing: the note leg only. New registers add rows
-# here (a sink profile is data), never a new agent.
-REGISTER_PROFILES = {"note": "man-page-dry"}
+# v1 type→profile routing: the note leg only. New types add rows here
+# (a sink profile is data), never a new agent.
+TYPE_PROFILES = {"note": "man-page-dry"}
 
 
 @dataclass

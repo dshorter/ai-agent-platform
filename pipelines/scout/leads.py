@@ -27,6 +27,8 @@ HEADER = """\
 #
 # Contract:
 #   - The Scout appends leads with status: new. It never edits or removes entries.
+#   - Every lead carries `type:` — one of ticker | newsletter | note | blog |
+#     paper (spec-content-types.md, the Editor's routing table).
 #   - Lifecycle (forward-only, one dated stamp per transition, mutations ONLY
 #     via `python -m pipelines.scout.lead_mark`, never freehand):
 #       new -> claimed -> drafted -> approved -> published;  spiked from new|claimed;
@@ -70,7 +72,7 @@ def format_lead(lead: dict, filed: date, model: str) -> str:
         f"  - id: {filed.isoformat()}-{slug}",
         f"{ind}filed: {filed.isoformat()}",
         f"{ind}status: new",
-        f"{ind}register: {lead.get('register', 'note')}",
+        f"{ind}type: {lead.get('type', 'note')}",
         f"{ind}agent_span: {int(lead.get('agent_span', 1))}",
         f"{ind}pitch: {_block_scalar(str(lead.get('pitch', '')), ind)}",
         f"{ind}why_now: {_block_scalar(str(lead.get('why_now', '')), ind)}",

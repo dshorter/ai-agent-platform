@@ -107,7 +107,7 @@ def main(argv: list[str] | None = None) -> int:
         for d in drafts:
             slug = d["note"]["slug"]
             state = "already in notes.json" if slug in existing else "promotable"
-            reg = d.get("lead", {}).get("register", "?")
+            reg = d.get("lead", {}).get("type", "?")
             print(f"  {slug:<48} [{reg}] {state}")
         return 0
 
@@ -140,9 +140,9 @@ def main(argv: list[str] | None = None) -> int:
 
     for match in plan:
         slug = match["note"]["slug"]
-        register = match.get("lead", {}).get("register", "note")
-        if register != "note":
-            print(f"warning: {slug} has register '{register}', not 'note' — notes.json is the field-note sink", file=sys.stderr)
+        lead_type = match.get("lead", {}).get("type", "note")
+        if lead_type != "note":
+            print(f"warning: {slug} has type '{lead_type}', not 'note' — notes.json is the field-note sink", file=sys.stderr)
 
     if args.dry_run:
         for match in plan:
