@@ -1,6 +1,6 @@
 ---
 read: full
-status: WORKING PLAN — revision 0.6, 2026-09-10; entry routes verified and replaced roadmaps explicitly marked superseded. UI spec remains revision 0.2. The operator decisions marked settled below remain settled; construction sequence and acceptance are proposed. No construction item has started under this plan.
+status: WORKING PLAN — revision 0.8, 2026-09-11; documentation organized into commits and PR preparation requested separately from construction. Publication scope and ledger wording are pending operator choices. NEWSROOM-SPEC.md remains the system specification; construction baseline remains unfinalized.
 ---
 
 # NEWSROOM — working construction plan
@@ -15,9 +15,12 @@ Neither historical document is a competing task board.
 The [documentation index](README.md#newsroom-start-here) catalogs this leg's
 plan, proposed specification, audits and history, with each document's role.
 
-The proposed [editorial UI MVP specification](spec-editorial-ui-mvp.md)
-defines screen behavior, durable decisions and acceptance scenarios for the
-existing NR tasks. It has no separate task/status board.
+The [consolidated system specification](NEWSROOM-SPEC.md) defines the complete
+workflow, roles, voice, types/destinations and system boundaries. Its §§8–10/13
+carry the proposed UI behavior, durable records, compatibility and acceptance
+from [UI revision 0.2](spec-editorial-ui-mvp.md), now a preserved source snapshot.
+Specification revision 1.0 is a consolidation edition, not finalization of
+this plan. This document remains the only task/status board.
 
 <!-- MAP:START -->
 - [At a glance](#at-a-glance)
@@ -38,13 +41,13 @@ existing NR tasks. It has no separate task/status board.
 
 | Field | Current value |
 |---|---|
-| Plan revision / baseline | 0.6 / not finalized |
+| Plan revision / baseline | 0.8 / not finalized |
 | Current task | **NR-00 — finalize the working plan** |
-| Current activity | Documentation routes verified and superseded planning documents labeled with their replacement; UI spec revision 0.2 and compatibility evidence remain ready for review |
+| Current activity | Documentation organized into evidence/review, plan/routing and specification commits; isolated validation and PR descriptions prepared |
 | Construction started | None |
 | Next action | Resolve D-04/05/06 interaction choices and D-07 storage sequencing; review the specification and finalize the baseline. D-01 still blocks dependent source changes |
 | Unrecorded departures | None identified during plan preparation |
-| Next operating action | None selected; NR-07 records publication, timer and push decisions separately |
+| Next operating action | PR publication requested; confirm whether it includes the 29 earlier unpublished commits and resolve the separate ledger wording choice. Content release and prospecting resumption remain unrequested |
 
 ## Goal and fixed constraints
 
@@ -56,7 +59,7 @@ effort required. Reaching 90% is measured over real operation; it is not a
 condition that must already hold for the first release.
 
 **Type and destination are independent.** The rule lives in
-[spec-content-types.md](spec-content-types.md#content-type-and-destination).
+[NEWSROOM-SPEC.md §6](NEWSROOM-SPEC.md#6-content-types-voice-registers-and-destination-independence).
 The Scout recommends; the operator can override at gate one. The platform's
 current adapter coverage must not quietly become the editorial policy.
 
@@ -89,14 +92,14 @@ stable references, not execution order. Status is maintained only in this table.
 
 | ID | Work / owner | Status | Depends on | Completion evidence |
 |---|---|---|---|---|
-| NR-00 | Finalize this plan / operator + assistant | ACTIVE | Review of this document | Working draft, UI audit, paused-Scout compatibility audit and proposed UI spec revision 0.2; finalized baseline still pending |
+| NR-00 | Finalize this plan / operator + assistant | ACTIVE | Review of this document | Working draft, UI/paused-Scout audits and NEWSROOM-SPEC.md consolidation revision 1.0, preserving the UI revision 0.2 proposal; finalized baseline still pending |
 | NR-01 | Banked-draft review, approval enforcement and lifecycle consistency / assistant builds, operator approves copy | QUEUED | Finalized plan; D-05/07 before dependent mutations | — |
 | NR-02 | Source policy and consistent role/tool access / operator decides, assistant builds | BLOCKED | D-01; finalized plan | — |
 | NR-03 | Resolve the dirty ledger finding / operator owns wording decision | READY | Finalized plan | — |
 | NR-04 | Shadow vocabulary and explicit fold target IDs / assistant | READY | Finalized plan | — |
 | NR-05 | Human-selected drafting/review rehearsal / operator + assistant | QUEUED | NR-01, NR-02, NR-04, NR-09 | — |
 | NR-06 | First document page and matched surveying experiment / assistant | PARKED | Source policy for the tested input; agreed bounded run scope | — |
-| NR-07 | Publication, timer resumption and source-code push decisions / operator | QUEUED | Separate conditions below; never one combined approval | — |
+| NR-07 | Publication, timer resumption and source-code push decisions / operator | QUEUED | Separate conditions below; never one combined approval | September 11 commit/PR preparation requested; documentation committed and validated; broader publication scope pending. No push, content release or resumption yet |
 | NR-08 | Complete the 006 Postgres cutover / assistant builds, operator owns live cutover decision | PARKED | ADR-003; design NR-01/09 record contracts before migration; D-07 may move its place | — |
 | NR-09 | Scout recommendations, independent destination routing and complete delivery / assistant builds, operator ratifies route | QUEUED | Finalized plan; D-03 for third destination; D-04/05/06 for interaction; D-07 before dependent mutations | — |
 | NR-10 | Measure recurring effort and refine approved writing / operator + assistant | QUEUED | First authorized real release; comparable manual baseline for percentage claims | — |
@@ -225,8 +228,9 @@ applying 006 alone is insufficient. No order change under D-07 has been accepted
 | NR-09 | Store and display the Scout's distinct type and destination recommendations; preserve human overrides. Carry approved content and its canonical identity to selected destinations with per-destination outcomes and safe retries. Evidence must show the same destination can receive different supported types and the same type can reach different destinations without type conversion. Show delivery gaps explicitly; do not mark an unsupported destination delivered or silently remove it. |
 | NR-10 | At the operator-agreed review point, record actual releases, edits, selection/review/distribution/recovery minutes and comparison with the manual baseline. State whether the 90% objective was met, missed or still lacks sufficient evidence. The observation window is agreed when this work starts, not invented after seeing the result. |
 
-At finalization, explicitly accept or revise the UI specification's
-[acceptance scenarios](spec-editorial-ui-mvp.md#acceptance-scenarios-and-work-plan-ownership).
+At finalization, explicitly accept or revise the consolidated specification's
+[proposed acceptance scenarios](NEWSROOM-SPEC.md#13-acceptance-and-construction-traceability),
+carried forward from UI revision 0.2.
 They supply the concrete UI evidence for NR-01/09 and the actual-surface
 rehearsal for NR-05; they do not silently mark those tasks started or complete.
 
@@ -236,7 +240,7 @@ For NR-07, keep three separate entries when decisions occur:
 |---|---|---|
 | First live content release | Not requested under this working plan | NR-05; approved version and selected destinations; usable release/recovery path |
 | Resume the Scout timer | Not requested under this working plan | Source/access readiness, bounded operation and a reason to replenish leads |
-| Push source-code commits | Not requested under this working plan | The actual changes being published and their applicable checks |
+| Push source-code commits | PR requested September 11; whether to include 29 earlier unpublished commits remains pending | Three new documentation commits prepared; isolated suite 307 passed / 13 DB-dependent skips; 203 local links and eight section maps checked; unpublished-tip redaction comparison clean. Ledger wording remains separate |
 
 ## Make departures visible
 
@@ -275,6 +279,8 @@ current task list.
 | 0.4 / 2026-09-10 | Operator asked whether the proposed UI fits the paused Scout. Completed the runtime/contract audit and added explicit compatibility demonstrations in UI spec revision 0.2. Clarified that the enabled timer still ingests while the pass is paused. | Existing NR tasks gain concrete producer/consumer, pause-preservation, reapproval and concurrency evidence requirements. NR-00 alone remains active; D-07 remains open; no models, resumed prospecting, migration or publication. |
 | 0.5 / 2026-09-10 | Operator requested discovery paths for the new documents. Added a current NEWSROOM catalog to the crew README and links from the host README, repository README, shared AGENTS/CLAUDE router and historical design/merge entry points. | Navigation and document roles clarified; no task scope, order, decision or acceptance change. The verbatim critique remains unchanged. |
 | 0.6 / 2026-09-10 | Operator clarified that replaced documents may be marked superseded. Labeled the July publishing roadmap and September 9 merge as superseded work plans, and the September 7 runbook as a completed leg superseded for new work. Each points here; historical bodies remain. | Removes competing “active”/“next session” directions without changing the current task order, acceptance or open decisions. |
+| 0.7 / 2026-09-10 | Operator requested one specification reflecting the latest methods, plan and documentation without overriding design decisions. Created NEWSROOM-SPEC.md revision 1.0, incorporating the four desk specs, UI revision 0.2 proposal, compatibility evidence and system/voice explanation. Former specs carry dated replacement notices; source bodies and verbatim critique are preserved. | Consolidates requirements and updates discovery; this board retains task/decision status and sequence. No scope, order, acceptance or decision changed; no construction baseline finalized. |
+| 0.8 / 2026-09-11 | Operator requested organizing uncommitted work into appropriate commits and writing a PR. Grouped evidence/reviews, the plan/routing policy, and the consolidated specification; prepared PR text and ran isolated/documentation checks. Found 29 pre-existing unpublished commits and a separate ledger redaction/attribution issue; requested scope and wording choices. | Repository publication preparation is explicitly authorized alongside NR-00; no construction task or design decision changes. NR-07 remains partial preparation, with push scope unresolved; ledger cleanup is not yet applied. |
 
 At finalization, add the immutable baseline row with accepted order and criteria
 reference. Preserve subsequent changes here while updating current-state
@@ -293,14 +299,29 @@ not claim a software enforcement mechanism has been installed.
 
 ## Current handoff
 
-NR-00 is the only active item. The working document, policy clarification and
-UI-readiness assessment now have a proposed UI MVP specification, revision 0.2,
-and the September 10 paused-Scout compatibility audit.
-These are discoverable through the crew index, host/repository README routes
-and the shared AGENTS/CLAUDE router.
+NR-00 is the only active item. NEWSROOM-SPEC.md revision 1.0 is now the single
+system/workflow specification, preserving established policy and the proposed
+UI revision 0.2 requirements. The four desk specs and old UI spec are retained
+source snapshots; the September 10 compatibility audit remains dated evidence.
+Repository/crew entry routes and the shared AGENTS/CLAUDE router point to the
+consolidation. Evidence: generated section map, local-link/anchor and whitespace
+checks, scoped redaction scan, and preserved-source/critique comparisons.
 No construction task is complete. Next: resolve interaction choices D-04/05/06,
 evaluate the storage sequence D-07, and accept or revise the order and criteria
 before recording a finalized baseline. D-01 remains the source-access decision;
 D-03 controls completion of the third destination. D-00 and D-02 are settled.
 No served page, runtime, timer, publication state or user-owned ledger wording
 was changed by this specification work.
+
+**Repository handoff — 2026-09-11:** the documentation is now in three focused
+commits on local main, with a local `codex/newsroom-specification` review branch.
+The existing 29 unpublished commits remain intact. Isolated committed-snapshot
+tests passed (307; 13 database-dependent skips), new/changed links and maps
+passed, and the unpublished tip compared with `origin/main` has no new
+unresolved redaction findings. No remote branch or PR has been published yet.
+The sysadmin ledger remains uncommitted: its private path needs the proposed
+generic wording, and its Scout-authorship claim needs a dated correction.
+Exact next repository action: receive the requested PR scope and ledger wording
+choices, apply the selected ledger treatment, publish the scoped branch and
+open the prepared PR. This does not finalize the construction baseline or
+authorize prospecting, migration or content release.

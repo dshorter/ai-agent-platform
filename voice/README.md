@@ -5,6 +5,12 @@ status: glossary, opened 2026-08-16 — the vocabulary was in use across 8 files
 
 # The voice bottle — glossary
 
+> **Workflow authority, 2026-09-10:**
+> [NEWSROOM-SPEC.md §7](../docs/uzelhub-crew/NEWSROOM-SPEC.md#7-how-the-voice-bottle-enters-a-draft)
+> places this mechanism in the complete system. SHAPE follows the chosen content
+> type; the note shape illustrated below is not universal. This glossary keeps
+> the bottle vocabulary and its historical examples.
+
 Look terms up; nobody reads this front to back. The vocabulary below appears in
 `bottle.py`, `writer_agent.py`, `writer-persona.md`, `NEWSROOM.md` and both
 profiles' `moves.md`, and until now had no single definition. Where a term is

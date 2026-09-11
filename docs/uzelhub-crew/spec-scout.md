@@ -1,7 +1,13 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — what the Scout is and does as of 2026-09-06. For day-to-day reading it supersedes the Scout sections of NEWSROOM.md, scout-retool.md §§1-4 and the operative parts of ADR-002; those stay as history and reasoning. Where this and the code disagree, fix one the same day and say which in the commit.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> CURRENT SPEC, rewritable — what the Scout is and does as of 2026-09-06. For day-to-day reading it supersedes the Scout sections of NEWSROOM.md, scout-retool.md §§1-4 and the operative parts of ADR-002; those stay as history and reasoning. Where this and the code disagree, fix one the same day and say which in the commit.
 
 # The Scout — current spec
 

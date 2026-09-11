@@ -5,6 +5,10 @@ status: house vocabulary, opened 2026-09-06 — one word per concept; retired sy
 
 # Glossary — the newsroom's words
 
+> **Workflow authority, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> consolidates current system requirements. This remains the vocabulary lookup;
+> older implementation/plan references below are not a competing specification.
+
 Look terms up; nobody reads this front to back.
 
 **The one rule.** Every concept gets one word. A doc, a prompt or a code

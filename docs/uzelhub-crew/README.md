@@ -1,28 +1,33 @@
 ---
 read: reference
-status: DOCUMENTATION INDEX — navigation updated 2026-09-10. NEWSROOM-WORKPLAN.md owns the current construction leg; proposed specs and dated evidence are distinguished below. The earlier overview is retained as history.
+status: DOCUMENTATION INDEX — updated 2026-09-10 for specification consolidation. NEWSROOM-SPEC.md owns system requirements; NEWSROOM-WORKPLAN.md owns construction status. Source snapshots and dated evidence remain discoverable.
 ---
 
 # Uzelhub Crew — Documentation
 
 ## Newsroom start here
 
-**Navigation update, 2026-09-10:** start with the work plan before beginning or
-resuming NEWSROOM work. Read the linked specification for the task, then the
-audit or history explaining it. Only the work plan maintains task status and
-the accepted sequence; its baseline remains pending finalization.
+**Specification consolidation, 2026-09-10:** read
+[NEWSROOM-SPEC.md](NEWSROOM-SPEC.md) for the complete system and workflow:
+roles, evidence, two human gates, voice, types/destinations, UI, records,
+operations and acceptance. Established rules, proposed MVP requirements and
+implementation evidence are explicitly distinguished. Before construction,
+read [NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md), the only task/status board
+and accepted-sequence record; its baseline remains pending finalization.
 
 | Document | Role / when to read |
 |---|---|
+| **[NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)** | Single current system/workflow specification, with source traceability and preserved decision states. Start here to understand the design. |
 | **[NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md)** | Current working plan: goal, settled/open decisions, stable NR task IDs, dependencies, completion evidence, change record and current handoff. |
-| **[Editorial UI MVP specification](spec-editorial-ui-mvp.md)** | Proposed requirements and acceptance for routing, review, refresh, approval and delivery. Read before changing the desks or their decision paths. |
+| [Editorial UI MVP source snapshot](spec-editorial-ui-mvp.md) | Superseded as a current authority; revision 0.2 is consolidated in NEWSROOM-SPEC.md §§8–10/13 with its proposed status preserved. |
 | **[Paused Scout/UI compatibility audit — September 10](scout-ui-compatibility-2026-09-10.md)** | Dated checks of the real paused flow and its producer/consumer boundaries. Read before connecting UI actions, changing storage or considering Scout resumption. |
 | [Next-leg merge rationale — September 9](plan-2026-09-09-next-leg.md) | Superseded as a work plan; retained bridge from the original eight follow-up items to the critique and publishing goal. The dated type/destination correction is part of this record. |
 | [Verbatim design critique — September 8](newsroom-design-critique-2026-09-08.md) | Preserved evaluation of the journey, construction and comparable products. Read for the assessment that motivated this leg; later decisions live in the work plan/specs. Keep this artifact unchanged. |
 
-The current editorial rules remain in [content types](spec-content-types.md),
-[Scout](spec-scout.md), [Wire Editor](spec-wire-editor.md) and
-[Writer](spec-writer.md), with terms in [GLOSSARY.md](GLOSSARY.md).
+The former [content types](spec-content-types.md), [Scout](spec-scout.md),
+[Wire Editor](spec-wire-editor.md) and [Writer](spec-writer.md) specifications
+are preserved source snapshots, with dated notices pointing to the consolidated
+spec. [GLOSSARY.md](GLOSSARY.md) remains the vocabulary lookup.
 [NEWSROOM.md](NEWSROOM.md) carries the design's reasoning and history.
 [AGENTS.md](../../AGENTS.md) routes shared-boundary decisions, including SEO
 and database authorities.
@@ -36,7 +41,9 @@ are explicitly marked superseded for current construction; their history remains
 **Maintaining discovery:** when adding a NEWSROOM plan, spec or review, add a
 descriptive link here and link it from its owning work-plan task or relevant
 authority. Mark whether it is current policy, proposed work or dated evidence.
-Keep decision/task status in its owner rather than copying it into indexes.
+Keep decision/task status in the work plan, requirements in NEWSROOM-SPEC.md,
+and indexes as navigation. Maintain the consolidated spec when the design
+changes instead of creating a competing current specification.
 
 ## Earlier overview and operating index
 

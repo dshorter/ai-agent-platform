@@ -1,9 +1,15 @@
 ---
 read: full
-status: REASONING AND HISTORY, not the current rule — seven sections cut to spec pointers 2026-09-06 (762 lines to 427). Current rules live in the four rewritable spec-*.md files; vocabulary in GLOSSARY.md. Living sketch opened 2026-07-08; §Scout settled 2026-07-10, shipped 2026-07-12 — the build settled four open choices, synced 2026-07-14; SEO POLICY MOVED OUT 2026-08-13 to /opt/_host/SEO.md (responsibility model split out to seo-duties.md 2026-08-16; where they disagree SEO.md wins); open items flagged inline
+status: REASONING AND HISTORY, not the current rule — seven sections cut to spec pointers 2026-09-06 (762 lines to 427). Current rules consolidated in NEWSROOM-SPEC.md on 2026-09-10; former desk pointers retained as history; vocabulary in GLOSSARY.md. Living sketch opened 2026-07-08; §Scout settled 2026-07-10, shipped 2026-07-12 — the build settled four open choices, synced 2026-07-14; SEO POLICY MOVED OUT 2026-08-13 to /opt/_host/SEO.md (responsibility model split out to seo-duties.md 2026-08-16; where they disagree SEO.md wins); open items flagged inline
 ---
 
 # The Newsroom — content architecture (living sketch, ongoing)
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> now holds the current system requirements, including the former four desk
+> specs and the proposed UI contract. Earlier pointers/authority statements
+> below are retained history. [NEWSROOM-WORKPLAN.md](NEWSROOM-WORKPLAN.md)
+> continues to own construction status and sequence.
 
 > **Navigation added 2026-09-10:** the [documentation index](README.md#newsroom-start-here)
 > links the recent critique, merge rationale, proposed UI specification and

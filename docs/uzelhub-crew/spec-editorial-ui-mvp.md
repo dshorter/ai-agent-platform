@@ -1,7 +1,13 @@
 ---
 read: full
-status: PROPOSED MVP SPEC — revision 0.2, 2026-09-10. Adds explicit compatibility requirements for the currently paused Scout flow. Settled editorial policy is referenced below; interaction choices and storage sequencing remain open in NEWSROOM-WORKPLAN.md. No implementation or deployment is claimed.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> PROPOSED MVP SPEC — revision 0.2, 2026-09-10. Adds explicit compatibility requirements for the currently paused Scout flow. Settled editorial policy is referenced below; interaction choices and storage sequencing remain open in NEWSROOM-WORKPLAN.md. No implementation or deployment is claimed.
 
 # NEWSROOM — editorial UI MVP
 

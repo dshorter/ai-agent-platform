@@ -6,10 +6,11 @@ A code-first agent platform built on the Claude Agent SDK, Postgres, and Docker.
 
 **Documentation routes — updated 2026-09-10:** [AGENTS.md](AGENTS.md) identifies
 the authorities to read before changing shared boundaries. For NEWSROOM, use
-the [documentation index](docs/uzelhub-crew/README.md#newsroom-start-here) and
-[current working plan](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md). They link the
-new UI specification, paused-Scout compatibility audit, critique and merge
-history. The scaffolding-era status descriptions below are historical context
+the [consolidated system specification](docs/uzelhub-crew/NEWSROOM-SPEC.md),
+[current working plan](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md) and
+[documentation index](docs/uzelhub-crew/README.md#newsroom-start-here).
+The spec includes the proposed UI contract with its decision state preserved;
+the index links source snapshots, audits, critique and merge history. The scaffolding-era status descriptions below are historical context
 for NEWSROOM; they do not replace the current plan.
 
 ---
@@ -137,7 +138,7 @@ ai-agent-platform/
 
 ## Documentation
 
-- **NEWSROOM documentation and current work** — [start here](docs/uzelhub-crew/README.md#newsroom-start-here), then [the working plan](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md) (routes added 2026-09-10)
+- **NEWSROOM specification and current work** — [system specification](docs/uzelhub-crew/NEWSROOM-SPEC.md), [working plan](docs/uzelhub-crew/NEWSROOM-WORKPLAN.md), [documentation index](docs/uzelhub-crew/README.md#newsroom-start-here) (consolidated 2026-09-10)
 - **Platform kickoff and design (historical)** — [archived Sprint Zero kickoff](docs/uzelhub-crew/archive/sprint-zero-kickoff.md) (archive link corrected 2026-09-10)
 - **Database setup and migration** — [`database/README.md`](database/README.md)
 - **HVAC test-case docs (archived reference)** — [`docs/`](docs/) (folders `00-hopper` through `05-development`)

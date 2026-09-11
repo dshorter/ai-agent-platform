@@ -1,7 +1,13 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — the triage desk as it should run, 2026-09-06. Every rule here is now live in the prompt: clustering by arc versus angles (operator, 2026-09-05) landed 2026-09-06, and _queue_text carries the citations it reads. For day-to-day reading it supersedes publishing-automation-plan.md Phase 2 and NEWSROOM.md §Marketer & Editor, which is now a pointer back here.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> CURRENT SPEC, rewritable — the triage desk as it should run, 2026-09-06. Every rule here is now live in the prompt: clustering by arc versus angles (operator, 2026-09-05) landed 2026-09-06, and _queue_text carries the citations it reads. For day-to-day reading it supersedes publishing-automation-plan.md Phase 2 and NEWSROOM.md §Marketer & Editor, which is now a pointer back here.
 
 # The Wire Editor — current spec
 

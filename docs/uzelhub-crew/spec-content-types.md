@@ -1,7 +1,13 @@
 ---
 read: full
-status: CURRENT SPEC, rewritable — type/shape rules, with the operator's independent destination policy added 2026-09-09. Destination recommendation/override wiring is pending NR-09 in NEWSROOM-WORKPLAN.md. Supersedes NEWSROOM.md §Content types and §Editorial rules for day-to-day reading. Where SEO.md states policy, SEO.md wins and this repeats it. No corrections stack here; edit in place and date the commit.
+status: SUPERSEDED AS CURRENT SPECIFICATION — 2026-09-10; consolidated into NEWSROOM-SPEC.md. Historical source body retained below.
 ---
+
+> **Specification consolidated, 2026-09-10:** [NEWSROOM-SPEC.md](NEWSROOM-SPEC.md)
+> is the current system specification, including this document’s scope. This
+> snapshot remains as source history; its former authority/status wording below
+> is historical. Existing design decisions and proposed/open states are preserved.
+> CURRENT SPEC, rewritable — type/shape rules, with the operator's independent destination policy added 2026-09-09. Destination recommendation/override wiring is pending NR-09 in NEWSROOM-WORKPLAN.md. Supersedes NEWSROOM.md §Content types and §Editorial rules for day-to-day reading. Where SEO.md states policy, SEO.md wins and this repeats it. No corrections stack here; edit in place and date the commit.
 
 # Content types — the Editor's routing table
 
